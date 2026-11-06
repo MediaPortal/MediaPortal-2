@@ -250,6 +250,43 @@ namespace MediaPortal.Frontend.Views
       // next step, or a fast walk drops its caret between two tiles and nobody picks it up.
       titlesList.SelectionChanged += delegate
       {
+        // A group plate is not a title and no caret stands on it.  The containers disarm the plates themselves
+        // (see ContainerPrepared), so reaching this line with a plate selected means something got past that -
+        // a click through a wall mid-rebuild, or a step taken over a container that had not been disarmed yet.
+        // The answer is the same either way: the caret goes back to the title it last stood on, and the plate
+        // keeps its place in the row and says its word from there.
+        if (titlesList.SelectedItem is GroupHeaderRow)
+        {
+          // Belt and braces beside the disarmed containers: a revert that is refused and echoed back must not
+          // start the echo again, or the caret list and the drawn row would hand the plate to each other until
+          // the stack dies - which is exactly how the frontend used to die on opening a grouped wall: the wall
+          // selected plate zero, this revert said -1, the drawn row clamps -1 to its first cover, the binding
+          // handed plate zero back, and the "no" came again. So the revert never says -1 while a title stands
+          // anywhere within reach: it says the title nearest the plate, which the drawn row accepts as-is.
+          if (_plate_revert_running)
+            return;
+
+          _plate_revert_running = true;
+          try
+          {
+            int stood_on = titlesList.SelectedIndex;
+            int goes_to = _lastTileStand == null
+                ? NearestTitleRow(stood_on)
+                : titlesList.Items.IndexOf(_lastTileStand);
+            if (goes_to < 0)
+              goes_to = NearestTitleRow(stood_on);
+
+            if (goes_to != stood_on)
+              titlesList.SelectedIndex = goes_to;
+          }
+          finally
+          {
+            _plate_revert_running = false;
+          }
+
+          return;
+        }
+
         Services.HomeTrace.Log("selchg.begin", "index=" + titlesList.SelectedIndex
             + " realized=" + (titlesList.GetRealizedContainers()?.Count() ?? -1)
             + " asc=" + titlesList.AutoScrollToSelectedItem);
@@ -283,7 +320,7 @@ namespace MediaPortal.Frontend.Views
         // früher endete als das Regal des Servers, wäre dann für den stehen geblieben, der ganz hinten steht.
         // Gefragt wird, wer dem letzten gelesenen Titel näher steht als eine Bildschirmvoll voraus.
         if (stood_on_index >= 0 && browser.HasMore
-            && stood_on_index >= browser.Titles.Count - READ_AHEAD_TITLES)
+            && stood_on_index >= browser.Rows.Count - READ_AHEAD_TITLES)
         {
           Services.HomeTrace.Log("read.step", "index=" + stood_on_index + " titles=" + browser.Titles.Count);
           _ = browser.KeepReadingAsync();
@@ -513,6 +550,19 @@ namespace MediaPortal.Frontend.Views
         // shape carries sixty blurs with it wherever it goes - which is the kind of cost that has to be counted
         // before anybody is allowed to call it cheap or dear.
         Control prepared = e.Container;
+
+        // Plates disarm the containers they wear: no caret walks onto a divider, nobody can click one, and no
+        // tab stop stands in the row.  The answer is written on EVERY prepare because containers are recycled -
+        // the shell that wore a plate a moment ago may wear a title now, and it has to be able to take the
+        // caret again then.
+        if (prepared is ListBoxItem prepared_item)
+        {
+          bool wears_plate = prepared.DataContext is GroupHeaderRow;
+          prepared_item.Focusable = !wears_plate;
+          prepared_item.IsTabStop = !wears_plate;
+          prepared_item.IsHitTestVisible = !wears_plate;
+        }
+
         if (NoShadowsWorn)
           TakeShadowsFrom(prepared);
 
@@ -1363,6 +1413,30 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private object? _lastTileStand;
 
+    /// <summary>Whether the plate revert is mid-flight, so its echo cannot re-enter it.</summary>
+    private bool _plate_revert_running;
+
+    /// <summary>
+    /// The index of the title nearest the row a caret stumbled onto: the title below is preferred, because the
+    /// row a wall stumbles on when it opens grouped is its first headline and the first film stands under it.
+    /// A wall holding no title at all answers -1, and no caret stands anywhere in it.
+    /// </summary>
+    private int NearestTitleRow(int from)
+    {
+      for (int step = 1; step < titlesList.Items.Count; step++)
+      {
+        int below = from + step;
+        if (below < titlesList.Items.Count && titlesList.Items[below] is not GroupHeaderRow)
+          return below;
+
+        int above = from - step;
+        if (above >= 0 && titlesList.Items[above] is not GroupHeaderRow)
+          return above;
+      }
+
+      return -1;
+    }
+
     /// <summary>
     /// Puts the caret back on the tile of the title it last stood on, and says whether it could.
     /// </summary>
@@ -2037,9 +2111,14 @@ namespace MediaPortal.Frontend.Views
       IDataTemplate frame = viewModel.Layout == BrowserLayout.Carousel
           ? BuiltinTemplate(viewModel.Layout)
           : SkinEngine.TryTileTemplate(viewModel.GridTemplateKey) ?? BuiltinTemplate(viewModel.Layout);
-      bool frame_changed = !ReferenceEquals(_wornFrame, frame);
+      // Plates are laid by the same wall as the titles, and a frame drawn for a title cannot speak for a plate -
+      // so the worn frame is worn INSIDE a dispatcher, which hands titles to it unchanged and hands the grouping's
+      // plates their divider. Laying it out per shape because a divider between rows is a headline, a divider
+      // between tiles is a standing card and a divider between covers is a book's spine.
+      bool frame_changed = !ReferenceEquals(_wornFrame, frame) || _wornFrameLayout != viewModel.Layout;
       _wornFrame = frame;
-      titlesList.ItemTemplate = frame;
+      _wornFrameLayout = viewModel.Layout;
+      titlesList.ItemTemplate = new ShelfFrameTemplate(frame, viewModel.Layout);
       TitleViewModel? stood_on = _layoutStoodOn
           ?? titlesList.SelectedItem as TitleViewModel
           ?? viewModel.Selected;
@@ -3003,7 +3082,7 @@ namespace MediaPortal.Frontend.Views
         // DataContext it just assigned. Resolve the shape from the title the tile actually wears, so a tile
         // cannot inherit the distance of its previous neighbour for one pass of the carousel.
         int index = tile.DataContext is TitleViewModel title
-            ? viewModel.Titles.IndexOf(title)
+            ? viewModel.Rows.IndexOf(title)
             : -1;
         if (index < 0)
         {
@@ -3679,6 +3758,7 @@ namespace MediaPortal.Frontend.Views
 
     /// <summary>The frame the shelf's tiles were last told to wear; a change of it empties the wall (ApplyLayout).</summary>
     private IDataTemplate? _wornFrame;
+    private BrowserLayout _wornFrameLayout;
 
     /// <summary>
     /// The covers' panel: the tiles' own panel turned, which is to say a strip that lays one cover beside the
@@ -4648,10 +4728,11 @@ namespace MediaPortal.Frontend.Views
         // tiles have been laid more often than not - the caret arrives with the titles, and so does this question.
         // ScrollIntoView is what brings an off-window title into the virtualized panel; ContainerFromIndex alone
         // can return a recycled shell whose bounds still belong to another part of the wall.
-        if (titlesList.SelectedIndex >= 0 && titlesList.SelectedIndex < viewModel.Titles.Count)
+        if (titlesList.SelectedIndex >= 0 && titlesList.SelectedIndex < titlesList.Items.Count
+            && titlesList.Items[titlesList.SelectedIndex] is TitleViewModel stood_row)
         {
-          _glideAwaitTitle = viewModel.Titles[titlesList.SelectedIndex];
-          titlesList.ScrollIntoView(_glideAwaitTitle);
+          _glideAwaitTitle = stood_row;
+          titlesList.ScrollIntoView(stood_row);
         }
 
         if (tries > 0)
@@ -4863,6 +4944,244 @@ namespace MediaPortal.Frontend.Views
     private int _glide_check_left;
 
     /// <summary>The frame this file draws for a shape the worn skin does not answer.</summary>
+    /// <summary>
+    /// The frame the wall wears: the skin's tile frame for the titles, and a divider for the plates a grouping
+    /// stands in the row.  A dispatcher rather than a third template, because the wall owns exactly one
+    /// <c>ItemTemplate</c> and the grouping's plates share that wall with the titles - and because the titles'
+    /// answer must stay the worn skin's business, untouched, whether or not anything is grouped.
+    /// </summary>
+    /// <remarks>
+    /// The plate says its word in white and opacity, like everything else the shelf lights: it is not a title,
+    /// takes no caret and wears no selection, so it has no second state and nothing to say in colour. Each shape
+    /// of the wall gets the divider that shape can carry: a headline over a strip of rows, a standing card in a
+    /// wall of tiles, and a book's spine among covers - three readings of the same one sentence, "here a group
+    /// of the shelf begins".
+    /// </remarks>
+    private sealed class ShelfFrameTemplate : Avalonia.Controls.Templates.IRecyclingDataTemplate
+    {
+      private readonly Avalonia.Controls.Templates.IDataTemplate _titles;
+      private readonly BrowserLayout _layout;
+
+      // The gap a tile leaves around its face, read from the FIRST tile the worn frame ever builds. A plate may
+      // not change the spacing of a wall it is dropped into, and every wall in this front end lays its tiles
+      // uniformly - so the tiles themselves say what their gap is, and the plate wears exactly that. It is read
+      // once, the first time the frame answers a title, and it then belongs to this frame: the dispatcher is
+      // rebuilt whenever the frame or the picture changes, and a fresh dispatcher asks the fresh frame afresh.
+      private Thickness? _tile_margin;
+      private bool _margin_learned;
+
+      public ShelfFrameTemplate(Avalonia.Controls.Templates.IDataTemplate titles, BrowserLayout layout)
+      {
+        _titles = titles;
+        _layout = layout;
+      }
+
+      public bool Match(object? data)
+      {
+        // The wall lays both kinds of item through this one door; Build answers the difference.
+        return data is GroupHeaderRow || _titles.Match(data);
+      }
+
+      public Control Build(object? data)
+      {
+        if (data is GroupHeaderRow plate)
+          return BuildPlate(plate);
+        Control tile = _titles.Build(data);
+        LearnMargin(tile);
+        return tile;
+      }
+
+      // What the worn frame could do with a recycled shell it can still do: the titles pass straight through to
+      // it, unchanged. A plate answers for itself only - the card that says "Action" cannot be told to say
+      // "Drama" in its sleep - so a plate always arrives as its own fresh card. Saying nothing of recycling at
+      // all would have taken the frame's own recycling away from every tile on the wall.
+      public Control? Build(object? data, Control? existing)
+      {
+        if (data is GroupHeaderRow plate)
+          return BuildPlate(plate);
+
+        Control? tile = _titles is Avalonia.Controls.Templates.IRecyclingDataTemplate recycling
+            ? recycling.Build(data, existing)
+            : _titles.Build(data);
+        if (tile != null)
+          LearnMargin(tile);
+        return tile;
+      }
+
+      private Control BuildPlate(GroupHeaderRow plate)
+      {
+        if (_layout == BrowserLayout.List)
+          return RowPlate(plate);
+        if (_layout is BrowserLayout.Cover or BrowserLayout.Stacked or BrowserLayout.Carousel)
+          return SpinePlate(plate);
+        return CardPlate(plate);
+      }
+
+      /// <summary>
+      /// The first thing the worn frame builds for a title carries the gap every tile of this wall leaves around
+      /// its face - the templates hang that gap on their root (a poster breathes 8,8,8,14, a banner 8,6,8,10, the
+      /// built-in frame 8 on all sides), and every wall lays its tiles uniformly. Once learned, the gap belongs to
+      /// the wall, and every plate wears it, so the spacing between media cannot change when a grouping stands in
+      /// it. Plates built before the first tile (a group's headline always leads its tiles) are remembered and
+      /// dressed as soon as the answer arrives.
+      /// </summary>
+      private readonly List<WeakReference<Border>> _plates_awaiting_margin = new List<WeakReference<Border>>();
+
+      private void LearnMargin(Control tile)
+      {
+        if (_margin_learned)
+          return;
+
+        _margin_learned = true;
+        _tile_margin = tile.Margin;
+
+        foreach (WeakReference<Border> held in _plates_awaiting_margin)
+        {
+          if (held.TryGetTarget(out Border? awaiting))
+            awaiting.Margin = _tile_margin.Value;
+        }
+        _plates_awaiting_margin.Clear();
+      }
+
+      /// <summary>A headline: the word, its count beside it, and a hairline under the line.</summary>
+      private static Control RowPlate(GroupHeaderRow plate)
+      {
+        StackPanel line = new StackPanel
+        {
+          Orientation = Orientation.Horizontal,
+          Margin = new Thickness(2, 16, 2, 4)
+        };
+
+        line.Children.Add(new TextBlock
+        {
+          Text = plate.Label,
+          FontSize = 24,
+          FontWeight = FontWeight.SemiBold,
+          Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
+          VerticalAlignment = VerticalAlignment.Center
+        });
+
+        if (plate.CountWord.Length > 0)
+        {
+          line.Children.Add(new TextBlock
+          {
+            Text = plate.CountWord,
+            FontSize = 18,
+            Opacity = 0.55,
+            Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
+            Margin = new Thickness(10, 3, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center
+          });
+        }
+
+        return new StackPanel
+        {
+          Children =
+          {
+            line,
+            new Border { Height = 1, Background = new SolidColorBrush(Color.Parse("#26FFFFFF")) }
+          }
+        };
+      }
+
+      /// <summary>
+      /// A card the measure of the tile beside it - whatever that is this time, poster, thumbnail or banner - with
+      /// its word standing in the middle. The card names no size of its own: the wall measures it with the cell its
+      /// tiles just made and arranges it into that cell, so a headline is as big as a tile and no bigger. What it
+      /// does copy from the tiles is their margin, so the gaps of the wall stay exactly what they were, and their
+      /// face - the same shadow and plate the media tiles wear.
+      /// </summary>
+      private Control CardPlate(GroupHeaderRow plate)
+      {
+        StackPanel inside = new StackPanel
+        {
+          HorizontalAlignment = HorizontalAlignment.Center,
+          VerticalAlignment = VerticalAlignment.Center,
+          Margin = new Thickness(12)
+        };
+
+        inside.Children.Add(new TextBlock
+        {
+          Text = plate.Label,
+          FontSize = 22,
+          FontWeight = FontWeight.SemiBold,
+          TextAlignment = TextAlignment.Center,
+          TextWrapping = TextWrapping.Wrap,
+          Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF"))
+        });
+
+        if (plate.CountWord.Length > 0)
+        {
+          inside.Children.Add(new TextBlock
+          {
+            Text = plate.CountWord,
+            FontSize = 16,
+            Opacity = 0.55,
+            Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 6, 0, 0)
+          });
+        }
+
+        Border face = new Border
+        {
+          Classes = { "home-tile-face" },
+          Background = new SolidColorBrush(Color.Parse("#222222")),
+          ClipToBounds = true,
+          Child = inside
+        };
+
+        Border outer = new Border
+        {
+          Classes = { "home-tile-shadow" },
+          // Until the wall's first tile has answered its gap, breathe like the wall most walls are.
+          Margin = _tile_margin ?? new Thickness(8),
+          Child = face
+        };
+
+        if (!_margin_learned)
+          _plates_awaiting_margin.Add(new WeakReference<Border>(outer));
+
+        return outer;
+      }
+
+      /// <summary>
+      /// A book's spine among covers: the word read from top to bottom, one letter standing on the next, in a
+      /// card the width and height of a cover - which is exactly how a divider between albums says which shelf
+      /// a run of books belongs to. The letters are stacked by hand rather than wrapped, because a long value
+      /// must not climb out of the cover's height - the word's size gives way instead, down to what a viewer
+      /// can still read from the sofa.
+      /// </summary>
+      private static Control SpinePlate(GroupHeaderRow plate)
+      {
+        string stacked = string.Join("\n", plate.Label.Select(letter => letter.ToString()));
+        int lines = plate.Label.Length;
+        double size = lines <= 1 ? 30.0 : Math.Clamp(320.0 / lines, 15.0, 28.0);
+
+        TextBlock word = new TextBlock
+        {
+          Text = stacked,
+          FontSize = size,
+          FontWeight = FontWeight.SemiBold,
+          TextAlignment = TextAlignment.Center,
+          Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
+          HorizontalAlignment = HorizontalAlignment.Center,
+          VerticalAlignment = VerticalAlignment.Center
+        };
+
+        return new Border
+        {
+          Width = 260,
+          Height = 410,
+          Background = new SolidColorBrush(Color.Parse("#0DFFFFFF")),
+          BorderBrush = new SolidColorBrush(Color.Parse("#26FFFFFF")),
+          BorderThickness = new Thickness(1),
+          CornerRadius = new CornerRadius(10),
+          Child = word
+        };
+      }
+    }
+
     private IDataTemplate BuiltinTemplate(BrowserLayout layout)
     {
       string key = layout switch

@@ -2440,6 +2440,100 @@ namespace MediaPortal.Frontend.ViewModels
     public ObservableCollection<TitleViewModel> Titles { get; } = new ObservableCollection<TitleViewModel>();
 
     /// <summary>
+    /// What the wall lays out: the same titles as <see cref="Titles"/>, and - while the shelf is grouped -
+    /// a <see cref="GroupHeaderRow"/> in front of every run of titles that carries one group's value.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The typed <see cref="Titles"/> stays the shelf's memory - what is selected, counted, played and tested -
+    /// and answers exactly the same questions it always answered. The wall, on the other hand, has to lay the
+    /// groups down where the viewer can see them, and a divider that stands between two covers of one row can
+    /// only be an item OF that row: the panels know nothing else, the carousel paints items, and the caret walks
+    /// containers. So the wall reads this list, and this list is nothing but <see cref="Titles"/> with headers
+    /// threaded through it - the same title objects, never copies, so a tile the wall wears IS the row the
+    /// shelf remembers.
+    /// </para>
+    /// <para>
+    /// Ungrouped the two lists hold exactly the same items in the same order, which is why nothing about an
+    /// ungrouped shelf changed when this list went in. Grouped, a header is never selectable (the view hands
+    /// those containers no caret) and never a title - the two lists differ only by those plates.
+    /// </para>
+    /// </remarks>
+    public ObservableCollection<object> Rows { get; } = new ObservableCollection<object>();
+
+    /// <summary>
+    /// The category this shelf is grouped by - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c> or
+    /// <c>writers</c> - or null while it is read as one shelf. This is NOT <see cref="GroupBy"/>, which is the
+    /// server's word for a CUT: a grouping keeps every title and only says which ones stand together.
+    /// </summary>
+    public string? Grouping { get; private set; }
+
+    /// <summary>Whether the wall threads group plates through its titles right now.</summary>
+    public bool IsGrouped => !string.IsNullOrEmpty(Grouping);
+
+    /// <summary>The words the screen says about its grouping, which is "Group: None" while it groups nothing.</summary>
+    public string GroupLabel
+    {
+      get { return IsGrouped ? "Group: " + Capitalise(CategoryWord(Grouping!)) : "Group: None"; }
+    }
+
+    /// <summary>
+    /// Puts the shelf under one category's values, or takes the grouping off again. Every title stays - a
+    /// grouping is a way of standing the shelf, not a way of shortening it - but the reading goes back to its
+    /// beginning, because a grouped shelf is built group by group and half-grouped titles are no shelf at all.
+    /// </summary>
+    public async Task PickGroupAsync(string? by)
+    {
+      string goes = string.IsNullOrWhiteSpace(by) ? "" : by.Trim().ToLowerInvariant();
+      if (string.Equals(Grouping ?? "", goes, StringComparison.OrdinalIgnoreCase))
+      {
+        HideMediaMenu();
+        return;
+      }
+
+      Grouping = goes.Length == 0 ? null : goes;
+      OnPropertyChanged(nameof(IsGrouped));
+      OnPropertyChanged(nameof(GroupLabel));
+      HideMediaMenu();
+      await ReaskAsync();
+    }
+
+    /// <summary>
+    /// One group of the grouped shelf: the value, what the server counted under it, how much of it this screen
+    /// has read, and where its plates end in <see cref="Rows"/> - which is where its next page has to go.
+    /// </summary>
+    private sealed class ShelfGroupRun
+    {
+      public ShelfGroupRun(string value, int count)
+      {
+        Value = value;
+        Count = count;
+        Total = count;
+      }
+
+      public string Value { get; }
+      public int Count { get; }
+
+      /// <summary>
+      /// What the group's own last answer called its total: the group AS THE SHELF IS NARROWED, which is the
+      /// number the foot's sum may use. Until the group has answered, the whole-shelf count stands in for it.
+      /// </summary>
+      public int Total;
+
+      /// <summary>Titles of this group read so far - the offset its next question goes out with.</summary>
+      public int Offset;
+
+      /// <summary>What the server's last answer still owed this group.</summary>
+      public int Remaining;
+
+      /// <summary>Where in <see cref="Rows"/> this group's titles end and the next plate begins.</summary>
+      public int RowsEnd;
+    }
+
+    /// <summary>The groups of the shelf being read, in the order the server counted them (biggest first).</summary>
+    private readonly List<ShelfGroupRun> _shelfGroups = new List<ShelfGroupRun>();
+
+    /// <summary>
     /// The shelf's own two numbers, as the reference's <c>MediaItemsList.inc</c> drew them bottom right:
     /// where the highlight stands, and how many titles the server says this shelf holds in all - which is
     /// more than are on screen until every page has been read, and exactly what the "|" between the two is
@@ -2528,6 +2622,7 @@ namespace MediaPortal.Frontend.ViewModels
     public async Task OpenAsync()
     {
       Titles.Clear();
+      Rows.Clear();
       Selected = null;
       HasMore = false;
       await ReadAsync(0);
@@ -2798,6 +2893,7 @@ namespace MediaPortal.Frontend.ViewModels
       DetailsVisible = false;
       Selected = null;
       Titles.Clear();
+      Rows.Clear();
       HasMore = false;
     }
 
@@ -3161,6 +3257,13 @@ namespace MediaPortal.Frontend.ViewModels
       /// <summary>The categories the shelf has been counted by.</summary>
       Filter,
 
+      /// <summary>
+      /// The categories the shelf can be GROUPED by - which is the same counting as <see cref="Filter"/>, only
+      /// asked the other way round: a filter picks one value's titles out and throws the rest away, a grouping
+      /// keeps every title and stands each one under its value's plate.
+      /// </summary>
+      Group,
+
       /// <summary>The values of one category, as the server counted them.</summary>
       Values
     }
@@ -3358,6 +3461,21 @@ namespace MediaPortal.Frontend.ViewModels
           }
           return;
 
+        case MenuPage.Group:
+          MediaMenuHeading = "Group";
+          // Grouping needs no values page: a filter asks WHICH value's titles to keep, and only the counting
+          // knows the values worth asking for; a grouping keeps them all and stands them under their own
+          // plates, which is a thing a whole category does at once.
+          AddMenuRow("None", "library_books", new AsyncRelayCommand(() => PickGroupAsync(null)), !IsGrouped);
+          foreach (BrowseCategory category in BrowseViewModel.CATEGORIES)
+          {
+            string grouped_by = category.Word;
+            AddMenuRow(category.Label, CategoryIcon(grouped_by),
+                new AsyncRelayCommand(() => PickGroupAsync(grouped_by)),
+                IsGrouped && string.Equals(Grouping, grouped_by, StringComparison.OrdinalIgnoreCase));
+          }
+          return;
+
         case MenuPage.Values:
           MediaMenuHeading = Capitalise(CategoryWord(_menuCategory ?? "")) + "s";
           AddMenuRow("Everything", "library_books", new AsyncRelayCommand(() => PickFilterAsync(null, null)));
@@ -3371,6 +3489,9 @@ namespace MediaPortal.Frontend.ViewModels
             SearchFocusRequested?.Invoke(this, EventArgs.Empty);
           }));
           AddMenuRow(FilterLabel, "filter", new RelayCommand(() => GoToPage(MenuPage.Filter)));
+          // Grouping stands beside filtering because it is the same counting asked the other way round, and a
+          // viewer who knows one looks for the other exactly where the other lives.
+          AddMenuRow(GroupLabel, "group", new RelayCommand(() => GoToPage(MenuPage.Group)));
           AddMenuRow(SortLabel, "sort", new RelayCommand(() => GoToPage(MenuPage.Sort)), false,
               SortDirectionWord(SortOrder));
           AddMenuRow(LayoutLabel, "grid_view", new RelayCommand(() => GoToPage(MenuPage.View)));
@@ -5218,6 +5339,16 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
+      // A grouped shelf is a different reading rather than a different answer: it asks one question per group and
+      // lays each group's titles under its own plate, which the one-question flat reading below has no part of a
+      // mind to do. Everything the flat reading promises - one read at a time, generations, the finishing run,
+      // the foot's numbers - the grouped reading promises too, out of its own methods.
+      if (IsGrouped)
+      {
+        await ReadGroupedAsync(offset);
+        return;
+      }
+
       // One read at a time. A viewer holding down the arrow key on the "more" row can queue a dozen requests;
       // the older ones are cancelled rather than allowed to append pages out of order.
       CancellationTokenSource? previous = _running;
@@ -5246,7 +5377,11 @@ namespace MediaPortal.Frontend.ViewModels
             cancellation.Token);
 
         if (offset == 0)
+        {
           Titles.Clear();
+          Rows.Clear();
+          _shelfGroups.Clear();
+        }
 
         foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())
         {
@@ -5262,6 +5397,7 @@ namespace MediaPortal.Frontend.ViewModels
             _asks[title.Id] = (title.ParentId.Value, title.Season);
 
           Titles.Add(row);
+          Rows.Add(row);
         }
 
         // Whether the shelf has anything left, settled before the selection is placed: a walk landing on the
@@ -5380,6 +5516,280 @@ namespace MediaPortal.Frontend.ViewModels
         cancellation.Dispose();
       }
     }
+
+    /// <summary>
+    /// Reads a grouped shelf: the categories values first, then one question per value, so that every title of
+    /// the shelf stands under its value's plate and no title is lost on the way.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The plates go up before their titles: the server's count answers the whole category in one question, so
+    /// the viewer sees WHICH groups there are - and how many each holds - the moment the shelf opens, and the
+    /// groups fill themselves in behind that skeleton the same way a flat shelf fills itself (<see
+    /// cref="ReadTheRestAsync"/> keeps asking while anything is owed). The plates never move once stood; a page
+    /// of titles is inserted where its own group ends, which is under its own plate and above the next group's.
+    /// </remarks>
+    /// <remarks>
+    /// <para>
+    /// One question per value rather than one question for the whole shelf re-sorted on screen, for the same
+    /// reason a flat shelf re-asks rather than reshuffles (see <see cref="PickSortAsync"/>): the screen only
+    /// ever holds the pages it has read, and sorting read pages is a shelf whose order is a lie about the
+    /// unread rest. The server already knows how to answer "which titles carry this value" - that is what the
+    /// filter asks - and a grouping is exactly those answers, all of them, end to end.
+    /// </para>
+    /// <para>
+    /// The count a plate wears is the whole shelf counted by the category; the moment a search, a watched cut,
+    /// a filter or a parent narrows the reading, plate and shelf answer different questions, so the plate
+    /// keeps its number to itself and only says its word. The foot's total is always honest either way: it
+    /// sums what the per-group answers themselves called their totals, which is the narrowed question counted
+    /// per group.
+    /// </para>
+    /// </remarks>
+    private async Task ReadGroupedAsync(int offset)
+    {
+      CancellationTokenSource? previous = _running;
+      CancellationTokenSource cancellation = new CancellationTokenSource();
+      _running = cancellation;
+      previous?.Cancel();
+
+      if (offset == 0)
+        Interlocked.Increment(ref _generation);
+
+      IsBusy = true;
+      try
+      {
+        string by = Grouping!;
+        bool whole_shelf = string.IsNullOrEmpty(ActiveSearch) && string.IsNullOrEmpty(ActiveSeen)
+            && !HasShelfFilter && Inside == null;
+
+        string? sorted_by = null;
+        if (offset == 0)
+        {
+          MediaGroups counted = await _client!.GetGroupsAsync(AspectName, by, cancellation.Token);
+
+          Titles.Clear();
+          Rows.Clear();
+          _shelfGroups.Clear();
+
+          foreach (MediaGroup group in counted.Values)
+          {
+            ShelfGroupRun run = new ShelfGroupRun(group.Value!.Trim(), group.Count);
+            Rows.Add(new GroupHeaderRow(run.Value, run.Count, whole_shelf));
+            run.RowsEnd = Rows.Count;
+            _shelfGroups.Add(run);
+          }
+
+          if (!string.IsNullOrEmpty(counted.Error))
+            Status = counted.Error;
+
+          if (_shelfGroups.Count == 0)
+          {
+            // Nothing carries any value of the category at all: the plates that would have stood are none,
+            // and the honest sentence is the one the values page has always said about such a counting.
+            HasMore = false;
+            TotalNumber = 0;
+            if (string.IsNullOrEmpty(counted.Error))
+              Status = "Nothing on this server carries a " + CategoryWord(by);
+            RaiseShelfCounters();
+            return;
+          }
+
+          foreach (ShelfGroupRun run in _shelfGroups)
+          {
+            MediaTitles answer = await ReadGroupPageAsync(run, OPENING_PAGE, cancellation.Token);
+            sorted_by ??= answer.Sort;
+          }
+        }
+        else
+        {
+          ShelfGroupRun? owed = null;
+          foreach (ShelfGroupRun run in _shelfGroups)
+          {
+            if (run.Remaining > 0)
+            {
+              owed = run;
+              break;
+            }
+          }
+
+          if (owed == null)
+          {
+            HasMore = false;
+            return;
+          }
+
+          MediaTitles answer = await ReadGroupPageAsync(owed, REST_IN_ONE_ASK, cancellation.Token);
+          sorted_by ??= answer.Sort;
+        }
+
+        int total = 0;
+        foreach (ShelfGroupRun run in _shelfGroups)
+          total += run.Total;
+        TotalNumber = total;
+
+        HasMore = Titles.Count < MAX_ROWS && AnyGroupOwesMore();
+
+        // The caret goes to the first title of the first group, which is the same answer a flat shelf gives;
+        // a plate is never an answer to "where does a new shelf start", because nothing can stand on it.
+        Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
+        RaiseShelfCounters();
+
+        string seeing = ActiveSeen == "unwatched" ? "unwatched "
+            : ActiveSeen == "watched" ? "watched "
+            : "";
+        string about = Parent == null ? Heading.ToLowerInvariant() : MediaCatalog.RowNounFor(AspectName);
+
+        if (!string.IsNullOrEmpty(ActiveSearch))
+        {
+          Status = string.Format("{0} of {1} {2}{3} match '{4}', grouped by {5}", Titles.Count, TotalNumber,
+              seeing, about, ActiveSearch, CategoryWord(by));
+        }
+        else
+        {
+          Status = string.Format("{0} of {1} {2}{3}, grouped by {4}", Titles.Count, TotalNumber, seeing, about,
+              CategoryWord(by))
+              + (sorted_by == null ? "" : ", sorted by " + sorted_by);
+        }
+
+        if (AnyGroupOwesMore() && Titles.Count >= MAX_ROWS)
+          Status = "The first " + MAX_ROWS + " of " + TotalNumber + " " + seeing + about
+              + ". Find or filter the shelf to narrow it down.";
+      }
+      catch (ServerApiException ex)
+      {
+        if (ex.StatusCode == 403)
+          Status = Heading + " is only for signed-in users on this server. Sign in on the server screen.";
+        else if (ex.NotReady)
+          Status = "The server is not ready yet: " + ex.Message;
+        else
+          Status = ex.Message;
+      }
+      catch (OperationCanceledException)
+      {
+        // A newer read was asked for; it reports its own status.
+      }
+      catch (Exception ex)
+      {
+        Status = "Reading failed: " + ex.Message;
+      }
+      finally
+      {
+        if (ReferenceEquals(_running, cancellation))
+        {
+          _running = null;
+          IsBusy = false;
+          if (HasMore)
+            _ = ReadTheRestAsync(Volatile.Read(ref _generation));
+        }
+        cancellation.Dispose();
+      }
+    }
+
+    /// <summary>Whether any group is still owed titles by the server's own last answer.</summary>
+    private bool AnyGroupOwesMore()
+    {
+      foreach (ShelfGroupRun run in _shelfGroups)
+      {
+        if (run.Remaining > 0)
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
+    /// Reads one group's next page and threads it into the wall where that group stands: into the typed shelf at
+    /// its end (the shelf's memory is group by group, which is the order the viewer reads it in) and into the
+    /// wall at its own group's end, under its own plate and above the next group's.
+    /// </summary>
+    private async Task<MediaTitles> ReadGroupPageAsync(ShelfGroupRun run, int limit, CancellationToken cancellation)
+    {
+      MediaTitles answer = await _client!.GetTitlesAsync(AspectName, SortOrder, SortDescending,
+          limit, run.Offset,
+          string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
+          string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside,
+          Grouping, run.Value, SeasonFilter, cancellation);
+
+      int insert_at = run.RowsEnd;
+      foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())
+      {
+        TitleViewModel row = new TitleViewModel(title, DrillsIn, _client, AspectName)
+        {
+          WatchFlagsShown = WatchFlagsShown
+        };
+
+        if (title.ParentId.HasValue)
+          _asks[title.Id] = (title.ParentId.Value, title.Season);
+
+        Titles.Add(row);
+        Rows.Insert(insert_at, row);
+        insert_at++;
+      }
+
+      int got = insert_at - run.RowsEnd;
+      run.RowsEnd = insert_at;
+      bool behind = false;
+      foreach (ShelfGroupRun later in _shelfGroups)
+      {
+        if (!behind)
+        {
+          behind = ReferenceEquals(later, run);
+          continue;
+        }
+        later.RowsEnd += got;
+      }
+
+      run.Offset += got;
+      run.Remaining = answer.Remaining;
+      run.Total = answer.Total;
+
+      if (!string.IsNullOrEmpty(answer.Error))
+        Status = answer.Error;
+
+      return answer;
+    }
+  }
+
+  /// <summary>
+  /// A plate that stands in the wall in front of one group of titles while the shelf is grouped: the value's
+  /// own word, and what the server counted under it.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// This is deliberately not a title and never can be one: it has no id, no file, no details and nothing to
+  /// play, so a caret that somehow stood on it could not do the one thing a wrong caret does worst. The wall
+  /// lays it like any other item - which is the only way anything stands BETWEEN the covers of one horizontal
+  /// row - and the view hands it no caret, no press and no picture; the grouping's contract is that every
+  /// title stays and only the standing changes, and a divider the viewer could get stuck on would change more
+  /// than the standing.
+  /// </para>
+  /// <para>
+  /// <see cref="ShowsCount"/> is decided by whoever builds the plate, not by the plate: the count comes from
+  /// the server counting the WHOLE shelf by the category, so the moment a search, a watched cut or a filter
+  /// narrows what the shelf reads, the counted number and the titles on screen answer different questions -
+  /// and a header naming a number the shelf cannot show is a header that lies. Then it says its word alone.
+  /// </para>
+  /// </remarks>
+  public sealed class GroupHeaderRow
+  {
+    public GroupHeaderRow(string label, int count, bool showsCount)
+    {
+      Label = label;
+      Count = count;
+      ShowsCount = showsCount;
+    }
+
+    /// <summary>The value's own word - "Action", "2022", "Tom Hanks".</summary>
+    public string Label { get; }
+
+    /// <summary>What the server counted under this value, for the dim number beside the word.</summary>
+    public int Count { get; }
+
+    /// <summary>Whether that number may be said, which a narrowed shelf does not allow.</summary>
+    public bool ShowsCount { get; }
+
+    /// <summary>The count as the plate speaks it, or nothing when the plate may not speak it.</summary>
+    public string CountWord => ShowsCount ? Count.ToString(System.Globalization.CultureInfo.InvariantCulture) : "";
   }
 
   /// <summary>

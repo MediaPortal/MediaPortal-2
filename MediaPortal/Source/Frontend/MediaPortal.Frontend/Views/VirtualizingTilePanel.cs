@@ -22,6 +22,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.VisualTree;
+using MediaPortal.Frontend.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -277,20 +278,27 @@ namespace MediaPortal.Frontend.Views
         _ => here
       };
 
+      // A container that no caret can stand on - a group's plate, disarmed by the screen - must never be answered
+      // with itself. The framework's candidate walk (ItemsControl.GetNextControl) loops until GetControl says null
+      // or the walk comes back to WHERE IT SET OUT; answering a stuck walker with its own standing place is a
+      // step that never happens and never ends, and that is a hung frontend, not a refused key.
+      bool from_cannot_stand = from is Control unable && !unable.Focusable;
+
       if (there == here)
-        return from;
+        return from_cannot_stand ? null : from;
 
       if (there < 0 || there >= count)
       {
         // At the end of a row of tiles the arrow has nowhere to go. Staying put is the answer here, and the
-        // bounce the shelf gives is what tells the viewer that the edge is the edge.
+        // bounce the shelf gives is what tells the viewer that the edge is the edge - but only for a walker who
+        // stands somewhere; a walker the wall cannot answer at all is answered with nothing.
         if (!wrap)
-          return from;
+          return from_cannot_stand ? null : from;
 
         there = ((there % count) + count) % count;
       }
 
-      return ScrollIntoView(there) ?? from;
+      return ScrollIntoView(there) ?? (from_cannot_stand ? null : from);
     }
 
     protected override IEnumerable<Control>? GetRealizedContainers()
@@ -337,7 +345,7 @@ namespace MediaPortal.Frontend.Views
       // The container is built now and put where its title belongs, so that the scroller has something to look
       // at; the layout pass that follows hands it to the row it belongs to.
       Control target = TakeOrMake(index);
-      target.Measure(Size.Infinity);
+      target.Measure(TheMeasure(index, Size.Infinity));
       target.Arrange(ThePlace(index, target.DesiredSize));
 
       _targetHeld = target;
@@ -367,6 +375,18 @@ namespace MediaPortal.Frontend.Views
     {
       int probe = _view.Height > 0 ? RowOf(_view.Top) * _columns : 0;
       probe = Math.Min(Math.Max(probe, 0), Items.Count - 1);
+
+      // A grouped wall stands headlines among the tiles, and a headline is not the tile the wall measures
+      // itself by: it wears whatever size the tile asks for, so a shelf of banners keeps banner tiles and a
+      // shelf of thumbnails keeps thumbnail tiles under the same headline. The probe therefore walks to the
+      // nearest title whenever it landed on a headline - which is how the cell stays the frame's own size
+      // however the grouping happens to stand at the top of the screen.
+      for (int tries = 0; tries < Items.Count; tries++)
+      {
+        if (Items[probe] is not GroupHeaderRow)
+          break;
+        probe = probe + 1 >= Items.Count ? 0 : probe + 1;
+      }
 
       Control container = TakeOrMake(probe);
       container.Measure(constraint);
@@ -417,7 +437,7 @@ namespace MediaPortal.Frontend.Views
       for (int index = first; index <= last; ++index)
       {
         Control container = staying[index - first] ?? TakeHeld(index) ?? TakeOrMake(index);
-        container.Measure(constraint);
+        container.Measure(TheMeasure(index, constraint));
         _standing.Add(container);
       }
 
@@ -644,8 +664,27 @@ namespace MediaPortal.Frontend.Views
     private Rect ThePlace(int index, Size size)
     {
       int row = RowOf(index);
-      return new Rect(_xOffset + (index - row * _columns) * _cell.Width, row * _cell.Height, size.Width,
-          size.Height);
+
+      // A headline wears the tile the wall is made of - poster, banner or thumbnail, whatever the shelf stands
+      // in - so it is placed at the cell's own size and not at the size its word happens to need.
+      Size worn = IsPlate(index) && _cell.Width > 0 ? _cell : size;
+      return new Rect(_xOffset + (index - row * _columns) * _cell.Width, row * _cell.Height, worn.Width,
+          worn.Height);
+    }
+
+    /// <summary>Whether a title is one of the plates a grouping stands among the tiles.</summary>
+    private bool IsPlate(int index)
+    {
+      return index >= 0 && index < Items.Count && Items[index] is GroupHeaderRow;
+    }
+
+    /// <summary>
+    /// What a container is measured with: the tiles take the wall's own constraint and answer with the frame
+    /// the skin gives them; a plate has no frame of its own and takes the cell the tiles just made.
+    /// </summary>
+    private Size TheMeasure(int index, Size constraint)
+    {
+      return IsPlate(index) && _cell.Width > 0 ? _cell : constraint;
     }
 
     /// <summary>The row a title belongs to.</summary>

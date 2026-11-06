@@ -1202,6 +1202,65 @@ public sealed class CoverCarousel : Control
 
         canvas.DrawPath(shape, edge);
       }
+
+      // THE PLATE SPEAKS.  A group's divider has no poster to wear, and a grey cover with no word reads as a
+      // hole in the row rather than as the boundary of a group - so the value's word stands on it, letter under
+      // letter the way a book's spine is read, dimmed by the same light the cover beside it was dimmed by.  The
+      // caret never stands here, so there is no stood answer; the resting ring above is all the edge gets.
+      if (frame.Item is GroupHeaderRow divider)
+        PaintDividerWord(canvas, onto, frame, divider);
+    }
+
+    /// <summary>
+    /// Paints one group plate's word in the plate's OWN space, so the letters lie on the plate and turn with it
+    /// rather than floating in front of the row - the same law the watched corner obeys.
+    /// </summary>
+    private void PaintDividerWord(SKCanvas canvas, SKMatrix onto, Frame frame, GroupHeaderRow divider)
+    {
+      canvas.Save();
+      canvas.Concat(ref onto);
+
+      double kept = Math.Clamp(frame.Light, 0.0, 1.0);
+      using SKPaint word = new SKPaint
+      {
+        IsAntialias = true,
+        Color = new SKColor(255, 255, 255, (byte) Math.Round(235.0 * kept)),
+        TextAlign = SKTextAlign.Center,
+        TextSize = (float) Math.Clamp(frame.Width * 0.14, 18.0, 34.0),
+        FakeBoldText = true
+      };
+
+      float across = (float) frame.Width;
+      float down = (float) frame.Height;
+      string text = divider.Label ?? string.Empty;
+
+      // Letter under letter, centred on the plate: a long value stays inside the cover's height without the
+      // word shrinking below what a viewer can read from the sofa.
+      float line = word.TextSize * 1.12f;
+      float middle = down / 2.0f - (text.Length - 1) * line / 2.0f;
+      for (int i = 0; i < text.Length; i++)
+      {
+        char letter = text[i];
+        if (letter == ' ')
+          continue;
+        canvas.DrawText(letter.ToString(), across / 2.0f,
+            middle + i * line + word.TextSize * 0.36f, word);
+      }
+
+      // The count, small and dim, sits at the plate's foot whenever the shelf may say it at all.
+      if (divider.CountWord.Length > 0)
+      {
+        using SKPaint count = new SKPaint
+        {
+          IsAntialias = true,
+          Color = new SKColor(255, 255, 255, (byte) Math.Round(140.0 * kept)),
+          TextAlign = SKTextAlign.Center,
+          TextSize = word.TextSize * 0.62f
+        };
+        canvas.DrawText(divider.CountWord, across / 2.0f, down - 18.0f, count);
+      }
+
+      canvas.Restore();
     }
 
     /// <summary>

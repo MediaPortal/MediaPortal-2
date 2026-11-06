@@ -1379,6 +1379,515 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// A shelf that knows its genres: the counting question gets the categories with their numbers, and a
+    /// question that names one value gets only that genre's own titles. A hundred and thirty films stand here -
+    /// seventy Action, fifty Drama, ten Horror - which is enough for one genre to overflow the opening page
+    /// when a test asks it to, and small enough to read whole in a blink.
+    /// </summary>
+    private class GroupedShelf : LongShelf
+    {
+      /// <summary>How many films carry each genre. The counting answers in this order, biggest first.</summary>
+      internal int Action { get; set; } = 70;
+      internal int Drama { get; set; } = 50;
+      internal int Horror { get; set; } = 10;
+
+      /// <summary>How many times the shelf was asked which genres there are.</summary>
+      internal int GroupsAsked { get; private set; }
+
+      /// <summary>The genres in the shelf's own order, as (word, count) pairs.</summary>
+      private (string Value, int Count)[] Genres
+      {
+        get { return new[] { ("Action", Action), ("Drama", Drama), ("Horror", Horror) }; }
+      }
+
+      /// <summary>Where a genre's titles stand in the shelf's global numbering.</summary>
+      private int FirstIndexOf(string value)
+      {
+        int first = 0;
+        foreach ((string name, int count) in Genres)
+        {
+          if (name == value)
+            return first;
+          first += count;
+        }
+        return first;
+      }
+
+      private int TotalOf(string value)
+      {
+        foreach ((string name, int count) in Genres)
+          if (name == value)
+            return count;
+        return 0;
+      }
+
+      protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+          CancellationToken cancellation)
+      {
+        Total = Action + Drama + Horror;
+        string path = request.RequestUri!.AbsolutePath;
+
+        if (path.EndsWith("/groups", StringComparison.Ordinal))
+        {
+          GroupsAsked++;
+          StringBuilder body = new StringBuilder("{\"aspect\":\"movies\",\"by\":\"genre\",\"groups\":[");
+          bool first_group = true;
+          foreach ((string name, int count) in Genres)
+          {
+            if (!first_group)
+              body.Append(',');
+            first_group = false;
+            body.Append("{\"value\":\"").Append(name).Append("\",\"count\":").Append(count).Append('}');
+          }
+          body.Append("]}");
+
+          return Task.FromResult(Json(request, body.ToString()));
+        }
+
+        string? by = Param(request.RequestUri.Query, "by");
+        if (by != null)
+        {
+          string value = Param(request.RequestUri.Query, "value") ?? "";
+          int asked_for = int.Parse(Param(request.RequestUri.Query, "limit") ?? "60");
+          int from = int.Parse(Param(request.RequestUri.Query, "offset") ?? "0");
+          int total = TotalOf(value);
+          int rows = Math.Max(0, Math.Min(asked_for, total - from));
+          int first = FirstIndexOf(value);
+
+          StringBuilder body = new StringBuilder();
+          body.Append("{\"total\":").Append(total)
+              .Append(",\"offset\":").Append(from).Append(",\"limit\":").Append(asked_for)
+              .Append(",\"returned\":").Append(rows).Append(",\"sort\":\"title\"")
+              .Append(",\"titles\":[");
+          for (int i = 0; i < rows; i++)
+          {
+            if (i > 0)
+              body.Append(',');
+            int index = first + from + i;
+            body.Append("{\"id\":\"").Append(new Guid(index + 1, 0, 0, new byte[] { 128, 0, 0, 0, 0, 0, 0, 1 }))
+                .Append("\",\"title\":\"").Append(value).Append(' ').Append(index.ToString("D4"))
+                .Append("\",\"year\":2000}");
+          }
+          body.Append("]}");
+
+          return Task.FromResult(Json(request, body.ToString()));
+        }
+
+        return base.SendAsync(request, cancellation);
+      }
+
+      private static HttpResponseMessage Json(HttpRequestMessage request, string body)
+      {
+        return new HttpResponseMessage(HttpStatusCode.OK)
+        {
+          RequestMessage = request,
+          Content = new StringContent(body, Encoding.UTF8, "application/json")
+        };
+      }
+
+      /// <summary>One name out of a query string, or <c>null</c> when the question did not carry it.</summary>
+      private static string? Param(string query, string name)
+      {
+        foreach (string pair in query.TrimStart('?').Split('&'))
+        {
+          int equals = pair.IndexOf('=');
+          if (equals > 0 && pair.Substring(0, equals) == name)
+            return Uri.UnescapeDataString(pair.Substring(equals + 1));
+        }
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// Grouping is asked for where filtering is asked for: the screen's menu carries a "Group" row beside the
+    /// "Filter" row, wearing grouping's own icon, and the row opens a page that names "None" and the five
+    /// categories - because a grouping is the same counting asked the other way round, and a viewer who knows
+    /// where one lives looks for the other exactly there.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheScreensMenuCarriesAGroupRowThatOpensTheListOfCategories()
+    {
+      MediaBrowserViewModel browser = BrowserOn(new GroupedShelf());
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the titles to arrive", delegate { return browser.Titles.Count == 130; });
+
+      browser.ShowMediaMenu();
+
+      MediaBrowserMenuEntry filter = browser.MediaMenu.First(row => row.Icon == "filter");
+      MediaBrowserMenuEntry group = browser.MediaMenu.First(row => row.Icon == "group");
+
+      Assert.That(group.Label, Does.StartWith("Group"), "the row says what it does");
+      Assert.That(browser.MediaMenu.IndexOf(group), Is.EqualTo(browser.MediaMenu.IndexOf(filter) + 1),
+          "and it stands next to the filter, not buried under it");
+
+      group.Command.Execute(null);
+      WaitUntil("the group page to stand open",
+          delegate { return browser.MediaMenu.Any(row => row.Label == "By genre"); });
+
+      Assert.That(browser.MediaMenu.First(row => row.Label == "None").IsCurrent, Is.True,
+          "no grouping is the grouping now, and the page says so on its None row");
+      Assert.That(browser.MediaMenu.Count(row => row.Label.StartsWith("By ", StringComparison.Ordinal)),
+          Is.EqualTo(5), "all five categories stand on the page, the same five the filter page offers");
+
+      Assert.That(browser.IsGrouped, Is.False, "and nothing has been grouped until a row is pressed");
+    }
+
+    /// <summary>
+    /// What pressing a category does to the shelf: every title stays - that is grouping's whole promise over
+    /// filtering, which throws titles away - and each genre's run stands under its own headline, in the
+    /// server's own order of how big each genre is.
+    /// </summary>
+    [AvaloniaTest]
+    public void GroupingTheShelfStandsEveryTitleUnderItsOwnHeadline()
+    {
+      GroupedShelf server = new GroupedShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the flat shelf", delegate { return browser.Titles.Count == 130; });
+
+      browser.ShowMediaMenu();
+      browser.MediaMenu.First(row => row.Icon == "group").Command.Execute(null);
+      WaitUntil("the group page", delegate { return browser.MediaMenu.Any(row => row.Label == "By genre"); });
+      browser.MediaMenu.First(row => row.Label == "By genre").Command.Execute(null);
+
+      WaitUntil("the shelf to stand grouped",
+          delegate { return browser.IsGrouped && browser.Rows.Count == 133; });
+
+      Assert.That(server.GroupsAsked, Is.EqualTo(1),
+          "one question says which genres there are and how many each holds");
+      Assert.That(browser.Titles.Count, Is.EqualTo(130),
+          "every film that was on the shelf is still on it - grouping keeps the shelf, it only re-stands it");
+      Assert.That(browser.Rows.Count, Is.EqualTo(133), "and three headlines stand among them on the wall");
+
+      Assert.That(browser.Rows[0], Is.InstanceOf<GroupHeaderRow>(), "the shelf opens with its biggest headline");
+      Assert.That(((GroupHeaderRow)browser.Rows[0]).Label, Is.EqualTo("Action"));
+      Assert.That(((GroupHeaderRow)browser.Rows[0]).Count, Is.EqualTo(70),
+          "and the headline says how many the server counted under it, because nothing narrows this shelf");
+      Assert.That(browser.Rows[71], Is.InstanceOf<GroupHeaderRow>(),
+          "the next headline stands where its own block begins, not bunched at the front with the others");
+      Assert.That(browser.Rows[122], Is.InstanceOf<GroupHeaderRow>(), "and the third above its ten films");
+      Assert.That(browser.Rows.OfType<GroupHeaderRow>().Count(), Is.EqualTo(3));
+      Assert.That(browser.Rows.OfType<TitleViewModel>().Count(), Is.EqualTo(130),
+          "the same title instances the shelf has always held, no more and none thrown away");
+
+      Assert.That(browser.Selected, Is.InstanceOf<TitleViewModel>(),
+          "a caret stands on a film, never on a headline - the wall cannot even put it anywhere else");
+      Assert.That(browser.Status, Does.Contain("grouped by genre"), "and the foot says what stands there now");
+    }
+
+    /// <summary>
+    /// An ungrouped wall shows the shelf with nothing in it but titles: the headlines are not decoration that
+    /// stands around when nobody asked for them, and taking the grouping off with the None row puts the plain
+    /// shelf back - same films, no plates.
+    /// </summary>
+    [AvaloniaTest]
+    public void TakingTheGroupingOffPutsThePlainShelfBack()
+    {
+      MediaBrowserViewModel browser = BrowserOn(new GroupedShelf());
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the flat shelf", delegate { return browser.Titles.Count == 130; });
+
+      Assert.That(browser.Rows.Count, Is.EqualTo(browser.Titles.Count),
+          "ungrouped, the wall is the shelf - plate for plate there are no plates");
+
+      browser.ShowMediaMenu();
+      browser.MediaMenu.First(row => row.Icon == "group").Command.Execute(null);
+      WaitUntil("the group page", delegate { return browser.MediaMenu.Any(row => row.Label == "By genre"); });
+      browser.MediaMenu.First(row => row.Label == "By genre").Command.Execute(null);
+      WaitUntil("the grouped shelf", delegate { return browser.IsGrouped && browser.Rows.Count == 133; });
+
+      browser.MediaMenu.First(row => row.Label == "None").Command.Execute(null);
+      WaitUntil("the plain shelf back",
+          delegate { return !browser.IsGrouped && browser.Rows.Count == 130; });
+
+      Assert.That(browser.Rows.OfType<GroupHeaderRow>().Count(), Is.EqualTo(0),
+          "the headlines are gone, and nothing else was disturbed on the way back");
+      Assert.That(browser.Titles.Count, Is.EqualTo(130), "all the films are still there");
+    }
+
+    /// <summary>
+    /// A grouped shelf still reads itself whole, and reading on must not disturb what grouping stood: the rest
+    /// of a genre goes under that genre's own headline - which is the one thing a naive "append everything at
+    /// the end" would get wrong, because the earlier genre finishes reading after the later ones already
+    /// arrived.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task AGroupedShelfReadsItselfWholeKeepingEveryTitleUnderItsOwnHeadline()
+    {
+      GroupedShelf server = new GroupedShelf { Action = 700 };
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the opening screenful", delegate { return browser.Titles.Count >= 120; });
+
+      await browser.PickGroupAsync("genre");
+
+      WaitUntil("the whole grouped shelf",
+          delegate { return browser.Titles.Count == 760 && !browser.IsBusy && browser.Rows.Count == 763; });
+
+      Assert.That(browser.Rows.Count, Is.EqualTo(763), "three headlines and every one of the films");
+      Assert.That(browser.Rows[0], Is.InstanceOf<GroupHeaderRow>(),
+          "and after all the reading, each headline still stands where its block begins");
+      Assert.That(browser.Rows[701], Is.InstanceOf<GroupHeaderRow>(),
+          "the Drama headline sits behind all seven hundred Action films, not beside the first hundred and twenty");
+      Assert.That(browser.Rows[752], Is.InstanceOf<GroupHeaderRow>());
+      Assert.That(browser.Rows[700], Is.InstanceOf<TitleViewModel>(),
+          "and it sits directly above the first film of its block, with nothing of another block between");
+      Assert.That(browser.Rows[702], Is.InstanceOf<TitleViewModel>(),
+          "and the block below the headline is its own genre's films read whole");
+      Assert.That(browser.HasMore, Is.False, "the shelf knows it is whole");
+    }
+
+    /// <summary>
+    /// A headline standing in the wall of tiles wears the tile it stands among - the poster's shape in the
+    /// poster's measures, the banner's in the banner's - rather than naming a size of its own or shrinking to
+    /// the size of its word. Proven on the screen: the plate's container stands as wide and as tall as the
+    /// tile container next to it.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task TheGroupHeadlineWearsTheTileItStandsOn()
+    {
+      GroupedShelf server = new GroupedShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the flat shelf", delegate { return browser.Titles.Count == 130; });
+
+      await browser.PickGroupAsync("genre");
+      WaitUntil("the grouped shelf", delegate { return browser.IsGrouped && browser.Rows.Count == 133; });
+
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      for (int pause = 0; pause < 10; pause++)
+        Pump();
+
+      for (int press = 0; press < 3 && browser.Layout != BrowserLayout.Grid; press++)
+      {
+        browser.SwitchViewCommand.Execute(null);
+        for (int pause = 0; pause < 10; pause++)
+          Pump();
+      }
+      Assert.That(browser.Layout, Is.EqualTo(BrowserLayout.Grid), "the wall stands in tiles");
+
+      ListBox rows = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "titlesList");
+
+      int plateAt = -1;
+      for (int at = 0; at < browser.Rows.Count; at++)
+        if (browser.Rows[at] is GroupHeaderRow)
+        {
+          plateAt = at;
+          break;
+        }
+      Assert.That(plateAt, Is.GreaterThanOrEqualTo(0), "a grouped wall opens with a headline");
+
+      int tileAt = plateAt;
+      while (browser.Rows[++tileAt] is GroupHeaderRow)
+      {
+      }
+
+      Control? plate = null;
+      Control? tile = null;
+      WaitUntil("the headline and its neighbour to stand", delegate
+      {
+        plate = rows.ContainerFromIndex(plateAt) as Control;
+        tile = rows.ContainerFromIndex(tileAt) as Control;
+        return plate != null && tile != null && plate.Bounds.Width > 0 && tile.Bounds.Width > 0;
+      });
+
+      Assert.That(plate!.Bounds.Width, Is.EqualTo(tile!.Bounds.Width).Within(1.0),
+          "the headline wears the width the tiles wear");
+      Assert.That(plate.Bounds.Height, Is.EqualTo(tile.Bounds.Height).Within(1.0),
+          "and the height too - a poster wall gives it a poster's measures, a banner wall a banner's");
+
+      // And not just the standing: the VISIBLE face - the framed card the item template produced - has to
+      // measure what a tile's face measures, so the wall's gaps between media stay exactly what they were.
+      Visual? plate_face = ItemFace(plate!);
+      Visual? tile_face = ItemFace(tile!);
+      Assert.That(plate_face, Is.Not.Null, "a tile wears its frame inside the container");
+      Assert.That(tile_face, Is.Not.Null);
+      Rect p = plate_face!.Bounds;
+      Rect t = tile_face!.Bounds;
+      Assert.That(p.Width, Is.EqualTo(t.Width).Within(1.0),
+          "the plate's face is as wide as the tile's face - the same margin breathes around both");
+      Assert.That(p.Height, Is.EqualTo(t.Height).Within(1.0),
+          "and as tall");
+      Assert.That(p.X, Is.EqualTo(t.X).Within(1.0),
+          "and stands in the same gap from its container's left hand");
+      Assert.That(p.Y, Is.EqualTo(t.Y).Within(1.0));
+
+      // And the same law in the banner's and the thumbnail's measures: the plate follows whatever picture the
+      // wall wears, because the wall measures itself by its tiles and the plate wears that measure.
+      for (int press = 0; press < 2; press++)
+      {
+        browser.SwitchMedia();
+
+        Control? again_plate = null;
+        Control? again_tile = null;
+        WaitUntil("the wall to stand in its next picture's tiles", delegate
+        {
+          again_plate = rows.ContainerFromIndex(plateAt) as Control;
+          again_tile = rows.ContainerFromIndex(tileAt) as Control;
+          return again_plate != null && again_tile != null && again_plate.Bounds.Width > 0
+              && again_tile.Bounds.Width > 0;
+        });
+
+        Visual? next_face = ItemFace(again_plate!);
+        Visual? next_tile_face = ItemFace(again_tile!);
+        Assert.That(next_face, Is.Not.Null, "the rebuilt wall frames its plate");
+        Assert.That(next_tile_face, Is.Not.Null, "and its tiles");
+        Assert.That(next_face!.Bounds.Width, Is.EqualTo(next_tile_face!.Bounds.Width).Within(1.0),
+            "the headline follows the picture the wall wears - here " + browser.GridTemplateKey);
+        Assert.That(next_face.Bounds.Height, Is.EqualTo(next_tile_face.Bounds.Height).Within(1.0),
+            "in height as well - here " + browser.GridTemplateKey);
+      }
+    }
+
+    /// <summary>The framed card the item template produced: the first thing the container's ContentPresenter shows.</summary>
+    private static Visual? ItemFace(Visual container)
+    {
+      ContentPresenter? presenter = container.GetVisualDescendants().OfType<ContentPresenter>().FirstOrDefault();
+      return presenter?.GetVisualChildren().OfType<Visual>().FirstOrDefault();
+    }
+
+    /// <summary>
+    /// The framework's candidate walk loops while the panel keeps handing it containers it cannot stand on, and
+    /// it only notices a cycle against WHERE IT SET OUT - not against where it currently is. So a headline, which
+    /// no caret may stand on, must never be answered with itself when something asks it for the next step: the
+    /// walk that steps onto a headline from the tile below and then asks the headline onward must be answered
+    /// with NOTHING at the wall's edge, or the loop spins on the UI thread forever - which is how a viewer
+    /// pressing UP under a headline lost the frontend without a crash.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task AHeadlineTheCaretCannotStandOnAnswersNoStepWithItself()
+    {
+      GroupedShelf server = new GroupedShelf();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the flat shelf", delegate { return browser.Titles.Count == 130; });
+
+      await browser.PickGroupAsync("genre");
+      WaitUntil("the grouped shelf", delegate { return browser.IsGrouped && browser.Rows.Count == 133; });
+
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      for (int pause = 0; pause < 10; pause++)
+        Pump();
+
+      for (int press = 0; press < 3 && browser.Layout != BrowserLayout.Grid; press++)
+      {
+        browser.SwitchViewCommand.Execute(null);
+        for (int pause = 0; pause < 10; pause++)
+          Pump();
+      }
+      Assert.That(browser.Layout, Is.EqualTo(BrowserLayout.Grid), "the wall stands in tiles");
+
+      ListBox rows = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "titlesList");
+      VirtualizingTilePanel? wall = rows.ItemsPanelRoot as VirtualizingTilePanel;
+      Assert.That(wall, Is.Not.Null, "the tile wall lays its rows itself");
+      INavigableContainer navigation = wall!;
+
+      int plateAt = -1;
+      for (int at = 0; at < browser.Rows.Count; at++)
+        if (browser.Rows[at] is GroupHeaderRow)
+        {
+          plateAt = at;
+          break;
+        }
+
+      Control? plate = null;
+      WaitUntil("the headline to stand", delegate
+      {
+        plate = rows.ContainerFromIndex(plateAt) as Control;
+        return plate != null && plate.Bounds.Width > 0;
+      });
+
+      Assert.That(plate!.Focusable, Is.False, "the wall disarmed the headline's container");
+
+      // The exact question the dead walk asked: it stepped onto the headline and the headline was asked onward.
+      // Over the top edge the answer must be nothing - answering with the headline itself is the spin.
+      Assert.That(navigation.GetControl(NavigationDirection.Up, plate, false), Is.Null,
+          "a walker stranded on a headline at the wall's edge is answered with nothing, not with the headline "
+          + "again - the framework only notices a walk that returns to where it SET OUT, and this walk never did");
+
+      // And the walk is not blinded either: the same question downward answers the tile under the headline.
+      IInputElement? below = navigation.GetControl(NavigationDirection.Down, plate, false);
+      Assert.That(below, Is.Not.Null.And.Not.SameAs(plate),
+          "but downward the wall still answers the tile under the headline");
+    }
+
+    /// <summary>
+    /// The drawn row and the caret list hand their selection to each other over a two-way binding, and that
+    /// exchange is where opening a grouped wall used to die: the wall selected the headline at index zero, the
+    /// view said no with -1, the drawn row clamps -1 onto its first cover - which is that same headline - and
+    /// the "no" came back again until the stack was gone. A refusal now names the nearest film instead of -1,
+    /// which the drawn row accepts as-is; this test says it out loud by assigning the headline directly, the
+    /// very thing that used to start the echo.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallCannotStandItsCaretOnAHeadlineEvenWhenSomethingAssignsIt()
+    {
+      MediaBrowserViewModel browser = BrowserOn(new GroupedShelf());
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the flat shelf", delegate { return browser.Titles.Count == 130; });
+
+      browser.ShowMediaMenu();
+      browser.MediaMenu.First(row => row.Icon == "group").Command.Execute(null);
+      WaitUntil("the group page", delegate { return browser.MediaMenu.Any(row => row.Label == "By genre"); });
+      browser.MediaMenu.First(row => row.Label == "By genre").Command.Execute(null);
+      WaitUntil("the grouped shelf", delegate { return browser.IsGrouped && browser.Rows.Count == 133; });
+
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the wall to stand", delegate { return browser.Rows.Count == 133 && !browser.IsBusy; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+
+      int headline = -1;
+      for (int i = 0; i < titles.Items.Count; i++)
+      {
+        if (titles.Items[i] is GroupHeaderRow)
+        {
+          headline = i;
+          break;
+        }
+      }
+
+      Assert.That(headline, Is.GreaterThanOrEqualTo(0), "the wall really has a headline to stand on");
+
+      titles.SelectedIndex = headline;
+
+      Assert.That(titles.SelectedItem, Is.Not.InstanceOf<GroupHeaderRow>(),
+          "the wall refuses to keep a caret on the headline - it re-stands it on the film beside it");
+      Assert.That(titles.SelectedIndex, Is.EqualTo(headline + 1),
+          "which is the film under the headline, not the -1 the drawn row would clamp back onto it");
+      Assert.That(browser.Selected, Is.Not.InstanceOf<GroupHeaderRow>(),
+          "and nothing about the view model changed either");
+    }
+
+    /// <summary>
+    /// A headline's number is the server counting the WHOLE shelf by the category. The moment a search narrows
+    /// what the shelf reads, headline and shelf answer different questions - and a headline naming a number
+    /// the shelf cannot show is a headline that lies - so a narrowed shelf shows its words bare.
+    /// </summary>
+    [AvaloniaTest]
+    public async Task ANarrowedShelfShowsItsHeadlinesWithoutNumbers()
+    {
+      MediaBrowserViewModel browser = BrowserOn(new GroupedShelf());
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the flat shelf", delegate { return browser.Titles.Count == 130; });
+
+      browser.SearchText = "00";
+      await browser.FindAsync();
+      await browser.PickGroupAsync("genre");
+
+      WaitUntil("the grouped narrowed shelf",
+          delegate { return browser.IsGrouped && browser.Rows.OfType<GroupHeaderRow>().Any(); });
+
+      foreach (GroupHeaderRow plate in browser.Rows.OfType<GroupHeaderRow>())
+        Assert.That(plate.ShowsCount, Is.False,
+            "the plate \"" + plate.Label + "\" keeps its number to itself while a search decides what the shelf holds");
+    }
+
+    /// <summary>
     /// The shelf's leading edge is where the screen's menu stands.  The reference hung that menu on the remote's
     /// Info key alone, but its own room says something else: the menu stands in the two hundred points the room
     /// keeps off the left edge of the screen, so a viewer walking left past the edge of the shelf walked at it.

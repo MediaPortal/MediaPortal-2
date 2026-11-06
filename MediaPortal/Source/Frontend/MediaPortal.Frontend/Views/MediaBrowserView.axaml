@@ -1841,13 +1841,13 @@
               -->
               <views:CoverCarousel Name="coverRow"
                                    DockPanel.Dock="Bottom"
-                                   ItemsSource="{Binding Titles}"
+                                   ItemsSource="{Binding Rows}"
                                    SelectedIndex="{Binding #titlesList.SelectedIndex, Mode=TwoWay}"
                                    Margin="0,0,0,45"
                                    IsVisible="False"/>
               <ListBox Name="titlesList"
                        Focusable="True"
-                       ItemsSource="{Binding Titles}"
+                       ItemsSource="{Binding Rows}"
                        SelectedItem="{Binding Selected, Mode=TwoWay}"
                        ItemTemplate="{StaticResource BuiltinRowsTemplate}"
                        FontSize="24"
