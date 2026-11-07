@@ -1399,8 +1399,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// alphabetically, because an album whose third track is listed under "B" is not the thing the viewer sat down
     /// for. Both come from <see cref="MediaCatalog"/> rather than from a guess about the parent's name.
     /// </remarks>
+    /// <param name="onlySeason">
+    /// The one season of <paramref name="parent"/> whose episodes this shelf is to show, given when the series has
+    /// exactly one: a shelf with a single row on it is a step walked through rather than a screen stood on, so the
+    /// walk goes series &#8594; episodes and "back" arrives on the series shelf. Null - which is what a series with
+    /// two or more seasons gets - opens the shelf the series holds, its seasons, as it always did.
+    /// </param>
     public MediaBrowserViewModel(ServerApiClient? client, HomeSection? section, TitleViewModel? parent,
-        PictureCache? pictures = null)
+        PictureCache? pictures = null, TitleViewModel? onlySeason = null)
     {
       _client = client;
       _pictures = pictures;
@@ -1415,17 +1421,24 @@ namespace MediaPortal.Frontend.ViewModels
       // seasons twice and never reach the episodes. A row read by a screen that never said which shelf it read
       // still falls back on the tile it was opened from.
       string cameFrom = parent?.ReadThrough ?? section?.Aspect.Name ?? "";
+      // One season is not a screen. The shelf a series opens on is its seasons, but when the library holds exactly
+      // one of them the screen would carry a single row that says the series' own name back at the viewer, so the
+      // press goes through to that season's episodes and the walk keeps the shape the viewer expects of a house
+      // with one season: series -> episodes.
+      TitleViewModel? through = parent != null ? onlySeason : null;
       AspectName = parent == null
           ? section?.Aspect.Name ?? ""
-          : MediaCatalog.ChildAspectFor(cameFrom);
-      Inside = parent == null ? null : parent.AskId;
+          : through != null ? "EpisodeItem" : MediaCatalog.ChildAspectFor(cameFrom);
+      Inside = parent == null ? null : through != null ? through.AskId : parent.AskId;
       // The one shelf that cannot be opened by an id alone: a season the library only counted off its episodes has
       // no title to look inside of, so its shelf is the series' episodes narrowed to that number.
-      SeasonFilter = parent?.AskSeason;
+      SeasonFilter = parent == null ? null : through != null ? through.AskSeason : parent.AskSeason;
       // Every shelf opens by name, which is the order it has always had; a shelf read inside a title takes the
       // order its kind carries, the tracks of an album by their number. The one tile that used to promise another
       // order - MP2's "Latest media" - is gone, so nothing arrives with one.
-      SortOrder = parent == null ? "title" : MediaCatalog.ChildSortFor(cameFrom);
+      SortOrder = parent == null
+          ? "title"
+          : MediaCatalog.ChildSortFor(through != null ? "SeasonItem" : cameFrom);
       // The browse screen's picked value travels the same way the picked order did: with the section. A list
       // opened out of one title is the titles inside it, and the genre of the shelf they were browsed under does
       // not follow them down - the tracks of an Action album are nobody's Action genre.

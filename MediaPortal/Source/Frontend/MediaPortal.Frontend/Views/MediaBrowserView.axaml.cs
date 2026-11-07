@@ -46,7 +46,13 @@ namespace MediaPortal.Frontend.Views
   {
     private readonly WorkflowManager? _workflow;
     private readonly Func<WorkflowFrame>? _nowPlayingScreen;
-    private readonly Func<TitleViewModel, WorkflowFrame>? _insideScreen;
+    private readonly Func<TitleViewModel, Task<WorkflowFrame?>>? _insideScreen;
+
+    /// <summary>
+    /// Whether a press on a row is on its way to a screen. The way there now goes through the server, and a second
+    /// press while the first is asking would push a second screen of the same titles.
+    /// </summary>
+    private bool _openingInside;
     private bool _firstActivation;
 
     /// <summary>
@@ -100,11 +106,13 @@ namespace MediaPortal.Frontend.Views
     /// <param name="insideScreen">
     /// How to build the frame of the list of titles inside one title - the tracks of the album that was pressed -
     /// or <c>null</c> on a server that has nothing of that kind. Pressing an album has to lead somewhere, and the
-    /// screen it leads to belongs to the application for the same reason the playback screen does.
+    /// screen it leads to belongs to the application for the same reason the playback screen does. It is handed
+    /// back as a task because where a press leads is not always known on the shelf: a series is opened on its
+    /// episodes when the library holds one season of it, and how many seasons it holds is the server's answer.
     /// </param>
     public MediaBrowserView(MediaBrowserViewModel browser, WorkflowManager? workflow = null,
         Func<WorkflowFrame>? nowPlayingScreen = null,
-        Func<TitleViewModel, WorkflowFrame>? insideScreen = null)
+        Func<TitleViewModel, Task<WorkflowFrame?>>? insideScreen = null)
     {
       DataContext = browser;
       _workflow = workflow;
@@ -5482,14 +5490,33 @@ namespace MediaPortal.Frontend.Views
     /// the shelf the viewer came from, and a shelf that was closed has to be read from the server again to be
     /// seen. It is the same reason the playback screen is pushed over a list instead of instead-of it.
     /// </remarks>
-    private void OnChildrenRequested(object? sender, TitleViewModel parent)
+    /// <remarks>
+    /// Building the screen behind a press now asks the server a question first - a series is opened on its episodes
+    /// when it has one season - so the answer arrives a beat later than the press, during which a viewer with a
+    /// stuck key would stack one screen of the same titles on another. Hence the guard, and hence the wait being
+    /// swallowed rather than thrown at the dispatcher: a press that cannot find out what it opens has failed, and
+    /// a screen that says nothing is kinder than a front end that is gone.
+    /// </remarks>
+    private async void OnChildrenRequested(object? sender, TitleViewModel parent)
     {
-      if (_insideScreen == null || _workflow == null)
+      if (_insideScreen == null || _workflow == null || _openingInside)
         return;
 
-      WorkflowFrame? frame = _insideScreen(parent);
-      if (frame != null)
-        _workflow.Push(frame);
+      _openingInside = true;
+      try
+      {
+        WorkflowFrame? frame = await _insideScreen(parent);
+        if (frame != null)
+          _workflow.Push(frame);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("inside:     the screen behind '" + parent.Name + "' could not be built: " + ex.Message);
+      }
+      finally
+      {
+        _openingInside = false;
+      }
     }
   }
 }

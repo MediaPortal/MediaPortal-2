@@ -7530,6 +7530,12 @@ namespace Tests.Frontend
       /// </summary>
       internal bool Counted { get; set; }
 
+      /// <summary>
+      /// Hands out a series with one season only, which is the library shape a press walks straight through to the
+      /// episodes.
+      /// </summary>
+      internal bool SingleSeason { get; set; }
+
       internal string? LastUrl { get; private set; }
 
       /// <summary>
@@ -7620,8 +7626,11 @@ namespace Tests.Frontend
               // only, and a "parentId" saying where the season's contents really have to be asked from.
               rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 8 }).ToString("D"),
                   "Bones (2005) S01", ",\"season\":1,\"episodes\":24,\"parentId\":\"" + Inside + '"'));
-              rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 9 }).ToString("D"),
-                  "Bones (2005) S02", ",\"season\":2,\"episodes\":26,\"parentId\":\"" + Inside + '"'));
+              if (!SingleSeason)
+              {
+                rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 9 }).ToString("D"),
+                    "Bones (2005) S02", ",\"season\":2,\"episodes\":26,\"parentId\":\"" + Inside + '"'));
+              }
             }
             else
             {
@@ -7630,8 +7639,11 @@ namespace Tests.Frontend
               // making the row say what the viewer is standing in instead.
               rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 6 }).ToString("D"),
                   "Bones (2005) S01", ",\"season\":1,\"episodes\":24"));
-              rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 7 }).ToString("D"),
-                  "Bones (2005) S02", ",\"season\":2,\"episodes\":26"));
+              if (!SingleSeason)
+              {
+                rows.Add(RowJson(new Guid(1, 0, 4, new byte[] { 128, 0, 0, 0, 0, 0, 0, 7 }).ToString("D"),
+                    "Bones (2005) S02", ",\"season\":2,\"episodes\":26"));
+              }
             }
           }
           else
@@ -8027,6 +8039,105 @@ namespace Tests.Frontend
         Assert.That(episodes.Titles[0].Line, Is.EqualTo("S01E02 Low Tide"),
             "an episode is addressed, and stays addressed however many levels it took to reach it");
         Assert.That(episodes.DrillsIn, Is.False, "an episode is watched; the way down ends here");
+      }
+    }
+
+    /// <summary>
+    /// One season is walked through rather than stood on. A series the library holds exactly one season of is
+    /// opened on that season's episodes, because the screen that would stand between them carries a single row
+    /// saying the series' own name back at the viewer; the walk becomes series &#8594; episodes and "back" arrives
+    /// on the shelf the viewer pressed in from. Two seasons keep their screen, because two seasons is a choice.
+    /// </summary>
+    [Test]
+    public async Task ASeriesIsAskedHowManySeasonsItHoldsBeforeItsScreenIsChosen()
+    {
+      TitleViewModel bones = new TitleViewModel(ARow("Bones", year: 2005), true, null, "SeriesItem");
+
+      CatalogueServer two = new CatalogueServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(two)))
+      {
+        Assert.That(await MediaPortal.Frontend.App.OnlySeasonOfAsync(client, bones), Is.Null,
+            "a series of two seasons is stood on, as it always was");
+        Assert.That(two.Inside, Is.EqualTo(bones.AskId.ToString("D")),
+            "the seasons of the series that was pressed, and not of the whole library");
+        Assert.That(two.LastUrl, Does.Contain("limit=2"),
+            "the question is answered with two rows rather than by asking twice: one row coming back alone proves "
+            + "nothing until the server has been shown to hold no second one");
+        Assert.That(two.Sort, Is.EqualTo("season"),
+            "asked in the order the seasons are watched in, because which row is the only one is the answer that "
+            + "the episodes shelf has to keep");
+      }
+
+      CatalogueServer one = new CatalogueServer { SingleSeason = true };
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(one)))
+      {
+        MediaTitle? single = await MediaPortal.Frontend.App.OnlySeasonOfAsync(client, bones);
+
+        Assert.That(single, Is.Not.Null, "one season is a step, not a destination");
+        Assert.That(single!.Season, Is.EqualTo(1), "the season that was found is the one handed to the episodes");
+      }
+
+      // A title that is not a series is never asked, because the question would be answered with an empty shelf
+      // and the press would arrive at its film one beat later for nothing.
+      CatalogueServer films = new CatalogueServer();
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(films)))
+      {
+        TitleViewModel alien = new TitleViewModel(ARow("Alien", year: 1979), false, null, "MovieItem");
+
+        Assert.That(await MediaPortal.Frontend.App.OnlySeasonOfAsync(client, alien), Is.Null);
+        Assert.That(films.LastUrl, Is.Null, "nothing was asked of the server for a film");
+      }
+    }
+
+    /// <summary>
+    /// The shelf a one-season series is opened on: the episodes of that season, under the series' own name, ending
+    /// in things that are watched. Whether the season is a title the library holds or one it only counted off its
+    /// episodes makes no difference to the screen - the row already carries the answer of which id and which
+    /// number to ask by.
+    /// </summary>
+    [AvaloniaTest]
+    public void ASeriesWithOneSeasonOpensOnItsEpisodes()
+    {
+      CatalogueServer server = new CatalogueServer { SingleSeason = true };
+      using (var client = new ServerApiClient(SIGN_IN_URL, new HttpClient(server)))
+      {
+        TitleViewModel bones = new TitleViewModel(ARow("Bones", year: 2005), true, client, "SeriesItem");
+        MediaTitle season = ARow("Bones (2005) S01", season: 1, episodes: 24);
+
+        MediaBrowserViewModel episodes = new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"), bones,
+            null, new TitleViewModel(season, false, client, "SeasonItem"));
+        episodes.OpenCommand.Execute(null);
+        WaitUntil("the episodes to arrive", delegate { return episodes.Titles.Count == 1; });
+
+        Assert.That(server.Aspect, Is.EqualTo("EpisodeItem"),
+            "the seasons screen is gone, so the press lands on the episodes themselves");
+        Assert.That(server.Inside, Is.EqualTo(season.Id.ToString("D")),
+            "the episodes asked of the one season, which is the same question the seasons screen would have "
+            + "asked one step later");
+        Assert.That(episodes.Heading, Is.EqualTo("Bones"),
+            "headed by the series the viewer pressed, because that is where they are and the season they walked "
+            + "through has no name of its own to add");
+        Assert.That(episodes.SortOrder, Is.EqualTo("episode"),
+            "in the order the episodes were made, which is the order the season would have handed them in");
+        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S01E02 Low Tide"),
+            "an episode is addressed, and stays addressed whether a season screen stood in front of it or not");
+        Assert.That(episodes.DrillsIn, Is.False, "an episode is watched; the way down ends here");
+        Assert.That(episodes.Status, Does.Contain("episodes"),
+            "counted with the word for what the screen holds, not with the word for the tile it came from");
+
+        // The other shape of one season: a number the library only counted, whose contents have to be asked of the
+        // series under that number.
+        MediaBrowserViewModel counted = new MediaBrowserViewModel(client, ShelfCalled("SeriesItem"), bones,
+            null, new TitleViewModel(ARow("Bones (2005) S02", season: 2, episodes: 26, parentId: bones.Title.Id),
+                false, client, "SeasonItem"));
+        counted.OpenCommand.Execute(null);
+        WaitUntil("the counted episodes to arrive", delegate { return counted.Titles.Count == 1; });
+
+        Assert.That(server.Inside, Is.EqualTo(bones.AskId.ToString("D")),
+            "a counted season has no id of its own, so its episodes are asked of the series");
+        Assert.That(server.Season, Is.EqualTo("2"), "and narrowed to the number the season was counted as");
+        Assert.That(counted.Titles[0].Line, Is.EqualTo("S02E02 Low Tide"),
+            "the shelf the server answered, which is the number the row carried");
       }
     }
 

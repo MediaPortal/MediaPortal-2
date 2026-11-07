@@ -27,6 +27,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Skins.Nereus;
@@ -1542,16 +1543,19 @@ namespace MediaPortal.Frontend
 
         // The list of what-is-inside is built by the same frames, so a series opened from its tile and a
         // collection opened out of a collection are the same screen with the same keys and the same way back.
-        Func<TitleViewModel, Workflow.WorkflowFrame>? inside = browser.Section == null
+        // Pressing a series is the one await in this delegate, so that a series the library holds a single season
+        // of opens on that season's episodes: the beat is spent on a question rather than on showing a screen
+        // whose one row says the series' own name back at the viewer.
+        Func<TitleViewModel, Task<Workflow.WorkflowFrame?>>? inside = browser.Section == null
             ? null
-            : delegate (TitleViewModel parent)
+            : async delegate (TitleViewModel parent)
             {
               // Said on the console as well as shown, because a press that opens nothing looks exactly like a
               // press that was never received when all that happens is the stack growing one stop.
               Console.WriteLine("inside:   " + parent.Name + " - the titles inside it, from "
                   + browser.Section!.Label);
-              return TitlesFrame(new MediaBrowserViewModel(_home.Client, browser.Section, parent,
-                  _home.Pictures), parent.Name);
+              return TitlesFrame(await InsideModelAsync(parent, browser.Section!, _home.Client, _home.Pictures),
+                  parent.Name);
             };
 
         return new MediaBrowserView(browser, _workflow,
@@ -1584,6 +1588,56 @@ namespace MediaPortal.Frontend
       browser.PlayRequested += OnTitleChosen;
       _lastBrowser = browser;
       return new Workflow.WorkflowFrame("titles", label, browser);
+    }
+
+    /// <summary>
+    /// The screen of titles inside a pressed title: the titles the title holds, or - for a series the library
+    /// holds exactly one season of - that season's episodes, which is where the one season was standing in the way.
+    /// </summary>
+    private async Task<MediaBrowserViewModel> InsideModelAsync(TitleViewModel parent, HomeSection section,
+        ServerApiClient? client, PictureCache? pictures)
+    {
+      MediaTitle? single = client == null ? null : await OnlySeasonOfAsync(client, parent);
+      TitleViewModel? onlySeason = single == null
+          ? null
+          : new TitleViewModel(single, false, client, "SeasonItem");
+      return new MediaBrowserViewModel(client, section, parent, pictures, onlySeason);
+    }
+
+    /// <summary>
+    /// The season of a series, when the library holds exactly one of it and the episodes of that one season are
+    /// therefore what a press on the series should arrive at. Null for a series with several seasons, for a server
+    /// that cannot answer, and for every title that is not a series - all of which open what they always opened.
+    /// </summary>
+    /// <remarks>
+    /// Asked at the press instead of known from the shelf, because nothing else in the library carries the number
+    /// of seasons a series has: the row of a series holds no count, and asking it for every row of a shelf of a
+    /// hundred series would be a hundred questions standing behind one press. Two rows are asked for rather than
+    /// one, so a server whose total is an estimate still has to admit a second season before the extra screen is
+    /// kept.
+    /// </remarks>
+    internal static async Task<MediaTitle?> OnlySeasonOfAsync(ServerApiClient client, TitleViewModel series)
+    {
+      if (!MediaCatalog.IsSeries(series.ReadThrough))
+        return null;
+
+      try
+      {
+        MediaTitles seasons = await client.GetTitlesAsync("SeasonItem", sort: "season", limit: 2,
+            inside: series.AskId).ConfigureAwait(false);
+        IReadOnlyList<MediaTitle> rows = seasons.Titles ?? Array.Empty<MediaTitle>();
+        return rows.Count == 1 && seasons.Total <= 1 ? rows[0] : null;
+      }
+      catch (ServerApiException)
+      {
+        // A server that will not say how many seasons a series has is answered as it was before: the seasons
+        // screen opens, and it repeats the refusal somewhere the viewer can read it.
+        return null;
+      }
+      catch (OperationCanceledException)
+      {
+        return null;
+      }
     }
 
     /// <summary>
@@ -2173,14 +2227,14 @@ namespace MediaPortal.Frontend
     /// was built of albums, seasons and collections, and a wall that answers "the server did not name a file"
     /// to a press on an album is a wall that does not know its own library. Everything else plays.
     /// </summary>
-    private void OnHomeTitlePressed(object? sender, TitleViewModel title)
+    private async void OnHomeTitlePressed(object? sender, TitleViewModel title)
     {
       if (title.HoldsTitles && sender is HomeViewModel home
           && home.Client != null && home.SelectedEntry?.Section is HomeSection section)
       {
         Console.WriteLine("inside:   " + title.Name + " - the titles inside it, from " + section.Label);
-        _workflow.Push(TitlesFrame(
-            new MediaBrowserViewModel(home.Client, section, title, home.Pictures), title.Name));
+        _workflow.Push(TitlesFrame(await InsideModelAsync(title, section, home.Client, home.Pictures),
+            title.Name));
         return;
       }
 

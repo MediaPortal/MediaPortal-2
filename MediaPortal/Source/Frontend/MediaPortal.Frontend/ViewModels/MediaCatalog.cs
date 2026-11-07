@@ -169,6 +169,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// grid type for seasons beside the two for films and series precisely because a season is a screen a viewer
     /// stands on rather than a step walked through. A season is still accepted as a parent of episodes by the
     /// server, because which of the two an importer filled in depends on where the metadata came from.
+    /// <para>
+    /// One series is opened one step shorter, and it is the one the walk cannot tell apart from standing still: a
+    /// series the library holds exactly one season of is pressed straight through to that season's episodes. The
+    /// table is not changed for it, because the number of seasons belongs to one series and is only known by
+    /// asking, so the shortcut happens at the press (<see cref="App.OnlySeasonOfAsync"/>) over this table's own
+    /// two steps rather than in the table.
+    /// </para>
     /// </remarks>
     private static readonly (string Aspect, string ChildAspect, string ChildSort)[] CONTAINERS =
     {
