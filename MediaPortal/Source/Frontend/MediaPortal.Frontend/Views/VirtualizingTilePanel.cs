@@ -125,6 +125,16 @@ namespace MediaPortal.Frontend.Views
     /// <summary>How many times a container that had left the band was taken out of the pool again.</summary>
     public int ContainersReused { get; private set; }
 
+    /// <summary>
+    /// Containers ever built here, counted across every panel the shelf swapped in. A shape that wants another
+    /// panel gets a wall built from nothing, since the pool lives with the panel it belongs to, and what a walk
+    /// from one shape into another costs is the total rather than what one panel remembers.
+    /// </summary>
+    public static long TotalContainersBuilt { get; private set; }
+
+    /// <summary>The same for containers taken out of the pool again.</summary>
+    public static long TotalContainersReused { get; private set; }
+
     protected override Size MeasureOverride(Size availableSize)
     {
       if (ItemContainerGenerator == null || Items.Count == 0)
@@ -247,7 +257,9 @@ namespace MediaPortal.Frontend.Views
 
       // Anything else moves titles between rows out from under the containers showing them, so the rows are
       // built again. A cleared shelf is announced as a reset, which is also how a new frame for the tiles is
-      // announced, and both mean the pooled containers were dressed for the old one.
+      // announced, and both mean the pooled containers were dressed for the old one. Keeping them was measured
+      // and gave nothing back: the three cover shapes share one panel that is never reset, and the grid gets a
+      // panel of its own whenever the walk comes round to it, so its pool is gone with the old panel either way.
       TakeAllDown();
       _pooled.Clear();
       InvalidateMeasure();
@@ -587,6 +599,7 @@ namespace MediaPortal.Frontend.Views
       {
         Control recycled = pool.Pop();
         ContainersReused++;
+        TotalContainersReused++;
         recycled.SetCurrentValue(IsVisibleProperty, true);
         generator.PrepareItemContainer(recycled, item, index);
         AddInternalChild(recycled);
@@ -596,6 +609,7 @@ namespace MediaPortal.Frontend.Views
 
       Control fresh = generator.CreateContainer(item, index, key);
       ContainersBuilt++;
+      TotalContainersBuilt++;
       fresh.SetValue(RecycleKeyProperty, key);
       generator.PrepareItemContainer(fresh, item, index);
       AddInternalChild(fresh);

@@ -494,6 +494,15 @@ namespace Tests.Frontend
       Dictionary<string, List<double>> passes = new Dictionary<string, List<double>>();
       Dictionary<string, List<double>> tails = new Dictionary<string, List<double>>();
       Dictionary<string, List<double>> painted = new Dictionary<string, List<double>>();
+      Dictionary<string, List<double>> built = new Dictionary<string, List<double>>();
+      Dictionary<string, List<double>> reused = new Dictionary<string, List<double>>();
+      Dictionary<string, string> panels = new Dictionary<string, string>();
+
+      // Which panel each shape lays its wall in, since the pool lives with the panel: a shape wanting a panel of
+      // its own starts the wall from nothing, and a number read off one panel says nothing about a walk that
+      // swapped it away.
+      ListBox shelf = rail.Window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
 
       RenderTargetBitmap frame = new RenderTargetBitmap(new PixelSize(1920, 1080), new Vector(96, 96));
       try
@@ -503,6 +512,8 @@ namespace Tests.Frontend
           for (int step = 0; step < 5; step++)
           {
             BrowserLayout from = rail.Shelf.Layout;
+            long built_before = VirtualizingTilePanel.TotalContainersBuilt;
+            long reused_before = VirtualizingTilePanel.TotalContainersReused;
             double[] halves = new double[3];
             OneStep(rail, halves);
 
@@ -518,6 +529,9 @@ namespace Tests.Frontend
             Add(passes, way, halves[1]);
             Add(tails, way, halves[2]);
             Add(painted, way, painting.Elapsed.TotalMilliseconds);
+            Add(built, way, VirtualizingTilePanel.TotalContainersBuilt - built_before);
+            Add(reused, way, VirtualizingTilePanel.TotalContainersReused - reused_before);
+            PanelWorn(panels, way, shelf.ItemsPanelRoot);
           }
         }
       }
@@ -535,17 +549,33 @@ namespace Tests.Frontend
         double pass = Median(passes[way.Key].ToArray());
         double tail = Median(tails[way.Key].ToArray());
         double drawn = Median(painted[way.Key].ToArray());
+        double fresh = Median(built[way.Key].ToArray());
+        double again = Median(reused[way.Key].ToArray());
         TestContext.WriteLine("  " + way.Key.PadRight(20)
             + " word " + word.ToString("0.0").PadLeft(7) + " ms, pass " + pass.ToString("0.0").PadLeft(7)
             + " ms, tail " + tail.ToString("0.0").PadLeft(7) + " ms  =  "
             + (word + pass + tail).ToString("0.0").PadLeft(7) + " ms laid out, then "
-            + drawn.ToString("0.00").PadLeft(6) + " ms painted");
+            + drawn.ToString("0.00").PadLeft(6) + " ms painted; containers built "
+            + fresh.ToString("0").PadLeft(3) + ", taken out of the pool " + again.ToString("0").PadLeft(3)
+            + (panels.TryGetValue(way.Key, out string? worn) ? ", laid in " + worn : string.Empty));
       }
 
       Assert.That(words.Count, Is.GreaterThanOrEqualTo(4),
           "the walk went round the shapes, or it did not walk");
       Assert.That(Median(words["Grid -> Cover"].ToArray()) + Median(passes["Grid -> Cover"].ToArray()),
           Is.GreaterThan(0.0), "the walk into covers laid something out, or it measured nothing");
+    }
+
+    /// <summary>
+    /// Writes which panel a walk laid its wall in, named well enough to tell one panel from the same panel seen
+    /// again: the type and the identity of the object, so that a shape being handed a wall built from nothing can
+    /// be told from a shape taking the old wall back.
+    /// </summary>
+    private static void PanelWorn(Dictionary<string, string> to, string way, Panel? panel)
+    {
+      to[way] = panel == null
+          ? "no panel at all"
+          : panel.GetType().Name + "#" + System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(panel);
     }
 
     /// <summary>
