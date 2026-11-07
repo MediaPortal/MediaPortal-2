@@ -3953,6 +3953,13 @@ namespace MediaPortal.Frontend.Views
     /// <summary>How often the rest watcher asks whether the travelling wall has stopped moving.</summary>
     private const double TRAVEL_REST_BEAT_MILLISECONDS = 60;
 
+    /// <summary>
+    /// How many beats in a row without a frame it takes to call a seen-moving wall standing.  A glide runs 300 to
+    /// 400 ms and a frame every 16 ms feeds the watcher, so a real arrival is quiet from then on while one late
+    /// frame is not; three beats is a fifth of the glide's own length, which no frame of a drawing screen needs.
+    /// </summary>
+    private const int TRAVEL_REST_QUIET_BEATS = 3;
+
     /// <summary>How finely the depth an end fades is read off the wall: eight steps between none and all.</summary>
     private const double FADE_STEPS = 8;
 
@@ -4808,19 +4815,38 @@ namespace MediaPortal.Frontend.Views
       _shelfTravelTimer.Start();
 
       // The arrival itself ends the travel as soon as the offset stops moving, which settles a finished glide
-      // a good beat before the timer would and covers a wheel turn of the viewer's own as well.
+      // a good beat before the timer would and covers a wheel turn of the viewer's own as well.  Only one watcher
+      // may hold a wall: the watcher of a travel that has been superseded by a newer asking would otherwise eat
+      // the movement flag of the frame it shares with the living one, miss the movement, and end a travel that is
+      // still running - which parks a gliding wall at whatever place the beat caught it at.
       _scrollSettled = false;
-      _ = AwaitScrollRest(scroller, _fadeRunsSideways, from);
+      _travel_generation++;
+      if (Services.HomeTrace.Enabled)
+        Services.HomeTrace.Log("travel.start", "gen=" + _travel_generation + " scroller=" + scroller.GetHashCode()
+            + " from=" + from.ToString("F0") + " asked=" + _shelfGlide.ToString("F0"));
+      _ = AwaitScrollRest(scroller, _fadeRunsSideways, from, _travel_generation);
     }
+
+    /// <summary>
+    /// Which asking of the wall the running rest watcher belongs to. Bumped by every travel put on, so that an
+    /// older watcher can tell that a newer one took the wall over and leave the movement flag alone.
+    /// </summary>
+    private int _travel_generation;
 
     /// <summary>
     /// Watches a travelling scroller until its offset stops changing, and ends the travel then.  Every frame of
     /// a running transition feeds the flag; when a beat passes without one, the wall stands - wherever it
     /// stands, which covers arrivals, interruptions and wheel turns alike.
     /// </summary>
-    private async Task AwaitScrollRest(ScrollViewer scroller, bool sideways, double from)
+    /// <param name="generation">
+    /// The asking this watcher was started for.  A wall asked again while it travels gets a newer watcher, and
+    /// only that one may end the travel; this watcher steps out as soon as it is no longer the newest, so that it
+    /// cannot eat the movement flag the living watcher is counting on.
+    /// </param>
+    private async Task AwaitScrollRest(ScrollViewer scroller, bool sideways, double from, int generation)
     {
-      bool beat = false;
+      bool moved = false;
+      int quiet_beats = 0;
       while (true)
       {
         try
@@ -4835,33 +4861,54 @@ namespace MediaPortal.Frontend.Views
           return;
         }
 
-        if (!ReferenceEquals(scroller, _glidingScroller) || !_shelfTravelling)
+        if (!ReferenceEquals(scroller, _glidingScroller) || !_shelfTravelling || generation != _travel_generation)
           return;
 
         if (_scrollSettled)
         {
           // A beat that found movement: the wall is still on its way, ask again after the next one.
           _scrollSettled = false;
-          beat = true;
+          moved = true;
+          quiet_beats = 0;
           continue;
         }
 
-        if (beat)
+        ++quiet_beats;
+
+        if (moved)
         {
-          // A quiet beat after a moving one - or a wall that never stirred at all: a clock that runs no frames
-          // (headless tests, a window with nothing invalidating it) starts no transition, and such a travel is
-          // dead as it was born.  Either way the wall stands where it stands; end the travel and read it there.
-          Dispatcher.UIThread.Post(delegate { FinishShelfTravel(); });
-          return;
+          // A wall that was SEEN moving is only taken to stand when the quiet has HELD for a few beats.  One beat
+          // without a frame is also what a single late frame looks like - and ending a travel on that reads a
+          // gliding wall as a standing one, parks it at whatever place the late frame left it at, and leaves the
+          // viewer with a shelf that stops short of its cover.  Measured on a loaded test clock: one beat is a
+          // frame gap, three beats are not.
+          if (quiet_beats >= TRAVEL_REST_QUIET_BEATS)
+          {
+            if (Services.HomeTrace.Enabled)
+              Services.HomeTrace.Log("travel.rest", "gen=" + generation + " beats=" + quiet_beats
+                  + " asked=" + _shelfGlide.ToString("F0"));
+            Dispatcher.UIThread.Post(delegate { FinishShelfTravel(); });
+            return;
+          }
+
+          continue;
         }
 
         // A first beat without any movement yet need not mean rest - the transition can take a beat to gather
         // itself.  But a wall that has not stirred a hair's breadth from where the travel found it, when the
         // travel asked it to walk, has begun no travel at all; waiting longer asks a question the clock will
-        // never answer.  Give that wall one more beat to prove itself moving, and settle it otherwise.
+        // never answer - a clock that runs no frames (headless tests, a window with nothing invalidating it)
+        // starts no transition, and such a travel is dead as it was born.  Give that wall a beat or two to prove
+        // itself moving, and settle it at where it stands otherwise.
         double now = sideways ? scroller.Offset.X : scroller.Offset.Y;
-        if (Math.Abs(now - from) < 1.0 && Math.Abs(from - _shelfGlide) > 1.0)
-          beat = true;
+        if (Math.Abs(now - from) < 1.0 && Math.Abs(from - _shelfGlide) > 1.0 && quiet_beats >= 2)
+        {
+          if (Services.HomeTrace.Enabled)
+            Services.HomeTrace.Log("travel.dead", "gen=" + generation + " beats=" + quiet_beats
+                + " stands=" + now.ToString("F0") + " asked=" + _shelfGlide.ToString("F0"));
+          Dispatcher.UIThread.Post(delegate { FinishShelfTravel(); });
+          return;
+        }
       }
     }
 
@@ -4877,6 +4924,9 @@ namespace MediaPortal.Frontend.Views
       timer.Tick += delegate
       {
         timer.Stop();
+        if (Services.HomeTrace.Enabled)
+          Services.HomeTrace.Log("travel.timer", "asked=" + _shelfGlide.ToString("F0")
+              + " travelling=" + _shelfTravelling);
         FinishShelfTravel();
       };
       return timer;
@@ -4897,6 +4947,9 @@ namespace MediaPortal.Frontend.Views
       double standing = scroller == null
           ? _shelfGlide
           : _fadeRunsSideways ? scroller.Offset.X : scroller.Offset.Y;
+      if (Services.HomeTrace.Enabled)
+        Services.HomeTrace.Log("travel.end", "stands=" + standing.ToString("F0")
+            + " was_asked=" + _shelfGlide.ToString("F0"));
       _shelfGlide = standing;
 
       // The mask is only ever worn for a destination, so a travel that ends is not done until the wall has
@@ -4907,6 +4960,26 @@ namespace MediaPortal.Frontend.Views
         UpdateShelfFade();
       else
         Dispatcher.UIThread.Post(delegate { UpdateShelfFade(); }, DispatcherPriority.Render);
+    }
+
+    /// <summary>
+    /// Takes the screen's watches with it when the screen leaves the tree.  The rest watcher of a travel and the
+    /// watch of the wall's home both wait on beats of their own, and a screen that is gone has no wall left to
+    /// carry anywhere: left running, a watcher of a dead screen holds its scroller - and with it the compositor
+    /// and render loop that scroller was drawn by - alive past the shutdown of the thread that owns them, which is
+    /// measured to make the NEXT screen fail while it builds its own compositor ("the calling thread cannot access
+    /// this object", before a single line of that test has run).
+    /// </summary>
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+      base.OnDetachedFromVisualTree(e);
+
+      // Bumping the generation is what steps the rest watcher out at its next beat; the flag says the same thing
+      // to any watcher that is between beats, and the two timers are simply stood down.
+      _travel_generation++;
+      _shelfTravelling = false;
+      _shelfTravelTimer?.Stop();
+      _glide_check?.Stop();
     }
 
     private TimeSpan _glideLength = TimeSpan.FromMilliseconds(400);
@@ -5031,6 +5104,9 @@ namespace MediaPortal.Frontend.Views
       if (already_asked)
         return;
 
+      Services.HomeTrace.Log("wallask", "scroller=" + scroller.GetHashCode() + " index=" + index
+          + " wanted=" + wanted.ToString("F0") + " travelling=" + _shelfTravelling);
+
       WearShelfGlide(scroller);
       scroller.Offset = sideways
           ? new Vector(wanted, scroller.Offset.Y)
@@ -5098,6 +5174,42 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// Where the wall has to stand for the row the caret is on, read off the COUNT of rows rather than off the
+    /// tile.  Only good for the one case the tile cannot answer for - a wall that has not laid its caret out yet,
+    /// so that its place cannot be read at all - and only good to within the shape, which the band corrects as
+    /// soon as the tile stands up.  A shelf lays its rows a pitch apart and its extent is that times the rows,
+    /// so the pitch answers without a single container.
+    /// </summary>
+    private bool CountRowsToTheCaret(ScrollViewer scroller, out double wanted, out bool sideways)
+    {
+      wanted = 0.0;
+      sideways = false;
+
+      if (!(DataContext is MediaBrowserViewModel viewModel) || titlesList == null)
+        return false;
+
+      // A grid lays several of its tiles on one line of the panel, so a pitch taken as "extent over the rows"
+      // would walk the wall as many times too far as the wall has columns.  A grid is walked by its tile alone.
+      if (viewModel.Layout == BrowserLayout.Grid)
+        return false;
+
+      int rows = titlesList.Items.Count;
+      int stood = titlesList.SelectedIndex;
+      if (stood < 0 || rows < 2)
+        return false;
+
+      sideways = viewModel.IsCoverLayout;
+      double view = sideways ? scroller.Viewport.Width : scroller.Viewport.Height;
+      double extent = sideways ? scroller.Extent.Width : scroller.Extent.Height;
+      double pitch = extent / rows;
+      if (pitch < 1.0)
+        return false;
+
+      wanted = Math.Clamp(stood * pitch - (view - pitch) / 2.0, 0, Math.Max(0, extent - view));
+      return true;
+    }
+
+    /// <summary>
     /// Watches one step of the caret until the wall has come to rest in its band.  The list answers its own
     /// selection as well, by the smallest nudge that shows the tile, and that answer lands AFTER the glide has been
     /// asked for - leaving the stood cover standing beside the middle of the picture, which is what the viewer reads
@@ -5108,8 +5220,15 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void WatchShelfWallHome(int stood_on_index)
     {
+      // The drawn cover row carries itself, and the wall behind it is invisible and has nothing to come home to.
+      // Watching it anyway spends looks for a movement nobody sees - and a watch that goes blind now nudges the
+      // list for its tile, which would fight the drawn row for the caret.
+      if (DataContext is MediaBrowserViewModel worn && worn.Layout == BrowserLayout.Carousel)
+        return;
+
       _glide_check_index = stood_on_index;
       _glide_check_left = 20;
+      _glide_check_blind = 0;
       _shelfWallSeen = double.NaN;
 
       if (_glide_check == null)
@@ -5125,6 +5244,31 @@ namespace MediaPortal.Frontend.Views
       _glide_check.Start();
     }
 
+    /// <summary>
+    /// How often the watch may look without seeing the stood tile. A wall that has just been rebuilt hands its
+    /// containers out late under load - seconds, measured - and the watch may not give up inside that.
+    /// </summary>
+    private const int WATCH_BLIND_LOOKS = 100;
+
+    /// <summary>
+    /// How long the watch gives the list's own nudge before it starts walking the wall by counting rows.  The
+    /// nudge needs a frame or two to land and the wall needs the same to answer, so the counting is the answer of
+    /// LAST resort - the one for a wall that stays blind, not for one that is merely slow.
+    /// </summary>
+    private const int WATCH_COUNTS_ROWS_FROM_LOOK = 20;
+
+    private int _glide_check_blind;
+
+    /// <summary>Ends the watch, saying which of its endings this was.</summary>
+    private void StandShelfWallWatchDown(string because)
+    {
+      if (Services.HomeTrace.Enabled)
+        Services.HomeTrace.Log("wallwatch.stood_down", "index=" + (titlesList?.SelectedIndex ?? -1)
+            + " watched=" + _glide_check_index + " left=" + _glide_check_left
+            + " blind=" + _glide_check_blind + " because=" + because);
+      _glide_check?.Stop();
+    }
+
     /// <summary>One look of the watch: has the wall rested, and if so, is it standing where its band wants it?</summary>
     /// <remarks>
     /// Deliberately cheap per look - one reading of the stood container and one of the scroller, never a pass over
@@ -5132,15 +5276,70 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private void CheckShelfWallHome(object? sender, EventArgs e)
     {
-      if (_glide_check == null || titlesList == null || _glide_check_index != titlesList.SelectedIndex
-          || --_glide_check_left < 0)
+      if (_glide_check == null || titlesList == null || _glide_check_index != titlesList.SelectedIndex)
       {
-        _glide_check?.Stop();
+        StandShelfWallWatchDown("the caret walked on");
         return;
       }
 
       if (!WantedShelfWall(out double wanted, out bool sideways))
+      {
+        // A look that could not see the stood tile measured nothing, so it spends none of the watch's looking
+        // budget - it nudges the list for the tile instead and asks again. Spending the budget on blindness is
+        // what left a viewer with a wall standing at the place of the PREVIOUS caret: the caret back at the top
+        // of a rebuilt wall, the picture still showing its forty-fifth row, and nothing ever asking again.
+        if (++_glide_check_blind > WATCH_BLIND_LOOKS)
+        {
+          StandShelfWallWatchDown("the tile was never laid out");
+          return;
+        }
+
+        if (titlesList.SelectedItem == null)
+          return;
+
+        ScrollViewer? blind = ListScroller();
+        if (blind == null)
+          return;
+
+        double standing_blind = _fadeRunsSideways ? blind.Offset.X : blind.Offset.Y;
+        _shelfWallSeen = standing_blind;
+
+        // A blind look may move the wall only while the wall still stands where this watch last left it, or is on
+        // its way there.  A wall standing elsewhere was moved by somebody else - a viewer on their wheel, a screen
+        // rolled to the end of the shelf - and where the caret ends up from that is their business, not the
+        // watch's: dragging such a wall back to the caret was measured realising every tile of the way, thirteen
+        // seconds on a shelf of six hundred and the viewer's own scroll undone.
+        if (!_shelfTravelling && Math.Abs(standing_blind - _shelfGlide) >= 1.0)
+        {
+          StandShelfWallWatchDown("somebody else is walking the wall");
+          return;
+        }
+
+        titlesList.ScrollIntoView(titlesList.SelectedItem);
+
+        // A wall whose caret has not been laid out at all can still be WALKED to it by counting rows: a shelf
+        // lays its rows a fixed pitch apart, and the pitch answers from the extent and the count of rows without
+        // needing a single tile. The nudge above is the list's own smallest answer and lands late or not at all
+        // on a wall that has just been rebuilt under the caret; this is the wall's own answer, and the band
+        // corrects it the moment the tile stands up.
+        if (_glide_check_blind >= WATCH_COUNTS_ROWS_FROM_LOOK
+            && CountRowsToTheCaret(blind, out double guessed, out bool guessed_sideways))
+        {
+          if (Services.HomeTrace.Enabled)
+            Services.HomeTrace.Log("wallcount", "index=" + titlesList.SelectedIndex + " stands="
+                + standing_blind.ToString("F0") + " guessed=" + guessed.ToString("F0"));
+          AskShelfWall(blind, guessed, guessed_sideways);
+        }
+
         return;
+      }
+
+      _glide_check_blind = 0;
+      if (--_glide_check_left < 0)
+      {
+        StandShelfWallWatchDown("the wall would not come home");
+        return;
+      }
 
       ScrollViewer? scroller = ListScroller();
       if (scroller == null)
@@ -5152,6 +5351,9 @@ namespace MediaPortal.Frontend.Views
       double standing_now = sideways ? scroller.Offset.X : scroller.Offset.Y;
       if (Math.Abs(standing_now - wanted) < 1.0)
       {
+        if (Services.HomeTrace.Enabled)
+          Services.HomeTrace.Log("wallwatch.arrived", "scroller=" + scroller.GetHashCode()
+              + " offset=" + standing_now.ToString("F0"));
         _glide_check.Stop();
         return;
       }
@@ -5165,6 +5367,16 @@ namespace MediaPortal.Frontend.Views
       _shelfWallSeen = standing_now;
       if (!resting && !_shelfTravelling)
         return;
+
+      if (!resting && Math.Abs(wanted - _shelfGlide) < 1.0)
+      {
+        // The wall is honestly travelling to the place it was asked for - and a writing of that same place would
+        // take the travel off its feet and start it again from where the wall happens to stand, which is measured
+        // to make a wall CREEP: seven points per look, every look writing, and a cover that never arrives.  So a
+        // travelling wall is left alone unless the place it is wanted at has moved by more than the arrival is
+        // measured to; a correction that has to happen mid-flight is a correction to a NEW place, not a repeat.
+        return;
+      }
 
       // The travel the wall was last asked for is no longer the one it is standing at, so the asking may write.
       _shelfGlideIndex = -1;
