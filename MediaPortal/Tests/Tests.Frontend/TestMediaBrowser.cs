@@ -107,8 +107,21 @@ namespace Tests.Frontend
       {
         foreach (ShellWindow stray in ShellWindow.StandingWindows.ToArray())
         {
-          if (stray.IsVisible)
-            stray.Close();
+          // A window answers to the thread that drew it, and every [AvaloniaTest] is run on a UI thread of its
+          // own - so a window a failing test left standing belongs to a thread that has already gone by the time
+          // the next test sweeps.  Asking such a window "are you visible" answers with "the calling thread cannot
+          // access this object", which is how one test's window buried five tests that never stood one up.  Such
+          // a window holds no keyboard and can never be reached again, so it is taken out of the register - the
+          // bookkeeping its close would have done - and the sweep goes on to the windows this thread can reach.
+          try
+          {
+            if (stray.IsVisible)
+              stray.Close();
+          }
+          catch (InvalidOperationException)
+          {
+            ShellWindow.StandingWindows.Remove(stray);
+          }
         }
         Pump();
       }
@@ -118,8 +131,16 @@ namespace Tests.Frontend
         {
           foreach (ShellWindow stray in ShellWindow.StandingWindows.ToArray())
           {
-            if (stray.IsVisible)
-              stray.Close();
+            // Reachable windows only, for the reason spelled out above; an unreachable one leaves the register.
+            try
+            {
+              if (stray.IsVisible)
+                stray.Close();
+            }
+            catch (InvalidOperationException)
+            {
+              ShellWindow.StandingWindows.Remove(stray);
+            }
           }
         });
       }
@@ -2171,26 +2192,49 @@ namespace Tests.Frontend
             && titles.ItemFromContainer(tile) != null;
       });
 
-      object? caret = window.FocusManager.GetFocusedElement();
-      ListBoxItem stood = (ListBoxItem)caret!;
-
       ScrollViewer viewport = titles.GetVisualDescendants().OfType<ScrollViewer>().First();
 
       // The wall travels to its caret with a smoothed offset, and the strip the tile ends up in only settles
-      // when the ride is over - the question is asked until the glide has delivered, not one frame into it.
+      // when the ride is over - the question is asked until the glide has delivered, not one frame into it.  And
+      // the tile is asked for again with every sample: while the wall travels it hands its containers out to other
+      // titles, so the container that wore the caret at the pick can stand a thousand points off by the end of the
+      // ride while the caret itself is comfortably inside the picture.  Holding on to one container measured the
+      // ride as never arriving, which is what this test reported under load.
       bool inside_the_view = false;
-      Point in_view = default;
-      WaitUntil("the wall to glide the caret's tile into the view", delegate
+      double where_the_caret_tile_stands = double.NaN;
+      string last_sighting = "never saw a tile";
+      try
       {
-        in_view = stood.TranslatePoint(new Point(), viewport) ?? default;
-        inside_the_view = in_view.Y + stood.Bounds.Height > 0 && in_view.Y < viewport.Bounds.Height;
-        return inside_the_view;
-      });
+        WaitUntil("the wall to glide the caret's tile into the view", delegate
+        {
+          Visual? held = window.FocusManager.GetFocusedElement() as Visual;
+          if (!(held is ListBoxItem wearing_the_caret)
+              || titles.ItemFromContainer(wearing_the_caret) == null)
+          {
+            last_sighting = "the caret wears " + (held?.GetType().Name ?? "nothing");
+            return false;
+          }
+
+          int stood_on_index = titles.IndexFromContainer(wearing_the_caret);
+          Point in_view = wearing_the_caret.TranslatePoint(new Point(), viewport) ?? default;
+          where_the_caret_tile_stands = in_view.Y;
+          inside_the_view = in_view.Y + wearing_the_caret.Bounds.Height > 0
+              && in_view.Y < viewport.Bounds.Height;
+          last_sighting = "index " + stood_on_index + " stands at y=" + in_view.Y.ToString("F0")
+              + " of " + viewport.Bounds.Height.ToString("F0") + " at offset "
+              + viewport.Offset.Y.ToString("F0") + " (selected " + titles.SelectedIndex + ")";
+          return inside_the_view;
+        });
+      }
+      catch (Exception ex)
+      {
+        throw new Exception(ex.Message + "  Last sighting: " + last_sighting, ex);
+      }
 
       Assert.That(inside_the_view, Is.True,
           "the caret's tile lies inside the strip of wall the viewer is looking at - a focus parked on a "
           + "container above or below the view is the same invisible caret the viewer keeps reporting; "
-          + "y=" + in_view.Y + " off=" + viewport.Offset.Y + " sel=" + titles.SelectedIndex);
+          + "y=" + where_the_caret_tile_stands + " off=" + viewport.Offset.Y + " sel=" + titles.SelectedIndex);
       window.Close();
     }
 
@@ -2313,6 +2357,50 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// Asks the drawn cover row the questions its shape answers: that the row is the screen, that the list under it
+    /// keeps nothing but the caret, that the panel was asked for no cover the row would only draw twice, that the
+    /// row came to rest on the cover the caret stands on, and that it asked a picture for the covers within reach
+    /// rather than for the shelf.
+    /// </summary>
+    private static void AskAboutTheDrawnRow(ShellWindow window, ListBox titles, ScrollViewer viewport,
+        MediaBrowserViewModel browser)
+    {
+      CoverCarousel row = window.GetVisualDescendants().OfType<CoverCarousel>().First();
+      Assert.That(row.IsVisible, Is.True, "the shape the screen wears is the drawn cover row");
+      Assert.That(titles.Opacity, Is.EqualTo(0.0),
+          "the list keeps the caret and nothing else, so what the viewer looks at is the drawn row");
+
+      VirtualizingStackPanel panel =
+          viewport.GetVisualDescendants().OfType<VirtualizingStackPanel>().First();
+      Assert.That(panel.CacheLength, Is.EqualTo(0.0),
+          "a drawn row stands its own covers, so the panel is asked for none beside the picture - a cover the "
+          + "panel stands up here is a cover nobody sees, laid and measured and paid for twice");
+
+      int stood = titles.SelectedIndex;
+      int asked_before_rest = row.CoversAsked.Count;
+      WaitUntil("the row to come to rest on the cover it is stood on",
+          delegate { return Math.Abs(row.Position - stood) < 0.01; });
+      Assert.That(row.Position, Is.EqualTo((double) stood).Within(0.01),
+          "the row stands its middle on the cover the caret stands on, got the row standing at "
+          + row.Position.ToString("F3") + " with the caret at " + stood);
+
+      // The row lays a frame for the covers it can paint and asks a picture for those and no others.  That law is
+      // what kept a wall of eleven hundred films from decoding a poster per title when the caret jumped to its end:
+      // one rest of the row asks for one row's reach of covers, and a rest that asks for the shelf is a rest that
+      // went back to laying every container of it.
+      IReadOnlyCollection<object> asked = row.CoversAsked;
+      Assert.That(asked.Count - asked_before_rest,
+          Is.LessThanOrEqualTo(2 * CoverCarousel.PAINTED_EACH_SIDE + 1),
+          "one rest of the row asks at most the covers a viewer could be looking at, got "
+          + (asked.Count - asked_before_rest) + " asks for a row that paints at most "
+          + CoverCarousel.PAINTED_EACH_SIDE + " each side of the cover stood on");
+      Assert.That(asked, Does.Contain(browser.Rows[stood]),
+          "and it asks for the cover the viewer is standing on - the row is the picture of this shape, and a row "
+          + "that never asked for its own middle paints it blank (asks: "
+          + string.Join(", ", asked.Select(a => ((TitleViewModel) a).Name)) + ")");
+    }
+
+    /// <summary>
     /// Asks a shelf wearing a shape the two questions the viewer asks it: does a cover of the shape reach past
     /// both edges of the picture, and does the cover being stood on stand in the middle of the picture?  Both are
     /// answered from the panel's own coordinates, which is where a dressed cover stands before the wall's travel
@@ -2324,6 +2412,19 @@ namespace Tests.Frontend
       Pump();
       Pump();
       Pump();
+
+      // The carousel answers none of the questions below, and an honest question beats an old one: its covers are
+      // DRAWN by a row of its own (CoverCarousel) while the list underneath keeps nothing but the caret, so the
+      // panel is asked for no cover beside the picture and no container wears a transform of the shape - the
+      // dressing stops at this shape's name for exactly that reason (MediaBrowserView.DressShelfShape).  What the
+      // viewer is promised is unchanged: the cover stood on in the middle, its neighbours mirrored, and a picture
+      // asked for only the covers within reach.  How a drawn cover is turned is the row's own arithmetic and is
+      // measured in TestCoverCarousel; what is asked here is that the screen put that row on and asked it right.
+      if (shape == "carousel")
+      {
+        AskAboutTheDrawnRow(window, titles, viewport, browser);
+        return;
+      }
 
       VirtualizingStackPanel panel =
           viewport.GetVisualDescendants().OfType<VirtualizingStackPanel>().First();
@@ -2349,23 +2450,71 @@ namespace Tests.Frontend
 
       double picture = viewport.Viewport.Width;
 
+      // Which covers the panel stands up RIGHT NOW, as the panel itself knows them: its own realized containers,
+      // each carrying the title it shows.  That pairing is the one that cannot answer with a stale place - looking
+      // an index up in the list can, as this test measured three times over.
+      Control[] CoversThePanelStandsUp()
+      {
+        List<Control> stands = new List<Control>();
+        foreach (Control cover in titles.GetRealizedContainers())
+        {
+          if (cover.Bounds.Width > 0.0)
+            stands.Add(cover);
+        }
+
+        return stands.ToArray();
+      }
+
+      // The cover standing under the caret: the container showing the title that is selected, not the container an
+      // index happens to answer with.
+      Control? CoverTheCaretStandsOn()
+      {
+        foreach (Control cover in CoversThePanelStandsUp())
+        {
+          if (ReferenceEquals(cover.DataContext, titles.SelectedItem))
+            return cover;
+        }
+
+        return null;
+      }
+
       // First the ride, then the question.  A layout that has just been put on has to grow its scroller before the
       // wall can be carried anywhere, so the wall is watched until it has STOOD STILL - a few samples in a row
-      // saying the same place - and not merely until two samples agree before the ride has started.
+      // saying the same place - and not merely until two samples agree before the ride has started.  The port's own
+      // place is not the standstill, so the sample takes the covers with it: how many the panel stands up and where
+      // the one the caret stands on is painted.
+      string WhereTheCoversStand()
+      {
+        Control[] covers = CoversThePanelStandsUp();
+        Control? stood = CoverTheCaretStandsOn();
+        double where_the_stood_one_stands = double.NaN;
+        if (stood != null)
+        {
+          Point? middle = stood.TranslatePoint(
+              new Point(stood.Bounds.Width / 2.0, stood.Bounds.Height / 2.0), viewport);
+          where_the_stood_one_stands = middle == null ? double.NaN : middle.Value.X;
+        }
+
+        return viewport.Offset.X.ToString("F2") + " with " + covers.Length + " covers, the stood one at "
+            + where_the_stood_one_stands.ToString("F2");
+      }
+
       DateTimeOffset rest = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(8);
-      double before = viewport.Offset.X;
-      DateTimeOffset? standing_still_since = null;
-      while (DateTimeOffset.UtcNow < rest
-          && (standing_still_since == null
-              || DateTimeOffset.UtcNow - standing_still_since < TimeSpan.FromMilliseconds(450)))
+      string last_sample = "";
+      DateTimeOffset since_the_covers_stood_still = DateTimeOffset.UtcNow;
+      while (DateTimeOffset.UtcNow < rest)
       {
         Pump();
-        if (Math.Abs(viewport.Offset.X - before) < 0.5)
-          standing_still_since ??= DateTimeOffset.UtcNow;
-        else
-          standing_still_since = null;
-
-        before = viewport.Offset.X;
+        string sample = WhereTheCoversStand();
+        if (sample != last_sample)
+        {
+          last_sample = sample;
+          since_the_covers_stood_still = DateTimeOffset.UtcNow;
+        }
+        else if (DateTimeOffset.UtcNow - since_the_covers_stood_still >= TimeSpan.FromMilliseconds(450))
+        {
+          break;
+        }
       }
 
       for (int settled = 0; settled < 3; ++settled)
@@ -2375,66 +2524,51 @@ namespace Tests.Frontend
       double right = double.MinValue;
       double centre_of_the_stood_cover = double.NaN;
       string seen = "nothing";
-      int stood_index = titles.SelectedIndex;
-      int counted = 0;
+      Control[] stands = CoversThePanelStandsUp();
+      Control? the_stood_cover = CoverTheCaretStandsOn();
+      int counted = stands.Length;
 
-      // Where the covers are PAINTED, read the way a viewer sees them: every cover's middle is translated into the
+      // Where the covers are PAINTED, read the way a viewer sees them: the panel is asked which covers it stands up
+      // and each of those carries the title it shows, and every cover's middle is then translated into the
       // scroller's own space, which carries the wall's travel, the panel's place and every transform the shape wore
-      // into the number.  Measuring out of a container's Bounds instead was measured to be wrong - a recycled
+      // into the number.  Going by ContainerFromIndex instead was measured to be wrong two ways over: a recycled
       // container answers with the Bounds of the place it came from (one stood at 118534 in its Bounds while it was
-      // drawn at 1662), which made this test report a wall standing far off the picture while it was centred.
-      for (int place_of_row = stood_index - 40; place_of_row <= stood_index + 40; ++place_of_row)
+      // drawn at 1662), and while an answer of the shelf is still arriving the index a container answers to and the
+      // place it stands at part ways - the container for the stood index was then read five thousand points right of
+      // the middle, at the very same place in three runs that each had the wall at another offset.  A container is
+      // realized WITH the title it shows, so asking the covers after their title cannot miss the wall.
+      foreach (Control tile in stands)
       {
-        if (place_of_row < 0 || place_of_row >= titles.Items.Count)
-          continue;
-
-        if (titles.ContainerFromIndex(place_of_row) is not Control tile || tile.Bounds.Width <= 0.0)
-          continue;
-
         Point? middle = tile.TranslatePoint(
             new Point(tile.Bounds.Width / 2.0, tile.Bounds.Height / 2.0), viewport);
         if (middle == null)
           continue;
 
-        if (tile.RenderTransform is TransformGroup worn)
-          seen = worn.ToString() ?? "no transform";
-
         double stood_at = middle.Value.X;
         double half_of_the_tile = tile.Bounds.Width / 2.0;
-        if (tile.RenderTransform is TransformGroup shaped)
+        if (tile.RenderTransform is TransformGroup worn)
         {
+          seen = worn.ToString() ?? "no transform";
+
           // A shape that shrinks a cover as it stands further off the middle paints a narrower cover than the one
           // it laid out, so the edge a viewer sees is the projected one, not the laid half width.
           Point? edge = tile.TranslatePoint(new Point(tile.Bounds.Width, 0.0), viewport);
           if (edge != null)
             half_of_the_tile = Math.Abs(edge.Value.X - stood_at);
-          _ = shaped;
         }
 
         left = Math.Min(left, stood_at - half_of_the_tile);
         right = Math.Max(right, stood_at + half_of_the_tile);
-        ++counted;
 
-        if (place_of_row == stood_index)
+        if (ReferenceEquals(tile, the_stood_cover))
           centre_of_the_stood_cover = stood_at;
       }
 
-      string read = counted + " covers answered to an index, the leftmost standing at " + left
+      string read = counted + " covers stand realized in the panel, the leftmost standing at " + left
           + " and the rightmost ending at " + right + " of a picture running from 0 to " + picture
           + " (cache " + panel.CacheLength + ", extent " + viewport.Extent.Width + ", offset "
           + viewport.Offset.X + ", the panel trees: " + trees + ")"
           + "; the cover stood on stands at " + centre_of_the_stood_cover + " wearing " + seen;
-      if (shape == "carousel")
-      {
-        Control? selected_tile = titles.ContainerFromIndex(stood_index) as Control;
-        Point? selected_at = selected_tile?.TranslatePoint(new Point(), viewport);
-        read += "; laid containers: " + string.Join(", ", titles.GetRealizedContainers()
-            .OfType<Control>()
-            .Select(tile => "i" + titles.IndexFromContainer(tile) + " x" + tile.Bounds.X
-                + " w" + tile.Bounds.Width + " m" + tile.Margin.Left + "/" + tile.Margin.Right))
-            + "; selected bounds=" + selected_tile?.Bounds + " translated=" + selected_at
-            + " items=" + titles.Items.Count + " selected=" + stood_index;
-      }
       Assert.That(counted, Is.GreaterThan(2), "the shape is worn over covers the list knows " + read);
       Assert.That(right - left, Is.LessThan(picture * 6.0),
           "a row of covers is as wide as the covers in it, not as wide as the whole wall - a row dressed while "
@@ -2443,93 +2577,57 @@ namespace Tests.Frontend
       Assert.That(left, Is.LessThan(0.0), "a " + shape + " reaches past the left edge of the picture - " + read);
       Assert.That(right, Is.GreaterThan(picture), "a " + shape + " reaches past its right edge - " + read);
 
-      if (shape == "carousel" && stood_index > 0 && stood_index + 1 < titles.Items.Count
-          && titles.ContainerFromIndex(stood_index - 1) is Control left_neighbour
-          && titles.ContainerFromIndex(stood_index + 1) is Control right_neighbour
-          && left_neighbour.RenderTransform is TransformGroup left_group
-          && right_neighbour.RenderTransform is TransformGroup right_group)
-      {
-        // What the viewer compares has never been the numbers written into a transform but the cover that comes out
-        // of it, so both neighbours are projected here the way the compositor projects them: their four corners are
-        // put through the whole transform the tile wears, and the points coming back are measured.  A turn whose
-        // perspective is worked out wrongly for one sign of the angle survives every assertion on written values
-        // and is caught by nothing else - it was measured at 143 px against 185 px for two covers written alike.
-        Point[] left_seen = ProjectCorners(left_neighbour, left_group);
-        Point[] right_seen = ProjectCorners(right_neighbour, right_group);
-
-        double left_width = left_seen.Max(p => p.X) - left_seen.Min(p => p.X);
-        double right_width = right_seen.Max(p => p.X) - right_seen.Min(p => p.X);
-        Assert.That(left_width, Is.EqualTo(right_width).Within(1.0),
-            "two covers standing equally far from the stood one are SEEN equally wide, not merely written so - "
-            + CornersRead(left_seen, right_seen));
-
-        // The vertical edge a neighbour shows the stood cover is the one nearer the viewer, so it must stand taller
-        // than the edge turned away - on both sides, and by the same amount on both sides.
-        double left_facing = Math.Abs(left_seen[3].Y - left_seen[1].Y);
-        double left_away = Math.Abs(left_seen[2].Y - left_seen[0].Y);
-        double right_facing = Math.Abs(right_seen[2].Y - right_seen[0].Y);
-        double right_away = Math.Abs(right_seen[3].Y - right_seen[1].Y);
-        Assert.That(left_facing, Is.GreaterThan(left_away),
-            "the left neighbour turns its focus-facing edge toward the viewer - " + CornersRead(left_seen, right_seen));
-        Assert.That(right_facing, Is.GreaterThan(right_away),
-            "the right neighbour turns its focus-facing edge toward the viewer - " + CornersRead(left_seen, right_seen));
-        Assert.That(left_facing, Is.EqualTo(right_facing).Within(1.0),
-            "the two neighbours face the stood cover with equally tall edges - " + CornersRead(left_seen, right_seen));
-        Assert.That(left_away, Is.EqualTo(right_away).Within(1.0),
-            "the two neighbours turn away from the stood cover with equally short edges - "
-            + CornersRead(left_seen, right_seen));
-
-        // And the lean carries both of them the same little step toward the middle of the picture, which is what
-        // closes a ring instead of leaving a hole where the stood cover stands.
-        double left_drift = (left_seen.Max(p => p.X) + left_seen.Min(p => p.X)) / 2.0 - left_neighbour.Bounds.Width / 2.0;
-        double right_drift = (right_seen.Max(p => p.X) + right_seen.Min(p => p.X)) / 2.0
-            - right_neighbour.Bounds.Width / 2.0;
-        Assert.That(left_drift, Is.EqualTo(-right_drift).Within(1.0),
-            "the two neighbours lean toward the middle of the picture by equally much - "
-            + CornersRead(left_seen, right_seen));
-
-        ScaleTransform left_measure = left_group.Children.OfType<ScaleTransform>().Single();
-        ScaleTransform right_measure = right_group.Children.OfType<ScaleTransform>().Single();
-        Assert.That(left_measure.ScaleX, Is.EqualTo(right_measure.ScaleX).Within(0.001),
-            "carousel neighbours at equal distances stand equally wide");
-        Assert.That(left_measure.ScaleY, Is.EqualTo(right_measure.ScaleY).Within(0.001),
-            "carousel neighbours at equal distances stand equally tall");
-        Assert.That(left_neighbour.DataContext, Is.SameAs(titles.Items[stood_index - 1]),
-            "recycled left containers wear the item at their current index");
-        Assert.That(right_neighbour.DataContext, Is.SameAs(titles.Items[stood_index + 1]),
-            "recycled right containers wear the item at their current index");
-      }
-
       // The wall carries the stood cover to the middle of the picture and stops there; the row's own dressing must
       // not pull it away again, which is the re-centring the viewer felt as a jerk after every key.
       Assert.That(double.IsNaN(centre_of_the_stood_cover), Is.False,
           "the cover the shelf stands on is one the panel stood up while the shape was worn - " + read);
-      // A carousel is built around the middle of the picture, so its stood cover answers to that middle: a stood
-      // cover standing a hundred points to one side is a row that reads bigger on the other side, which the looser
-      // band of the stacked shape has to keep allowing for.
-      double within_reach_of_the_middle = shape == "carousel" ? 60.0 : picture / 4.0;
+      // A gathered row is built around the middle of the picture, so its stood cover answers to that middle: a
+      // stood cover standing a hundred points to one side is a row that reads bigger on the other side.  The band
+      // is as loose as a row that is still gliding to its cover needs it to be, and no looser.
+      double within_reach_of_the_middle = picture / 4.0;
       Assert.That(Math.Abs(centre_of_the_stood_cover - picture / 2.0), Is.LessThan(within_reach_of_the_middle),
           "the cover being stood on answers to the middle of the picture rather than to one of its edges - " + read);
     }
 
     /// <summary>
-    /// The four corners of a tile as the shape it wears puts them: the tile's own box, corner by corner, through
-    /// the matrix the compositor draws with.  This is what a cover looks like, and it is not what was written.
+    /// The parts a word is standing in, nearest first: the names and classes its own ancestors wear.  A skin paints
+    /// the same answer in more than one dressing, so a count that came out wrong has to say which dressing painted
+    /// it rather than leave the reader to guess between the three places a binding stands.
     /// </summary>
-    private static Point[] ProjectCorners(Control tile, Transform worn)
+    private static string DressOf(Visual visual)
     {
-      Matrix through = worn.Value;
-      double width = tile.Bounds.Width;
-      double height = tile.Bounds.Height;
-      Point[] laid = { new Point(0.0, 0.0), new Point(width, 0.0), new Point(0.0, height), new Point(width, height) };
-      return laid.Select(corner => through.Transform(corner)).ToArray();
+      List<string> parts = new List<string>();
+      for (Visual? v = visual; v != null && parts.Count < 9; v = v.GetVisualParent())
+      {
+        if (!(v is Control worn))
+          continue;
+
+        string piece = worn.GetType().Name;
+        if (!string.IsNullOrEmpty(worn.Name))
+          piece += "#" + worn.Name;
+        if (worn.Classes.Count > 0)
+          piece += "." + string.Join(".", worn.Classes.ToArray());
+        parts.Add(piece);
+      }
+
+      return string.Join(" < ", parts.ToArray());
     }
 
-    /// <summary>How the two projected neighbours read, for the mouth of a failing assertion.</summary>
-    private static string CornersRead(Point[] left, Point[] right)
-        => "left corners " + string.Join(" ", left.Select(p => "(" + p.X.ToString("F1") + "|" + p.Y.ToString("F1") + ")"))
-        + " against right corners " + string.Join(" ",
-            right.Select(p => "(" + p.X.ToString("F1") + "|" + p.Y.ToString("F1") + ")"));
+    /// <summary>
+    /// Does a viewer see this visual?  A control's own flag says nothing about the panels above it, and the details
+    /// screen carries the dressings of every cover shape at once - only the one belonging to the shape the viewer
+    /// stands in is shown, so counting answers by the flag alone counts words nobody reads.
+    /// </summary>
+    private static bool StandsInTheLight(Visual visual)
+    {
+      for (Visual? v = visual; v != null; v = v.GetVisualParent())
+      {
+        if (v is Control worn && !worn.IsVisible)
+          return false;
+      }
+
+      return true;
+    }
 
     /// <summary>
     /// The walls of the rail. A key that points past a wall - left past the rail's side, up past its head,
@@ -3308,7 +3406,10 @@ namespace Tests.Frontend
             return false;
           bool settled = Math.Abs(grow.Value.M11 - settledOn) < 0.000001;
           settledOn = grow.Value.M11;
-          return settled;
+          // A ruler held against the dialog before the grow has stirred reads nothing at all, and two such
+          // readings look exactly like a settled one - so the wait only counts once the dialog actually
+          // stands on the screen with a scale.
+          return settled && grow.Value.M11 > 0.0;
         });
         Pump();
         double scale = plate.TransformToVisual(window)!.Value.M11;
@@ -3445,9 +3546,15 @@ namespace Tests.Frontend
             "the sheet a row stands on is the screen's own light in colour...");
         Assert.That(sheetColor.G, Is.EqualTo(lightBrush.Color.G));
         Assert.That(sheetColor.B, Is.EqualTo(lightBrush.Color.B));
-        Assert.That(sheetColor.A, Is.GreaterThan((byte)0).And.LessThan((byte)255),
-            " ... but see-through, so a shade of the ground behind the shelf reads faintly through it "
-            + "(how faint is the viewer's dial - the law only binds it to be neither painted over nor gone)");
+        // The strength of the sheet is the viewer's dial, and he turned it on 2026-11-05: the media library's rows
+        // stand their sheet FULL white, where an earlier reading of his had let a shade of the ground behind the
+        // shelf read faintly through it (alpha 0x88).  What the law keeps holding is the two things that were never
+        // his to give away: the sheet is the screen's own light and not some other white, and it is there.
+        Assert.That(sheetColor.A, Is.EqualTo((byte)255),
+            " ... at the strength the viewer dialled it, which is full: the sheet the focused row stands on is "
+            + "white, not a wash a viewer has to read through");
+        Assert.That(sheetColor, Is.EqualTo(lightBrush.Color),
+            "so the row's sheet and the screen's light are one and the same colour");
 
         Assert.That(standing.Foreground, Is.InstanceOf<ISolidColorBrush>(),
             "the row a viewer stands on speaks in one colour");
@@ -4496,11 +4603,25 @@ namespace Tests.Frontend
       WaitUntil("the caret to be in the rail", delegate { return rail.IsKeyboardFocusWithin; });
       WaitUntil("the rows of the menu to be there", delegate { return rail.Items.Count > 3; });
 
-      // The fourth row of the commands page, "View: ...", which is where a viewer who wants another layout stops.
+      // The row of the commands page that opens the shapes, "View: ...", which is where a viewer who wants another
+      // layout stops. Sought by its word rather than by its place: the commands have grown a row since this test
+      // was written, and a caret stood on a row named by number stops on whatever that number learned to mean.
       // Stood on by the list's own caret - the same state the arrow keys leave behind - and not reached by a click.
-      rail.SelectedIndex = 3;
+      int view_row = -1;
+      for (int i = 0; i < rail.Items.Count; i++)
+      {
+        if (((MediaBrowserMenuEntry) rail.Items[i]!).Label.StartsWith("View",
+            StringComparison.OrdinalIgnoreCase))
+        {
+          view_row = i;
+          break;
+        }
+      }
+
+      Assert.That(view_row, Is.GreaterThan(0), "the commands carry a row that opens the shapes page");
+      rail.SelectedIndex = view_row;
       Pump();
-      Assert.That(rail.SelectedIndex, Is.EqualTo(3), "the caret stands on the fourth row of the rail");
+      Assert.That(rail.SelectedIndex, Is.EqualTo(view_row), "the caret stands on the row that opens the shapes");
 
       SendKey(rail, Key.Enter);
       WaitUntil("the page that row opens to be the page on the screen",
@@ -6104,20 +6225,33 @@ namespace Tests.Frontend
 
       // And what is kept in the details is kept there IN ADDITION TO being read here - the viewer had to say so
       // twice, because a first reading of the request moved the answers instead of copying them.  The codec is the
-      // one to measure with: it is read on the reader's side and behind the rating, and nowhere else.
+      // one to measure with: it is read on the reader's side and behind the rating, and nowhere else.  Only the
+      // readings that stand in the light are counted: the screen carries the details of every shape at once, and
+      // the panel of the cover shapes ("coverDetailsPanel", shown by ShowsCoverDetails) holds a third copy that a
+      // viewer standing in another shape never sees.
       TextBlock[] codecs = window.GetVisualDescendants().OfType<TextBlock>()
-          .Where(t => t.Text == "HEVC")
+          .Where(t => t.Text == "HEVC" && StandsInTheLight(t))
           .ToArray();
       Assert.That(codecs, Has.Length.EqualTo(2),
           "the codec is read twice over, once under the word \"Video\" and once behind the rating, got "
-          + codecs.Length.ToString());
+          + codecs.Length + " ("
+          + string.Join("  |  ", codecs.Select(t => "in the light at "
+              + Frame(t).X.ToString("F0") + "," + Frame(t).Y.ToString("F0")
+              + " wearing '" + DressOf(t) + "'"))
+          + ")");
+      Assert.That(codecs.Count(t => Frame(t).X < window.Width / 2), Is.EqualTo(1),
+          "one reading of the codec stands on the reader's side and the other in the details column, got them at "
+          + string.Join(" and ", codecs.Select(t => Frame(t).X.ToString("F0"))));
 
       // And what stayed, stayed ON the row of the rating: behind it, with ground between, on the same line.  The
       // row outlives a title without stars - which is why the rating stands in a panel of its own inside it -
-      // but where a rating is read, the plaques are read behind it.
-      TextBlock rating = window.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Text == "(7.3)");
+      // but where a rating is read, the plaques are read behind it.  Rating and plaques are asked for in the light
+      // only, for the same reason as the codec above: the panel of the cover shapes carries its own copy of the
+      // whole row, and a word of that copy is nobody's law while the viewer stands in another shape.
+      TextBlock rating = window.GetVisualDescendants().OfType<TextBlock>()
+          .Single(t => t.Text == "(7.3)" && StandsInTheLight(t));
       Border[] plaques = window.GetVisualDescendants().OfType<Border>()
-          .Where(b => b.Classes.Contains("details-logo"))
+          .Where(b => b.Classes.Contains("details-logo") && StandsInTheLight(b))
           .ToArray();
       Border first = plaques.FirstOrDefault(b => Frame(b).X > Frame(rating).Right)!;
       Assert.That(first, Is.Not.Null,
@@ -7539,6 +7673,29 @@ namespace Tests.Frontend
       internal string? LastUrl { get; private set; }
 
       /// <summary>
+      /// Every shelf question it was asked, oldest first, in the order the questions came in.
+      /// </summary>
+      /// <remarks>
+      /// The screen's shelf is not the only thing that asks one. Reading the story of the row a viewer stands on
+      /// asks the same URL for the episodes filed inside that row, because the row's file plaques answer from the
+      /// first of them (<see cref="MediaBrowserViewModel"/>.<c>ReadFirstEpisodeOfShelfAsync</c>), and that question
+      /// travels the same road as the screen's own. A test that wants to know what the SCREEN asked therefore asks
+      /// this list; <see cref="Aspect"/>, <see cref="Inside"/> and <see cref="LastUrl"/> stay what they always
+      /// were - the last shelf question, whoever asked it.
+      /// </remarks>
+      internal readonly List<string> ShelfAsks = new List<string>();
+
+      /// <summary>
+      /// Whether this server was asked a shelf question for <paramref name="aspect"/> about the titles inside
+      /// <paramref name="inside"/> - by the screen, by a plaque, or by anything else walking the same URL.
+      /// </summary>
+      internal bool WasAsked(string aspect, string inside)
+      {
+        return ShelfAsks.Exists(ask => ask.Contains("aspect=" + aspect + "&")
+            && ask.Contains("inside=" + inside));
+      }
+
+      /// <summary>
       /// Where the screen last asked for one title's own story - its details or its pictures - which is how a test
       /// sees that a row the library only counts is read through the title it was counted from.
       /// </summary>
@@ -7585,6 +7742,7 @@ namespace Tests.Frontend
         }
 
         LastUrl = request.RequestUri.PathAndQuery;
+        ShelfAsks.Add(LastUrl);
         Aspect = Asked(request.RequestUri.Query, "aspect");
         Inside = Asked(request.RequestUri.Query, "inside");
         Sort = Asked(request.RequestUri.Query, "sort");
@@ -8004,11 +8162,11 @@ namespace Tests.Frontend
         seasons.OpenCommand.Execute(null);
         WaitUntil("the seasons to arrive", delegate { return seasons.Titles.Count == 2; });
 
-        Assert.That(server.Aspect, Is.EqualTo("SeasonItem"),
+        Assert.That(server.WasAsked("SeasonItem", series.Titles[0].Title.Id.ToString("D")), Is.True,
             "MP2 files a season as a title in its own right - its own aspect, its own role, its own relationship "
             + "extractor - and the reference has whole season screens, so a viewer pressing into a series stands "
-            + "above the seasons, not above the episodes");
-        Assert.That(server.Inside, Is.EqualTo(series.Titles[0].Title.Id.ToString("D")));
+            + "above the seasons, not above the episodes (the questions the server was asked: "
+            + string.Join("  |  ", server.ShelfAsks.ToArray()) + ")");
         Assert.That(seasons.SortOrder, Is.EqualTo("season"),
             "a season is watched in the order it was made, which is the number the importer wrote and not the "
             + "name it wrote above the number");
