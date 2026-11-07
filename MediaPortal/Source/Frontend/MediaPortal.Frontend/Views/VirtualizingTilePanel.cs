@@ -388,9 +388,31 @@ namespace MediaPortal.Frontend.Views
         probe = probe + 1 >= Items.Count ? 0 : probe + 1;
       }
 
-      Control container = TakeOrMake(probe);
-      container.Measure(constraint);
-      return container.DesiredSize;
+      // The wall measures itself by a tile it can look at, not by one it has to build. The container the probe
+      // title already wears is therefore asked first, and a container is only borrowed while nothing stands
+      // there - and handed back the moment its measurement is read. Dropping the borrowed one instead, which is
+      // what used to happen, leaves it hanging on the panel: not standing, not pooled, not held, unknown to all
+      // three places that keep a container, and still prepared with the generator. The band built for that very
+      // index afterwards therefore grew a second tile, and every measure pass left one more behind - measured
+      // at one hundred and twenty tiles for one hundred and twenty passes, none of them ever reused.
+      Control? wearing = ContainerFromIndex(probe);
+      if (wearing != null)
+      {
+        wearing.Measure(constraint);
+        return wearing.DesiredSize;
+      }
+
+      Control borrowed = TakeOrMake(probe);
+      borrowed.Measure(constraint);
+      Size cell = borrowed.DesiredSize;
+
+      // A title which IS its own container keeps that container, of course: it is the title, and taking it away
+      // would take it off the wall. Anything else goes back the way it came - out of the tree, cleared by the
+      // generator, into the pool - which is exactly where the band below wants to find it again.
+      if (!ReferenceEquals(borrowed.GetValue(RecycleKeyProperty), ITS_OWN_CONTAINER))
+        PutBack(borrowed);
+
+      return cell;
     }
 
     /// <summary>
