@@ -198,12 +198,22 @@ namespace MediaPortal.Frontend.Views
       DetachedFromVisualTree += delegate
       {
         SkinEngine.Changed -= OnSkinChanged;
+
+        // An appointment kept for a screen that is being left would be kept for nobody: the panels go out of the
+        // tree with the screen anyway, and nothing behind it should find this screen's menu in front of it.
+        _menuPanelTimer?.Stop();
+
         _chromeShell?.SetChromeHeaderOverlay(false);
         _chromeShell?.SetChromeHeaderStowed(false);
         _chromeShell?.SetCornerMenuMark(null, null);
         _chromeShell = null;
       };
       ApplyLayout();
+
+      // Neither menu lies where a viewer can see it until he asks for it, so neither is hung in the tree at the
+      // start: the rows are built when the menu is opened (the view model fills them then) and are taken down
+      // again with the panel when the room has slid back over them. See SlideMenu, which owns both halves.
+      LayTheMenuPanelsDown();
 
       // The caret comes in with the titles. The screen is activated while its shelf is still empty - the titles
       // are on their way from the server - so the shelf cannot answer the caret then, and a shelf that is on the
@@ -1196,6 +1206,30 @@ namespace MediaPortal.Frontend.Views
       // back starts from wherever the room got to, because that is where the room's value is standing and a
       // transition always starts from where the value is.
       _slideCovers = covers;
+
+      // Whether the menu's rows hang in the tree at all belongs here and not to a binding, for one reason: a
+      // panel bound to the layout stays visible while the room stands back over it, and Avalonia measures,
+      // arranges and paints an invisible control not at all. Bound to the layout, a shelf that has ever shown its
+      // menu therefore carries its rows for the rest of its life two hundred points off the picture.
+      if (open)
+      {
+        // Stood up before the room is told to move, so that the first frame of the slide already carries the
+        // rows: a control made visible by the same word that starts the sliding is laid out before anything is
+        // painted, and it is laid out at the edge it will slide out of, not on the screen.
+        _menuPanelTimer?.Stop();
+        StandMenuPanel(covers);
+      }
+      else if (sideMenu.IsVisible || bottomMenu.IsVisible)
+      {
+        // Only now has the menu a panel it could lose. It keeps it through the sliding, because the thing the
+        // viewer is watching is the menu travelling back out of the edge along with the room, and the room is
+        // what the reference moved.
+        if (atOnce)
+          LayTheMenuPanelsDown();
+        else
+          LayTheMenuPanelsDownWhenTheRoomStops();
+      }
+
       ApplySlide(open ? (covers ? COVER_SLIDE : MENU_SLIDE) : 0, atOnce);
       FocusMediaMenu(open, covers);
     }
@@ -1222,6 +1256,85 @@ namespace MediaPortal.Frontend.Views
 
       if (atOnce)
         slide.Transitions = held;
+    }
+
+    /// <summary>The slide the markup declares, for the case of a transform carrying no transitions to ask.</summary>
+    private static readonly TimeSpan DECLARED_SLIDE = TimeSpan.FromMilliseconds(350);
+
+    /// <summary>Wakes once after the room stopped sliding, to take the menu's panels out of the tree.</summary>
+    private DispatcherTimer? _menuPanelTimer;
+
+    /// <summary>
+    /// How long the room's slide takes, read off the very transitions the slide travels on. Read and not repeated:
+    /// the moment the panels are laid down must be the moment the room stops moving, and a second copy of the
+    /// number in this file is a second number that can be changed on its own.
+    /// </summary>
+    private TimeSpan RoomSlideLength
+    {
+      get
+      {
+        Transitions? carried = RoomSlide.Transitions;
+        if (carried == null)
+          return DECLARED_SLIDE; // a jump borrows the transitions off the transform for the length of the jump
+
+        foreach (ITransition step in carried)
+        {
+          if (step is DoubleTransition glide
+              && (glide.Property == TranslateTransform.XProperty || glide.Property == TranslateTransform.YProperty))
+            return glide.Duration;
+        }
+
+        return DECLARED_SLIDE;
+      }
+    }
+
+    /// <summary>
+    /// Hangs this shelf's menu in the panel its shape lies behind - the rail at the room's left edge beside a
+    /// grid or a list, the row of plates under its floor under covers - and takes the other one down, which is
+    /// the layout law the markup used to carry as two bindings.
+    /// </summary>
+    private void StandMenuPanel(bool covers)
+    {
+      sideMenu.IsVisible = !covers;
+      bottomMenu.IsVisible = covers;
+    }
+
+    /// <summary>
+    /// Takes both panels out of the tree, which is what a shelf whose menu stands shut does with a menu it is not
+    /// showing: the room slid back over it, and from here on its rows are only measured, arranged and painted
+    /// again every time something else asks the room for a layout pass - for a viewer who is looking at titles.
+    /// </summary>
+    private void LayTheMenuPanelsDown()
+    {
+      sideMenu.IsVisible = false;
+      bottomMenu.IsVisible = false;
+    }
+
+    /// <summary>
+    /// Lays the panels down once the room has arrived back, which is the first moment the menu is really out of
+    /// the picture. Earlier would take the picture of the sliding menu away with the panels.
+    /// </summary>
+    private void LayTheMenuPanelsDownWhenTheRoomStops()
+    {
+      if (_menuPanelTimer == null)
+      {
+        _menuPanelTimer = new DispatcherTimer(DispatcherPriority.Background);
+        _menuPanelTimer.Tick += delegate
+        {
+          _menuPanelTimer!.Stop();
+
+          // Called back while the room was still travelling: this appointment belonged to a menu that is
+          // standing again by now, and a menu that stands keeps the panel it stands in.
+          if (DataContext is MediaBrowserViewModel browser && browser.MediaMenuVisible)
+            return;
+
+          LayTheMenuPanelsDown();
+        };
+      }
+
+      _menuPanelTimer.Interval = RoomSlideLength;
+      _menuPanelTimer.Stop();
+      _menuPanelTimer.Start();
     }
 
     /// <summary>

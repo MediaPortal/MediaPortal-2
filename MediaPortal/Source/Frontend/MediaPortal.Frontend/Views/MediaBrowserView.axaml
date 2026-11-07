@@ -751,13 +751,18 @@
         edge starts below the head band (the reference's rail began where its master's head band ended), and it
         runs past the bottom edge so that the glow along its right edge has ground to stand on; the glow itself is
         lifted off the bottom by the two hundred points of the floor band, exactly as the reference's was.
+
+        No visibility is declared here on purpose. Which of this panel and the one under the floor is the shelf's
+        menu is the layout's word, and whether that menu hangs in the tree at all is the room's word - a shut menu
+        is a menu the room slid back over, and it keeps its rows standing two hundred points off the picture for
+        the rest of the shelf's life if nobody says otherwise. Both words are said by SlideMenu, where the sliding
+        itself is said, because the second one must be said when the room has arrived and not before.
       -->
       <Panel Name="sideMenu"
              Grid.RowSpan="2"
              Grid.Column="0"
              Margin="0,90,0,0"
-             ClipToBounds="False"
-             IsVisible="{Binding !IsCoverLayout}">
+             ClipToBounds="False">
         <!-- The ground. The reference laid a black rectangle at nine tenths over the whole panel and the glow
              picture along its right edge, so that the rail does not end at a line but pales into the shelf. -->
         <!--border Background="Black" Opacity="0.9"/-->
@@ -803,8 +808,7 @@
       <Panel Name="bottomMenu"
              Grid.Row="1"
              Grid.ColumnSpan="2"
-             ClipToBounds="False"
-             IsVisible="{Binding IsCoverLayout}">
+             ClipToBounds="False">
         <!--
           No ground at all: the cover menu lies over the room's own picture, and a black slab under its plates
           cut that picture into a strip.  The plates carry their own ground, which is all the reading needs.
