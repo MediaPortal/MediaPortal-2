@@ -16,8 +16,11 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Rendering.SceneGraph;
+using Avalonia.Skia;
 using Avalonia.Threading;
 using MediaPortal.Frontend.Player;
+using SkiaSharp;
 
 namespace MediaPortal.Frontend.Views
 {
@@ -58,7 +61,11 @@ namespace MediaPortal.Frontend.Views
   {
     // The reference control's own constructor answers, kept as they are.
     private const int BarCount = 32;
-    private const double BarSpacing = 5d;
+    /// <summary>
+    /// Room between two bars. The reference control had five (AudioSpectrumAnalyzer.cs:124); the viewer asked for
+    /// ten on this screen, because at five the caps' glow could not reach anywhere without meeting its neighbour.
+    /// </summary>
+    private const double BarSpacing = 10d;
     private const int PeakFallDelay = 10;
     private const int MinimumFrequency = 20;
     private const int MaximumFrequency = 20000;
@@ -144,13 +151,33 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private const double CORNER_RADIUS = 5;
 
+    /// <summary>
+    /// How far a cap stands off the floor when nothing lifts it. The bars end at the floor and the caps used to
+    /// rest on it, which made the two read as one piece at rest; the viewer asked for five lines more between a
+    /// cap and the bar under it, and the room comes off the top of the field so that the strip's foot stays where
+    /// the mockup put it.
+    /// </summary>
+    private const double REST_LIFT = 5;
+
+    // A cap's light is a real gaussian blur, asked of Skia and not imitated with plates (see CapHalo). Three
+    // passes make it: a tight bright one hugging the cap, a middle one, and a wide faint one around both, which
+    // is how a lit edge reads. The numbers are what the viewer is asked to judge, so they stand here.
+    private const float GLOW_SIGMA_TIGHT = 4.5f;
+
+    private const float GLOW_SIGMA_MID = 10f;
+
+    private const float GLOW_SIGMA_WIDE = 18f;
+
+    private const byte GLOW_ALPHA_TIGHT = 230;
+
+    private const byte GLOW_ALPHA_MID = 130;
+
+    // Weakest of the three on purpose: thirty-two wide passes at the bar distance of this strip flood the rooms
+    // between the bars into one sheet of light, and the caps stop reading as thirty-two separate things.
+    private const byte GLOW_ALPHA_WIDE = 85;
+
     public AudioSpectrumBars()
     {
-      // A bar's rect is deliberately pushed one radius below the floor so that only its upper corners come out
-      // round (see Render), and the floor is where this control's own bounds end - which is what cuts those two
-      // corners off instead of letting them hang under the strip.
-      ClipToBounds = true;
-
       _barBrush = new LinearGradientBrush
       {
         StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
@@ -352,7 +379,13 @@ namespace MediaPortal.Frontend.Views
       // (AudioSpectrumAnalyzer.cs:409,485-486).
       double barWidth = Math.Max((width - BarSpacing * (BarCount + 1)) / BarCount, 1);
       double capHeight = Math.Max(barWidth / 2.0, 1);
-      double rise = height - capHeight;
+      double rise = Math.Max(height - capHeight - REST_LIFT, 1);
+      double capCorner = Math.Min(CORNER_RADIUS, capHeight / 2.0);
+
+      // Where every cap stands is written down once and used twice: the light is laid under the caps from these
+      // same rectangles, so a cap can never sit crooked in its own glow. The list is the operation's own, because a
+      // renderer that keeps its picture for later must not read numbers this control has already moved on from.
+      double[] caps = new double[BarCount * 4];
 
       for (int bar = 0; bar < BarCount; bar++)
       {
@@ -364,18 +397,108 @@ namespace MediaPortal.Frontend.Views
           if (level > height)
             level = height;
 
-          // The bar wears the same corner as its cap, and wears it at the top only: its rect is pushed one radius
-          // below the floor and the control is clipped to its own bounds, so the two lower corners are cut off by
-          // the floor line instead of being notched into the bar.
           double corner = Math.Min(CORNER_RADIUS, Math.Min(barWidth, level) / 2.0);
-          context.DrawRectangle(_barBrush, null, new Rect(x, height - level, barWidth, level + corner),
-              corner, corner);
+          context.DrawRectangle(_barBrush, null, new Rect(x, height - level, barWidth, level), corner, corner);
         }
 
-        // A cap stands with its lower edge at its height, and never above the line where its bar could reach.
-        double capTop = height - Math.Min(_caps[bar] * rise, rise) - capHeight;
-        double capCorner = Math.Min(CORNER_RADIUS, capHeight / 2.0);
-        context.DrawRectangle(CAP_BRUSH, null, new Rect(x, capTop, barWidth, capHeight), capCorner, capCorner);
+        // A cap stands with its lower edge at its height - five lines off the floor when nothing lifts it - and
+        // never above the line where its bar could reach.
+        caps[bar * 4] = x;
+        caps[bar * 4 + 1] = height - REST_LIFT - Math.Min(_caps[bar] * rise, rise) - capHeight;
+        caps[bar * 4 + 2] = barWidth;
+        caps[bar * 4 + 3] = capHeight;
+      }
+
+      // The light first, the crisp cap over it: a cap is white, so its own light cannot dull it, and everything the
+      // light reaches outside a cap is light and nothing else. Nothing here is cut - the control no longer clips
+      // itself, so a cap at its fullest and a cap at its floor both glow all the way around.
+      context.Custom(new CapHalo(new Rect(0, 0, width, height), caps, capCorner));
+
+      for (int bar = 0; bar < BarCount; bar++)
+      {
+        context.DrawRectangle(CAP_BRUSH, null,
+            new Rect(caps[bar * 4], caps[bar * 4 + 1], caps[bar * 4 + 2], caps[bar * 4 + 3]), capCorner, capCorner);
+      }
+    }
+
+    /// <summary>
+    /// The caps' light, blurred by Skia itself: the cap's own rounded shape is drawn through a gaussian mask
+    /// filter, which is what light off a lit edge looks like, as opposed to the translucent plates this class wore
+    /// before and which the viewer sent back.
+    /// <para>
+    /// <b>Why this is affordable and the earlier refusal no longer applies.</b> The blur is asked per cap, so the
+    /// mask Skia softens is the size of one cap grown by three sigmas - at the widths this strip draws, about
+    /// seventy by sixty pixels - and not the size of the whole strip, which is what the fanart comparison feared
+    /// and what made a full-strip layer look extravagant. Thirty-two small masks are less work than one large one,
+    /// and this is the same blur the vendored glass already uses for its button shadows on every frame
+    /// (LiquidGlassAvaloniaUI/LiquidGlassShadowDrawOperations.cs), so it is proven on this frontend's renderers.
+    /// </para>
+    /// </summary>
+    private sealed class CapHalo : ICustomDrawOperation
+    {
+      private readonly double[] _caps;
+      private readonly float _corner;
+      private readonly Rect _bounds;
+
+      public CapHalo(Rect strip, double[] caps, double corner)
+      {
+        _caps = caps;
+        _corner = (float)corner;
+
+        // A gaussian is visibly spent at three sigmas. The bounds say how much room the renderer has to give this
+        // operation, so they are grown by the widest pass; without that the outer light would be cut, which is the
+        // very thing this control keeps being accused of.
+        double pad = GLOW_SIGMA_WIDE * 3.0;
+        _bounds = new Rect(-pad, -pad, strip.Width + 2 * pad, strip.Height + 2 * pad);
+      }
+
+      public Rect Bounds => _bounds;
+
+      public void Dispose()
+      {
+      }
+
+      public bool HitTest(Point p)
+      {
+        return false;
+      }
+
+      public bool Equals(ICustomDrawOperation? other)
+      {
+        return false;
+      }
+
+      public void Render(ImmediateDrawingContext context)
+      {
+        ISkiaSharpApiLeaseFeature? leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
+        if (leaseFeature is null)
+          return;  // a renderer that is not Skia gets its caps without their light; the caps themselves never fail
+
+        using ISkiaSharpApiLease lease = leaseFeature.Lease();
+        Soften(lease.SkCanvas, GLOW_SIGMA_TIGHT, GLOW_ALPHA_TIGHT);
+        Soften(lease.SkCanvas, GLOW_SIGMA_MID, GLOW_ALPHA_MID);
+        Soften(lease.SkCanvas, GLOW_SIGMA_WIDE, GLOW_ALPHA_WIDE);
+      }
+
+      private void Soften(SKCanvas canvas, float sigma, byte alpha)
+      {
+        SKMaskFilter? created = SKMaskFilter.CreateBlur(SKBlurStyle.Normal, sigma);
+        if (created is null)
+          return;
+
+        using SKMaskFilter blur = created;
+        using SKPaint paint = new SKPaint
+        {
+          Color = new SKColor(255, 255, 255, alpha),
+          MaskFilter = blur,
+          IsAntialias = true
+        };
+
+        for (int at = 0; at + 3 < _caps.Length; at += 4)
+        {
+          canvas.DrawRoundRect(SKRect.Create((float)_caps[at], (float)_caps[at + 1], (float)_caps[at + 2],
+              (float)_caps[at + 3]), _corner, _corner, paint);
+        }
       }
     }
 

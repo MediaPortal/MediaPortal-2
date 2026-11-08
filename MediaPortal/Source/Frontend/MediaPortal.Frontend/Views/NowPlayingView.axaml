@@ -17,6 +17,23 @@
     away until the Info key, a press of a key in its room, or the mouse arriving calls it.
   -->
 
+  <UserControl.Resources>
+    <!-- The shadow the audio screen's words wear: Avalonia's own drop shadow, which softens the lettering for
+         real (BlurRadius is a gaussian over the drawn glyphs) rather than standing a darkened copy of the word
+         behind it. Two strengths, because a label of twenty lines need not cast what a value of thirty three
+         lines casts. One instance each, shared by the cells: these numbers never change while the screen stands.
+         An effect is painted only inside the bounds of the visual it hangs on - measured, not assumed: with a ten
+         line blur and no room to spill the shadow ended at the very pixel of the word's own right edge (39 on one
+         line, 44 on the next, at exactly the width the layout had given the word) and cast nothing above the word
+         at all. So every shadowed word carries padding - the reach of its blur, plus the offset under its foot -
+         and the very same numbers back as a negative margin, which puts the lettering where it stood and still
+         leaves the shadow ground to fall on. -->
+    <DropShadowEffect x:Key="audioValueShadow" Color="#FF000000" Opacity="0.75" BlurRadius="8"
+                      OffsetX="0" OffsetY="3"/>
+    <DropShadowEffect x:Key="audioLabelShadow" Color="#FF000000" Opacity="0.6" BlurRadius="5"
+                      OffsetX="0" OffsetY="2"/>
+  </UserControl.Resources>
+
   <UserControl.Styles>
     <!-- The glass plate of these buttons lives in PlayerGlassStyles.axaml now, shared with the compact
          bar at the foot of the other screens. What follows here is only what this screen draws for
@@ -434,18 +451,27 @@
         skin's <c>audio.png</c> inside, inset by fifty, where no cover picture arrived (index.html:111,1506), which
         is the difference between "no cover" and "no screen".
       -->
-      <Border Name="audioCover" Width="420" Height="420" CornerRadius="20" Background="#FF000000"
-              BorderBrush="#33FFFFFF" BorderThickness="1" ClipToBounds="True"
+      <!-- Two surfaces, because a shadow cannot live on a clipped edge (HomeView.axaml:242-246 wrote that rule
+           for the wall tiles and it holds here): the outer border is the ground the cover stands on and casts the
+           shadow the browser's covers already cast (MediaBrowserView.axaml, "0 12 34 0 #A6000000"), the inner one
+          is the face the picture stands on and does the rounding. -->
+      <Border Name="audioCover" Width="420" Height="420" CornerRadius="20" BoxShadow="0 12 34 0 #A6000000"
               Margin="62,0,0,242" HorizontalAlignment="Left" VerticalAlignment="Bottom">
-        <Panel>
-          <Image Source="{Binding Cover, Converter={x:Static views:ArtworkConverter.Instance},
-                                   ConverterParameter=tile}"
-                 Stretch="UniformToFill"/>
-          <Image Source="{Binding Cover, Converter={x:Static views:SkinImageConverter.Instance},
-                                   ConverterParameter=audio}"
-                 Stretch="Uniform" Margin="50"
-                 IsVisible="{Binding Cover, Converter={x:Static ObjectConverters.IsNull}}"/>
-        </Panel>
+        <!-- The corners are cut on the inner one, so the shadow of the outer one is not chopped by its own edge.
+             And the face carries no stroke: the template had a one line rim of twenty hundredths white, invisible
+             while the cover lay flat on the fanart, but once the cover cast a shadow that rim read as a pale hair
+             all the way round the picture. The shadow draws the edge now. -->
+        <Border CornerRadius="20" Background="#FF000000" ClipToBounds="True">
+          <Panel>
+            <Image Source="{Binding Cover, Converter={x:Static views:ArtworkConverter.Instance},
+                                     ConverterParameter=tile}"
+                   Stretch="UniformToFill"/>
+            <Image Source="{Binding Cover, Converter={x:Static views:SkinImageConverter.Instance},
+                                     ConverterParameter=audio}"
+                   Stretch="Uniform" Margin="50"
+                   IsVisible="{Binding Cover, Converter={x:Static ObjectConverters.IsNull}}"/>
+          </Panel>
+        </Border>
       </Border>
 
       <!--
@@ -535,24 +561,32 @@
 
         <!-- No line height and no trimming on any of these words. A line height as tall as the lettering cuts the
              top off a capital and the foot off a "g" (measured on the screen: the "P" of "Pop" came away), and a
-             long album is worth a second line rather than a name with three dots behind it. -->
+             long album is worth a second line rather than a name with three dots behind it. The padding and the
+             matching negative margin are the shadow's ground - see the shadows in the resources - and keep the
+             lettering on the lines the template measured. -->
         <StackPanel Orientation="Horizontal" Spacing="45">
           <StackPanel Spacing="15"
                       IsVisible="{Binding AlbumName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
             <TextBlock Text="{Binding AlbumName}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"
-                       TextWrapping="Wrap" MaxWidth="520"/>
-            <TextBlock Text="Album" FontSize="20" Foreground="#99FFFFFF"/>
+                       TextWrapping="Wrap" MaxWidth="520" Effect="{StaticResource audioValueShadow}"
+                       Padding="10,6,10,12" Margin="-10,-6,-10,-12"/>
+            <TextBlock Text="Album" FontSize="20" Foreground="#99FFFFFF"
+                       Effect="{StaticResource audioLabelShadow}" Padding="7,4,7,9" Margin="-7,-4,-7,-9"/>
           </StackPanel>
           <StackPanel Spacing="15"
                       IsVisible="{Binding YearText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-            <TextBlock Text="{Binding YearText}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"/>
-            <TextBlock Text="Year" FontSize="20" Foreground="#99FFFFFF"/>
+            <TextBlock Text="{Binding YearText}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"
+                       Effect="{StaticResource audioValueShadow}" Padding="10,6,10,12" Margin="-10,-6,-10,-12"/>
+            <TextBlock Text="Year" FontSize="20" Foreground="#99FFFFFF"
+                       Effect="{StaticResource audioLabelShadow}" Padding="7,4,7,9" Margin="-7,-4,-7,-9"/>
           </StackPanel>
           <StackPanel Spacing="15"
                       IsVisible="{Binding GenreName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
             <TextBlock Text="{Binding GenreName}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"
-                       TextWrapping="Wrap" MaxWidth="520"/>
-            <TextBlock Text="Genre" FontSize="20" Foreground="#99FFFFFF"/>
+                       TextWrapping="Wrap" MaxWidth="520" Effect="{StaticResource audioValueShadow}"
+                       Padding="10,6,10,12" Margin="-10,-6,-10,-12"/>
+            <TextBlock Text="Genre" FontSize="20" Foreground="#99FFFFFF"
+                       Effect="{StaticResource audioLabelShadow}" Padding="7,4,7,9" Margin="-7,-4,-7,-9"/>
           </StackPanel>
         </StackPanel>
       </StackPanel>
