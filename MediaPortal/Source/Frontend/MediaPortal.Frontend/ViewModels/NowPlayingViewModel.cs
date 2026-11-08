@@ -88,6 +88,10 @@ namespace MediaPortal.Frontend.ViewModels
     private int _volume = 100;
     private bool _muted;
 
+    // Whether the viewer named a loudness on this screen themselves. Said once and kept: what the viewer left the
+    // sound at is what the next tune opens at, instead of the settings' start volume walking in again.
+    private bool _volumeAsked;
+
     private List<PlaybackTrack> _audioTracks = new List<PlaybackTrack>();
     private List<PlaybackTrack> _subtitleTracks = new List<PlaybackTrack>();
     private int _realSubtitleCount;
@@ -1946,11 +1950,16 @@ namespace MediaPortal.Frontend.ViewModels
       ClearTracks();
       _trackPreferencesDone = false;
 
-      // Where the sound begins, when the viewer said where it begins. Set before the engine is asked, so
-      // the first frame is already as loud as the answer says; mid-media turns by the viewer are never
-      // overruled, because this line is only on the road INTO a media.
-      if (Preferences != null)
+      // Where the sound begins, when the viewer said where it begins and has not named a number of their own
+      // since. Set before the engine is asked, so the first frame is already as loud as the answer says. It is a
+      // start volume and not a per-media one: an album is dozens of media, and a start volume handed out at every
+      // tune would undo whatever the viewer turned the loudness to during the previous one. The screen's own
+      // number moves with it, or the label beside the slider would go on saying what nobody set.
+      if (Preferences != null && !_volumeAsked)
+      {
+        _volume = Preferences.InitialVolume;
         _player.Volume = Preferences.InitialVolume;
+      }
 
       // Armed before the engine is asked, not after: an engine can raise its first position event while the call
       // to open the media is still running, and a resume armed afterwards would be a seek that never happens for
@@ -2152,8 +2161,38 @@ namespace MediaPortal.Frontend.ViewModels
       int clamped = value < 0 ? 0 : (value > 100 ? 100 : value);
       _player.Volume = clamped;
       _volume = clamped;
+      _volumeAsked = true;
+      RememberVolume();
       Raise();
       return true;
+    }
+
+    /// <summary>
+    /// Writes the loudness the viewer just picked into the answers, so that the next media and the next start of
+    /// this machine begin where they left it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Nothing was ever written down: the shipped start volume is 100 (Settings/PlaybackSettings.cs:121), a viewer
+    /// turning the sound down changed one living moment only, and the next start of the frontend opened at 100
+    /// again. Measured on the machine this was reported from: the settings folder holds the server address and no
+    /// answer file at all, because nothing ever asked for one to be written.
+    /// </para>
+    /// <para>
+    /// The answer's own sentence is dropped rather than shown - a volume key that scribbled "Saved in ..." across
+    /// the screen after every press would be worse than the silence it complains about. A machine whose file cannot
+    /// be written still plays at the number the viewer picked and forgets it at the next start, which is the most
+    /// this screen can honestly promise.
+    /// </para>
+    /// </remarks>
+    private void RememberVolume()
+    {
+      Settings.PlaybackSettings? prefs = Preferences;
+      if (prefs == null || prefs.InitialVolume == _volume)
+        return;
+
+      prefs.InitialVolume = _volume;
+      prefs.Save(null, out _);
     }
 
     public bool ToggleMute()

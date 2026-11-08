@@ -163,12 +163,17 @@ namespace MediaPortal.Frontend.Player
     /// <param name="log">Where to say what was moved, if anywhere.</param>
     /// <returns>How many rows were moved.</returns>
     /// <remarks>
-    /// The row multiplies what the front end plays at, so writing the front end's own number into it means the
-    /// number the viewer sees in the front end stays the one number that means anything; the machine's row ends
-    /// up out of the way rather than quietly halving everything. The write is not limited to rows that are mute
-    /// or silent: a row left at a third by an old click in the mixer is the same mistake in a quieter voice, and
-    /// a television that is quietly wrong is harder to notice than one that says nothing. What is never touched
-    /// is anybody else's row, and a row that already stands at the wanted number is left alone.
+    /// The row multiplies what the front end plays at, so a row that is mute or stood at nought takes the sound
+    /// away however the front end is set - that is the row this method corrects, and the need was measured: a
+    /// machine whose row stood at 9 % and muted played with real peaks and was heard as nothing.
+    /// <para>
+    /// A row that is neither mute nor silent is left exactly as it is, even when it disagrees with the front end's
+    /// own number. It used to be dragged to the front end's number on the reasoning that one number should mean
+    /// one thing; that turned out to overrule the viewer. Every title and every resume asked the row again, so a
+    /// loudness the viewer had set came back to the front end's number at the next tune, which is the opposite of
+    /// a setting. What is written now is only what could not be heard otherwise. What is never touched is anybody
+    /// else's row.
+    /// </para>
     /// </remarks>
     public static int WriteOwnVolume(int volumePercent, Action<string>? log = null)
     {
@@ -207,7 +212,9 @@ namespace MediaPortal.Frontend.Player
 
               row.GetMasterVolume(out float now);
               row.GetMute(out bool muted);
-              if (!muted && Math.Abs(now - wanted) < 0.001f)
+              // Only a row that could not be heard is moved. A row the viewer left at a third is their setting,
+              // and the next tune is not the front end's turn to disagree about it.
+              if (!muted && now > 0.001f)
                 continue;
 
               row.SetMasterVolume(wanted, IntPtr.Zero);

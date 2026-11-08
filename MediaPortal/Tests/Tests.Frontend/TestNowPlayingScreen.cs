@@ -21,6 +21,7 @@ using System.ComponentModel;
 using System.IO;
 
 using MediaPortal.Frontend.Player;
+using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.ViewModels;
 
 using NUnit.Framework;
@@ -52,10 +53,16 @@ namespace Tests.Frontend
     private NowPlayingViewModel _screen = null!;
     private readonly Queue<Action> _queued = new Queue<Action>();
     private int _changeCount;
+    private string? _playbackFile;
 
     [SetUp]
     public void SetUp()
     {
+      // A viewer's loudness is written into the answers file the moment they set it, and a test that sets a volume
+      // must not write on the file a real viewer uses. The whole fixture is therefore pointed at a temporary one.
+      _playbackFile = Path.Combine(Path.GetTempPath(), "mp2-screen", "playback-" + Guid.NewGuid().ToString("N") + ".json");
+      Environment.SetEnvironmentVariable("MP2_PLAYBACK_FILE", _playbackFile);
+
       _player = new FakePlayer();
       _screen = new NowPlayingViewModel(_player, _queued.Enqueue);
       _screen.Changed += delegate { _changeCount++; };
@@ -68,6 +75,18 @@ namespace Tests.Frontend
       // The screen owns the player and releases it with itself, which is what a closed screen does on a real
       // machine too; disposing the player separately would double-count the calls a test is counting.
       _screen.Dispose();
+
+      try
+      {
+        if (_playbackFile != null && File.Exists(_playbackFile))
+          File.Delete(_playbackFile);
+      }
+      catch (IOException)
+      {
+        // A leftover answer file in the temporary folder is nobody's problem but its own.
+      }
+
+      Environment.SetEnvironmentVariable("MP2_PLAYBACK_FILE", null);
     }
 
     /// <summary>Runs everything the engine's events handed to the screen's thread.</summary>
@@ -340,6 +359,41 @@ namespace Tests.Frontend
       Assert.That(_screen.Volume, Is.EqualTo(40), "muting is not setting the volume to zero, and unmute must not lose it");
       Assert.That(_player.Muted, Is.True);
       Assert.That(_player.Volume, Is.EqualTo(40));
+    }
+
+    [Test]
+    public void TheLoudnessTheViewerLeftStandsThroughTheNextTune()
+    {
+      // An album is dozens of media, so a start volume is a start and not a command for every tune. Measured on a
+      // real machine: every tune handed out the settings' number again, and whatever the viewer had turned the
+      // sound to was gone with the next song.
+      _screen.Preferences = new PlaybackSettings { InitialVolume = 90 };
+      Assert.That(_screen.Play(SomeFile("track one.flac")), Is.True);
+      Pump();
+      Assert.That(_player.Volume, Is.EqualTo(90), "a media begins where the answer said it begins");
+      Assert.That(_screen.Volume, Is.EqualTo(90), "and the number beside the slider says the same thing");
+
+      Assert.That(_screen.SetVolume(35), Is.True);
+      Assert.That(_screen.Play(SomeFile("track two.flac")), Is.True);
+      Pump();
+      Assert.That(_player.Volume, Is.EqualTo(35), "the next tune opens where the viewer left the sound");
+      Assert.That(_screen.Volume, Is.EqualTo(35));
+    }
+
+    [Test]
+    public void TheLoudnessTheViewerPickedIsWrittenDownForTheNextStart()
+    {
+      // Nothing was ever written down, so every start of the machine came back at the shipped 100 whatever the
+      // viewer had been listening at - the "zu laut beim Start" that was reported a second time.
+      // The answers are handed to the screen the way the application hands them over (App.axaml.cs:321).
+      _screen.Preferences = PlaybackSettings.Load(null, out _);
+      Assert.That(_screen.SetVolume(35), Is.True);
+
+      PlaybackSettings nextStart = PlaybackSettings.Load(null, out string? problem);
+      Assert.That(problem, Is.Null,
+          "the file the loudness was written into cannot be read back: " + problem);
+      Assert.That(nextStart.InitialVolume, Is.EqualTo(35),
+          "the next start opens at a number nobody chose instead of the one the viewer left");
     }
 
     [Test]
