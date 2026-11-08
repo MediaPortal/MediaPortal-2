@@ -175,6 +175,24 @@
       <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
+    <!-- One plaque of what the file is made of, above the cover. The same box the browser's details row uses
+         (MediaBrowserView.axaml:537-544, "details-logo"): one height written once, so a logo and a word stand in
+         boxes of one size, and a codec the skin carries no picture of is written in words inside the very same
+         box rather than left out. -->
+    <Style Selector="Border.audio-plaque">
+      <Setter Property="Background" Value="#33FFFFFF"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Height" Value="48"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.audio-plaque TextBlock">
+      <Setter Property="FontSize" Value="17"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    </Style>
+
     <!-- Where a chapter begins, on the position line. Every mark is the same and says nothing: the line they
          stand on is where they differ, and a label per chapter would be a row of words over the film. -->
     <Style Selector="Border.tick">
@@ -331,6 +349,216 @@
     </Panel>
 
     <!--
+      The audio arrangement, for the one kind of media that has no picture of its own.
+
+      A song played onto the film's screen arrives at a black rectangle with a row of buttons over it, and the
+      screen then says "nothing is playing" about the very thing that is playing. Everything a song can be shown
+      with stands here instead: the cover, the record it came off turning behind it, what the file is packed in,
+      what the library knows about the title, and the shade the row of buttons stands inside.
+
+      The arrangement is the one the mockup was drawn and measured at (1920x1080, every number below from it), and
+      it is drawn over the same stage the film wears: the row along the foot is the film's own row, untouched, with
+      its two track lists put away because a song's sound is not a choice between three dubs. Nothing here is
+      drawn for a film, and nothing of the film's arrangement is drawn here; which of the two the screen wears is
+      the model's answer to "is this music" (NowPlayingViewModel.IsAudio).
+
+      Every piece of it stands only where the library had something to say: no cover picture, no cover; no rating,
+      no stars; no album on the tag, no cell for one. A control that answers nothing is worse than the space it
+      would stand in, and that rule was written for the film's panel.
+    -->
+    <Panel Name="audioArea" IsVisible="{Binding IsAudio}" IsHitTestVisible="False">
+      <!--
+        The first layer is the album's own picture across the whole stage, as the mockup lays it (its
+        <c>.fanart</c> is the stage's first child) and as the reference's audio screen had it
+        (screens/FullScreenContentAudio.xaml). A film brings its own pictures; a song has none, and the screen of a
+        song stood on the record's artwork. Where the library keeps no such picture nothing is drawn here - the
+        mockup hides its fanart for that case too, and an invented background would be a lie about a library.
+      -->
+      <Image Name="audioFanart"
+             Source="{Binding Fanart, Converter={x:Static views:ArtworkConverter.Instance},
+                                       ConverterParameter=backdrop}"
+             Stretch="UniformToFill"/>
+
+      <!--
+        One shade over the whole stage - black at the lower edge, a tenth of it left at the top - rather than the
+        band the film's row carries on its own panel: the row is the same row, but on this screen it stands inside
+        the shade instead of over a picture of its own. The steps are the mockup's, close together so that the
+        black sits against the lower edge and the row is already standing in it.
+
+        A layer of its own and not the panel's background, because the panel's background is painted under its
+        children: as a background this shade would sit <em>behind</em> the fanart and the fanart would hide it.
+      -->
+      <Panel Name="audioShade">
+        <Panel.Background>
+          <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
+            <GradientStop Offset="0.00" Color="#FF000000"/>
+            <GradientStop Offset="0.08" Color="#C7000000"/>
+            <GradientStop Offset="0.16" Color="#99000000"/>
+            <GradientStop Offset="0.24" Color="#75000000"/>
+            <GradientStop Offset="0.36" Color="#57000000"/>
+            <GradientStop Offset="0.52" Color="#40000000"/>
+            <GradientStop Offset="0.70" Color="#2E000000"/>
+            <GradientStop Offset="0.86" Color="#21000000"/>
+            <GradientStop Offset="1.00" Color="#1A000000"/>
+          </LinearGradientBrush>
+        </Panel.Background>
+      </Panel>
+
+      <!--
+        The record, behind the cover and starting on the cover's middle axis, so that it only shows out of the
+        right hand side (406 in a 420 cover: seven lines of air above and below). It turns while the song plays and
+        stands still the moment the engine stops - a record that turns over a paused song lies about the machine -
+        and where the library keeps no picture of it the skin's own record is drawn in its place, which is what the
+        reference's <c>FallbackSource="CD.png"</c> did and what the mockup's note says (index.html:26). Turned by
+        the screen's own clock, the way the wake's ring is turned (NowPlayingView._discTurn), at the mockup's four
+        and a half seconds a revolution.
+      -->
+      <Border Name="audioDisc" Width="406" Height="406"
+              IsVisible="{Binding ShowsDisc}"
+              Margin="272,0,0,249" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+        <Panel>
+          <Image Source="{Binding Disc, Converter={x:Static views:ArtworkConverter.Instance},
+                                               ConverterParameter=tile}"
+                 Stretch="Uniform"/>
+          <Image Source="{Binding Disc, Converter={x:Static views:SkinImageConverter.Instance},
+                                               ConverterParameter=CD}"
+                 Stretch="Uniform"
+                 IsVisible="{Binding Disc, Converter={x:Static ObjectConverters.IsNull}}"/>
+        </Panel>
+      </Border>
+
+      <!--
+        The cover: four hundred and twenty lines square on the left, its foot two hundred and forty two lines over
+        the lower edge, its corners rounded by twenty and its edge the door border the rest of the face uses. The
+        box itself stands whatever the library holds - the reference drew the black housing always and put its
+        skin's <c>audio.png</c> inside, inset by fifty, where no cover picture arrived (index.html:111,1506), which
+        is the difference between "no cover" and "no screen".
+      -->
+      <Border Name="audioCover" Width="420" Height="420" CornerRadius="20" Background="#FF000000"
+              BorderBrush="#33FFFFFF" BorderThickness="1" ClipToBounds="True"
+              Margin="62,0,0,242" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+        <Panel>
+          <Image Source="{Binding Cover, Converter={x:Static views:ArtworkConverter.Instance},
+                                   ConverterParameter=tile}"
+                 Stretch="UniformToFill"/>
+          <Image Source="{Binding Cover, Converter={x:Static views:SkinImageConverter.Instance},
+                                   ConverterParameter=audio}"
+                 Stretch="Uniform" Margin="50"
+                 IsVisible="{Binding Cover, Converter={x:Static ObjectConverters.IsNull}}"/>
+        </Panel>
+      </Border>
+
+      <!--
+        What the file is made of, in the boxes the browser's details row uses, standing above the cover: the codec
+        the importer named, the channels it counted, and the two rates in one line. No word names the row - a
+        caption of its own in front of three boxes the film's row already reads without one was measured and struck
+        out. Where the skin carries a picture of the answer, the picture is drawn; where it carries none, the word
+        stands in the same box, which is what SkinImageMissingConverter exists for.
+      -->
+      <StackPanel Orientation="Horizontal" Spacing="10"
+                  IsVisible="{Binding ShowsAudioPlaques}"
+                  Margin="62,0,0,682" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+        <Border Classes="audio-plaque" IsVisible="{Binding AudioLine.ShowsCodec}">
+          <Grid>
+            <Image Source="{Binding AudioLine.CodecToken,
+                                     Converter={x:Static views:SkinImageConverter.Instance},
+                                     ConverterParameter='MediaLogos/audio/{0}'}"
+                   Height="34" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"/>
+            <TextBlock Text="{Binding AudioLine.CodecWord}"
+                       IsVisible="{Binding AudioLine.CodecToken,
+                                           Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                           ConverterParameter='MediaLogos/audio/{0}'}"/>
+          </Grid>
+        </Border>
+        <Border Classes="audio-plaque" IsVisible="{Binding AudioLine.ShowsChannels}">
+          <Grid>
+            <Image Source="{Binding AudioLine.ChannelsToken,
+                                     Converter={x:Static views:SkinImageConverter.Instance},
+                                     ConverterParameter='MediaLogos/audio/{0}'}"
+                   Height="34" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"/>
+            <TextBlock Text="{Binding AudioLine.ChannelsWord}"
+                       IsVisible="{Binding AudioLine.ChannelsToken,
+                                           Converter={x:Static views:SkinImageMissingConverter.Instance},
+                                           ConverterParameter='MediaLogos/audio/{0}'}"/>
+          </Grid>
+        </Border>
+        <Border Classes="audio-plaque" IsVisible="{Binding AudioLine.ShowsRates}">
+          <TextBlock Text="{Binding AudioLine.RatesText}"/>
+        </Border>
+      </StackPanel>
+
+      <!--
+        The equalizer: the sound made visible, thirty-two bars from the low drums to the cymbals, drawn by the
+        control that the reference's audio screen has always carried (FullScreenContentAudio.xaml:274-276). It
+        stands on its own on the stage - its first bar on the same line the rating's stars start on, its foot
+        thirty-five lines above the button row so the knobs stay clear beneath it - which are the mockup's
+        .spektrum numbers (index.html:84-109) and the reference's own bar count and spacing. Without an engine
+        that can listen to itself it rests at its floor, as it does in the reference when nothing plays. The
+        libVLC engine listens: it opens the song a second time in a silent engine of its own and the bars are
+        measured off the spectrum picture that engine draws, because libVLC hands its sound out to no listener
+        (VisualSpectrumTap.cs).
+      -->
+      <views:AudioSpectrumBars Name="audioSpectrum" Source="{Binding Spectrum}" Bands="{Binding BandSpectrum}"
+                               Height="300"
+                               Margin="702,0,62,322" VerticalAlignment="Bottom"/>
+
+      <!--
+        What the library knows about the title, beginning flush with where the equalizer will stand (the cover's
+        middle axis, the record's width, and twenty four lines of air: seven hundred and two): the rating on its
+        own line without the word "rating" in front of it, and under it the three answers that belong to the
+        record itself - the album, the year, the kind of music. The value over its label, as the reference wrote
+        its figures; a cell the tag stayed silent about is not drawn.
+      -->
+      <StackPanel Margin="702,0,0,652" HorizontalAlignment="Left" VerticalAlignment="Bottom" Spacing="26">
+        <StackPanel Orientation="Horizontal" Spacing="12" Height="33"
+                    IsVisible="{Binding ShowsRating}">
+          <ItemsControl ItemsSource="{Binding Stars}" VerticalAlignment="Center">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:Double">
+                <!-- The number IS the star's light: whole for a star the rating filled, a quarter of it for a star
+                     the rating never reached. Computed where the rating is computed, because a picture cannot be
+                     told "six and a half of ten". -->
+                <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance},
+                                        ConverterParameter=star}"
+                       Width="25" Height="25" Margin="0,0,4,0" Opacity="{Binding}"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Text="{Binding RatingWords}" FontSize="22" Opacity="0.85"
+                     VerticalAlignment="Center" Foreground="#FFFFFFFF"/>
+        </StackPanel>
+
+        <!-- No line height and no trimming on any of these words. A line height as tall as the lettering cuts the
+             top off a capital and the foot off a "g" (measured on the screen: the "P" of "Pop" came away), and a
+             long album is worth a second line rather than a name with three dots behind it. -->
+        <StackPanel Orientation="Horizontal" Spacing="45">
+          <StackPanel Spacing="15"
+                      IsVisible="{Binding AlbumName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock Text="{Binding AlbumName}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+            <TextBlock Text="Album" FontSize="20" Foreground="#99FFFFFF"/>
+          </StackPanel>
+          <StackPanel Spacing="15"
+                      IsVisible="{Binding YearText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock Text="{Binding YearText}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"/>
+            <TextBlock Text="Year" FontSize="20" Foreground="#99FFFFFF"/>
+          </StackPanel>
+          <StackPanel Spacing="15"
+                      IsVisible="{Binding GenreName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+            <TextBlock Text="{Binding GenreName}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+            <TextBlock Text="Genre" FontSize="20" Foreground="#99FFFFFF"/>
+          </StackPanel>
+        </StackPanel>
+      </StackPanel>
+    </Panel>
+
+    <!--
       The display a viewer calls over a film: one glass panel along the foot of the picture, three rows tall,
       with the film itself still the whole screen behind it. The rows are the ones every viewer already knows -
       the film's name with the transport in the middle of it, the position line with its two numbers either side
@@ -387,7 +615,7 @@
           -->
           <Image Grid.Column="0" Name="clearArt"
                  Source="{Binding ClearArt, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=small}"
-                 IsVisible="{Binding ClearArt, Converter={x:Static ObjectConverters.IsNotNull}}"
+                 IsVisible="{Binding ShowsClearArt}"
                  Height="176" MaxWidth="840" Stretch="Uniform" StretchDirection="DownOnly"
                  Margin="6,0,12,0" HorizontalAlignment="Left" VerticalAlignment="Center"
                  IsHitTestVisible="False"/>
@@ -500,20 +728,42 @@
                   IsEnabled="{Binding CanInform}"
                   AutomationProperties.Name="What the library knows about this title"
                   HorizontalAlignment="Left" VerticalAlignment="Center">
-            <StackPanel Orientation="Vertical" Spacing="2" VerticalAlignment="Center">
-              <TextBlock Text="{Binding Title}" FontSize="34" FontWeight="SemiBold"
-                         Foreground="#FFFFFFFF" TextTrimming="CharacterEllipsis"/>
-              <!-- The year the library knows, in the smaller voice under the name - where the file's own name used
-                   to stand. It shows only when the library named a year, so a title it knows nothing about wears
-                   its name alone. -->
-              <TextBlock Text="{Binding YearText}" FontSize="20" Foreground="#B3FFFFFF"
-                         IsVisible="{Binding YearText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-            </StackPanel>
+            <Panel>
+              <!-- The film's own name over the year the library knows, as it stood before a song got a screen of
+                   its own. -->
+              <StackPanel Orientation="Vertical" Spacing="2" VerticalAlignment="Center"
+                          IsVisible="{Binding !IsAudio}">
+                <TextBlock Text="{Binding Title}" FontSize="34" FontWeight="SemiBold"
+                           Foreground="#FFFFFFFF" TextTrimming="CharacterEllipsis"/>
+                <!-- The year the library knows, in the smaller voice under the name - where the file's own name
+                     used to stand. It shows only when the library named a year, so a title it knows nothing about
+                     wears its name alone. -->
+                <TextBlock Text="{Binding YearText}" FontSize="20" Foreground="#B3FFFFFF"
+                           IsVisible="{Binding YearText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+              </StackPanel>
+
+              <!-- A song's name over whoever sings it, in the same two sizes the film's name and year stand in
+                   above: thirty four semi bold over twenty. The mockup had the reference's small and smaller
+                   letters here (Consts.xaml:19-20, thirty three and twenty seven) and a viewer found them too big
+                   next to the rest of the row, so the screen keeps one lettering for both media. No line height
+                   (it cuts the top off capitals) and no trimming (a name is not cut short). The line of bitrate,
+                   sample rate and channels that used to stand under a name is gone here for a song - those answers
+                   now wear the plaques above the cover. -->
+              <StackPanel Orientation="Vertical" Spacing="2" VerticalAlignment="Center" Name="audioName"
+                          MaxWidth="560"
+                          IsVisible="{Binding IsAudio}">
+                <TextBlock Text="{Binding Title}" FontSize="34" FontWeight="SemiBold"
+                           Foreground="#FFFFFFFF" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding ArtistName}" FontSize="20" Foreground="#99FFFFFF"
+                           TextWrapping="Wrap" IsVisible="{Binding ShowsArtist}"/>
+              </StackPanel>
+            </Panel>
           </Button>
 
-          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"
+                      Name="rowSwitches">
             <Button Classes="glass pick" Name="subtitleButton" Click="OnSubtitles"
-                    IsVisible="{Binding HasMedia}"
+                    IsVisible="{Binding ShowsTrackLists}"
                     AutomationProperties.Name="{Binding SubtitleTrackLine}">
               <StackPanel Orientation="Horizontal" Spacing="12">
                 <Path Data="{Binding SubtitlesGlyph,
@@ -523,7 +773,7 @@
               </StackPanel>
             </Button>
             <Button Classes="glass pick" Name="audioButton" Click="OnAudio"
-                    IsVisible="{Binding HasMedia}"
+                    IsVisible="{Binding ShowsTrackLists}"
                     AutomationProperties.Name="{Binding AudioTrackLine}">
               <StackPanel Orientation="Horizontal" Spacing="12">
                 <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},

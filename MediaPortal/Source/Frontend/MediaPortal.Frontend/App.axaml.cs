@@ -345,7 +345,12 @@ namespace MediaPortal.Frontend
             ServerApiClient? client = _home.Client;
             if (client == null)
               return Task.FromResult<byte[]?>(null);
-            return CoverFrom(client, mediaItemId);
+
+            // Asked at the width the screen is going to paint it at, which is a different width for the two
+            // arrangements: a song wears the album's picture four hundred and twenty lines square, while a film
+            // paints no cover at all and keeps the small answer this question has always taken.
+            return CoverFrom(client, mediaItemId,
+                _nowPlaying.IsAudio ? PictureWidths.TILE : PictureWidths.SMALL);
           };
 
           // The title's lettering: its ClearArt, or the logo the importer filed under its own name when the
@@ -358,6 +363,38 @@ namespace MediaPortal.Frontend
               return Task.FromResult<byte[]?>(null);
             return ClearArtFrom(client, mediaItemId);
           };
+
+          // The record a song came off: the disc the library keeps a picture of, laid behind the cover and turned
+          // by the audio arrangement. Asked under the very name the album panel of the browser asks it ("DiscArt"),
+          // so that one library answers one question one way in both of its screens. Most libraries keep no disc
+          // art and the screen then draws no disc, which is the ordinary answer rather than a complaint.
+          _nowPlaying.DiscReader = delegate (Guid mediaItemId)
+          {
+            ServerApiClient? client = _home.Client;
+            if (client == null)
+              return Task.FromResult<byte[]?>(null);
+            return client.GetFanArtAsync(mediaItemId, "DiscArt", null, PictureWidths.TILE);
+          };
+
+          // The picture the audio screen stands on: the same 'FanArt' the record details of the browser show,
+          // asked at the width the stage is painted at. A film brings moving pictures of its own and the screen
+          // asks for nothing here, so the ask is only ever made for a song. A library without that picture - and
+          // most carry none, since it is the one picture an online provider is least likely to have for an album -
+          // answers quietly and the stage keeps only its shade.
+          _nowPlaying.FanartReader = delegate (Guid mediaItemId)
+          {
+            ServerApiClient? client = _home.Client;
+            if (client == null)
+              return Task.FromResult<byte[]?>(null);
+            return client.GetFanArtAsync(mediaItemId, "FanArt", null, PictureWidths.BACKGROUND);
+          };
+
+          // The bars beside the record ask their numbers of the engine that is playing, through the seam the
+          // reference put between its spectrum and its player. No engine in this frontend answers that question
+          // yet - libVLC keeps no second stream to count over the way the reference's BASS player does - so this
+          // answers null today and the bars stand at their floor. The day an engine learns to listen to itself,
+          // the wire is already here.
+          _nowPlaying.Spectrum = _player as IAudioSpectrumSource;
 
           // The player goes with it. Without this the engine and its threads stay behind when the last window
           // closes, which a viewer notices as a process that never goes away.
@@ -594,13 +631,13 @@ namespace MediaPortal.Frontend
     /// The playback screen's picture for a title: the poster the importer knew, or the fanart when it did not.
     /// A server that has neither answers null, and the screen plays without a picture like before.
     /// </summary>
-    private static async Task<byte[]?> CoverFrom(ServerApiClient client, Guid mediaItemId)
+    private static async Task<byte[]?> CoverFrom(ServerApiClient client, Guid mediaItemId, int width)
     {
-      // Asked small because that is the size the playback screen paints it: the one picture a viewer stands in
-      // front of for two hours is worth asking at the width of its frame, and the server has to be told that
-      // width by the only program that knows the frame.
-      byte[]? poster = await client.GetFanArtAsync(mediaItemId, "Poster", null, PictureWidths.SMALL);
-      return poster ?? await client.GetFanArtAsync(mediaItemId, "FanArt", null, PictureWidths.SMALL);
+      // Asked at the width named by the caller, which is the only program that knows how wide the frame the
+      // picture is going to stand in is: the audio arrangement paints it four hundred and twenty lines square,
+      // the film's screen paints it nowhere.
+      byte[]? poster = await client.GetFanArtAsync(mediaItemId, "Poster", null, width);
+      return poster ?? await client.GetFanArtAsync(mediaItemId, "FanArt", null, width);
     }
 
     /// <summary>
@@ -2277,6 +2314,13 @@ namespace MediaPortal.Frontend
         // tile for that shelf wears the mark until the player falls silent. A press from the home strip itself
         // names no shelf, and a tile would be guessing, so the mark simply goes off.
         _playingAspect = (sender as MediaBrowserViewModel)?.AspectName;
+        // The playback screen hears the same answer, because it is the shelf and not the file that says whether a
+        // picture is expected at all: a song pressed in the music shelf is played onto a screen with no frames.
+        _nowPlaying.PlayingAspect = _playingAspect;
+        // And the artist travels with the press for the same reason: the wall of the library already knows who
+        // sings this row, and the line under the title of a song has to stand on something before - and, for a
+        // library whose details answer holds no artist, instead of - the record's own fields.
+        _nowPlaying.PlayingArtist = title.Artist;
         _home.ShowPlaying(_playingAspect);
         Console.WriteLine("play:     " + what + (streamed ? " - streamed from the server" : " from the library")
             + (title.ResumePercent.HasValue ? " - resumed at " + title.ResumePercent.Value + "%" : ""));
@@ -2321,6 +2365,8 @@ namespace MediaPortal.Frontend
       {
         // The party reads the audio shelf, whatever the tile it was opened from was called.
         _playingAspect = "AudioItem";
+        _nowPlaying.PlayingAspect = _playingAspect;
+        _nowPlaying.PlayingArtist = title.Artist;
         _home.ShowPlaying(_playingAspect);
         Console.WriteLine("play:     party - " + what + (streamed ? " - streamed from the server" : " from the library"));
       }

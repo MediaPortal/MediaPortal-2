@@ -22,6 +22,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using LibVLCSharp.Shared;
 using LibVLCSharp.Shared.Structures;
 
@@ -50,7 +51,7 @@ namespace MediaPortal.Frontend.Player
   /// decoding and timing are measurable headless everywhere.
   /// </para>
   /// </remarks>
-  public sealed class LibVlcPlayer : IVideoPlayer
+  public sealed class LibVlcPlayer : IVideoPlayer, IAudioBandSource, IAudioSpectrumWatcher
   {
     private static readonly object NativeGate = new object();
     private static string? _initializedFrom;
@@ -78,6 +79,17 @@ namespace MediaPortal.Frontend.Player
     private Media? _media;
     private PlayerState _state = PlayerState.Idle;
     private MediaLocation? _current;
+
+    // The second, silent engine that looks at the sound, and the story of whether it is wanted, is still being
+    // built, or was refused. All four answer to _gate; WatchSpectrum says why the build happens elsewhere.
+    private VisualSpectrumTap? _tap;
+    private bool _spectrumWanted;
+    private bool _spectrumBuilding;
+    private string? _spectrumReason;
+
+    // When the listener was last put where the playing player stands, as a tick count; nought while it never was.
+    // TapAgreement decides whether another putting is due, and LetTheListenerAgree asks it.
+    private long _tapAgreedAtMs;
 
     // The last position pair handed to a listener, so that a tick which moved nothing says nothing.
     private long _lastPositionTimeMs = -1;
@@ -407,6 +419,7 @@ namespace MediaPortal.Frontend.Player
           return Fail($"libVLC would not accept {location.Describe()}.");
         }
         ReadQuality(media, location.IsFile);
+        HandTheFileToTheListener(location);
         return true;
       }
       catch (VLCException ex)
@@ -424,7 +437,9 @@ namespace MediaPortal.Frontend.Player
     {
       try
       {
-        return _player.Play();
+        bool started = _player.Play();
+        TapNow()?.Resume();
+        return started;
       }
       catch (VLCException ex)
       {
@@ -440,6 +455,7 @@ namespace MediaPortal.Frontend.Player
       try
       {
         _player.Pause();
+        TapNow()?.Pause();
         return true;
       }
       catch (VLCException ex)
@@ -458,6 +474,7 @@ namespace MediaPortal.Frontend.Player
           _failed = false;
         _player.Stop();
         ReleaseMedia();
+        TapNow()?.Stop();
         Publish(PlayerState.Stopped);
         return true;
       }
@@ -1118,6 +1135,184 @@ namespace MediaPortal.Frontend.Player
       }
     }
 
+    /// <summary>
+    /// Ask for the sound to be watched: a second engine is built, is handed the same file, plays it silently and
+    /// draws its spectrum, and this class answers <see cref="IAudioBandSource"/> from that drawing.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Asking twice is one asking, and asking while nothing is open is not an error - the listener takes the file
+    /// as soon as there is one, which is the ordinary order of things on a screen that becomes visible the moment
+    /// a song starts. A screen that stops showing the sound calls <see cref="StopWatchingSpectrum"/>, so that a
+    /// film is never watched by an engine left over from the song before it.
+    /// </para>
+    /// <para>
+    /// The build happens on a thread of its own because building an engine means going through libVLC's plugins,
+    /// measured at about seventeen seconds on a machine whose plugin cache is out of date; a remote control must
+    /// not stop working for that. Until the listener stands, the seam answers "nothing to say" and the bars fall,
+    /// which is what the seam was drawn to allow.
+    /// </para>
+    /// </remarks>
+    public void WatchSpectrum()
+    {
+      lock (_gate)
+      {
+        if (_disposed || _spectrumWanted)
+          return;
+        _spectrumWanted = true;
+        if (_tap != null || _spectrumBuilding)
+          return;
+        _spectrumBuilding = true;
+      }
+
+      Task.Run(delegate
+      {
+        VisualSpectrumTap? built;
+        string reason;
+        bool stands = VisualSpectrumTap.TryCreate(out built, out reason);
+
+        MediaLocation? follow = null;
+        lock (_gate)
+        {
+          _spectrumBuilding = false;
+          _spectrumReason = reason;
+          if (!stands || !_spectrumWanted || _disposed)
+          {
+            if (stands)
+              built!.Dispose();
+            return;
+          }
+
+          _tap = built;
+          follow = _current;
+        }
+
+        if (follow == null)
+          return;
+
+        string why;
+        if (!built!.Follow(follow.Value, out why))
+          lock (_gate)
+            _spectrumReason = why;
+      });
+    }
+
+    /// <summary>
+    /// Let the watching engine go. The bars go back to falling, which is the honest answer of an engine that is
+    /// no longer listening.
+    /// </summary>
+    public void StopWatchingSpectrum()
+    {
+      VisualSpectrumTap? tap;
+      lock (_gate)
+      {
+        _spectrumWanted = false;
+        tap = _tap;
+        _tap = null;
+      }
+
+      tap?.Dispose();
+    }
+
+    /// <summary>
+    /// In one sentence why there is nothing to read: never asked for, still building, refused, or standing and
+    /// waiting for its first picture. No screen shows this; a developer who wonders does not have to guess.
+    /// </summary>
+    public string SpectrumReason
+    {
+      get
+      {
+        lock (_gate)
+        {
+          if (_tap != null)
+            return "the listener stands and answers from the newest picture it copied.";
+          if (_spectrumBuilding)
+            return "the listener is still being built.";
+          if (_spectrumWanted)
+            return _spectrumReason ?? "the listener was wanted and is not there.";
+          return "nobody asked for the sound to be watched.";
+        }
+      }
+    }
+
+    /// <inheritdoc/>
+    int IAudioBandSource.BandCount => VisualSpectrumTap.Bands;
+
+    /// <inheritdoc/>
+    bool IAudioBandSource.GetBandLevels(float[] levels)
+    {
+      VisualSpectrumTap? tap = TapNow();
+      if (tap == null)
+        return false;
+
+      LetTheListenerAgree(tap);
+      return tap.GetBandLevels(levels);
+    }
+
+    /// <summary>
+    /// Keeps the listener looking at the moment the viewer is hearing, which nothing else does: it is an engine
+    /// of its own, started when a screen asked for the bars and paced by its own decoder rather than by the sound
+    /// coming out of the machine, so it begins at nought wherever the song had got to and stays wherever its own
+    /// clock leaves it. Measured five seconds apart on a real song, which is a strip of bars dancing a verse
+    /// behind the music. Asked here, where a screen reads the bands, because that is the only moment a screen
+    /// cares and the only moment anybody is looking; the mending itself goes onto the seek queue, off this
+    /// thread, for the reason told at the top of this class.
+    /// </summary>
+    private void LetTheListenerAgree(VisualSpectrumTap tap)
+    {
+      long playingMs;
+      try
+      {
+        playingMs = _player.Time;
+      }
+      catch (VLCException)
+      {
+        return;
+      }
+
+      long last = Interlocked.Read(ref _tapAgreedAtMs);
+      long since = last == 0 ? long.MaxValue : Environment.TickCount64 - last;
+      if (!TapAgreement.WantsMending(tap.TimeInMs, playingMs, since))
+        return;
+
+      Interlocked.Exchange(ref _tapAgreedAtMs, Environment.TickCount64);
+      try
+      {
+        _seekQueue.Add(delegate
+        {
+          tap.StandAt(playingMs);
+        });
+      }
+      catch (InvalidOperationException)
+      {
+        // Dispose closed the queue while this was on its way - the listener is going away with the player.
+      }
+    }
+
+    /// <summary>The listener as it stands right now, or null. A question, never a request to build one.</summary>
+    private VisualSpectrumTap? TapNow()
+    {
+      lock (_gate)
+        return _tap;
+    }
+
+    /// <summary>Hand the file that just opened to the listener, if one is standing.</summary>
+    private void HandTheFileToTheListener(MediaLocation location)
+    {
+      VisualSpectrumTap? tap = TapNow();
+      if (tap == null)
+        return;
+
+      // A new file begins its own story, and the listener begins it at nought whether or not the playing player
+      // stands there, so the next look is what finds out how far apart the two just came.
+      Interlocked.Exchange(ref _tapAgreedAtMs, 0);
+
+      string reason;
+      if (!tap.Follow(location, out reason))
+        lock (_gate)
+          _spectrumReason = reason;
+    }
+
     public void Dispose()
     {
       lock (_gate)
@@ -1142,6 +1337,18 @@ namespace MediaPortal.Frontend.Player
       // objects go, which is the order that leaves a screen holding nothing but its own arrays.
       StopHandingPicturesOver();
       ReleaseMedia();
+
+      // The listener goes before the engine it was built beside: it owns a libVLC of its own, and stopping is the
+      // only call that takes its picture output apart (see VisualSpectrumTap.Dispose).
+      VisualSpectrumTap? listener;
+      lock (_gate)
+      {
+        listener = _tap;
+        _tap = null;
+        _spectrumWanted = false;
+      }
+      listener?.Dispose();
+
       _player.Dispose();
       _libVlc.Dispose();
 

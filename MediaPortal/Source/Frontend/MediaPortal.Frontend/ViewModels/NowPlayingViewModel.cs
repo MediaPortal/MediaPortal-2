@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -1211,6 +1212,7 @@ namespace MediaPortal.Frontend.ViewModels
       private set
       {
         _mediaInfo = value;
+        FillStars();
         Raise();
       }
     }
@@ -1269,6 +1271,452 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    // ---- the audio arrangement ----------------------------------------------------------------------
+    //
+    // A song has no picture of its own, so the screen that plays one has nothing to show but itself: the cover,
+    // the record it came off, what the file is made of, and what the library knows about the title. All of it is
+    // asked of the library and none of it is worked out here, and every piece of it stands only where the library
+    // had something to say - which is the same rule the film's arrangement follows about its tags.
+
+    /// <summary>
+    /// The shelf the playing title was pressed in, in the server's spelling ("AudioItem", "AlbumItem", "Video"),
+    /// or null when nobody named one. The application sets it where it already knows the answer - beside the
+    /// <see cref="Play(MediaLocation, Guid?, int, string?)"/> call a library press turns into - and every new media
+    /// starts without one again.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is what tells the screen that no picture is expected. Without it a song is played onto a black
+    /// rectangle and the screen says "nothing is playing" about the very thing that is playing; with the film's
+    /// controls over that blackness, a viewer has no way to see that the machine is not broken.
+    /// </para>
+    /// <para>
+    /// The shelf is asked first because it knows before anything has been read over the network: a title pressed
+    /// in the music shelf wears the audio arrangement from the first frame, not a heartbeat after the library
+    /// answers. Where no shelf was named, the library's own statement about the file decides - see
+    /// <see cref="IsAudio"/>.
+    /// </para>
+    /// </remarks>
+    public string? PlayingAspect
+    {
+      get { return _playingAspect; }
+      set
+      {
+        if (string.Equals(_playingAspect, value, StringComparison.OrdinalIgnoreCase))
+          return;
+        _playingAspect = value;
+        Raise();
+      }
+    }
+
+    private string? _playingAspect;
+
+    /// <summary>
+    /// The artist the wall of the library said about the row that was pressed, handed over with the name of the
+    /// song by <c>App.OnTitleChosen</c> and <c>App.OnPartySongChosen</c>. A press knows this before the library has
+    /// answered anything, and a server older than the record fields of the details answer says nothing else; the
+    /// line under the title then stands on this name. <see cref="Play(MediaLocation, Guid?, int, string?)"/> keeps
+    /// it through one title to the next of the same record and clears it when a new run begins, the way
+    /// <see cref="PlayingAspect"/> is kept and cleared.
+    /// </summary>
+    public string? PlayingArtist
+    {
+      get { return _playingArtist; }
+      set
+      {
+        if (string.Equals(_playingArtist, value, StringComparison.Ordinal))
+          return;
+        _playingArtist = value;
+        Raise();
+      }
+    }
+
+    private string? _playingArtist;
+
+    /// <summary>
+    /// Whether the library files a shelf of this name under music. The two names are the aspects themselves
+    /// (<c>AudioAspect.Metadata</c> is "AudioItem", <c>AudioAlbumAspect</c> is "AlbumItem"), and they are the same
+    /// two the browser's wall squares its music tiles by
+    /// (<c>MediaBrowserViewModel.IsMusic</c>, <c>MediaBrowserViewModel.cs:1685-1687</c>).
+    /// </summary>
+    private static bool NamesMusic(string? aspect)
+    {
+      return string.Equals(aspect, "AlbumItem", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(aspect, "AudioItem", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Whether the screen wears the audio arrangement instead of the film's. Two answers are believed and nothing
+    /// else: the shelf the viewer pressed the title in, and - when no shelf was named - the library's own
+    /// statement that the file is an audio file, which is the codec the importer wrote
+    /// (<see cref="MediaItemDetails.AudioEncoding"/>, written only from the audio aspect; a film's title carries
+    /// no such aspect and is therefore answered null by the server).
+    /// </summary>
+    /// <remarks>
+    /// A file opened by <c>--play</c> on the command line names no shelf and belongs to no library, so nobody can
+    /// say what it is, and it keeps the film's arrangement. The file's ending would be a third rule nobody wrote
+    /// down, and a stream address carries no ending to read.
+    /// </remarks>
+    public bool IsAudio
+    {
+      get
+      {
+        if (NamesMusic(_playingAspect))
+          return true;
+
+        MediaItemDetails? details = _mediaInfo;
+        return details != null && details.Error == null
+            && !string.IsNullOrWhiteSpace(details.AudioEncoding);
+      }
+    }
+
+    /// <summary>
+    /// Who sings it: the file's own tag, the record's name when the track credited nobody of its own, and what the
+    /// wall of the library said about the row that was pressed when the library's answer holds neither. Empty when
+    /// nobody names anyone, which is what leaves the line under the title away rather than blank.
+    /// </summary>
+    /// <remarks>
+    /// The row's answer is not a guess invented for this screen: the titles answer of the library carries an
+    /// <c>artist</c> for every music row (<c>ServerApiDto.TitleResult.Artist</c>, read from
+    /// <c>AudioAspect.ATTR_ARTIST</c>), and a server older than the record fields of the details answer says
+    /// nothing at all there - so the name the viewer pressed the song by is the name the screen has until a newer
+    /// server answers the question itself.
+    /// </remarks>
+    public string ArtistName
+    {
+      get
+      {
+        MediaItemDetails? details = _mediaInfo;
+        if (details != null)
+        {
+          if (!string.IsNullOrWhiteSpace(details.Artist))
+            return details.Artist!.Trim();
+          if (!string.IsNullOrWhiteSpace(details.AlbumArtist))
+            return details.AlbumArtist!.Trim();
+        }
+
+        return string.IsNullOrWhiteSpace(PlayingArtist) ? string.Empty : PlayingArtist!.Trim();
+      }
+    }
+
+    /// <summary>Whether there is a name to stand under the title.</summary>
+    public bool ShowsArtist
+    {
+      get { return IsAudio && ArtistName.Length > 0; }
+    }
+
+    /// <summary>The record this track came off, or empty when its tag never named one.</summary>
+    public string AlbumName
+    {
+      get
+      {
+        MediaItemDetails? details = _mediaInfo;
+        return details == null || string.IsNullOrWhiteSpace(details.Album)
+            ? string.Empty
+            : details.Album!.Trim();
+      }
+    }
+
+    /// <summary>
+    /// The kinds of story this title is told in, said in the one line a cell of the board has room for. The
+    /// library keeps them as a list and the list is said whole, the way the info panel says it.
+    /// </summary>
+    public string GenreName
+    {
+      get
+      {
+        IReadOnlyList<string>? genres = _mediaInfo?.Genres;
+        if (genres == null || genres.Count == 0)
+          return string.Empty;
+
+        List<string> named = new List<string>();
+        foreach (string genre in genres)
+          if (!string.IsNullOrWhiteSpace(genre))
+            named.Add(genre.Trim());
+
+        return string.Join(", ", named);
+      }
+    }
+
+    /// <summary>
+    /// The number the stars and the brackets beside them are lit by: what the viewers on this server gave the
+    /// title, or what this viewer gave it when nobody else has. Null when neither happened, which is most titles
+    /// and leaves the whole line away - a row of five dark stars is a question, not an answer.
+    /// </summary>
+    public double? Rating
+    {
+      get
+      {
+        MediaItemDetails? details = _mediaInfo;
+        if (details == null)
+          return null;
+        if (details.TotalRating.HasValue && details.TotalRating.Value > 0)
+          return details.TotalRating.Value;
+        if (details.Rating.HasValue && details.Rating.Value > 0)
+          return details.Rating.Value;
+        return null;
+      }
+    }
+
+    /// <summary>Whether there is a rating to draw stars for at all.</summary>
+    public bool ShowsRating
+    {
+      get { return IsAudio && Rating.HasValue; }
+    }
+
+    /// <summary>
+    /// The five star pictures and how much of their light the rating leaves them: whole for a star the rating
+    /// filled, a quarter for one it never reached, the part between for one it filled half way. Ten points to five
+    /// stars, so a point is half a star - the arithmetic and its reason are the browser panel's
+    /// (<c>MediaBrowserViewModel.FillDetailsStars</c>, <c>MediaBrowserViewModel.cs:4113-4129</c>), and the two
+    /// screens of one library must not light one title two different ways.
+    /// </summary>
+    public ObservableCollection<double> Stars { get; } =
+        new ObservableCollection<double> { 0.25, 0.25, 0.25, 0.25, 0.25 };
+
+    /// <summary>
+    /// The number the brackets speak it with, "(7.6)", as the browser's panel writes it
+    /// (<c>MediaBrowserViewModel.DetailsRatingWords</c>). Empty with no rating, which is what hides it.
+    /// </summary>
+    public string RatingWords
+    {
+      get
+      {
+        double? rating = Rating;
+        return rating.HasValue
+            ? "(" + rating.Value.ToString("0.0", CultureInfo.InvariantCulture) + ")"
+            : string.Empty;
+      }
+    }
+
+    /// <summary>
+    /// What the file is made of, as the plaques of the browser's audio row say it: the codec, the channels, the
+    /// disc, the two rates. Read from the same answer the browser reads, so one file is described one way.
+    /// </summary>
+    public AudioFileLine AudioLine
+    {
+      get { return MediaStreamLogos.Audio(_mediaInfo); }
+    }
+
+    /// <summary>
+    /// Whether the row of plaques above the cover costs its height. The disc of a set is left out of this row: the
+    /// board under the plaques is the record's own answer, and which of two discs a file sits on is not asked of a
+    /// screen a viewer looks at for three minutes.
+    /// </summary>
+    public bool ShowsAudioPlaques
+    {
+      get
+      {
+        if (!IsAudio)
+          return false;
+
+        AudioFileLine line = AudioLine;
+        return line.ShowsCodec || line.ShowsChannels || line.ShowsRates;
+      }
+    }
+
+    /// <summary>
+    /// Tells the five star pictures how much of their light the library's number leaves them. Written into the
+    /// collection rather than answered by a getter, because a picture that is handed the same collection again has
+    /// to be told that a piece of it changed.
+    /// </summary>
+    private void FillStars()
+    {
+      // Read through the property rather than the field, so that the one place deciding which of the two numbers
+      // a title is rated by stays the only one. The argument is what the caller has just stored.
+      double stars = Math.Clamp(Rating ?? 0, 0, 10) / 2.0;
+      for (int star = 0; star < Stars.Count; star++)
+        Stars[star] = 0.25 + 0.75 * Math.Clamp(stars - star, 0, 1);
+    }
+
+    /// <summary>
+    /// Whether the row of buttons along the foot offers its two track lists. Two answers are needed and both are
+    /// said here: nothing that is not playing has no tracks to pick, and a song is one sound with no picture to be
+    /// dubbed, so on the audio arrangement the two buttons that open a list of tracks are put away - a button that
+    /// opens a list holding one answer asks a question nobody has, and the reference's audio screen offered neither.
+    /// </summary>
+    public bool ShowsTrackLists
+    {
+      get { return HasMedia && !IsAudio; }
+    }
+
+    /// <summary>
+    /// Whether the title's lettering stands by the transport. The audio arrangement wears its own picture where
+    /// the lettering stands - the cover, four hundred and twenty lines square - and a name drawn twice within a
+    /// hand's breadth is the reading twice, which is what this screen was once cleared of.
+    /// </summary>
+    public bool ShowsClearArt
+    {
+      get { return _clearArt != null && !IsAudio; }
+    }
+
+    /// <summary>
+    /// How to ask the library for the picture of the disc a record was pressed on, or null while there is no
+    /// server. The audio arrangement lays it behind the cover and turns it, which is the one thing a screen about
+    /// a song can do that a screen about a film cannot: the thing playing is visible.
+    /// </summary>
+    public Func<Guid, Task<byte[]?>>? DiscReader { get; set; }
+
+    private byte[]? _disc;
+
+    /// <summary>Which title <see cref="_disc"/> was read for, so the same title is asked once.</summary>
+    private Guid? _discFor;
+
+    /// <summary>The bytes of the disc's picture, or null while none has arrived - or none exists.</summary>
+    public byte[]? Disc
+    {
+      get { return _disc; }
+      private set
+      {
+        _disc = value;
+        Raise();
+      }
+    }
+
+    /// <summary>
+    /// Whether the record is drawn at all, turning behind the cover. The reference shows the carrier only while the
+    /// song plays (FullScreenContentAudio.xaml:100-147) and the mockup follows it by hiding the plate on pause: a
+    /// record that stands still in the middle of the screen reads as a picture of a record rather than as the
+    /// thing that is playing, and while the song waits the screen has the mark of the pause to show instead.
+    /// </summary>
+    public bool ShowsDisc
+    {
+      get { return IsAudio && IsPlaying; }
+    }
+
+    /// <summary>
+    /// Asks the library once for the disc's picture, guarded as the cover is: not twice for one title, never for a
+    /// file with no library id, and a library that keeps no disc art is an ordinary library rather than a failure.
+    /// </summary>
+    public async Task ReadDiscAsync()
+    {
+      // Only a song wears the record, so only a song is asked for one: a film's screen has nowhere to paint it,
+      // and a question nobody will look at is a picture nobody needed to be sent.
+      if (!IsAudio)
+        return;
+
+      Guid? id = _mediaItemId;
+      if (id == null || DiscReader == null || _discFor == id)
+        return;
+
+      try
+      {
+        byte[]? bytes = await DiscReader(id.Value);
+
+        // Remembered as asked whatever the answer was. The memo is the only brake on this question: publishing an
+        // answer raises the change that every open playback screen answers by asking the same question again, so a
+        // "no picture" that left the memo open would be asked again by its own answer - in the render probe, whose
+        // readers answer in the same breath, until the stack gives out, and on the network as one request per
+        // answer for as long as the screen is open. And a library without the picture is the ordinary case, not a
+        // corner: a track of a running library answers '404' for its disc art. Only a question that could not be
+        // asked at all is left open below, so that a server arriving late is asked again.
+        _discFor = id;
+        if (_mediaItemId == id)
+          Disc = bytes;
+      }
+      catch (Exception)
+      {
+        _discFor = null;
+      }
+    }
+
+    /// <summary>
+    /// How to ask the library for the picture the stage of a song stands on - the album's fanart - or null while
+    /// there is no server. A film brings its own pictures and needs no ground; a song has none, and the reference's
+    /// audio screen therefore laid the record's own artwork across the whole screen behind everything
+    /// (screens/FullScreenContentAudio.xaml, and the mockup's <c>.fanart</c> as its first layer).
+    /// </summary>
+    public Func<Guid, Task<byte[]?>>? FanartReader { get; set; }
+
+    private byte[]? _fanart;
+
+    /// <summary>Which title <see cref="_fanart"/> was read for, so the same title is asked once.</summary>
+    private Guid? _fanartFor;
+
+    /// <summary>
+    /// The bytes of the stage's picture, or null while none has arrived - or none exists, which is most libraries
+    /// and is drawn as the plain shade the screen wears anyway rather than as a hole.
+    /// </summary>
+    public byte[]? Fanart
+    {
+      get { return _fanart; }
+      private set
+      {
+        _fanart = value;
+        Raise();
+      }
+    }
+
+    /// <summary>
+    /// Asks the library once for the stage's picture, guarded as the cover and the record are. Only a song is
+    /// asked: over a film the picture would stand behind the film's own frames, where nobody would see it.
+    /// </summary>
+    public async Task ReadFanartAsync()
+    {
+      if (!IsAudio)
+        return;
+
+      Guid? id = _mediaItemId;
+      if (id == null || FanartReader == null || _fanartFor == id)
+        return;
+
+      try
+      {
+        byte[]? bytes = await FanartReader(id.Value);
+
+        // Written before published, for the reason the cover's read gives: publishing raises the change that
+        // reopens this question, and a reader that answers at once would otherwise be asked again by its own answer.
+        // Remembered as asked whatever it answered - see the record's read for why a 'no picture' closes the
+        // question rather than leaving it open.
+        _fanartFor = id;
+        if (_mediaItemId == id)
+          Fanart = bytes;
+      }
+      catch (Exception)
+      {
+        _fanartFor = null;
+      }
+    }
+
+    /// <summary>
+    /// What the bars beside the record ask their numbers of: the engine that is playing, when it can hand out the
+    /// loudness of the bands the control itself divides the sound into. Null while it cannot - which is every
+    /// engine this frontend has except libVLC, whose own spectrum picture is what the band source reads - and the
+    /// bars then stand at their floor with their caps fallen, which is the same answer the reference's control
+    /// gives a player that is not active (Controls/AudioSpectrumAnalyzer.cs:490-493). Set once by the application,
+    /// before any screen is built.
+    /// </summary>
+    public IAudioSpectrumSource? Spectrum { get; set; }
+
+    /// <summary>
+    /// The engine's bands, ready to be bound to <c>AudioSpectrumBars.Bands</c>: the same player the screen already
+    /// drives, seen as the thing that can hand out levels. Null for an engine that hands out none, which leaves the
+    /// bars in their floor.
+    /// </summary>
+    public IAudioBandSource? BandSpectrum
+    {
+      get { return _player as IAudioBandSource; }
+    }
+
+    /// <summary>
+    /// Asks the engine to look at the sound the bars are drawn from. Only the screen that actually wears the audio
+    /// arrangement asks, and only while it wears it: listening costs a second decoder, and a film's screen - which
+    /// shows its own picture and has no bars at all - would pay that price for nothing.
+    /// </summary>
+    public void WatchSpectrum()
+    {
+      (_player as IAudioSpectrumWatcher)?.WatchSpectrum();
+    }
+
+    /// <summary>
+    /// Stops that listening. Asking a player that is not listening is permitted, so this is called whenever the
+    /// screen leaves the audio arrangement, not only when it had really started the listener.
+    /// </summary>
+    public void StopWatchingSpectrum()
+    {
+      (_player as IAudioSpectrumWatcher)?.StopWatchingSpectrum();
+    }
+
     /// <summary>
     /// How to ask the library for the picture of a title - the album's cover, a film's poster - or null while
     /// there is no server. The playback screen shows it behind the frames, so a film hides its own picture by
@@ -1311,9 +1759,19 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         byte[]? bytes = await CoverReader(id.Value);
+
+        // The record is written before the answer is published: publishing raises the change that every open
+        // playback screen answers by asking this same question again, so a reader that answers in the same breath
+        // - a cached one, or a test's - would otherwise find the question not yet on record and ask itself until
+        // the stack gives out. Which is not hypothetical: the render probe's readers answer at once.
+        //
+        // And it is written for a 'no picture' too, not only for a picture. Most titles of most libraries have no
+        // poster and no fanart, so "nothing" is the ordinary answer rather than the rare one; leaving the record
+        // open in that case asks the question again on every answer, which in a probe is a stack overflow and in
+        // front of a server is one request per answer for as long as the screen is open.
+        _coverFor = id;
         if (_mediaItemId == id)
           Cover = bytes;
-        _coverFor = bytes != null ? id : null;
       }
       catch (Exception)
       {
@@ -1362,9 +1820,13 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         byte[]? bytes = await ClearArtReader(id.Value);
+
+        // Guarded before publishing, as the cover is: the picture arriving is the signal to ask again, and a
+        // library that keeps no lettering - which is most libraries - closes the question with its 'nothing'
+        // rather than leaving it open to be asked again by its own answer.
+        _clearArtFor = id;
         if (_mediaItemId == id)
           ClearArt = bytes;
-        _clearArtFor = bytes != null ? id : null;
       }
       catch (Exception)
       {
@@ -1386,11 +1848,16 @@ namespace MediaPortal.Frontend.ViewModels
       try
       {
         MediaItemDetails details = await DetailsReader(id.Value);
+        // Guarded before publishing, as the cover is: the answer arriving is itself the signal that makes an open
+        // screen ask this question again, and a reader that answers at once must not be answered with a new
+        // question that the record has not yet closed. An answer that carries an error closes it too - the server
+        // did answer, and asking a question it answered badly over and over is a storm, not a retry. The catch
+        // below is where a question that never got through stays open.
+        _mediaInfoFor = id;
         // The film may have moved on while the question was in flight, and an answer about the previous title
         // does not belong on the next title's info panel.
         if (_mediaItemId == id)
           MediaInfo = details;
-        _mediaInfoFor = details.Error == null ? id : null;
       }
       catch (Exception)
       {
@@ -1507,6 +1974,14 @@ namespace MediaPortal.Frontend.ViewModels
       // What the library said about the previous title is not what it says about this one.
       _mediaInfo = null;
       _mediaInfoFor = null;
+      // And which shelf it came from is asked of the caller again, for the same reason: whoever pressed a song
+      // into the player says so, and whoever pressed a film says so too. Nothing heard here carries over.
+      _playingAspect = null;
+      _playingArtist = null;
+      _disc = null;
+      _discFor = null;
+      _fanart = null;
+      _fanartFor = null;
       _cover = null;
       _coverFor = null;
       _clearArt = null;
@@ -1729,6 +2204,10 @@ namespace MediaPortal.Frontend.ViewModels
       if (_disposed)
         return;
       _disposed = true;
+      // The bars stop being looked after with the screen. Stopping the transport is not the answer here - the song
+      // carries on over other screens - but nothing may keep a second decoder running for a stage nobody is
+      // looking at any more.
+      StopWatchingSpectrum();
       if (_player != null)
       {
         _player.StateChanged -= OnPlayerEvent;

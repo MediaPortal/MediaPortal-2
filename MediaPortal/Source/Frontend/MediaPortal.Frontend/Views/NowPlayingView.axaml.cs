@@ -53,6 +53,52 @@ namespace MediaPortal.Frontend.Views
     private int _marksPainted = -1;
 
     /// <summary>
+    /// The record's turn, handed to the disc the XAML named the way the wake hands its ring to
+    /// <see cref="StartupView"/>. Turned here rather than by a style's animation because the turn belongs to the
+    /// engine: an animation a style starts has no way of hearing the pause, and a record that carries on turning
+    /// over a song that stands still lies about the machine.
+    /// </summary>
+    /// <remarks>
+    /// Hinged at its own middle without being told to: a visual's <c>RenderTransformOrigin</c> is the middle of
+    /// the element by default in Avalonia - the frame of a screen that names no origin printed "origin=50%, 50%"
+    /// - so naming a centre on the turn as well would hinge the record at its lower right corner, four hundred
+    /// and six lines away from where it belongs.
+    /// </remarks>
+    private readonly RotateTransform _discTurn = new RotateTransform();
+
+    /// <summary>The clock the turn runs on, or null while the record stands still.</summary>
+    private DispatcherTimer? _discClock;
+
+    /// <summary>When the record was last set turning, and how far it had already come by then.</summary>
+    private DateTime _discTurnFrom;
+
+    private double _discDegrees;
+
+    /// <summary>Four and a half seconds to a revolution, which is the turn the audio screen was drawn with.</summary>
+    private const double DISC_DEGREES_PER_SECOND = 360.0 / 4.5;
+
+    /// <summary>
+    /// The air left between a song's name and the switches at the row's right hand end: the same twenty four lines
+    /// of air the mockup leaves between the record and what stands after it (index.html, the cover's middle axis
+    /// plus the record's four hundred and six lines plus twenty four = the seven hundred and two the equalizer
+    /// starts on).
+    /// </summary>
+    private const double SONG_NAME_AIR = 24;
+
+    /// <summary>
+    /// The narrowest a song's name is ever made: one of the row's glass plates, seventy lines across
+    /// (PlayerGlassStyles.axaml, the plate the mockup's row is drawn with). Below that width a name is an ellipsis
+    /// and nothing else, and a word of one letter is no answer to "what is playing".
+    /// </summary>
+    private const double SONG_NAME_FLOOR = 70;
+
+    /// <summary>
+    /// The band of shade the row of buttons carries over a film, kept in hand because the audio arrangement wears
+    /// one shade over the whole screen instead and puts this one away - the row would else be darkened twice.
+    /// </summary>
+    private readonly IBrush? _osdShade;
+
+    /// <summary>
     /// The controls the directional keys move between, in the order they stand on the panel. Held as well as
     /// handed to <see cref="DpadNavigation"/> because one of them - the slider - answers some of those keys
     /// itself and has to ask the ring where the viewer meant to go.
@@ -95,6 +141,11 @@ namespace MediaPortal.Frontend.Views
       // therefore stops the drawing and nothing else - the film carries on playing, and the next time this screen
       // opens it follows the same frames again.
       videoSurface.Follow(frames);
+
+      // The record behind the cover is turned from here (see _discTurn), and the band of shade the row of buttons
+      // wears over a film is taken down for a song, whose screen carries one shade for the whole stage.
+      audioDisc.RenderTransform = _discTurn;
+      _osdShade = osdArea.Background;
 
       // The remote's key map, ported from the reference's FullScreenContentVideoKeyBindings.inc and its
       // IsOSDVisible conditions: with the on-screen buttons away, left and right climb the escalating skip
@@ -274,6 +325,15 @@ namespace MediaPortal.Frontend.Views
       // The sound's dialog is lifted above the row of buttons rather than left standing over them, and the height
       // that row takes is what decides how far - so a window that changes its size moves the dialog with it.
       osdArea.SizeChanged += delegate { volumePicker.HoldAbove(osdArea.Bounds.Height); };
+
+      // A song's name has the room the row leaves it, which is not a number anybody can write down: it is the
+      // width of the window less the switches standing at its right hand end, and those two change together with
+      // the window and with the two lists a film's row also carries. Measured rather than guessed, because the
+      // name a library really carries is longer than the one a mockup is drawn with - the record of a running
+      // library is named "7: 1 - Don't Leave Me Alone (feat. Anne-Marie)", which wants seven hundred and
+      // thirty-eight lines where the mockup's "Momentum" wanted two hundred.
+      osdArea.SizeChanged += delegate { RoomForTheSongName(); };
+      rowSwitches.SizeChanged += delegate { RoomForTheSongName(); };
 
       // The line of the film answers the hand the same way, and it drags as well: a press puts the film where it
       // was pressed and holding the button down walks the film along with the hand, which is what every position
@@ -1192,6 +1252,12 @@ namespace MediaPortal.Frontend.Views
     {
       _viewModel.Changed += OnPlaybackChanged;
       _ = _viewModel.ReadCoverAsync();
+      // The record a song came off, asked the same guarded way as the cover: the audio arrangement lays it behind
+      // the cover and turns it, and a library that keeps no picture of the disc shows the skin's own record.
+      _ = _viewModel.ReadDiscAsync();
+      // The picture the stage of a song stands on, asked the same guarded way and only ever for a song: a film
+      // already shows its own pictures, and painting its fanart under them would only cost a decode.
+      _ = _viewModel.ReadFanartAsync();
       // The lettering and the year are asked for as soon as the screen follows a film, not only when the viewer
       // calls the info panel: the lettering stands by the transport and the year under the name from the first
       // moment the panel is up. Both are guarded to ask a title once.
@@ -1201,6 +1267,7 @@ namespace MediaPortal.Frontend.Views
       // The two jump marks carry their reach in the name drawn under them - "Rewind 20 %" - which the view model
       // rewrites whenever the settings change, so nothing is written onto the marks here. Writing a text onto a
       // mark used to be how the reach was shown, and it replaced the mark's own plate and glyph with a word.
+      LayTheStageForTheMedium();
       RestartOpenFade();
     }
 
@@ -1235,6 +1302,12 @@ namespace MediaPortal.Frontend.Views
     private void OnStoppingPlayback()
     {
       _viewModel.Changed -= OnPlaybackChanged;
+
+      // The record stops with the visit. The song carries on - this screen leaving is not the listener stopping
+      // - but nothing here is left turning over a picture nobody is looking at.
+      _discClock?.Stop();
+      _discClock = null;
+      _discDegrees = _discTurn.Angle;
     }
 
     private void OnPlaybackChanged(object? sender, EventArgs e)
@@ -1243,6 +1316,7 @@ namespace MediaPortal.Frontend.Views
       {
         _ = _viewModel.ReadCoverAsync();
         _ = _viewModel.ReadClearArtAsync();
+        _ = _viewModel.ReadDiscAsync();
         _ = _viewModel.ReadMediaInfoAsync();
       }
       if (_osdVisible)
@@ -1251,6 +1325,107 @@ namespace MediaPortal.Frontend.Views
         // - by a key in the room, by the dialog, or by another screen's buttons.
         PaintMeasurements();
       }
+
+      // Which of the two arrangements the screen wears, whether the record behind the cover is turning, and
+      // whether the row of buttons still carries its own band of shade: all three follow the same one answer -
+      // is this music - and the answer can change while the screen is open, because the library's reply about a
+      // file that named no shelf arrives after the file has been opened.
+      LayTheStageForTheMedium();
+    }
+
+    /// <summary>
+    /// Put the screen in the dress its medium asks for. A song wears the arrangement of its own - the shade that
+    /// rises over the whole stage rather than the band under the row - and its record turns only while the engine
+    /// says it is playing, because a record that turns over a paused song says the machine is doing something it
+    /// stopped doing.
+    /// </summary>
+    private void LayTheStageForTheMedium()
+    {
+      bool audio = _viewModel.IsAudio;
+
+      // The bars are only worth listening for while the stage actually wears the audio arrangement. Listening
+      // costs a second look at the sound, and a film's screen - which shows the film and has no bars - must never
+      // pay for them; the ask and the stop are both idle when nothing is to do.
+      if (audio)
+        _viewModel.WatchSpectrum();
+      else
+        _viewModel.StopWatchingSpectrum();
+
+      IBrush? wanted = audio ? null : _osdShade;
+      if (!ReferenceEquals(osdArea.Background, wanted))
+        osdArea.Background = wanted;
+
+      // The mark that says "this song is standing still" is the one thing on a black stage a viewer has to see
+      // from across the room, and the hundred lines it is drawn with over a film - where a paused picture is
+      // plainly a paused picture - is a speck here. The audio screen's own mark is two hundred and fifty, at the
+      // same strength the mockup drew it.
+      double mark = audio ? 250 : 100;
+      if (Math.Abs(stateGlyph.Width - mark) > 0.5)
+      {
+        stateGlyph.Width = mark;
+        stateGlyph.Height = mark;
+        stateGlyph.Opacity = audio ? 0.7 : 0.8;
+      }
+
+      bool turning = audio && _viewModel.IsPlaying;
+      if (turning == (_discClock != null))
+        return;
+
+      if (turning)
+      {
+        _discTurnFrom = DateTime.UtcNow;
+        _discClock = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+        _discClock.Tick += delegate
+        {
+          _discTurn.Angle = (_discDegrees
+              + (DateTime.UtcNow - _discTurnFrom).TotalSeconds * DISC_DEGREES_PER_SECOND) % 360.0;
+        };
+        _discClock.Start();
+        return;
+      }
+
+      // Stood still where it stood, rather than jumped back to the mark it started from.
+      _discClock!.Stop();
+      _discClock = null;
+      _discDegrees = _discTurn.Angle;
+    }
+
+    /// <summary>
+    /// How wide the name of a song and the name under it may be: the room between where they stand and where the
+    /// switches at the right hand end of the row begin, less the air between them.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The mockup caps the two names at five hundred and sixty lines (<c>.nenne { max-width:560px }</c>,
+    /// index.html:190) and drew them with a two-hundred-line word, so the cap was never met by the string a library
+    /// actually writes: a running library names one of its tracks "7: 1 - Don't Leave Me Alone (feat. Anne-Marie)",
+    /// which is measured above at seven hundred and thirty-eight lines, and the frame that cap produced ended the
+    /// name with an ellipsis in the middle of a word.
+    /// </para>
+    /// <para>
+    /// Measured off the switches themselves rather than answered with a bigger number, because the room a name has
+    /// is exactly what is left of the row - it changes with the width of the window and with the two lists a film's
+    /// row carries and a song's row does not, and a name that reached into a knob would be worse than a name that
+    /// was trimmed. A name is never made narrower than one of the row's glass plates, since a name that short says
+    /// nothing either.
+    /// </para>
+    /// </remarks>
+    private void RoomForTheSongName()
+    {
+      if (rowSwitches.Bounds.Width <= 0)
+        return;
+
+      // Both edges asked of the row, because the row is inset in the screen and the two controls live in different
+      // parents inside it.
+      Avalonia.Point? nameAt = audioName.TranslatePoint(new Avalonia.Point(0, 0), osdArea);
+      Avalonia.Point? switchAt = rowSwitches.TranslatePoint(new Avalonia.Point(0, 0), osdArea);
+      if (nameAt == null || switchAt == null)
+        return;
+
+      double room = switchAt.Value.X - nameAt.Value.X - SONG_NAME_AIR;
+      double wanted = Math.Max(SONG_NAME_FLOOR, room);
+      if (Math.Abs(audioName.MaxWidth - wanted) > 0.5)
+        audioName.MaxWidth = wanted;
     }
 
     /// <summary>

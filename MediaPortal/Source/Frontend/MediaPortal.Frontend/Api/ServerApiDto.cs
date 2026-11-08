@@ -298,7 +298,13 @@ namespace MediaPortal.Frontend.Api
       // answers the same name with the number the album's tag wrote, because a wall cannot count a thousand
       // albums' children; the one album a viewer is standing in front of is answered by counting them
       // (MediaController.ItemResult.TrackCount), and that is the number this screen shows.
-      [property: JsonPropertyName("trackCount")] int? AlbumTrackCount = null)
+      [property: JsonPropertyName("trackCount")] int? AlbumTrackCount = null,
+      // Appended last for the same reason: who sings a track and which record it came from.  The playback screen
+      // shows a cover, and a cover with no name under it says nothing - a film names itself in its own picture,
+      // a song does not.  A server too old to answer still reads as this record, with every one of them null.
+      [property: JsonPropertyName("artist")] string? Artist = null,
+      [property: JsonPropertyName("album")] string? Album = null,
+      [property: JsonPropertyName("albumArtist")] string? AlbumArtist = null)
   {
     /// <summary>
     /// The longest single line of prose the title carries, or null when it carries none. What a details screen

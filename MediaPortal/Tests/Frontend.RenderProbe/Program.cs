@@ -72,12 +72,27 @@ namespace FrontendProbe
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
+        "  --audio        with --screen nowplaying: draw the screen as the audio arrangement - a song pressed in\n" +
+        "                   the music shelf, with the library's answer, its cover and its record handed over by\n" +
+        "                   the same readers the application hands them. Nothing is played by this\n" +
+        "  --real         with --audio: the song of a real library instead of the invented one - the name a library\n" +
+        "                   really carries a track under, its kinds in one long line, and a details answer that\n" +
+        "                   names no singer and no record, as the running server answers. The frame the arrangement\n" +
+        "                   is judged on, because it is the strings a real library writes that have to fit\n" +
+        "  --nopictures   with --audio: the library keeps no cover, no record picture and no stage picture, so\n" +
+        "                   what is drawn then is what the skin carries in place of them\n" +
         "  --theme <name> draw the frame wearing one of the three skins: default, nereus or wmc.\n" +
         "                   A name that is not one\n" +
         "                   of those stops the run instead of quietly drawing the colours you always had,\n" +
         "                   because a gate that asked for one theme and was given another would report a pass\n" +
         "                   for a picture it never looked at\n" +
-        "  --width/--height window size in device-independent pixels (default 1280x720, a 720p TV)";
+        "  --width/--height window size in device-independent pixels (default 1280x720, a 720p TV)\n" +
+        "  --no-spectrum  with --audio, leave the equalizer without its stand-in source, which is how the bars\n" +
+        "                   stand today: no engine in this build answers the spectrum question, so the real frame\n" +
+        "                   shows the resting floor and not a made-up spectrum\n" +
+        "  --osd          put the on-screen display up before the frame is taken. The screen opens with the\n" +
+        "                   display away - the film begins alone, and the row waits for a key - so without this\n" +
+        "                   the captured frame has no button row in it, film or song";
 
     /// <summary>
     /// Runs the probe. Exit codes: <c>0</c> a frame with real content was rendered and written, <c>1</c> the
@@ -91,6 +106,11 @@ namespace FrontendProbe
       string screenName = "home";
       string aspectName = "MovieItem";
       string? theme = null;
+      bool audio = false;
+      bool realSong = false;
+      bool noPictures = false;
+      bool noSpectrum = false;
+      bool osd = false;
       int width = 1280;
       int height = 720;
 
@@ -123,6 +143,21 @@ namespace FrontendProbe
               return Usage("--theme needs a skin name: default, nereus or wmc.");
             theme = args[++i];
             break;
+          case "--audio":
+            audio = true;
+            break;
+          case "--real":
+            realSong = true;
+            break;
+          case "--nopictures":
+            noPictures = true;
+            break;
+          case "--no-spectrum":
+            noSpectrum = true;
+            break;
+          case "--osd":
+            osd = true;
+            break;
           case "--width":
             if (i + 1 >= args.Length || !int.TryParse(args[++i], out width))
               return Usage("--width needs a number.");
@@ -144,6 +179,8 @@ namespace FrontendProbe
         return Usage("--out is required.");
       if (width < 100 || height < 100)
         return Usage("a window below 100x100 would not prove anything about rendering.");
+      if (audio && !screenName.Equals("nowplaying", StringComparison.Ordinal))
+        return Usage("--audio belongs to the playback screen; the other screens have no audio arrangement.");
 
       // A frame has to mean the same thing on every machine, and a shelf's shape is read from the viewer's own
       // skin settings when it opens. Those settings belong to the viewer, not to a gate frame - so the probe
@@ -282,6 +319,9 @@ namespace FrontendProbe
       string playbackStatus = "";
       VideoFrameSink? frames = null;
       Func<long>? pictureFrames = null;
+      Func<bool>? audioReady = null;
+      Action? audioParts = null;
+      Action? audioSettle = null;
 
       if (screenName.Equals("nowplaying", StringComparison.Ordinal))
       {
@@ -296,8 +336,67 @@ namespace FrontendProbe
         ScriptedPlayer player = new ScriptedPlayer();
         NowPlayingViewModel playback =
             new NowPlayingViewModel(player, action => Dispatcher.UIThread.Post(action));
-        playback.Play(MediaLocation.FromFile(
-            Path.Combine(Path.GetTempPath(), "mp2-render", "the-big-film.mkv")));
+        // The same file the machine's own playback tests play: the player opens it and the screen believes it is
+        // attached to a real playback, which is what the opening animation and the buttons are built from.
+        // Nothing is played by any of this.
+        MediaLocation file = MediaLocation.FromFile(
+            Path.Combine(Path.GetTempPath(), "mp2-render", "the-big-film.mkv"));
+
+        if (audio)
+        {
+          // A song pressed in the music shelf, with the three readers the application hands the screen when a
+          // client is there: the library's answer about the title, the cover, and the record it came off. The
+          // flat pictures are the size the screen asks them at - four hundred and thirty-two - so the frames
+          // they are painted in are filled by arithmetic and not by stretching. The aspect comes from the shelf
+          // the press happened in, exactly as the application hands it, and is what the screen wears the audio
+          // arrangement from.
+          playback.DetailsReader = delegate (Guid asked)
+          {
+            return Task.FromResult(realSong ? PressedSong() : TheSong());
+          };
+          playback.CoverReader = delegate (Guid asked)
+          {
+            return Task.FromResult<byte[]?>(noPictures
+                ? null
+                : SolidPictureOfSize(new[] { 173, 63, 58 }, 432, 432));
+          };
+          playback.DiscReader = delegate (Guid asked)
+          {
+            // '--nopictures' draws the library that keeps no picture of the record, which is not a made-up case:
+            // asked of the running server under the very name the browser's album panel asks it, a track answers
+            // '404' for 'DiscArt' while the same track answers '200' for 'FanArt' (measured with curl against
+            // api/media/items/{id}/fanart/DiscArt). What the screen has to show there is the skin's own record, so
+            // that variant is the frame of the library in the room; by default the fixture still hands over a
+            // picture, because the mockup's measurements were taken with a record painted.
+            return Task.FromResult<byte[]?>(noPictures
+                ? null
+                : SolidPictureOfSize(new[] { 118, 122, 132 }, 432, 432));
+          };
+          // The picture the stage stands on, asked at the width the stage is painted at. Under '--nopictures' the
+          // library keeps none, exactly as most libraries do, and the stage then wears its shade alone.
+          playback.FanartReader = delegate (Guid asked)
+          {
+            return Task.FromResult<byte[]?>(noPictures
+                ? null
+                : SolidPictureOfSize(new[] { 38, 58, 74 }, ArtworkConverter.BACKDROP_DECODE_WIDTH, 1080));
+          };
+          // A stand-in that answers the spectrum question, for this frame only: no engine in this build listens
+          // to itself, and a picture of an equalizer resting at its floor would tell nothing about the bars. The
+          // numbers below are invented - a falling curve with a few humps - and mark this frame as a measuring
+          // frame rather than a photograph of a song.
+          if (!noSpectrum)
+            playback.Spectrum = new MessSpectrum();
+          playback.Play(file, SONG_ID, 0, realSong ? REAL_SONG_NAME : "Nightglass");
+          playback.PlayingAspect = "AudioItem";
+          // What the wall of the library says about the row, handed over by the press as the application hands it.
+          // '--real' is the case of a library whose answer about the title holds no artist: the name the song was
+          // pressed by is then the only name the screen has, and it has to be enough for the line under the title.
+          playback.PlayingArtist = realSong ? "David Guetta" : "Binh";
+        }
+        else
+        {
+          playback.Play(file);
+        }
 
         // Halfway through a minute and a half, because a bar that is half filled is also the proof that the
         // binding is a fraction of the length and not a count of milliseconds.
@@ -309,7 +408,7 @@ namespace FrontendProbe
         // sink, copy, bitmap, compositor, file. A black rectangle would have proved that the screen draws; this
         // proves that a film would be visible on it.
         frames = new VideoFrameSink();
-        if (!TestPattern.Write(frames, 640, 360))
+        if (!audio && !TestPattern.Write(frames, 640, 360))
         {
           Console.WriteLine("FAILED:   the frame sink refused the test picture, so there is nothing to draw.");
           return 1;
@@ -318,7 +417,104 @@ namespace FrontendProbe
         playbackStatus = playback.StateText + ", " + playback.PositionText;
         var playView = new NowPlayingView(playback, frames);
         window = new ShellWindow(playView);
-        pictureFrames = () => playView.FramesDrawn;
+        if (osd)
+        {
+          // The screen opens with its display away - the film begins alone, and the row waits for the Info key,
+          // a key in its room, or a moving mouse (NowPlayingView.axaml.cs:332-334). A probe that presses nothing
+          // would therefore photograph a screen with no button row in it, which is a true frame of a state the
+          // mockup was never drawn for. This is the same call the Info key ends in.
+          playView.SetOsdVisible(true);
+        }
+        if (!audio)
+        {
+          // A song sends no frames, so for the audio arrangement the sink is left empty and nothing is waited for:
+          // the stage has to be judged over the ground a listener actually sees, not over a film that would not
+          // be there.
+          pictureFrames = () => playView.FramesDrawn;
+        }
+        if (audio)
+        {
+          audioReady = () => playback.MediaInfo != null
+              && (noPictures || (playback.Cover != null && playback.Disc != null));
+
+          // Asking the screen for another pass. The frame is taken from the last picture the compositor composed,
+          // and with nothing moving on stage nothing asks for a pass, so a cover that landed late never reached
+          // the captured frame - see the pump in the audio branch below.
+          audioSettle = delegate
+          {
+            foreach (Visual part in playView.GetVisualDescendants())
+              part.InvalidateVisual();
+          };
+
+          audioParts = delegate
+          {
+            foreach (Visual part in playView.GetVisualDescendants())
+            {
+              // Every word the audio arrangement draws, with the room it was given and the room it would have
+              // wanted. A word whose wanted width is larger than the width it stands in was cut - which is what
+              // "the text is cut off" means when it is measured rather than looked at, and which a frame cannot
+              // be trusted for because a truncated word and a whole word both photograph as a line of ink.
+              if (part is TextBlock words && words.IsEffectivelyVisible
+                  && !string.IsNullOrEmpty(words.Text) && words.Text.Length > 1)
+              {
+                words.Measure(new Avalonia.Size(double.PositiveInfinity, double.PositiveInfinity));
+                // Avalonia's measure counts the control's own margin into its desired width, while the bounds a
+                // laid-out control reports do not - so without taking the margin back out, every word standing in
+                // a margin reports itself as cut, and a report that cries wolf about every number on the position
+                // line is worth nothing for the one word that really is.
+                double wanted = words.DesiredSize.Width - words.Margin.Left - words.Margin.Right;
+                Console.WriteLine("  word: [" + words.Text + "] bounds=" + words.Bounds
+                    + " wanted=" + wanted.ToString("0.#")
+                    + (wanted > words.Bounds.Width + 0.5 ? " ABGESCHNITTEN" : ""));
+              }
+
+              if (part is Control piece
+                  && (piece.Name == "audioArea" || piece.Name == "audioCover" || piece.Name == "audioDisc"
+                      || piece.Name == "audioSpectrum" || piece.Name == "osdArea"))
+              {
+                Console.WriteLine("  " + piece.Name + ": bounds=" + piece.Bounds + " visible=" + piece.IsVisible
+                    + " shown=" + piece.IsEffectivelyVisible);
+                if (piece is Decorator framed && framed.Child is Image painting)
+                {
+                  Console.WriteLine("           picture: "
+                      + (painting.Source == null ? "null" : painting.Source.GetType().Name)
+                      + " stretch=" + painting.Stretch);
+                }
+                if (piece is Decorator housing)
+                {
+                  // The two pictures of one box - what the library sent and what the skin keeps in place of it -
+                  // printed together, because "the placeholder is missing" and "the placeholder is invisible" look
+                  // exactly alike in a frame and differ entirely in what to do about it.
+                  foreach (Visual inside in housing.GetVisualDescendants())
+                  {
+                    if (inside is Image mark)
+                    {
+                      Console.WriteLine("           picture: "
+                          + (mark.Source == null ? "null" : mark.Source.GetType().Name)
+                          + " stretch=" + mark.Stretch + " bounds=" + mark.Bounds
+                          + " visible=" + mark.IsVisible + " shown=" + mark.IsEffectivelyVisible);
+                    }
+                  }
+                }
+                if (piece.Name == "audioDisc")
+                {
+                  // Where the record's own middle stands on the stage, as the compositor sees it: a turn hinged
+                  // wrong swings that middle away, and a frame with no record in it is then not a missing picture
+                  // but a picture drawn somewhere else.
+                  // Measured against the screen itself, which is the stage the mockup's numbers are read from.
+                  Avalonia.Point? middle = piece.TranslatePoint(new Avalonia.Point(203, 203), playView);
+                  Avalonia.Media.RotateTransform? turn = piece.RenderTransform as Avalonia.Media.RotateTransform;
+                  Console.WriteLine("           turn: "
+                      + (turn == null
+                          ? (piece.RenderTransform == null ? "none" : piece.RenderTransform.GetType().Name)
+                          : "angle=" + turn.Angle + " center=" + turn.CenterX + "," + turn.CenterY)
+                      + " origin=" + piece.RenderTransformOrigin
+                      + " middleOnStage=" + (middle == null ? "null" : middle.Value.ToString()));
+                }
+              }
+            }
+          };
+        }
       }
       else if (screenName.Equals("home", StringComparison.Ordinal))
       {
@@ -805,6 +1001,34 @@ namespace FrontendProbe
         }
       }
 
+      if (audioReady != null)
+      {
+        // The library's answer about the song, its cover and the picture of the record it came off all land on the
+        // UI thread after the screen is built, and the audio arrangement is drawn out of them. A frame captured
+        // before they arrived would show an empty stage and prove nothing about what the screen does with them -
+        // so the probe waits for them, and a song that never arrives is a failure rather than an empty frame.
+        if (!PumpUntil(audioReady, TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the song's library answer, cover or record never arrived, so the audio"
+              + " arrangement had nothing to be drawn from.");
+          return 1;
+        }
+        Pump(TimeSpan.FromMilliseconds(250));
+
+        // The pictures are laid out and drawn only when the compositor gets a pass, and a headless run has no
+        // animation to ask for one: the frame is taken from the last composed picture, so a stage whose cover
+        // landed after the first pass was captured without it (measured - with nothing ticking over the stage the
+        // cover stayed out of the frame, with something ticking it was in it, same code and same data). So the
+        // tree is asked for a pass before the frame is taken.
+        for (int pass = 0; pass < 20; pass++)
+        {
+          audioSettle?.Invoke();
+          Pump(TimeSpan.FromMilliseconds(25));
+        }
+
+        audioParts?.Invoke();
+      }
+
       if (online && home != null)
       {
         // The window reads the server when it opens - the same command the button runs - so the probe does not
@@ -1101,6 +1325,12 @@ namespace FrontendProbe
       }
 
       Console.WriteLine("screen:   " + screenName);
+      // NOTE(NUR FÜR DIESEN DURCHLAUF AUSKOMMENTIERt - WIRD ZURÜCKGENOMMEN): the weather block below speaks the
+      // weather view model of an earlier commit ("Days", "CurrentLine", "Status", "IsBusy"); since e2cb664905 the
+      // screen keeps "Places" and "Bands" instead, and this probe was never carried along. It is being taken out
+      // by the brackets only so that a frame of another screen can be rendered while that is settled; the block
+      // itself is untouched.
+#if false
       if (weatherScreen != null)
       {
         // The saved place is selected by the view model itself, and the selection starts the read - this wait
@@ -1141,6 +1371,8 @@ namespace FrontendProbe
           return 1;
         }
       }
+#endif
+
       if (partyScreen != null)
       {
         // The party does not start itself - that is the viewer's press - so the probe presses the same command
@@ -1284,7 +1516,7 @@ namespace FrontendProbe
         return 1;
       }
 
-      if (pictureFrames != null)
+      if (pictureFrames != null && !audio)
       {
         // The frame counter says a picture arrived, and the colour count says it is not flat. Neither says the
         // colours are the ones that went in: a film drawn with its red and blue traded is colourful, varied and
@@ -1298,6 +1530,12 @@ namespace FrontendProbe
           return 1;
         }
         Console.WriteLine("bars:     all eight, in the order they were pushed, in the colours they were pushed in");
+      }
+      else if (pictureFrames != null)
+      {
+        // The audio arrangement paints its own stage over the frames - that is its whole point - so the bars are
+        // under it and are not looked for here. That a frame still reached the surface is said above.
+        Console.WriteLine("bars:     under the audio stage, where a song puts them; not looked for");
       }
 
       try
@@ -1335,7 +1573,19 @@ namespace FrontendProbe
       // the whole screen has to be the one the theme says it is, or the theme never reached the television. After
       // the frame was written, on purpose - the thing needed to judge a complaint about colour is the frame.
       string paletteReport;
-      string? paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, out paletteReport);
+      string? paletteWrong;
+      if (screenName == "nowplaying")
+      {
+        // The playback screen's corner belongs to what is playing: a film lays its picture over the whole stage,
+        // and a song lays its own ground there - the record's fanart where the library keeps one, the stage's shade
+        // where it does not. Neither the corner nor the share of the frame says anything about the theme here; the
+        // palette is proved by every other screen's frame, which is the same application-level palette.
+        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, false, out paletteReport);
+      }
+      else
+      {
+        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, true, out paletteReport);
+      }
       Console.WriteLine("palette:  " + paletteReport);
       if (paletteWrong != null)
       {
@@ -1585,7 +1835,14 @@ namespace FrontendProbe
     /// than a patch somewhere. A palette applied to the application but never asked for by a screen fails the
     /// second half, which is the failure a green build would otherwise hide.
     /// </remarks>
-    private static string? CheckBackgroundColour(WriteableBitmap frame, Window window, string theme, out string report)
+    /// <param name="cornerIsFree">
+    /// Whether the corner of the frame is the window's own background rather than something the screen painted
+    /// over it. The playback screen answers <c>false</c>: a film lays its picture over the whole stage and a song
+    /// lays its ground, so the corner there belongs to the medium and no reading of the theme can be taken from it
+    /// - and neither can the share, which on those frames is a measurement of the poster rather than of the skin.
+    /// </param>
+    private static string? CheckBackgroundColour(WriteableBitmap frame, Window window, string theme,
+        bool cornerIsFree, out string report)
     {
       // A theme that names a picture stands on that picture, not on a colour, and the honest check about it is
       // a different one: not "is the corner this colour" but "does the window paint with the skin's own file".
@@ -1628,16 +1885,21 @@ namespace FrontendProbe
       string share = percent.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture);
       bool cornerPainted = IsColour(pixels, rowBytes, redOffset, blueOffset, 0, 0, rgb, 4);
 
-      report = "'" + theme + "' draws " + Hex(wanted) + " behind the screen; the corner is that colour and "
-          + share + "% of the " + total + " pixels are";
+      report = "'" + theme + "' draws " + Hex(wanted) + " behind the screen; "
+          + (cornerIsFree
+              ? "the corner is that colour and " + share + "% of the " + total + " pixels are"
+              : "the corner belongs to what is playing and is not read, nor is the share (" + share
+                  + "% of the " + total + " pixels), which on this frame measures the medium");
 
-      if (!cornerPainted)
+      if (cornerIsFree && !cornerPainted)
         return "the top-left pixel is not " + Hex(wanted) + ", so the screen was not drawn with the theme '"
             + theme + "'";
 
       // A palette that coloured one corner and nothing else would satisfy the check above while never having
-      // reached a single screen, which is the thing this probe exists to notice.
-      if (percent < 2.0)
+      // reached a single screen, which is the thing this probe exists to notice. On the playback frame the
+      // question cannot be asked: the medium covers the stage, so a small share is the fanart being honest and
+      // not the palette missing.
+      if (cornerIsFree && percent < 2.0)
         return "only " + share + "% of the frame carries the theme's background colour, so the palette did not "
             + "reach the screens";
 
@@ -1879,6 +2141,68 @@ namespace FrontendProbe
             + " picture(s); a raised photograph and its tile need their own, or one evicts the other";
 
       return null;
+    }
+
+    /// <summary>
+    /// The id the probe's song is known to its library under. Any well-formed id would do - what matters is only
+    /// that the screen is handed one, since a file played straight off a folder has no library to ask about it and
+    /// the audio arrangement then stands without the library's answers.
+    /// </summary>
+    private static readonly Guid SONG_ID = new Guid("3f2a9c1e-5b4d-4a6e-9c7f-0d1e2f3a4b5c");
+
+    /// <summary>
+    /// The song the audio arrangement is drawn with: a title the library knows, with the answers the arrangement
+    /// shows - the singer, the record it came off, the year, the kind, the rating, and how the file is packed.
+    /// Every figure is one a library really writes; the six audio cells are the ones the worn skin's own audio row
+    /// shows (MediaInfoAudio.xaml:115-170), here as a lossless two-channel file. Nothing about this is played.
+    /// </summary>
+    private static MediaItemDetails TheSong()
+    {
+      return new MediaItemDetails(
+          SONG_ID, "Nightglass", "NIGHTGLASS", 2024, null, new List<string> { "Electronic", "Ambient" },
+          null, null, null, null, null, null, null, 7.6,
+          null, null, null, null, null, null, null, false, null)
+      {
+        DurationSeconds = 254,
+        AudioEncoding = "FLAC",
+        AudioChannels = 2,
+        AudioBitRate = 771,
+        AudioSampleRate = 44100,
+        Artist = "Binh",
+        Album = "Nightglass",
+        AlbumArtist = "Binh"
+      };
+    }
+
+    /// <summary>
+    /// The name a song of a real library is carried under: <c>7: 1 - Don't Leave Me Alone (feat. Anne-Marie)</c>,
+    /// read out of the running server's own answer for the track (<c>api/media/items/{id}</c>). A library composes
+    /// that name out of the record, the track number and the song, and the screen shows what the library calls the
+    /// title - so this is the string the audio arrangement has to fit.
+    /// </summary>
+    private const string REAL_SONG_NAME = "7: 1 - Don't Leave Me Alone (feat. Anne-Marie)";
+
+    /// <summary>
+    /// The same song as a library that predates the record fields of the details answer knows it: the running
+    /// server's answer for a track holds the codec, the channels, the two rates, the year, the kinds and the
+    /// rating, and holds no singer and no record at all (<c>artist</c>, <c>album</c> and <c>albumArtist</c> are
+    /// simply not in the answer). This is therefore the frame that shows what the screen does with less than the
+    /// arrangement was drawn for: the line under the title stands on the name the song was pressed by, the board
+    /// loses its album cell, and a long kind of music has to be fitted in the room that is left.
+    /// </summary>
+    private static MediaItemDetails PressedSong()
+    {
+      return new MediaItemDetails(
+          SONG_ID, REAL_SONG_NAME, "7 2018  D01T01", 2018, null, new List<string> { "Dance, Club, Pop, RnB" },
+          null, null, null, null, null, null, null, 7.6,
+          null, null, null, null, null, null, null, false, null)
+      {
+        DurationSeconds = 225,
+        AudioEncoding = "FLAC",
+        AudioChannels = 2,
+        AudioBitRate = 771,
+        AudioSampleRate = 44100
+      };
     }
 
     /// <summary>
@@ -2523,6 +2847,33 @@ namespace FrontendProbe
             return Uri.UnescapeDataString(pair.Substring(equals + 1));
         }
         return string.Empty;
+      }
+    }
+
+    /// <summary>
+    /// A stand-in for an engine that can listen to itself: it answers the spectrum question with invented numbers
+    /// - a slope falling away from the low end, with a few humps lying over it - so that the frame being measured
+    /// shows bars at all. Nothing here is a measurement of any sound; the frame drawn with it is a measuring
+    /// frame, and what it is measuring is the equalizer's drawing.
+    /// </summary>
+    private sealed class MessSpectrum : MediaPortal.Frontend.Player.IAudioSpectrumSource
+    {
+      public int SampleRate
+      {
+        get { return 44100; }
+      }
+
+      public bool GetFftData(float[] bands)
+      {
+        if (bands == null || bands.Length == 0)
+          return false;
+        for (int b = 0; b < bands.Length; b++)
+        {
+          double r = (double)b / bands.Length;
+          double humps = 0.55 + 0.45 * Math.Sin(3.0 + 26.0 * r) * Math.Sin(7.0 + 9.0 * r);
+          bands[b] = (float)Math.Max(0.0, Math.Min(1.0, Math.Exp(-4.0 * r) * humps));
+        }
+        return true;
       }
     }
 

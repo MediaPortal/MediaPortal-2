@@ -1541,6 +1541,30 @@ namespace MediaPortal.Server.Api
       /// </remarks>
       public int? TrackCount { get; set; }
 
+      /// <summary>
+      /// Who sings this track, in the file's own tag, or null for a title the library holds no name for.  Only an
+      /// audio file is ever asked: the name is read off the aspect the audio figures come from
+      /// (<see cref="AudioAspect.ATTR_ARTISTS"/>), which a film's title does not carry.
+      /// </summary>
+      /// <remarks>
+      /// One name and not the list, for the same reason as <see cref="TitleResult.Artist"/>: a song credited to a
+      /// band, a producer and a featured singer is one line under a cover, and MP2 keeps the names on the title
+      /// itself, so saying them costs no relationship query.
+      /// </remarks>
+      public string Artist { get; set; }
+
+      /// <summary>
+      /// The record this track is on (<see cref="AudioAspect.ATTR_ALBUM"/>), or null when the tag stayed silent.
+      /// </summary>
+      public string Album { get; set; }
+
+      /// <summary>
+      /// The name the record as a whole is credited to (<see cref="AudioAspect.ATTR_ALBUMARTISTS"/>), which is the
+      /// singer of a various-artists compilation rather than the one of this track.  Null when the tag wrote no
+      /// such name, which is most files: the importer fills it for albums whose tag carried it.
+      /// </summary>
+      public string AlbumArtist { get; set; }
+
       /// <summary>Set when the answer is empty for a reason the caller can act on.</summary>
       public string Error { get; set; }
     }
@@ -1828,7 +1852,18 @@ namespace MediaPortal.Server.Api
       // screen is left to tell "no bitrate" from "a bitrate of nought" by itself otherwise.
       SingleMediaItemAspect audio;
       if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out audio))
+      {
         WriteAudioFigures(audio, result, takesLength: true);
+
+        // Who sings it and which record it came from, read off the very same aspect.  They are named here rather
+        // than inside <see cref="WriteAudioFigures"/> because that method is also called for an album, from the
+        // first track filed under it: an album that borrowed that track's singer would name a guest musician as
+        // its own, which is exactly what the album's shelf gets right by reading its own aspect
+        // (<see cref="AudioAlbumAspect.ATTR_ARTISTS"/>).
+        result.Artist = Text(FirstText(audio.GetCollectionAttribute<string>(AudioAspect.ATTR_ARTISTS)));
+        result.Album = Text(audio.GetAttributeValue<string>(AudioAspect.ATTR_ALBUM));
+        result.AlbumArtist = Text(FirstText(audio.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS)));
+      }
 
       // An album's own prose, which a tag reader writes on the album aspect and nowhere else.  The reference drew
       // it on the album's screens (MediaItemListAudioAlbumDetails.inc:307, MediaItemCoverAudioAlbumDetails.inc:7)

@@ -149,6 +149,24 @@ namespace MediaPortal.Frontend.Views
     public const string POSTER_PARAMETER = "small";
 
     /// <summary>
+    /// How wide the picture a screen stands on is decoded: the album's artwork behind the whole audio stage.
+    /// </summary>
+    /// <remarks>
+    /// One thousand nine hundred and twenty device pixels, the same number the ask of the library is phrased in
+    /// (<see cref="Api.PictureWidths.BACKGROUND"/>), because this picture's frame <em>is</em> the screen: a backdrop
+    /// decoded at the wall's six hundred and forty lines is stretched three times over, and a blur is the one thing
+    /// a background is allowed not to be. What it costs is two million pixels of the
+    /// <see cref="MAX_HELD_PIXELS"/> budget - an eighth of it - for the one picture on screen that no tile competes
+    /// with.
+    /// </remarks>
+    public const int BACKDROP_DECODE_WIDTH = 1920;
+
+    /// <summary>
+    /// The converter parameter a template passes to ask for a whole-screen backdrop decode.
+    /// </summary>
+    public const string BACKDROP_PARAMETER = "backdrop";
+
+    /// <summary>
     /// What one picture is, as far as this converter is concerned: the bytes it came from, compared by their
     /// contents and not by which array happens to hold them.
     /// </summary>
@@ -559,6 +577,8 @@ namespace MediaPortal.Frontend.Views
           return WALL_DECODE_WIDTH;
         if (string.Equals(text, POSTER_PARAMETER, StringComparison.OrdinalIgnoreCase))
           return POSTER_DECODE_WIDTH;
+        if (string.Equals(text, BACKDROP_PARAMETER, StringComparison.OrdinalIgnoreCase))
+          return BACKDROP_DECODE_WIDTH;
         return int.TryParse(text, out int named) && named > 0 ? named : WALL_DECODE_WIDTH;
       }
 
