@@ -63,6 +63,11 @@ namespace MediaPortal.Frontend.Player
     private readonly LibVLC _libVlc;
     private readonly MediaPlayer _player;
 
+    // Whether the engine was asked to play with no audio output at all (--aout=dummy). A player that was told to
+    // be headless has no mixer row to correct and must not go looking for one: the test runner is exactly such a
+    // player, and a test process that tidied the machine's volume mixer would be a test writing on the house.
+    private readonly bool _headless;
+
     // Seeks go onto this queue rather than into the engine directly, because libVLC's control calls deadlock when
     // issued from inside one of libVLC's own event callbacks: the callback runs while the engine holds the player
     // lock, and a control call asks for that same lock. Measured on live media - the resume seek raised from the
@@ -118,10 +123,11 @@ namespace MediaPortal.Frontend.Player
     /// </summary>
     private const int OverflowTag = int.MaxValue - 1;
 
-    private LibVlcPlayer(LibVLC libVlc, MediaPlayer player, string engineVersion)
+    private LibVlcPlayer(LibVLC libVlc, MediaPlayer player, string engineVersion, bool headless = false)
     {
       _libVlc = libVlc;
       _player = player;
+      _headless = headless;
       EngineDescription = "libVLC " + engineVersion;
 
       // libVLC raises one event per state rather than one state-changed event, so each is wired to the same
@@ -221,7 +227,7 @@ namespace MediaPortal.Frontend.Player
           };
         }
         MediaPlayer mediaPlayer = new MediaPlayer(libVlc);
-        player = new LibVlcPlayer(libVlc, mediaPlayer, libVlc.Version);
+        player = new LibVlcPlayer(libVlc, mediaPlayer, libVlc.Version, options.Headless);
         return true;
       }
       catch (VLCException ex)
@@ -1259,6 +1265,21 @@ namespace MediaPortal.Frontend.Player
         _state = newState;
       }
       StateChanged?.Invoke(this, new PlayerStateChangedEventArgs(oldState, newState));
+
+      // The sound has one more layer under this player than libVLC owns: Windows keeps a volume and a mute per
+      // application and per output device, remembers them across restarts, and shows that row under the name the
+      // audio output picked - for libVLC that is "VLC media player (LibVLC 3.0.20)", which nobody associates with
+      // MediaPortal. Measured on a machine that played without audible sound: this player was correct, its media
+      // was decoding, the meter on the session moved (peaks to 0.55 of full scale), and the row stood at 9 % and
+      // muted. So the moment sound is actually playing, the front end puts the volume it was told into its own
+      // rows and takes their mute off, off this thread and only once they exist - see WindowsAudioSessions.
+      if (newState == PlayerState.Playing && !_headless &&
+          RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+      {
+        WindowsAudioSessions.WriteOwnVolumeWhenItAppears(
+            () => _muted || _volume <= 0 ? 0 : _volume,
+            log: line => Console.WriteLine("vlc: " + line));
+      }
     }
 
     /// <summary>
