@@ -50,7 +50,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// thread that owns the visual tree.
   /// </para>
   /// </remarks>
-  public partial class HomeViewModel : ObservableObject, ITrailerAnswerHost
+  public partial class HomeViewModel : ObservableObject
   {
     private ServerApiClient? _client;
     private CancellationTokenSource? _runningRefresh;
@@ -2119,13 +2119,11 @@ namespace MediaPortal.Frontend.ViewModels
     public event EventHandler<TrailerRequest>? TrailerRequested;
 
     /// <summary>
-    /// Hands one of a tile's trailers to the application, or says in the dialog the press came out of why nothing
-    /// can be made of it.
+    /// Hands one of a tile's trailers to the application.
     /// </summary>
     /// <remarks>
-    /// The dialog is asked to say the reason rather than the wall, because the wall wears its status line in a
-    /// head band that the content pane covers while a dialog stands over it - a sentence written there is written
-    /// where nobody is looking.
+    /// Nothing is said here about the trailer - not even when its address means nothing - because a trailer is
+    /// answered long after the press and in whole sentences, which the application's own trailer dialog carries.
     /// </remarks>
     private void PlayTileTrailer(TitleViewModel title, MediaTrailer? trailer,
         Services.TrailerQuality? quality = null)
@@ -2133,48 +2131,7 @@ namespace MediaPortal.Frontend.ViewModels
       if (trailer == null)
         return;
 
-      _trailerAskedFor = title;
-
-      var address = title.TrailerLocation(trailer);
-      if (address == null)
-      {
-        TitleActions.Say("Nothing can be made of this trailer's address: " +
-                         (string.IsNullOrWhiteSpace(trailer.Source) ? "it names nothing" : trailer.Source));
-        return;
-      }
-
       TrailerRequested?.Invoke(this, new TrailerRequest(title, trailer, quality));
-    }
-
-    /// <summary>
-    /// The tile a trailer was asked for, so that its answer can be put back into the dialog the press came out of;
-    /// <c>null</c> while no trailer was asked for.
-    /// </summary>
-    private TitleViewModel? _trailerAskedFor;
-
-    /// <inheritdoc/>
-    /// <remarks>
-    /// The wall takes its dialog away as soon as a line is pressed, because what a press opens normally stands
-    /// over the wall with no question behind it. A trailer from a video site is the exception worth putting the
-    /// dialog back for: its answer comes seconds later, and the wall's own status line is worn in a head band
-    /// that the content pane covers - a sentence written there is written where nobody is looking.
-    /// </remarks>
-    public void AnswerTrailer(string words)
-    {
-      if (string.IsNullOrEmpty(words))
-      {
-        if (TitleActions.IsOpen)
-          CloseTitleActions();
-        return;
-      }
-
-      TitleViewModel? asked = _trailerAskedFor;
-      if (asked != null && !TitleActions.IsOpen)
-        OpenTitleActions(asked);
-      else if (asked == null)
-        return;
-
-      TitleActions.Say(words);
     }
 
     /// <summary>

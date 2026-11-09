@@ -8926,28 +8926,17 @@ namespace Tests.Frontend
           "one line per size, and none of the title's own answers left among them");
 
       await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)browser.RunTitleActionCommand)
-          .ExecuteAsync(browser.TitleActions.First(a => a.Quality != null && a.Quality.Word == "bis 720p"));
+          .ExecuteAsync(browser.TitleActions.First(a => a.Quality != null && a.Quality.Word == "720p"));
 
       Assert.That(asks, Has.Count.EqualTo(1), "one press on one size is one ask");
-      Assert.That(asks[0].Quality!.Word, Is.EqualTo("bis 720p"), "in the size that was stood on");
+      Assert.That(asks[0].Quality!.Word, Is.EqualTo("720p"), "in the size that was stood on");
       Assert.That(asks[0].Title, Is.SameAs(frozen), "for the title the line was pressed in");
 
-      // A film behind a page cannot be handed over on the spot - the page has to be asked, and a big picture has
-      // to be brought over first - so the question keeps standing and is the place the answer is written. Said
-      // anywhere else it is said in a playback nudge, whose line is one short word wide.
-      Assert.That(browser.MenuVisible, Is.True, "and the question stays where its answer will be read");
-
-      string waiting = VideoSiteStream.WaitWords(VideoSiteStream.Qualities[1]);
-      browser.AnswerTrailer(waiting);
-      Assert.That(browser.MenuAnswer, Is.EqualTo(waiting), "what is happening is read in the dialog");
-      Assert.That(browser.MenuVisible, Is.True, "and the dialog is not taken away to say it");
-
-      browser.AnswerTrailer("nothing could be found behind the page - the resolver had no answer.");
-      Assert.That(browser.MenuAnswer, Does.StartWith("nothing could be found"),
-          "a refusal is read in the same place, whole and uncropped");
-
-      browser.AnswerTrailer("");
-      Assert.That(browser.MenuVisible, Is.False, "and an answered question is taken away again");
+      // And the question is put away with the press, whatever the trailer answers later. A film behind a page
+      // cannot be handed over on the spot - the page has to be asked, and a big picture has to be brought over
+      // first - and the wait and the reason are whole sentences, which the application says on a dialog the
+      // trailer owns. Left standing, this frame would be read as still asking which size was meant.
+      Assert.That(browser.MenuVisible, Is.False, "the shelf's question is done once it has been answered");
 
       // The question is a state of the dialog and not of the shelf: a viewer who steps out of it and back in
       // again stands at the title's answers, not at a size question nobody asked a second time.

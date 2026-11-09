@@ -711,7 +711,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// a server that is really answering.
   /// </para>
   /// </remarks>
-  public partial class MediaBrowserViewModel : ObservableObject, ITrailerAnswerHost
+  public partial class MediaBrowserViewModel : ObservableObject
   {
     /// <summary>
     /// Titles the opening question brings.
@@ -3138,20 +3138,13 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Asks the application to show one of the selected title's trailers, and says so in the menu's own line when
-    /// nothing can be made of the trailer's address.
+    /// Asks the application to show one of the selected title's trailers, and puts the menu away while it is at it.
     /// </summary>
     /// <remarks>
     /// The dialog is put away before the ask, exactly as every other line does it: what a press opens stands over
-    /// the shelf, not over a question that has already been answered. When the address means nothing the menu
-    /// stays open and the reason stands in it, because a press that closes the dialog and changes nothing on the
-    /// shelf reads as a broken button rather than as an answer.
-    /// </remarks>
-    /// <remarks>
-    /// A film behind a video site's page is the one case the dialog is <b>kept</b> standing for: the answer cannot
-    /// be given at once - the page has to be asked, and a bigger picture has to be brought over first - so the
-    /// question stays on screen and its line carries what is happening and, at the end, the answer. A sentence
-    /// flashed somewhere else over the shelf would be read by nobody, which is what the dialog is for.
+    /// the shelf, not over a question that has already been answered. Nothing about the trailer is said here -
+    /// neither the wait nor the reason - because a trailer is answered minutes after the press and in whole
+    /// sentences, which is what the application's own trailer dialog is for.
     /// </remarks>
     private void PlayTrailer(MediaTrailer? trailer, Services.TrailerQuality? quality = null)
     {
@@ -3162,44 +3155,8 @@ namespace MediaPortal.Frontend.ViewModels
       if (title == null || trailer == null)
         return;
 
-      MediaLocation? location = title.TrailerLocation(trailer);
-      if (location == null)
-      {
-        MenuAnswer = "Nothing can be made of this trailer's address: " +
-                     (string.IsNullOrWhiteSpace(trailer.Source) ? "it names nothing" : trailer.Source);
-        return;
-      }
-
-      string page = location.Value.EngineString;
-      if (!location.Value.IsFile && Services.VideoSiteStream.IsSitePage(page))
-      {
-        // The one press whose answer cannot be given at once: the page has to be asked, and a big picture has to
-        // be brought over first. So the question stays where it is and the application writes into its line -
-        // what is happening now, and at the end the answer or the reason there is none.
-        TrailerRequested?.Invoke(this, new TrailerRequest(title, trailer, quality));
-        return;
-      }
-
       MenuVisible = false;
       TrailerRequested?.Invoke(this, new TrailerRequest(title, trailer, quality));
-    }
-
-    /// <inheritdoc/>
-    /// <remarks>
-    /// The dialog is put back up even when the shelf had closed it in the meantime: an answer that arrives after
-    /// the playback screen has stood there and gone again has no other place to be read, and a line of a
-    /// playback nudge is cut off in the middle of a sentence.
-    /// </remarks>
-    public void AnswerTrailer(string words)
-    {
-      if (string.IsNullOrEmpty(words))
-      {
-        MenuVisible = false;
-        return;
-      }
-
-      MenuAnswer = words;
-      MenuVisible = true;
     }
 
     /// <summary>

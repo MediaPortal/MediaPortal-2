@@ -66,7 +66,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|seen|folders|pictures|browse|news|weather|party|settings>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|seen|folders|pictures|browse|news|weather|party|settings|trailer|trailerwait>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
@@ -335,6 +335,11 @@ namespace FrontendProbe
       bool menuAsked = false;
       HomeViewModel? home = null;
       ConnectionViewModel? connection = null;
+
+      // The trailer's dialog and the walk it stands on. They are kept out of the screen block because the dialog is
+      // only pushed once the wall behind it has been lit - a dialog over a black room says nothing about either.
+      TrailerNoticeModel? trailerNotice = null;
+      WorkflowManager? trailerWalk = null;
       FoldersViewModel? foldersScreen = null;
 
       // Set when the frame to render is the news screen. The read it starts when the window opens is waited for
@@ -856,6 +861,53 @@ namespace FrontendProbe
         window = new ShellWindow(new HomeView(home, new WorkflowManager(),
             () => new WorkflowFrame("nowplaying", "Now playing", resumePlayback)));
       }
+      else if (screenName.Equals("trailer", StringComparison.Ordinal)
+          || screenName.Equals("trailerwait", StringComparison.Ordinal))
+      {
+        bool waiting = screenName.Equals("trailerwait", StringComparison.Ordinal);
+
+        // What the machine says about a trailer, on the dialog the trailer owns, stood over the wall it was asked
+        // from - which is where a dialog belongs: the shelf stays lit behind it. Two shapes are met with: the wait,
+        // which is the one word and the moving bar and nothing else, and the refusal naming the address it could
+        // not make anything of - the longest sentence the dialog is met with, because the reason the dialog exists
+        // at all is that a sentence is read whole: the playback nudge it replaced is one short word wide, and the
+        // shelf's own question is one word per line.
+        try
+        {
+          home = online
+              ? new HomeViewModel(new ServerApiClient(ServerApiClient.ResolveBaseUrl(url!)))
+              : new HomeViewModel();
+        }
+        catch (ArgumentException ex)
+        {
+          Console.WriteLine("FAILED:   " + ex.Message);
+          return 2;
+        }
+
+        TrailerNoticeModel notice = new TrailerNoticeModel();
+        if (waiting)
+          notice.Wait();
+        else
+          notice.Say("Nothing can be made of this trailer's address: plugin://plugin.video.hdtrailers_net"
+              + "/video/apple.com/https%3A%2F%2Fmovietrailers.apple.com%2Fmovies%2Ffox%2Favatar"
+              + "%2Favatar-trailer-de_h720p.mov");
+
+        WorkflowManager trailerWorkflow = new WorkflowManager();
+        trailerWorkflow.Push(new WorkflowFrame("home", "Home", home));
+        trailerNotice = notice;
+        trailerWalk = trailerWorkflow;
+
+        Console.WriteLine("content:  the wall with the trailer's own dialog over it, "
+            + (waiting ? "in its waiting shape: the one word and the moving bar"
+                       : "wearing the longest sentence the dialog is met with")
+            + (online ? ", the wall filled from " + home.ServerUrl : " on the wall's own 'no server' state"));
+        window = new ShellWindow(trailerWorkflow, delegate (WorkflowFrame frame)
+        {
+          if (frame.StateId == "trailernotice")
+            return new TrailerNoticeView(notice, trailerWorkflow);
+          return new HomeView(home, trailerWorkflow);
+        });
+      }
       else if (screenName.Equals("connect", StringComparison.Ordinal))
       {
         if (online)
@@ -1211,6 +1263,88 @@ namespace FrontendProbe
           Console.WriteLine("FAILED:   a populated screen was asked for ('" + url + "'), but the server answered no"
               + " aspects. Status says: '" + home.Status + "'.");
           return 4;
+        }
+      }
+
+      if (trailerNotice != null && trailerWalk != null)
+      {
+        // The dialog goes up only now, with the wall behind it lit and filled. It is a dialog asked for from a
+        // shelf, so the frame worth having is the one the viewer is met with - the box over the shelf they were
+        // reading - and a box over a room that never read its server would prove nothing about either of them.
+        trailerWalk.Push(new WorkflowFrame("trailernotice", "Trailer", trailerNotice));
+        if (!PumpUntil(delegate { return (window as ShellWindow)?.Screen is TrailerNoticeView; },
+            TimeSpan.FromSeconds(10)))
+        {
+          Console.WriteLine("FAILED:   the trailer's dialog was pushed but never came to the front.");
+          return 1;
+        }
+
+        Pump(TimeSpan.FromMilliseconds(500));
+
+        // The way out of a dialog is the frame's own answer row, dressed by the skin. The button is looked for by
+        // the name the frame gives it, because a body carrying a hand-built button of its own never answers to
+        // that name - which is precisely the mistake this frame is here to catch.
+        ShellWindow dialogWindow = (ShellWindow) window;
+        Button? answer = dialogWindow.GetVisualDescendants().OfType<Button>()
+            .FirstOrDefault(button => button.Name == "dialogAnswerOk");
+        Point? answerAt = answer?.TranslatePoint(new Point(0, 0), (Visual?) dialogWindow);
+        Button? lit = dialogWindow.GetVisualDescendants().OfType<Button>()
+            .FirstOrDefault(button => button.IsFocused);
+        TextBlock? heading = dialogWindow.GetVisualDescendants().OfType<TextBlock>()
+            .FirstOrDefault(block => block.Text == "Trailer");
+        TextBlock? sentence = dialogWindow.GetVisualDescendants().OfType<TextBlock>()
+            .FirstOrDefault(block => block.Text != null
+                && block.Text.StartsWith("Nothing can be made", StringComparison.Ordinal));
+        // The waiting shape is the other half of the same box: the one word and a bar the theme moves by itself.
+        // A still picture cannot show motion, so what is proven here is that the word is on the screen and that
+        // the bar is the indeterminate one - a bar with a value standing still would be a lie about progress.
+        TextBlock? loading = dialogWindow.GetVisualDescendants().OfType<TextBlock>()
+            .FirstOrDefault(block => block.Text == "Loading ..." && block.IsEffectivelyVisible);
+        Avalonia.Controls.ProgressBar? bar =
+            dialogWindow.GetVisualDescendants().OfType<Avalonia.Controls.ProgressBar>()
+                .FirstOrDefault(line => line.IsIndeterminate && line.IsEffectivelyVisible);
+        bool waits = trailerNotice.Waiting;
+
+        Console.WriteLine("dialog:   heading '" + (heading?.Text ?? "MISSING") + "' "
+            + (heading == null ? "" : "at y " + Math.Round(heading.Bounds.Y, 0))
+            + (waits
+                ? ", waiting with the word '" + (loading?.Text ?? "MISSING") + "' and "
+                    + (bar == null ? "no moving bar"
+                        : "a bar " + Math.Round(bar.Bounds.Width, 0) + " x "
+                            + Math.Round(bar.Bounds.Height, 0) + " points running on its own")
+                : ", sentence in " + (sentence == null ? "no block"
+                    : Math.Round(sentence.Bounds.Width, 0) + " x " + Math.Round(sentence.Bounds.Height, 0)
+                        + " points (" + (sentence.Bounds.Height > 30 ? "wrapped" : "one line") + ")"))
+            + ", answer '" + (answer?.Content ?? "MISSING") + "' at "
+            + (answerAt == null ? "nowhere" : Math.Round(answerAt.Value.X, 0) + ","
+                + Math.Round(answerAt.Value.Y, 0) + " of " + Math.Round(dialogWindow.Bounds.Width, 0))
+            + ", keys on '" + (lit?.Content ?? "nothing") + "'");
+
+        if (answer == null || !answer.IsEffectivelyVisible)
+        {
+          Console.WriteLine("FAILED:   the dialog stands without the frame's answer, so the viewer is held in it.");
+          return 1;
+        }
+        if (heading == null)
+        {
+          Console.WriteLine("FAILED:   the headed frame shows no heading, so the box stands about nothing named.");
+          return 1;
+        }
+        if (waits && (loading == null || bar == null))
+        {
+          Console.WriteLine("FAILED:   the wait does not stand as the one word and a bar that moves on its own.");
+          return 1;
+        }
+        if (!waits && (sentence == null || sentence.Bounds.Height < 30))
+        {
+          Console.WriteLine("FAILED:   the sentence is not there or not wrapped, so it is a cut sentence again.");
+          return 1;
+        }
+        if (!waits && loading != null)
+        {
+          Console.WriteLine("FAILED:   the answer still wears the waiting shape, so the bar keeps moving over a "
+              + "reason that has been given.");
+          return 1;
         }
       }
 
@@ -1741,12 +1875,16 @@ namespace FrontendProbe
       // the frame was written, on purpose - the thing needed to judge a complaint about colour is the frame.
       string paletteReport;
       string? paletteWrong;
-      if (screenName == "nowplaying")
+      if (screenName == "nowplaying" || screenName == "trailer" || screenName == "trailerwait")
       {
         // The playback screen's corner belongs to what is playing: a film lays its picture over the whole stage,
         // and a song lays its own ground there - the record's fanart where the library keeps one, the stage's shade
         // where it does not. Neither the corner nor the share of the frame says anything about the theme here; the
         // palette is proved by every other screen's frame, which is the same application-level palette.
+        //
+        // A dialog over the wall is the same case for the same reason: the shell throws the home out of focus and
+        // washes it dark for the length of the question (DialogWashBrush), so the corner belongs to the dialog's
+        // ground and not to the theme's background. What the frame is here to show is the dialog's own shape.
         paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, false, out paletteReport);
       }
       else

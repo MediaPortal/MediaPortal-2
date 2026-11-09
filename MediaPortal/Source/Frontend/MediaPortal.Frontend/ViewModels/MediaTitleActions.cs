@@ -315,26 +315,6 @@ namespace MediaPortal.Frontend.ViewModels
       Services.TrailerQuality? Quality = null);
 
   /// <summary>
-  /// A screen that asked the trailer question and can therefore carry its answer: the media browser's menu and the
-  /// home wall's dialog.
-  /// </summary>
-  /// <remarks>
-  /// A trailer behind a video site's page cannot be answered on the spot - the page has to be asked, and a big
-  /// picture has to be brought over first - so the answer arrives a while after the press, sometimes as a refusal.
-  /// It belongs where the question was asked, which is the only place a viewer is still looking for it. Saying it
-  /// anywhere else means saying it in a playback nudge whose line is too short for a sentence, and a viewer is
-  /// left reading half a word over a shelf.
-  /// </remarks>
-  public interface ITrailerAnswerHost
-  {
-    /// <summary>
-    /// Puts the sentence into the dialog the trailer was asked in, and puts that dialog up if it has been taken
-    /// away in the meantime. Empty words take the dialog away again.
-    /// </summary>
-    void AnswerTrailer(string words);
-  }
-
-  /// <summary>
   /// The model of the question "what shall be done with this title", for a screen that raises the question as a
   /// dialog of its own - the home wall, which has no detail panel to write into and no shelf to stand a dialog
   /// over. The media browser asks the same table but renders it inside its own screen, so it builds the list

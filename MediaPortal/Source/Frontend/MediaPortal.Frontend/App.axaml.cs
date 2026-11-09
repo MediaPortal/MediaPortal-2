@@ -425,7 +425,7 @@ namespace MediaPortal.Frontend
             bool wasTrailer = _playingTrailer;
             _playingTrailer = false;
             if (wasTrailer)
-              _trailerDialog = null;
+              TakeAwayTrailerNotice();
             if (!wasTrailer)
             {
               if (!(_nowPlaying.Preferences ?? Settings.PlaybackSettings.Load(null, out _)).ClosePlayerWhenFinished)
@@ -1583,6 +1583,12 @@ namespace MediaPortal.Frontend
       if (state == "titleactions")
         return new MediaTitleActionsView((MediaTitleActionsModel)frame.ViewModel);
 
+      // What the machine has to say about a trailer, on a dialog the trailer owns: the wait while its film is
+      // looked up or brought over, and the reason when it is not coming. Raised by this application over whatever
+      // shelf the press came from, because the errand outlives the question it came out of.
+      if (state == "trailernotice")
+        return new TrailerNoticeView((TrailerNoticeModel)frame.ViewModel, _workflow);
+
       // The queue read out loud, wearing the skin's dialog frame: the shelf or the guide stays lit behind it, because
       // a notification is a word spoken to somebody who is doing something (WatchSystemNotifications.xaml).
       if (state == "notifications")
@@ -2349,10 +2355,71 @@ namespace MediaPortal.Frontend
     private string? _trailerTempFile;
 
     /// <summary>
-    /// The screen a trailer was asked in, so that its answer - the wait, a refusal, or the reason the engine gave
-    /// up - can be put where the question was read; <c>null</c> while no trailer question is open.
+    /// The dialog the current trailer is speaking in - the wait, then the answer; <c>null</c> while no trailer
+    /// errand is on foot.
     /// </summary>
-    private ViewModels.ITrailerAnswerHost? _trailerDialog;
+    private ViewModels.TrailerNoticeModel? _trailerNotice;
+
+    /// <summary>
+    /// Puts the trailer's dialog up in its waiting shape - the one word and the moving bar - while its film is
+    /// looked up or brought over.
+    /// </summary>
+    /// <remarks>
+    /// The wait wears the same box as the answer, and the box has its answer row from the first moment: a viewer
+    /// held in a box they cannot leave is held, which a notice about a few minutes of work does not earn. What the
+    /// machine is doing behind a page at a video site is not worth a sentence - from across the room there is
+    /// nothing to read in it.
+    /// </remarks>
+    private void WaitWithTrailer()
+    {
+      RaiseTrailerNotice().Wait();
+    }
+
+    /// <summary>
+    /// Puts an answer on the trailer's own dialog - the reason its film is not coming - and raises the dialog if it
+    /// is not standing, which is how a trailer that died after it began still gets its sentence in front of the
+    /// viewer.
+    /// </summary>
+    private void SayAboutTrailer(string words)
+    {
+      RaiseTrailerNotice().Say(words);
+    }
+
+    /// <summary>
+    /// Takes the trailer's dialog away, which is what the arrival of the film does: the playback screen is the
+    /// answer, and a box promising that a trailer is being looked up has no business standing behind one that is
+    /// already playing.
+    /// </summary>
+    private void TakeAwayTrailerNotice()
+    {
+      ViewModels.TrailerNoticeModel? notice = _trailerNotice;
+      if (notice == null)
+        return;
+
+      _trailerNotice = null;
+      notice.Finished -= TakeAwayTrailerNotice;
+      Workflow.WorkflowFrame? current = _workflow.Current;
+      if (current != null && current.StateId == "trailernotice")
+        _workflow.Pop();
+    }
+
+    /// <summary>
+    /// The model of the trailer's dialog, raised over whatever screen the viewer was standing on when none stands
+    /// yet. The viewer keeps their place behind it - the trailer is an errand about a title on that shelf, not a
+    /// place to walk to.
+    /// </summary>
+    private ViewModels.TrailerNoticeModel RaiseTrailerNotice()
+    {
+      ViewModels.TrailerNoticeModel? notice = _trailerNotice;
+      if (notice != null)
+        return notice;
+
+      notice = new ViewModels.TrailerNoticeModel();
+      notice.Finished += TakeAwayTrailerNotice;
+      _trailerNotice = notice;
+      _workflow.Push(new Workflow.WorkflowFrame("trailernotice", "Trailer", notice));
+      return notice;
+    }
 
     /// <summary>
     /// Throws away the file a fetched trailer was brought into, if there is one.
@@ -2400,15 +2467,15 @@ namespace MediaPortal.Frontend
     /// </remarks>
     private void OnTrailerChosen(object? sender, TrailerRequest request)
     {
-      // The screen the press came out of carries the answer, because it is the one place the viewer is still
-      // looking: a sentence anywhere else is a playback nudge, and a nudge is one short word wide.
-      ITrailerAnswerHost? dialog = sender as ITrailerAnswerHost;
-      _trailerDialog = dialog;
+      // The trailer speaks on a dialog of its own, raised over the shelf the press came from. Not on the shelf's
+      // own question, which asks <i>which</i> - which title, which trailer, which picture size - and is built one
+      // word per line: a sentence about a trailer read there is taken for another line of the question. And not in
+      // a playback nudge, whose line is one short word wide.
 
       if (_nowPlaying == null)
       {
         Console.WriteLine("trailer:  " + request.Title.Name + " - this machine has no player");
-        dialog?.AnswerTrailer("This machine has no player, so the trailer cannot be shown.");
+        SayAboutTrailer("This machine has no player, so the trailer cannot be shown.");
         return;
       }
 
@@ -2417,22 +2484,22 @@ namespace MediaPortal.Frontend
       {
         Console.WriteLine("trailer:  " + request.Title.Name + " - nothing can be made of the address '"
             + request.Trailer.Source + "'");
-        dialog?.AnswerTrailer("Nothing can be made of this trailer's address: "
+        SayAboutTrailer("Nothing can be made of this trailer's address: "
             + (string.IsNullOrWhiteSpace(request.Trailer.Source) ? "it names nothing" : request.Trailer.Source));
         return;
       }
 
       // The page of a video site is not a film, and this engine no longer reads pages: see VideoSiteStream. The
-      // lookup costs a second or two and cannot happen on the screen's own thread, so the dialog that asked keeps
-      // standing and says what it is doing, and a lookup that ends in nothing leaves the viewer standing at the
-      // shelf with the reason in front of them rather than in front of an empty playback screen - which is the
-      // difference this whole path is about.
+      // lookup costs a second or two and cannot happen on the screen's own thread, so the trailer's own dialog
+      // stands in front of the viewer and says what the machine is doing, and a lookup that ends in nothing leaves
+      // them standing at the shelf with the reason in front of them rather than in front of an empty playback
+      // screen - which is the difference this whole path is about.
       string page = location.Value.EngineString;
       if (!location.Value.IsFile && VideoSiteStream.IsSitePage(page))
       {
         string title = request.Title.Name;
         TrailerQuality? quality = request.Quality;
-        dialog?.AnswerTrailer(VideoSiteStream.WaitWords(quality));
+        WaitWithTrailer();
         Console.WriteLine("trailer:  " + title + " - asking what film stands behind the page"
             + (quality == null ? "" : " in " + quality.Word));
 
@@ -2445,7 +2512,7 @@ namespace MediaPortal.Frontend
             if (!found)
             {
               Console.WriteLine("trailer:  " + title + " - " + whyNot);
-              dialog?.AnswerTrailer(whyNot);
+              SayAboutTrailer(whyNot);
               return;
             }
 
@@ -2461,8 +2528,8 @@ namespace MediaPortal.Frontend
               Console.WriteLine("trailer:  " + title + " - the page leads to a film at " + host);
             }
 
-            // The question is answered, so it is taken away; the playback screen is the answer.
-            dialog?.AnswerTrailer("");
+            // The film arrived, which is the answer; the dialog about looking for it is taken away.
+            TakeAwayTrailerNotice();
             _trailerTempFile = fetched ? file : null;
             OpenTrailer(request, fetched ? MediaLocation.FromFile(file) : MediaLocation.FromUrl(stream),
                 title + " - Trailer");
@@ -2488,8 +2555,7 @@ namespace MediaPortal.Frontend
       if (!opened)
       {
         Console.WriteLine("trailer:  refused - " + _nowPlaying.StatusLine);
-        if (_trailerDialog != null)
-          _trailerDialog.AnswerTrailer("The trailer would not start: " + _nowPlaying.StatusLine);
+        SayAboutTrailer("The trailer would not start: " + _nowPlaying.StatusLine);
         return;
       }
 
@@ -2534,19 +2600,13 @@ namespace MediaPortal.Frontend
       }
 
       _playingTrailer = false;
-      // The screen that asked is asked to say it: the reason belongs where the trailer was pressed, and the
-      // playback nudge it used to be thrown into is one short word wide, so half the sentence was cut away.
-      ITrailerAnswerHost? asked = _trailerDialog;
-      _trailerDialog = null;
       Dispatcher.UIThread.Post(delegate
       {
+        // The empty player steps aside first, so that the sentence is read on the shelf and not on a black screen.
         if (_workflow.Current is Workflow.WorkflowFrame current
             && current.StateId == "nowplaying" && _workflow.Stack.Count > 1)
           _workflow.Pop();
-        if (asked != null)
-          asked.AnswerTrailer(args.Reason);
-        else
-          Console.WriteLine("trailer:  nowhere to say it - the screen that asked is gone");
+        SayAboutTrailer(args.Reason);
         // A file that could not be watched has no right to stay in the temp folder.
         ForgetTrailerFile();
       });
@@ -2565,7 +2625,7 @@ namespace MediaPortal.Frontend
       // Watching a title is a different errand from watching its trailer, and the difference is what happens when
       // the picture stops - so the trailer's answer is dropped the moment a real title is opened over it.
       _playingTrailer = false;
-      _trailerDialog = null;
+      TakeAwayTrailerNotice();
       // And a trailer file that was brought here for the advertisement is thrown away when the viewer sits down
       // to the film instead; it will not be watched after all.
       ForgetTrailerFile();

@@ -61,10 +61,10 @@ namespace MediaPortal.Frontend.Services
   public sealed record TrailerQuality(string Word, string PlayerClient, string Format, bool Muxed, int PatienceSeconds)
   {
     /// <summary>
-    /// What the viewer reads on the line. A size that has to be brought over says so with the one word "lädt"; how
-    /// long a download takes depends on the line the film comes over, so no number is promised.
+    /// What the viewer reads on the line: the size, and nothing else. Whether the film has to be brought over
+    /// first is the machine's business and is said by the dialog that waits, not by a word on a choice.
     /// </summary>
-    public string Display => Muxed ? Word + " · lädt" : Word + " · sofort";
+    public string Display => Word;
   }
 
   internal static class VideoSiteStream
@@ -89,9 +89,9 @@ namespace MediaPortal.Frontend.Services
     internal const string WantedFormat = "b[protocol=https][acodec!=none][vcodec!=none]";
 
     /// <summary>
-    /// The qualities the <i>which quality</i> question offers, small first. Nothing here promises a height the
-    /// site has not got: every selector falls back to the biggest single file when the shape above it is missing,
-    /// which is why the words say <i>up to</i>.
+    /// The qualities the <i>which quality</i> question offers, small first, each named by nothing but its size.
+    /// Nothing here promises a height the site has not got: every selector falls back to the biggest single file
+    /// when the shape above it is missing, so a line can name a size it cannot exceed without claiming to reach it.
     /// </summary>
     /// <remarks>
     /// The player client belongs to the quality, not to the lookup: measured on one trailer, <c>android</c>
@@ -101,9 +101,9 @@ namespace MediaPortal.Frontend.Services
     internal static readonly TrailerQuality[] Qualities =
     {
       new TrailerQuality("360p", "android", WantedFormat, false, 0),
-      new TrailerQuality("bis 720p", "web_embedded",
+      new TrailerQuality("720p", "web_embedded",
           "bv*[protocol=https][height<=720][acodec=none]+ba[protocol=https]/" + WantedFormat, true, 90),
-      new TrailerQuality("bis 1080p", "web_embedded",
+      new TrailerQuality("1080p", "web_embedded",
           "bv*[protocol=https][height<=1080][acodec=none]+ba[protocol=https]/" + WantedFormat, true, 300)
     };
 
@@ -120,9 +120,24 @@ namespace MediaPortal.Frontend.Services
       arguments[arguments.IndexOf("-f") + 1] = quality.Format;
       if (file != null)
       {
+        // The shared line only asks for the address, and a tool that answers an address goes home without ever
+        // fetching the film: measured with the installed yt-dlp on the exact line this class builds, it printed
+        // the googlevideo address, answered exit code nought and wrote no file - which is what the viewer met as
+        // "the resolver said it was done, but trailer-<film>.mp4 is not there". So the question is taken out of
+        // the line before the answer is asked of it.
+        arguments.RemoveAt(arguments.IndexOf("--get-url"));
+
         arguments.Add("-o");
         arguments.Add(file);
         arguments.Add("--no-part");
+
+        // The file the caller looks for is the one it named, mp4 in it, so the container is said rather than
+        // left to the pieces: measured on a 720p trailer, the web_embedded client hands the picture as mp4 (f398)
+        // but the sound as opus in webm (f251), and opus does not live in an mp4 - left to itself the tool moves
+        // such a pair to another container and so to another name. Asked plainly, the merge wrote
+        // "trailer-<film>.mp4", 7 905 417 bytes, at the name this class had given it.
+        arguments.Add("--merge-output-format");
+        arguments.Add("mp4");
       }
 
       return arguments.ToArray();
@@ -227,21 +242,6 @@ namespace MediaPortal.Frontend.Services
       file = to;
       address = to;
       return true;
-    }
-
-    /// <summary>
-    /// What the dialog of the screen that asked says while the film behind a page is looked up. The asking screen
-    /// and the application both need the one sentence - the screen while it waits, the application when it answers
-    /// - and two wordings of the same wait are two sentences to keep true.
-    /// </summary>
-    /// <param name="quality">The size that was stood on, or nothing where nothing was asked.</param>
-    public static string WaitWords(TrailerQuality? quality)
-    {
-      // Looking a film up at a page costs a second or two and needs no warning. Bringing one over does, and the
-      // words say only that - not how long, which depends on the line the film comes over.
-      if (quality != null && quality.Muxed)
-        return "The trailer is being brought to this machine. That takes a moment.";
-      return "The trailer is being looked up at the site.";
     }
 
     /// <summary>
@@ -546,6 +546,15 @@ namespace MediaPortal.Frontend.Services
           complaint = ShortComplaint(errors.ToString(), process.ExitCode);
           return false;
         }
+
+        // A command that was asked to bring a film here answers with the film, not with a sentence, and it is
+        // asked to be quiet while it works: the caller looks for the file it named. Only the lookup road asks for
+        // an address, so only there is a line reading as one owed. Measured on the fetch road, once the film was
+        // really being fetched: it stood at the named file (4 074 767 bytes in 6 s) while this method went on
+        // hunting an address in the quiet output and answered "the resolver answered nothing that reads as an
+        // address", which the viewer then read as a failure.
+        if (Array.IndexOf(arguments, "--get-url") < 0)
+          return true;
 
         // The address is the first line that reads as one. The tool is asked to be quiet, but a version that
         // decides to say something first must not turn that sentence into a media address.

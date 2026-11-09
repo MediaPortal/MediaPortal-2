@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
+        x:Class="MediaPortal.Frontend.Views.TrailerNoticeView"
+        x:DataType="vm:TrailerNoticeModel"
+        Name="trailerNoticeView"
+        Classes="nereus-dialog-screen"
+        >
+
+  <!--
+    What the machine has to say about a trailer, on a dialog the trailer owns.
+
+    A trailer asked for is not answered on the spot - a page at a video site has to be asked, and a big picture
+    sometimes has to be brought over first - and the answer is as often a refusal as a film. Both the wait and the
+    reason are whole sentences, and a sentence needs a place built for it: this dialog wraps the words over as many
+    lines as they need, which is what the playback nudge never was (its line is one short word wide, so the end of
+    every sentence was cut off), and what the shelf's own question is not either - that one asks which title, which
+    trailer, which picture size, and an answer written into it is read as one of its lines.
+  -->
+
+  <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center"
+                  theming:SkinTemplates.OverlayTemplate="DialogHeadedFrameTemplate">
+    <!-- The body of a dialog keeps the screen's data: the frame shows a body under its own data, so a plain
+         {Binding} here would ask the body for the sentence and find none.
+
+         Only the sentence is here. The way out is the frame's own answer row under the contents plate, which every
+         dialog of this front end wears and which the skin dresses as its primary button - an answer is not a piece
+         of the content, and a button written into the body is a button the skin has never seen. -->
+    <StackPanel MinWidth="620" MaxWidth="740" Spacing="14"
+                DataContext="{Binding $parent[UserControl].DataContext}">
+
+      <!-- While the film is being looked up or brought over there is nothing to read off a screen. The one word
+           says that something is happening, centred over the bar, and the bar is the ProgressBar the theme already
+           moves on its own - no invented spinner. It wears the same 8-point bar the tiles' progress and the
+           playback line use (HomeView.axaml:833-843, NowPlayingView.axaml:228-240) in the same white text colour
+           as the word above it: the dialog is a piece of writing, not a place for the skin's accent. -->
+      <StackPanel IsVisible="{Binding Waiting}" Spacing="14" HorizontalAlignment="Center">
+        <TextBlock Text="Loading ..." HorizontalAlignment="Center"
+                   Foreground="{DynamicResource TextBrush}" FontSize="22"/>
+        <ProgressBar Height="8" MinWidth="0" Width="360" IsIndeterminate="True"
+                     HorizontalAlignment="Center"
+                     CornerRadius="0" Background="#22FFFFFF"
+                     Foreground="{DynamicResource TextBrush}"
+                     IsHitTestVisible="False"/>
+      </StackPanel>
+
+      <!-- The reason is a whole sentence, and a sentence needs a place built for it: this wraps over as many lines
+           as it needs, which is what the playback nudge never was (its line is one short word wide, so the end of
+           every sentence was cut off), and what the shelf's own question is not either - that one asks which
+           title, which trailer, which picture size, and an answer written into it is read as one of its lines. -->
+      <TextBlock Text="{Binding Text}" IsVisible="{Binding !Waiting}"
+                 Foreground="{DynamicResource TextBrush}" FontSize="22" TextWrapping="Wrap"/>
+    </StackPanel>
+  </ContentControl>
+</UserControl>

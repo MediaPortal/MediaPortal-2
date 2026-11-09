@@ -611,11 +611,11 @@ namespace Tests.Frontend
           Is.EqualTo(VideoSiteStream.Qualities.Select(q => MediaTitleActionKind.TrailerQuality)),
           "one line per size, and nothing else left standing");
 
-      await model.PressAsync(model.Actions.First(a => a.Word.StartsWith("bis 720p", StringComparison.Ordinal)));
+      await model.PressAsync(model.Actions.First(a => a.Word.StartsWith("720p", StringComparison.Ordinal)));
 
       Assert.That(presses, Has.Count.EqualTo(1), "one press on one size is the whole ask");
       Assert.That(presses[0].Kind, Is.EqualTo(MediaTitleActionKind.TrailerQuality));
-      Assert.That(presses[0].Quality!.Word, Is.EqualTo("bis 720p"), "the size that was stood on reaches the ask");
+      Assert.That(presses[0].Quality!.Word, Is.EqualTo("720p"), "the size that was stood on reaches the ask");
       Assert.That(presses[0].Trailer, Is.SameAs(frozen.Trailers[0]), "with the film it was stood on for");
       Assert.That(model.IsOpen, Is.False, "and the dialog is put away, since its answer left it");
     }
@@ -643,16 +643,18 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// The wall's side of a trailer that has to be looked up at a page: the answer arrives after the dialog was
-    /// taken away, and the dialog comes back for it.
+    /// The wall's side of a trailer that has to be looked up at a page: the wall's question is finished by the
+    /// press and keeps nothing of the trailer's answer.
     /// </summary>
     /// <remarks>
-    /// The wall wears its status line in a head band that the content pane covers while a dialog stands over it,
-    /// so a sentence written there is written where nobody is looking; and a playback nudge is one short word
-    /// wide, which cuts a sentence in half. The dialog the press came out of is the one place left.
+    /// The answer arrives seconds after the press and in whole sentences, and neither place the wall has is built
+    /// for a sentence: its dialog asks which title, which trailer, which picture size - one word per line - and its
+    /// status line is worn in a head band that the content pane covers while a dialog stands over it. So the
+    /// application says the wait and the reason on a dialog the trailer owns, and what is checked here is that the
+    /// wall does <b>not</b> try to carry it: it steps aside and stays silent.
     /// </remarks>
     [Test]
-    public async Task TheWallTakesItsDialogBackForTheAnswerToATrailer()
+    public async Task TheWallStandsAsideAndSaysNothingAboutTheTrailer()
     {
       HomeViewModel home = new HomeViewModel();
       var asks = new List<TrailerRequest>();
@@ -667,20 +669,14 @@ namespace Tests.Frontend
           "the standing dialog became the size question");
 
       await home.TitleActions.PressAsync(home.TitleActions.Actions.First(
-          a => a.Kind == MediaTitleActionKind.TrailerQuality && a.Quality!.Word == "bis 720p"));
+          a => a.Kind == MediaTitleActionKind.TrailerQuality && a.Quality!.Word == "720p"));
 
       Assert.That(asks, Has.Count.EqualTo(1), "one press on one size is one ask");
-      Assert.That(asks[0].Quality!.Word, Is.EqualTo("bis 720p"), "in the size that was stood on");
-      Assert.That(home.TitleActions.IsOpen, Is.False, "and the dialog went with the press, as a wall dialog does");
-
-      string waiting = VideoSiteStream.WaitWords(VideoSiteStream.Qualities[1]);
-      home.AnswerTrailer(waiting);
-      Assert.That(home.TitleActions.IsOpen, Is.True,
-          "the answer brings the dialog back, because it is the only place the viewer is still looking");
-      Assert.That(home.TitleActions.Status, Is.EqualTo(waiting), "and the sentence stands in it, whole");
-
-      home.AnswerTrailer("");
-      Assert.That(home.TitleActions.IsOpen, Is.False, "an answered question is taken away again");
+      Assert.That(asks[0].Quality!.Word, Is.EqualTo("720p"), "in the size that was stood on");
+      Assert.That(home.TitleActions.IsOpen, Is.False,
+          "the question goes with the press and is not brought back for the answer");
+      Assert.That(home.TitleActions.Status, Is.Empty,
+          "and nothing about the trailer is written into the wall - the application has a dialog of its own for that");
     }
 
     /// <summary>

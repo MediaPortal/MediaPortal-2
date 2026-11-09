@@ -123,7 +123,7 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void ThreeSizesAreOfferedAndEachSaysWhetherItHasToBeBroughtOver()
+    public void ThreeSizesAreOfferedAndEachLineCarriesItsSizeAlone()
     {
       TrailerQuality[] qualities = VideoSiteStream.Qualities;
 
@@ -134,22 +134,24 @@ namespace Tests.Frontend
       Assert.That(qualities[0].Muxed, Is.False,
           "the smallest size is an address the player is handed as it stands");
       Assert.That(qualities[0].PatienceSeconds, Is.EqualTo(0), "and is asked with no more patience than a lookup");
-      Assert.That(qualities[0].Display, Is.EqualTo("360p · sofort"), "and says so in the words a row carries");
+      Assert.That(qualities[0].Display, Is.EqualTo("360p"), "the line carries its size and nothing else");
 
-      Assert.That(qualities[1].Word, Is.EqualTo("bis 720p"),
+      Assert.That(qualities[1].Word, Is.EqualTo("720p"),
           "the next line promises a size and does not promise more than it can keep");
       Assert.That(qualities[1].Muxed, Is.True,
           "above the smallest size the picture and the sound come as two pieces and have to be put together");
 
-      // The one word "lädt" and no number: how long a download takes depends on the line the film comes over, so
-      // a number on the line is a promise this front end cannot keep - and a promise it breaks in front of the
-      // very viewer who trusted it.
-      Assert.That(qualities[1].Display, Is.EqualTo("bis 720p · lädt"),
-          "a size that has to be brought over says so, and says nothing more");
-      Assert.That(qualities[2].Display, Is.EqualTo("bis 1080p · lädt"), "the same word on the biggest size");
+      // A choice says which picture it is and stops there. Whether the film has to be brought over first is the
+      // machine's business and is said by the dialog that waits, not by a word appended to a size - and a number
+      // of seconds on a line would be a promise this front end cannot keep, since how long a fetch takes depends
+      // on the line the film comes over.
       foreach (TrailerQuality quality in qualities)
+      {
+        Assert.That(quality.Display, Is.EqualTo(quality.Word),
+            "the line is the size, word for word: " + quality.Display);
         Assert.That(quality.Display, Does.Not.Match(@"\d+ ?s"),
             "no line promises seconds it cannot keep: " + quality.Display);
+      }
 
       // How long the tool may think belongs to the size and is never shown: a lookup is done in a second or two,
       // while 1080p is 82 MiB on the measured trailer and has to be left alone until it is here.
@@ -190,10 +192,22 @@ namespace Tests.Frontend
       Assert.That(args, Does.Contain("--no-part"),
           "and not half-written under a second name, since the caller looks for exactly the file it named");
 
+      // The one thing that cannot be left in the line here: the shared command asks for the address only, and a
+      // tool that answers an address never fetches the film - exit code nought, no file, and a viewer standing in
+      // front of "the resolver said it was done, but the film is not there".
+      Assert.That(args, Has.No.Member("--get-url"),
+          "a fetched size asks for the film itself, not for the address of it");
+
+      // And the container, because the picture and the sound of a big size often come in different ones; a merge
+      // that has to pick a container picks a name too, and the caller looks for the name it gave.
+      Assert.That(args[Array.IndexOf(args, "--merge-output-format") + 1], Is.EqualTo("mp4"),
+          "the film is put together in the container the file name promises");
+
       // A size that is only a lookup must not leave a file lying around, so it must not be asked for one.
       string[] looked = VideoSiteStream.BuildArguments("https://www.youtube.com/watch?v=bwzLiQZDw2I",
           VideoSiteStream.Qualities[0], null);
       Assert.That(looked, Has.No.Member("-o"), "a looked-up size is handed to the player as an address");
+      Assert.That(looked, Does.Contain("--get-url"), "and so it is the address that is asked of the tool");
       Assert.That(looked[Array.IndexOf(looked, "-f") + 1], Is.EqualTo(VideoSiteStream.WantedFormat),
           "and is asked for the one shape that carries picture and sound together");
     }
