@@ -1128,6 +1128,25 @@ namespace MediaPortal.Server.Api
           }
         }
 
+        // An album whose own tag stayed silent about its track count is asked the same question the series'
+        // block above asks: measured over the household's library the tag spoke on only 18 of 43 albums (see
+        // ItemResult.TrackCount), and a shelf whose third column is blank on most of its rows is read as
+        // broken, not as honest. The count is the library's own - the files that hang off the album - which is
+        // the number the viewer decided a standing shelf answers with (see FillTheTracksInsideItsAlbum). A row
+        // whose tag did speak is not asked twice, so a tagged shelf pays nothing, and the asking is bounded by
+        // the page, the same bound the resume and percentage questions above stand under.
+        if (aspectId == AudioAlbumAspect.ASPECT_ID)
+        {
+          for (int row = 0; row < items.Count && row < titles.Count; row++)
+          {
+            if (titles[row].TrackCount.HasValue)
+              continue;
+            int onShelf = CountTracksOfAlbum(mediaLibrary, items[row].MediaItemId);
+            if (onShelf > 0)
+              titles[row].TrackCount = onShelf;
+          }
+        }
+
         // A season shelf that came back with nothing in it is asked one more question before it is called empty,
         // because the commonest reason a series has no season titles is that its library was pointed straight at the
         // episode files: every one of those episodes knows its season number, and no title wears it (see
@@ -1604,9 +1623,10 @@ namespace MediaPortal.Server.Api
       /// (Special Edition)" holds 23 files while its tag counts 17.
       /// </para>
       /// <para>
-      /// The list keeps its tag number because counting a thousand rows' children to fill a wall would ask the
-      /// library a question for every tile on screen, while this answer is about the one title the viewer is
-      /// standing in front of.
+      /// The title list answers with the tag's number where the tag spoke, and with the counted children where
+      /// it stayed silent (the album block in the listing, next to the series' episode question): a count per
+      /// row costs the library one walk of a relationship the same request already walks for the resume and the
+      /// figure questions, and it is bounded by the page rather than by the wall.
       /// </para>
       /// </remarks>
       public int? TrackCount { get; set; }
@@ -4765,6 +4785,22 @@ namespace MediaPortal.Server.Api
           new RelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, seriesId));
 
       IList<MediaItem> held = mediaLibrary.Search(episodes, false, null, false);
+      return held == null ? 0 : held.Count;
+    }
+
+    /// <summary>
+    /// The tracks hanging off one album, counted - the answer for an album shelf whose tag stayed silent
+    /// (see the album block in the listing). The same walk <see cref="FillTheTracksInsideItsAlbum"/> makes
+    /// for one standing title, stopped at the number; the files are the count, not the tag.
+    /// </summary>
+    private static int CountTracksOfAlbum(IMediaLibrary mediaLibrary, Guid albumId)
+    {
+      MediaItemQuery tracks = new MediaItemQuery(
+          new List<Guid> { AudioAspect.ASPECT_ID },
+          new List<Guid> { ProviderResourceAspect.ASPECT_ID },
+          new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, albumId));
+
+      IList<MediaItem> held = mediaLibrary.Search(tracks, false, null, false);
       return held == null ? 0 : held.Count;
     }
 
