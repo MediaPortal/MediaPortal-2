@@ -1201,13 +1201,18 @@
           <!-- The head is the same grey as the rest of the panel and carries no line under it: one surface with
                a word at its top, not a band laid over a body. The reference drew its band in the medium accent
                with six pixels of the light accent beneath, which is a thing a dialog seen over a lit master
-               screen needs and a dialog standing on a blurred home does not. -->
+               screen needs and a dialog standing on a blurred home does not.
+               <para>
+               Fifteen to each side rather than ten: a heading that runs the width of the panel ends flush with
+               the panel's own edge, and a word standing against an edge reads as cut off even when it is not.
+               The five extra pixels belong to the head and not to the dialog wearing it, which is why they are
+               here and not in one screen's markup - every headed frame gets the same air. -->
           <TextBlock DockPanel.Dock="Top"
                      Text="{Binding $parent[ContentControl].DataContext.Heading}"
                      FontSize="{DynamicResource DialogTitleFontSize}"
                      FontWeight="Bold"
                      Foreground="{DynamicResource TextBrush}"
-                     Margin="10,5"
+                     Margin="15,5"
                      Padding="0,5"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"/>

@@ -46,11 +46,10 @@ namespace MediaPortal.Frontend.Views
   {
     private readonly List<Control> _ring = new List<Control>();
     private readonly MediaTitleActionsModel? _model;
-    private readonly WorkflowManager? _workflow;
 
     /// <summary>For the XAML loader and the designer.</summary>
     public MediaTitleActionsView()
-        : this(null, null)
+        : this(null)
     {
     }
 
@@ -59,20 +58,18 @@ namespace MediaPortal.Frontend.Views
     /// dialog is a question about one title, and a second copy of the model could only disagree with the wall
     /// about which tile was pressed.
     /// </summary>
-    public MediaTitleActionsView(MediaTitleActionsModel? model, WorkflowManager? workflow)
+    public MediaTitleActionsView(MediaTitleActionsModel? model)
     {
       _model = model;
-      _workflow = workflow;
       DataContext = model;
       InitializeComponent();
 
       actionList.KeyDown += OnListKey;
       actionList.DoubleTapped += delegate { Answer(); };
 
-      backButton.Click += delegate { Close(); };
-
+      // The list is the whole ring: every way out of this dialog is a key or the mouse's right hand, both answered
+      // above this screen, so nothing stands beside the list that a caret could walk to.
       _ring.Add(actionList);
-      _ring.Add(backButton);
       DpadNavigation.Attach(this, _ring);
     }
 
@@ -102,19 +99,6 @@ namespace MediaPortal.Frontend.Views
         return;
 
       _ = model.PressAsync(action);
-    }
-
-    /// <summary>
-    /// Takes the dialog away, which leaves the viewer standing on the tile they pressed. The wall is the one that
-    /// pops it, since the wall is the screen that pushed it; telling the model the question is over is what makes
-    /// that happen.
-    /// </summary>
-    private void Close()
-    {
-      if (_model != null)
-        _model.Close();
-      else
-        _workflow?.Pop();
     }
 
     /// <summary>

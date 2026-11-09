@@ -3359,9 +3359,9 @@ namespace Tests.Frontend
     /// corner than the panel itself, and every answer stretched across the sheet's width - the shape the viewer
     /// drew and signed off.  Before the sheet the rows lay shoulder to shoulder in the panel and each one measured
     /// only its own word, so the dialog read as a scatter of labels rather than as a question with answers; a
-    /// dialog whose answers float at word-width inside a wide panel is the regression this holds shut.  The back
-    /// answer keeps its word's width and stands under the sheet rather than among the answers, because it steps
-    /// the dialog away instead of answering it.
+    /// dialog whose answers float at word-width inside a wide panel is the regression this holds shut.  The frame
+    /// wears no button but its answers: the way out is the back key, a press beside the dialog and the key that
+    /// opened it, none of which needs a control of its own.
     /// </summary>
     [AvaloniaTest]
     public void TheTitleDialogLaysItsAnswersStretchedOnASheetInsideThePanel()
@@ -3392,7 +3392,6 @@ namespace Tests.Frontend
         Border panel = window.GetVisualDescendants().OfType<Border>().First(b => b.Name == "menuDialog");
         ItemsControl answers = window.GetVisualDescendants().OfType<ItemsControl>()
             .First(c => c.Name == "menuActionList");
-        Button back = window.GetVisualDescendants().OfType<Button>().First(b => b.Name == "menuBackButton");
 
         // The dialog opens by growing, and a ruler held against a thing mid-grow measures a smaller thing.  The
         // grow is a plain scale on top of whatever the shell's own fit already scales the screen by, so every
@@ -3471,12 +3470,14 @@ namespace Tests.Frontend
               "answers stand " + (i + 1) + " steps apart on the sheet");
         }
 
-        // The way out of the dialog stands under the sheet, in its own row, and keeps its word's width.
-        double sheetBottom = sheetTopLeft.Y + plate.Bounds.Height * scale;
-        Assert.That(TopLeft(back).Y, Is.GreaterThanOrEqualTo(sheetBottom - 1.0),
-            "the way back is not one of the answers - it stands under the sheet");
-        Assert.That(back.Bounds.Width, Is.LessThan(rows[0].Bounds.Width),
-            "and it keeps its word's width instead of stretching across the dialog like an answer");
+        // Nothing stands under the sheet any more: the back key, a press beside the dialog and the info key that
+        // opened it are the ways out (MediaBrowserView.axaml.cs:861-866, :557-565, :766-770), so a button worn
+        // below the answers - or anywhere else in the frame - would be a fourth way dressed up as an answer.
+        foreach (Button stranger in panel.GetVisualDescendants().OfType<Button>())
+        {
+          Assert.That(rows.Contains(stranger), Is.True,
+              "the dialog wears no button but its answers, and '" + stranger.Content + "' is not one of them");
+        }
       }
       finally
       {

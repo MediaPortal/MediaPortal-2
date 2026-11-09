@@ -3031,12 +3031,15 @@
               VerticalAlignment="Center"
               RenderTransformOrigin="50%,50%">
         <DockPanel>
+          <!-- Fifteen to each side rather than ten, the same five the shared headed frame keeps (templates.xaml
+               "DialogHeadedFrameTemplate"): a heading that runs the width of the panel ends flush with the panel's
+               own edge, and a word standing against an edge reads as cut off even when it is not. -->
           <TextBlock DockPanel.Dock="Top"
                      Text="{Binding MenuTitle}"
                      FontSize="{DynamicResource DialogTitleFontSize}"
                      FontWeight="Bold"
                      Foreground="{DynamicResource TextBrush}"
-                     Margin="10,5"
+                     Margin="15,5"
                      Padding="0,5"
                      TextWrapping="Wrap"
                      TextAlignment="Center"
@@ -3046,10 +3049,11 @@
             <!--
               The contents plate: a sheet of DialogPlateBrush inside the frame, its own smaller corner inside the
               frame's, holding everything the dialog answers WITH - the lines and the two quiet lines under them.
-              The answer row the sheet stands over (below) is no part of it: Back leaves the question, it does not
-              answer it. The mockup the viewer drew this from gave the sheet five of margin against the body's ten
-              and fifteen within against the lines, so the lines and the sheet's own top edge keep the same
-              distance the rows keep to one another.
+              Nothing stands under the sheet: a way out is not an answer, and three hands already take the
+              question away - the back key (MediaBrowserView.axaml.cs:861-866), a press beside the dialog on the
+              scrim (:557-565) and the info key that opened it (:766-770). The mockup the viewer drew this from
+              gave the sheet five of margin against the body's ten and fifteen within against the lines, so the
+              lines and the sheet's own top edge keep the same distance the rows keep to one another.
             -->
             <Border Name="menuPlate"
                     Background="{DynamicResource DialogPlateBrush}"
@@ -3101,18 +3105,6 @@
                            TextWrapping="Wrap"
                            IsVisible="{Binding MenuWords, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
               </StackPanel>
-            </Border>
-            <!--
-              The row under the contents. Five within, as the mockup drew it, so the button stands as far from
-              the sheet's edge as the sheet stands from the body's - and Back keeps its own word's width rather
-              than the sheet's: it is one way out, not another thing to choose.
-            -->
-            <Border Padding="5">
-              <Button Name="menuBackButton"
-                      Classes="nereus-primary"
-                      Content="Back"
-                      Command="{Binding CloseMenuCommand}"
-                      HorizontalAlignment="Left"/>
             </Border>
           </StackPanel>
         </DockPanel>

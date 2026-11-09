@@ -1021,8 +1021,7 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Puts the focus on the answer the menu was opened for - the mark when there is one to give, the way out
-    /// when there is nothing to give - and back on the rows when the menu goes away.
+    /// Puts the focus on the answer the menu was opened for, and back on the rows when the menu goes away.
     /// </summary>
     private void FocusMenu(MediaBrowserViewModel browser)
     {
@@ -1031,14 +1030,14 @@ namespace MediaPortal.Frontend.Views
         GrowDialog();
         // The lines are built from the model's table, so at the moment the dialog is switched on they are not on
         // the screen yet - the containers come with the layout. The focus therefore goes to them one round later,
-        // the way the guide's own action dialog reaches its list, and lands on the way out until they arrive.
+        // the way the guide's own action dialog reaches its list. A title whose table offers no command at all
+        // keeps no caret: what stands there only explains something, and the way out of the dialog is a key or a
+        // press beside it, never a button of its own.
         if (!FocusFirstTitleAction())
           Dispatcher.UIThread.Post(delegate
           {
-            if (!browser.MenuVisible)
-              return;
-            if (!FocusFirstTitleAction())
-              menuBackButton.Focus();
+            if (browser.MenuVisible)
+              FocusFirstTitleAction();
           }, DispatcherPriority.Loaded);
       }
       else

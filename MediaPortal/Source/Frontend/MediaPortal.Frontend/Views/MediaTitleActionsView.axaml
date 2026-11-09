@@ -37,19 +37,17 @@
                  Margin="0,0,0,10"
                  HorizontalAlignment="Left" />
 
-      <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0" Spacing="10">
-        <Button Name="backButton"
-                Content="Back"
-                FontSize="14"
-                Padding="16,6"
-                Focusable="True" />
-        <TextBlock Name="statusLine"
-                   Classes="nereus-editor-status"
-                   Text="{Binding Status}"
-                   TextWrapping="Wrap"
-                   VerticalAlignment="Center"
-                   MaxWidth="420" />
-      </StackPanel>
+      <!-- What the last answer did, under the list and never on it.  Nothing presses here: a line of this list IS
+           the answer, and the two hands that raised the question take it away again - the back key, which the shell
+           answers by popping the frame (ShellWindow.cs:542-555), and the mouse's right button, which the shell
+           answers from the tunnel just below it. -->
+      <TextBlock DockPanel.Dock="Bottom"
+                 Name="statusLine"
+                 Classes="nereus-editor-status"
+                 Text="{Binding Status}"
+                 TextWrapping="Wrap"
+                 Margin="0,10,0,0"
+                 MaxWidth="420" />
 
       <ListBox Name="actionList"
                ItemsSource="{Binding Actions}"

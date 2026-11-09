@@ -1542,7 +1542,7 @@ namespace MediaPortal.Frontend
       // and the lines come from the one table both screens read (MediaTitleActions.For); the model is the wall's
       // own, built when a tile was pressed, because only it knows which tile that was.
       if (state == "titleactions")
-        return new MediaTitleActionsView((MediaTitleActionsModel)frame.ViewModel, _workflow);
+        return new MediaTitleActionsView((MediaTitleActionsModel)frame.ViewModel);
 
       // The queue read out loud, wearing the skin's dialog frame: the shelf or the guide stays lit behind it, because
       // a notification is a word spoken to somebody who is doing something (WatchSystemNotifications.xaml).
