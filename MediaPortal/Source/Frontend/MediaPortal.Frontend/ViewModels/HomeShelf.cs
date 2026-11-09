@@ -1115,7 +1115,13 @@ namespace MediaPortal.Frontend.ViewModels
       bool audio = actionId == AUDIO_ACTION_ID;
       bool images = actionId == IMAGES_ACTION_ID;
       bool video = actionId == VIDEOS_ACTION_ID;
-      bool thumbnail = images || video || series && key == "LatestEpisodes";
+      // Only the two media whose pictures ARE wide wear the wide mosaic. The reference drew its series' "Latest
+      // added" that way because ITS list was a list of episodes ("LatestEpisodes" behind
+      // LatestEpisodeMediaListProvider, plugin.xml:311), and an episode's picture is a wide still. This wall asks
+      // its lists of the aspect the tile stands for - the series shelf asks SeriesItem (MediaCatalog.cs:47,
+      // HomeViewModel.cs:1382) - so the band holds series, which wear a poster like a film does, and it stands in
+      // the same mosaic as the films' "Latest added".
+      bool thumbnail = images || video;
       string layout = audio ? "square1" : thumbnail ? "thumbnail1" : "poster1";
       double width = audio ? 650 : thumbnail ? 900 : 760;
 

@@ -111,7 +111,10 @@ namespace Tests.Frontend
       Guid videos = Guid.Parse("a4df2df6-8d66-479a-9930-d7106525eb07");
 
       Assert.That(HomeContentList.ForAction(movies)[0].Layout, Is.EqualTo("poster1"));
-      Assert.That(HomeContentList.ForAction(series)[0].Layout, Is.EqualTo("thumbnail1"));
+      // The series' "Latest added" holds series, not episodes (the wall asks the shelf's own aspect), so it wears
+      // the poster mosaic and the films' band width, not the wide thumbnail mosaic of a still list.
+      Assert.That(HomeContentList.ForAction(series)[0].Layout, Is.EqualTo("poster1"));
+      Assert.That(HomeContentList.ForAction(series)[0].Width, Is.EqualTo(760));
       Assert.That(HomeContentList.ForAction(series)[1].Layout, Is.EqualTo("poster3"));
       Assert.That(HomeContentList.ForAction(audio)[1].Layout, Is.EqualTo("square2"));
       Assert.That(HomeContentList.ForAction(images)[0].Layout, Is.EqualTo("thumbnail1"));
