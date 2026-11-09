@@ -62,10 +62,29 @@ namespace MediaPortal.Frontend.Views
     // The reference control's own constructor answers, kept as they are.
     private const int BarCount = 32;
     /// <summary>
-    /// Room between two bars. The reference control had five (AudioSpectrumAnalyzer.cs:124); the viewer asked for
-    /// ten on this screen, because at five the caps' glow could not reach anywhere without meeting its neighbour.
+    /// Room between two bars at the full width of the stage. The reference control had five
+    /// (AudioSpectrumAnalyzer.cs:124); the viewer asked for ten on this screen, because at five the caps' glow
+    /// could not reach anywhere without meeting its neighbour.
     /// </summary>
     private const double BarSpacing = 10d;
+
+    /// <summary>
+    /// The width the bars are given when nothing else stands beside them: the stage's nineteen hundred and twenty
+    /// less the seven hundred and two the strip begins at and the sixty-two of standing margin it ends at. It is
+    /// written here because the room between two bars is measured against it.
+    /// </summary>
+    private const double FullStripWidth = 1156d;
+
+    /// <summary>
+    /// Room between two bars at the width the strip actually has. The ten the viewer asked for are the ten it
+    /// wears across the whole stage; when the record's list stands beside it the strip is narrower and the room
+    /// narrows with it, because ten points of room in a squeezed strip would have eaten a sixth of every bar.
+    /// At the squeezed width this answers six.
+    /// </summary>
+    private static double SpacingAt(double width)
+    {
+      return Math.Max(2d, BarSpacing * width / FullStripWidth);
+    }
     private const int PeakFallDelay = 10;
     private const int MinimumFrequency = 20;
     private const int MaximumFrequency = 20000;
@@ -376,8 +395,10 @@ namespace MediaPortal.Frontend.Views
 
       // The reference's arithmetic for how wide a bar is and how much room a bar has to rise in: the spacing
       // borders the field on both sides as well as between the bars, and the cap's own height comes off the top
-      // (AudioSpectrumAnalyzer.cs:409,485-486).
-      double barWidth = Math.Max((width - BarSpacing * (BarCount + 1)) / BarCount, 1);
+      // (AudioSpectrumAnalyzer.cs:409,485-486). The room itself is the strip's own, so that a stage the record's
+      // list has taken a piece of narrows its rooms instead of its bars.
+      double spacing = SpacingAt(width);
+      double barWidth = Math.Max((width - spacing * (BarCount + 1)) / BarCount, 1);
       double capHeight = Math.Max(barWidth / 2.0, 1);
       double rise = Math.Max(height - capHeight - REST_LIFT, 1);
       double capCorner = Math.Min(CORNER_RADIUS, capHeight / 2.0);
@@ -389,7 +410,7 @@ namespace MediaPortal.Frontend.Views
 
       for (int bar = 0; bar < BarCount; bar++)
       {
-        double x = BarSpacing + barWidth * bar + BarSpacing * bar + 1;
+        double x = spacing + barWidth * bar + spacing * bar + 1;
 
         double level = _levels[bar] * rise;
         if (level > 0.5)

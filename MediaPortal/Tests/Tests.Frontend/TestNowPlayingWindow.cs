@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
@@ -32,6 +33,7 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.ViewModels;
 using MediaPortal.Frontend.Views;
@@ -1917,6 +1919,332 @@ namespace Tests.Frontend
       Press(sound);
       StackPanel rows = ControlNamed<StackPanel>(window, "trackDialogRows");
       Assert.That(rows.Children, Has.Count.EqualTo(2), "pressing it opens the list the chevron promised");
+    }
+
+    /// <summary>
+    /// The list of tunes beside the transport, walked with the remote. The list belongs to the audio arrangement
+    /// and is not part of the panel, so neither the shared ring nor the panel's row walker ever steps into it on
+    /// its own: the transport hands the caret across at its right end, the choices at the foot's right hand hand
+    /// it up, its rows are climbed up and down, and a key aimed at the wall beside it nods the list itself -
+    /// which is the answer the panel gives too, and the only one that says the walk ended here rather than that
+    /// nobody heard the key.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheRemoteWalksIntoTheListOfTunesAndBackOut()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
+
+      List<TitleViewModel> shelf = new List<TitleViewModel>();
+      for (int number = 1; number <= 3; number++)
+      {
+        shelf.Add(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Tune " + number, null, 2024, null,
+            "file:///D:/Musik/" + number.ToString("00") + ".mp3", false, Track: number)));
+      }
+
+      screen.Play(Film("the-long-night.mp3"));
+      screen.PlayingAspect = "AudioItem";
+      screen.LoadAudioQueue(shelf, 0, "AudioItem", "Nightglass");
+      Pump();
+
+      Border tunes = ControlNamed<Border>(window, "audioQueue");
+      Assert.That(tunes.IsVisible, Is.True, "a record of three tunes drew no list beside the player");
+
+      // The rows of the list, in the order they stand: the buttons its template realized. (The container the
+      // list wraps a template in is not the row and cannot take the caret, so this asks for the buttons.)
+      List<Button> Rows() => tunes.GetVisualDescendants().OfType<Button>().ToList();
+      Assert.That(Rows(), Has.Count.EqualTo(3), "the list drew no row for every tune of the record");
+
+      // From the row of buttons, the key across the row walks to its end and then into the list, standing the
+      // viewer on the tune the room is hearing rather than on the list's head.
+      Button endOfTransport = ButtonNamed(window, "repeatButton");
+      Assert.That(endOfTransport.Focus(), Is.True);
+      Pump();
+      Assert.That(PressKey(endOfTransport, Key.Right), Is.True, "the transport answered the rightward key");
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.True,
+          "past the last button of the transport the remote steps into the list of tunes");
+      Assert.That(Rows()[0].IsFocused, Is.True, "the caret stands on the tune that is playing");
+
+      Assert.That(PressKey(Rows()[0], Key.Down), Is.True, "the list answered the downward key");
+      Assert.That(Rows()[1].IsFocused, Is.True, "down climbs one tune");
+      Assert.That(PressKey(Rows()[1], Key.Up), Is.True);
+      Assert.That(Rows()[0].IsFocused, Is.True, "up climbs back to the tune it came from");
+
+      // Beyond its own top and its own side the list nods rather than wraps: the caret holds and the list says out
+      // loud that the walk ends here. Above the list the screen holds nothing, and beside it nothing stands either.
+      // Its bottom end is different and nods nothing - the choices along the foot stand under it, and the test for
+      // that door is further down, after the walk has climbed the record by the key itself.
+      Assert.That(PressKey(Rows()[0], Key.Up), Is.True, "the list answered the key at its top end");
+      Assert.That(Rows()[0].IsFocused, Is.True, "the caret stayed on the tune it was standing on");
+      Assert.That(PlaybackView(window).TunesBounceDiveY, Is.LessThan(0),
+          "and the list nodded up against its own top edge, ready to spring back");
+
+      Assert.That(PressKey(Rows()[0], Key.Down), Is.True);
+      Assert.That(Rows()[1].IsFocused, Is.True);
+      Assert.That(PressKey(Rows()[1], Key.Down), Is.True);
+      Assert.That(Rows()[2].IsFocused, Is.True, "the key walks on to the last tune of the record");
+
+      Assert.That(PressKey(Rows()[2], Key.Right), Is.True, "the list answered the key at its right edge");
+      Assert.That(Rows()[2].IsFocused, Is.True, "and the caret held there");
+      Assert.That(PlaybackView(window).TunesBounceDiveX, Is.GreaterThan(0),
+          "while it nodded right, the direction in which a list of tunes has nothing beside it");
+
+      // Down at the bottom end is not an end: the choices along the foot's right hand stand under the list, so the
+      // key steps onto whichever of them the row left stands most over. That is the same door the upward key walks
+      // into the list from, and the list owes its viewer a step down as much as a step up.
+      Assert.That(PressKey(Rows()[2], Key.Down), Is.True, "the list answered the key at its bottom end");
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.False,
+          "and the caret left the list, because the screen has something under it to stand on");
+      Assert.That(ButtonNamed(window, "volumeButton").IsFocused, Is.True,
+          "the caret stands on the loudspeaker, the choice that stands under the row it left");
+      Assert.That(PlaybackView(window).TunesBounceDiveY, Is.Not.GreaterThan(0),
+          "and the list nodded no down at its bottom end");
+
+      Assert.That(PressKey(ButtonNamed(window, "volumeButton"), Key.Up), Is.True,
+          "the choice answered the upward key");
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.True,
+          "and the same road back stands the caret on a tune again");
+
+      // The choices along the foot's right hand stand under the list, so the key up from them steps into it too
+      // rather than onto the position line under nothing.
+      Button gear = ButtonNamed(window, "settingsButton");
+      Assert.That(gear.Focus(), Is.True);
+      Pump();
+      Assert.That(PressKey(gear, Key.Up), Is.True, "the foot's right hand answered the upward key");
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.True,
+          "one key up from the choices at the foot's right hand stands in the list of tunes");
+
+      // And the way back is the key the list has nothing on its other side of: left steps onto the transport.
+      Assert.That(PressKey(tunes, Key.Left), Is.True, "the list answered the leftward key");
+      Assert.That(ButtonNamed(window, "repeatButton").IsFocused, Is.True,
+          "the list hands the caret back to the row of buttons it stands beside");
+    }
+
+    /// <summary>
+    /// A record with more tunes than the screen has room for rows. The list stands with its foot a fixed distance
+    /// above the floor, so on a short window the rows that would fall over the top of the screen are left out and
+    /// are a key away down the list instead - while the head of the panel goes on saying how many tunes the record
+    /// really has, because a small window does not make a short record.
+    /// </summary>
+    [AvaloniaTest]
+    public void ALongRecordDoesNotDrawItsListOfTunesPastTheTopOfTheScreen()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+
+      List<TitleViewModel> shelf = new List<TitleViewModel>();
+      for (int number = 1; number <= 12; number++)
+      {
+        shelf.Add(new TitleViewModel(new MediaTitle(Guid.NewGuid(),
+            "Nightglass: " + number + " - Tune " + number, null, 2024, null,
+            "file:///D:/Musik/" + number.ToString("00") + ".mp3", false, Track: number)));
+      }
+
+      screen.Play(Film("the-long-night.mp3"), Guid.NewGuid(), 0, "Nightglass");
+      screen.PlayingAspect = "AudioItem";
+      screen.LoadAudioQueue(shelf, 5, "AudioItem", "Nightglass");
+      Pump();
+
+      Border tunes = ControlNamed<Border>(window, "audioQueue");
+      Assert.That(tunes.IsVisible, Is.True, "a record of twelve tunes drew no list beside the player");
+      Assert.That(tunes.Bounds.Height, Is.LessThanOrEqualTo(window.Bounds.Height),
+          "the list of tunes is taller than the screen it stands on");
+      Assert.That(TopLeftOf(tunes, window).Y, Is.GreaterThanOrEqualTo(0),
+          "the head of the list of tunes hangs over the top of the screen");
+      Assert.That(tunes.GetVisualDescendants().OfType<Button>(), Is.Not.Empty,
+          "and the window it shrank to still shows the tune that is playing");
+      Assert.That(screen.AudioQueuePosition, Is.EqualTo("6 / 12"),
+          "the panel told the viewer the record was shorter than the record is");
+    }
+
+    /// <summary>
+    /// The picture the stage of a song stands on, asked again for the tune after the first one. Opening a tune
+    /// wipes every picture the library had said - the next tune may come from another record - so the screen's
+    /// every-change question has to include this picture and not only the cover, the lettering and the record.
+    /// Asked once when the screen opened, the second tune of a record played on a bare shade.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheStageGetsItsPictureAgainForTheTuneAfterTheFirstOne()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+
+      List<Guid> asked = new List<Guid>();
+      screen.FanartReader = delegate (Guid mediaItemId)
+      {
+        asked.Add(mediaItemId);
+        return Task.FromResult<byte[]?>(new byte[] { 1, 2, 3 });
+      };
+
+      Guid first = Guid.NewGuid();
+      Guid second = Guid.NewGuid();
+
+      screen.Play(Film("the-first-song.mp3"), first, 0, "Nightglass");
+      screen.PlayingAspect = "AudioItem";
+      Pump();
+      Assert.That(asked, Is.EqualTo(new[] { first }), "the stage of a song was never asked for its picture");
+
+      screen.Play(Film("the-second-song.mp3"), second, 0, "Nightglass");
+      screen.PlayingAspect = "AudioItem";
+      Pump();
+      Assert.That(asked, Is.EqualTo(new[] { first, second }),
+          "the tune after the first one was left standing on a stage without its picture");
+    }
+
+    /// <summary>
+    /// The tune the room is hearing stands on a white plate with its words in black, which is the strongest mark
+    /// this list has: every other row is a hole cut in the shade of the panel. Only the tunes wear it - the film's
+    /// pickers of sound and subtitles are dressed by the same rows and keep their own lit row.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheTuneThatPlaysStandsOnAWhitePlateInBlackWords()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
+
+      List<TitleViewModel> shelf = new List<TitleViewModel>();
+      for (int number = 1; number <= 12; number++)
+      {
+        shelf.Add(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Tune " + number, null, 2024, null,
+            "file:///D:/Musik/" + number.ToString("00") + ".mp3", false, Track: number)));
+      }
+
+      screen.Play(Film("the-long-night.mp3"));
+      screen.PlayingAspect = "AudioItem";
+      screen.LoadAudioQueue(shelf, 4, "AudioItem", "Nightglass");
+      Pump();
+
+      Border tunes = ControlNamed<Border>(window, "audioQueue");
+      List<Button> rows = tunes.GetVisualDescendants().OfType<Button>().ToList();
+      // How many rows the panel draws is what the height of the stage affords, so the test asks for the rows it
+      // drew rather than for a number the stage was free to decide.
+      Assert.That(rows, Is.Not.Empty, "the panel of a twelve tune record drew no row");
+
+      List<Button> playing = rows.Where(r => r.Classes.Contains("current")).ToList();
+      Assert.That(playing, Has.Count.EqualTo(1), "one row of the list names the tune that plays");
+      Assert.That(((ISolidColorBrush)playing[0].Background!).Color, Is.EqualTo(Colors.White),
+          "the tune that plays stands on a white plate");
+      Assert.That(((ISolidColorBrush)playing[0].Foreground!).Color, Is.EqualTo(Colors.Black),
+          "and says its name in black");
+      Assert.That(rows.Where(r => !r.Classes.Contains("current"))
+                      .All(r => ((ISolidColorBrush)r.Background!).Color != Colors.White), Is.True,
+          "every tune that does not play keeps the shade of the panel");
+      Assert.That(((ISolidColorBrush)rows.First(r => !r.Classes.Contains("current")).Background!).Color,
+          Is.EqualTo(Color.Parse("#182E4050")),
+          "and keeps it as the blue hole it always was, which is what the pickers of a film still wear");
+    }
+
+    /// <summary>
+    /// The dark caret belongs to the ring and to nothing else: a row that is merely the one that plays stands on
+    /// its white plate with no rim at all, and only when the ring walks onto it does the dark edge come - which is
+    /// also when the words have to stay black, since a white word on a white plate is no word.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheDarkCaretOfThePlayingTuneComesOnlyWithTheRing()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
+
+      List<TitleViewModel> shelf = new List<TitleViewModel>();
+      for (int number = 1; number <= 12; number++)
+      {
+        shelf.Add(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Tune " + number, null, 2024, null,
+            "file:///D:/Musik/" + number.ToString("00") + ".mp3", false, Track: number)));
+      }
+
+      screen.Play(Film("the-long-night.mp3"));
+      screen.PlayingAspect = "AudioItem";
+      screen.LoadAudioQueue(shelf, 4, "AudioItem", "Nightglass");
+      Pump();
+
+      Border tunes = ControlNamed<Border>(window, "audioQueue");
+      Button playing = tunes.GetVisualDescendants().OfType<Button>().First(r => r.Classes.Contains("current"));
+
+      // At rest, with the ring standing somewhere else: a white plate, no dark edge. The list is not a place the
+      // caret can stand until a key walks into it, so neither the first focus of a fresh window - which has nothing
+      // else to choose and would take the list, being the first thing on the screen it could - nor the tune that
+      // plays of its own accord puts a ring here.
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.False, "a fresh window leaves the caret out of the list of tunes");
+      Assert.That(playing.IsFocused, Is.False, "and above all not on the tune that plays");
+      Assert.That(((ISolidColorBrush)playing.BorderBrush!).Color, Is.Not.EqualTo(Color.Parse("#B3000000")),
+          "the tune that plays wears no dark rim while nothing points at it");
+      Assert.That(playing.BorderThickness, Is.EqualTo(new Thickness(1)),
+          "and keeps the one line of rim every other row wears");
+
+      // The viewer walks in over the end of the row of buttons: now the dark edge, and the words stay readable.
+      Button endOfTransport = ButtonNamed(window, "repeatButton");
+      Assert.That(endOfTransport.Focus(), Is.True);
+      Pump();
+      Assert.That(PressKey(endOfTransport, Key.Right), Is.True, "the transport answered the rightward key");
+
+      Assert.That(playing.IsFocused, Is.True, "the ring stands on the row now");
+      Assert.That(((ISolidColorBrush)playing.BorderBrush!).Color, Is.EqualTo(Color.Parse("#B3000000")),
+          "and only now the dark caret edge comes");
+      Assert.That(playing.BorderThickness, Is.EqualTo(new Thickness(3)), "three lines of it, as every caret is");
+      Assert.That(((ISolidColorBrush)playing.Foreground!).Color, Is.EqualTo(Colors.Black),
+          "and the words stay black, since a white word on a white plate is no word");
+      Assert.That(((ISolidColorBrush)playing.Background!).Color, Is.EqualTo(Colors.White),
+          "on the white plate it always stood on");
+
+      // The face is what paints the words, and a theme dresses a focused button's face in the screen's white of
+      // its own accord; on a white plate that is no word at all, so the tunes' rule has to answer the face and not
+      // only the button.
+      ContentPresenter face = playing.GetVisualDescendants().OfType<ContentPresenter>()
+          .First(p => p.Name == "PART_ContentPresenter");
+      Assert.That(((ISolidColorBrush)face.Foreground!).Color, Is.EqualTo(Colors.Black),
+          "and the face that paints the words paints them in black too");
+    }
+
+    /// <summary>
+    /// The card the tunes stand on answers a caret standing inside it with the glow this screen's glass already
+    /// knows - the same twenty two of blur and four of spread a plate of the transport wears under a hand or a ring
+    /// - and lets the glow go again when the caret steps back out over the end of the row.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheCardOfTunesGlowsWhileTheCaretStandsInsideIt()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
+
+      List<TitleViewModel> shelf = new List<TitleViewModel>();
+      for (int number = 1; number <= 12; number++)
+      {
+        shelf.Add(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Tune " + number, null, 2024, null,
+            "file:///D:/Musik/" + number.ToString("00") + ".mp3", false, Track: number)));
+      }
+
+      screen.Play(Film("the-long-night.mp3"));
+      screen.PlayingAspect = "AudioItem";
+      screen.LoadAudioQueue(shelf, 4, "AudioItem", "Nightglass");
+      Pump();
+
+      Border tunes = ControlNamed<Border>(window, "audioQueue");
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.False, "nothing stands in the list to begin with");
+      Assert.That(tunes.BoxShadow.Count, Is.Zero, "and the card of tunes wears no glow");
+      double cardHeight = tunes.Bounds.Height;
+
+      Button endOfTransport = ButtonNamed(window, "repeatButton");
+      Assert.That(endOfTransport.Focus(), Is.True);
+      Pump();
+      Assert.That(PressKey(endOfTransport, Key.Right), Is.True, "the transport answered the rightward key");
+      Pump();
+
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.True, "the caret stands in the list of tunes now");
+      Assert.That(tunes.BoxShadow.Count, Is.EqualTo(1), "and the card glows while it does");
+      Assert.That(tunes.BoxShadow.ToString(), Does.Contain("22"),
+          "with the twenty two of blur a plate of the transport glows with");
+      Assert.That(tunes.Bounds.Height, Is.EqualTo(cardHeight),
+          "and the rim the row took on is paid out of the row, not out of the card");
+
+      // And the glow is the caret's, not a decoration the card keeps: the key back onto the buttons takes it away.
+      Assert.That(PressKey(tunes, Key.Left), Is.True, "the list answered the key back to the buttons");
+      Pump();
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.False, "the caret stepped out of the list again");
+      Assert.That(tunes.BoxShadow.Count, Is.Zero, "and the glow went with it");
     }
 
   }

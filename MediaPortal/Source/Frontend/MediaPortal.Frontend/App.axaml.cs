@@ -418,6 +418,11 @@ namespace MediaPortal.Frontend
               return;
             if (!(_nowPlaying.Preferences ?? Settings.PlaybackSettings.Load(null, out _)).ClosePlayerWhenFinished)
               return;
+            // Asked here, out loud and before the step aside is posted, because the screen's own queue has
+            // already walked on to the next tune by the time the posted step runs: a record that is not
+            // through yet keeps its screen, since the sound that carries on deserves the screen that names it.
+            if (_nowPlaying.AudioQueuePlaysOn)
+              return;
 
             Dispatcher.UIThread.Post(delegate
             {
@@ -2313,7 +2318,8 @@ namespace MediaPortal.Frontend
         // The shelf this title was pressed in is the shelf that is now playing - said to the home screen, whose
         // tile for that shelf wears the mark until the player falls silent. A press from the home strip itself
         // names no shelf, and a tile would be guessing, so the mark simply goes off.
-        _playingAspect = (sender as MediaBrowserViewModel)?.AspectName;
+        MediaBrowserViewModel? browser = sender as MediaBrowserViewModel;
+        _playingAspect = browser?.AspectName;
         // The playback screen hears the same answer, because it is the shelf and not the file that says whether a
         // picture is expected at all: a song pressed in the music shelf is played onto a screen with no frames.
         _nowPlaying.PlayingAspect = _playingAspect;
@@ -2322,12 +2328,33 @@ namespace MediaPortal.Frontend
         // library whose details answer holds no artist, instead of - the record's own fields.
         _nowPlaying.PlayingArtist = title.Artist;
         _home.ShowPlaying(_playingAspect);
+        // The record the song was pressed out of plays on by itself. Only a shelf standing inside a title is
+        // handed over: the shelf of tunes inside an album is that album's track list, in the order the library
+        // numbers it (MediaCatalog's one audio pair, "AlbumItem" → "AudioItem" sorted by track), while the wall
+        // of every song the house holds would be a queue nobody meant to start. A film, a stream and a song
+        // pressed anywhere else leave the queue empty, which is the screen's own way of saying "nothing follows".
+        _nowPlaying.LoadAudioQueue(QueueOfPress(browser),
+            browser == null ? -1 : browser.Titles.IndexOf(title), _playingAspect, browser?.Heading);
         Console.WriteLine("play:     " + what + (streamed ? " - streamed from the server" : " from the library")
             + (title.ResumePercent.HasValue ? " - resumed at " + title.ResumePercent.Value + "%" : ""));
       }
       else
         Console.WriteLine("play:     refused - " + _nowPlaying.StatusLine
             + (streamed ? " (a server that wants to know its caller cannot be handed to the player as an address)" : ""));
+    }
+
+    /// <summary>
+    /// The tunes that came with this press: the shelf of songs the press happened in, when that shelf is the
+    /// track list of one record. Null for every other press, which the playback screen reads as "nothing
+    /// follows this".
+    /// </summary>
+    private static IEnumerable<TitleViewModel>? QueueOfPress(MediaBrowserViewModel? shelf)
+    {
+      // A shelf opened out of a title is the titles inside it (MediaBrowserViewModel.Inside), and the only
+      // shelf of songs the library opens that way is an album's.
+      if (shelf == null || shelf.Inside == null || shelf.AspectName != "AudioItem")
+        return null;
+      return shelf.Titles;
     }
 
     /// <summary>
@@ -2368,6 +2395,9 @@ namespace MediaPortal.Frontend
         _nowPlaying.PlayingAspect = _playingAspect;
         _nowPlaying.PlayingArtist = title.Artist;
         _home.ShowPlaying(_playingAspect);
+        // The record a viewer pressed earlier has no place here: from now on the party says what plays next,
+        // and a queue left holding the tune the party happens to pick would advance twice over one ending.
+        _nowPlaying.ClearAudioQueue();
         Console.WriteLine("play:     party - " + what + (streamed ? " - streamed from the server" : " from the library"));
       }
       else

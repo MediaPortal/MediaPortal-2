@@ -257,8 +257,9 @@ namespace MediaPortal.Frontend.Views
       // actually reach.
       _ring = new List<Control>
           {
-            infoButton, chapterBackButton, backButton, pauseButton, stopButton, forwardButton,
-            chapterForwardButton, seekBar, subtitleButton, audioButton, volumeButton, fullscreenButton,
+            infoButton, shuffleButton, chapterBackButton, backButton, tuneBackButton, pauseButton, stopButton,
+            tuneForwardButton, forwardButton, chapterForwardButton, repeatButton,
+            seekBar, subtitleButton, audioButton, volumeButton, fullscreenButton,
             settingsButton
           };
       DpadNavigation.Attach(this, _ring);
@@ -273,7 +274,7 @@ namespace MediaPortal.Frontend.Views
       // and the ring keeps its one-line walk for the first step onto the panel from elsewhere.
       AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
           {
-            if (args.Handled || !_osdVisible)
+            if (args.Handled)
               return;
 
             bool vertical = args.Key == Key.Up || args.Key == Key.Down;
@@ -281,11 +282,28 @@ namespace MediaPortal.Frontend.Views
             if (!vertical && !sideways)
               return;
 
+            Visual? stood = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
+            if (stood == null)
+              return;
+
+            // The list of tunes belongs to the audio arrangement and stays drawn while the panel is away, so it
+            // answers its own keys whether or not the panel is up. Everything else here is the panel's business
+            // and is only walked while the panel is to be seen.
+            bool inTunes = audioQueue.IsVisible && IsWithinTunes(stood);
+            if (!_osdVisible && !inTunes)
+              return;
+
             // Only while the caret stands on the panel itself. The sound's dialog and a list of tracks are the
             // panel's own answers to a button but sit outside it, and both walk their keys themselves.
-            Visual? stood = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
-            if (stood == null || !IsWithinOsd(stood))
+            if (!inTunes && !IsWithinOsd(stood))
               return;
+
+            if (inTunes)
+            {
+              MoveTunes(args.Key);
+              args.Handled = true;
+              return;
+            }
 
             // On the position line the keys across it belong to the film, not to the panel: standing on the line,
             // left and right walk it - the line's own answer (OnSeekBarKey) - so this hands them back untouched.
@@ -312,6 +330,12 @@ namespace MediaPortal.Frontend.Views
           },
           RoutingStrategies.Tunnel);
 
+      // The tune list wears a caret when the viewer stands on it. It must not wear one because the window had to
+      // put its first focus somewhere and the list is the first thing it could stand on - which is what the audio
+      // arrangement looked like from the first second: a dark frame round the tune that plays, with nobody at it.
+      // So the rows offer no place for a caret at all until a key of the viewer's walks into them; see the note on
+      // the row in NowPlayingView.axaml and the StandOnTune below that opens one.
+
       // Holding a skip mark keeps doing what one press does - see RepeatWhileHeld. The volume is not among them:
       // a line of sound follows the hand that is on it, which is a better answer than stepping.
       RepeatWhileHeld(backButton, SkipBack);
@@ -325,6 +349,10 @@ namespace MediaPortal.Frontend.Views
       // The sound's dialog is lifted above the row of buttons rather than left standing over them, and the height
       // that row takes is what decides how far - so a window that changes its size moves the dialog with it.
       osdArea.SizeChanged += delegate { volumePicker.HoldAbove(osdArea.Bounds.Height); };
+
+      // How many tunes the list beside the equalizer can show at once is a question of how tall the room is, so
+      // a window that grows or shrinks is asked again.
+      SizeChanged += delegate { GiveTheTunesTheirRoom(); };
 
       // A song's name has the room the row leaves it, which is not a number anybody can write down: it is the
       // width of the window less the switches standing at its right hand end, and those two change together with
@@ -439,6 +467,60 @@ namespace MediaPortal.Frontend.Views
     private void OnBack(object? sender, RoutedEventArgs e)
     {
       SkipBack();
+    }
+
+    /// <summary>
+    /// The record's own order, asked of its mark: the tune that is playing carries on and what follows it is put
+    /// in a different sequence. The mark lights and the list beside the equalizer rearranges itself, which is the
+    /// whole of the answer - no line over the picture is needed to say that a mark is on.
+    /// </summary>
+    private void OnShuffle(object? sender, RoutedEventArgs e)
+    {
+      _viewModel.ToggleShuffle();
+    }
+
+    /// <summary>Nothing after the last tune, the record again, this tune for ever - one press per answer.</summary>
+    private void OnRepeat(object? sender, RoutedEventArgs e)
+    {
+      _viewModel.CycleRepeat();
+    }
+
+    /// <summary>
+    /// The tune before this one. At the very first tune this starts this tune again from its beginning, which is
+    /// what the mark has always done when there is nothing behind it, so the press is never answered by nothing.
+    /// </summary>
+    private void OnTuneBack(object? sender, RoutedEventArgs e)
+    {
+      _viewModel.PreviousTune();
+    }
+
+    /// <summary>The next tune of the record, or the screen's own words for why there is none.</summary>
+    private void OnTuneForward(object? sender, RoutedEventArgs e)
+    {
+      if (!_viewModel.NextTune())
+        Say("Superlayer_SkipStep", _viewModel.StatusLine, 1200);
+    }
+
+    /// <summary>
+    /// A row of the record's list was pressed: that tune now. The row is looked up in the rows the panel is
+    /// showing rather than carrying a number of its own, because the rows the panel shows are a window out of the
+    /// record that moves every time the player does, and a number written into a row at its birth would be the
+    /// number of some other tune by the time a hand reached it.
+    /// </summary>
+    private void OnQueueRow(object? sender, RoutedEventArgs e)
+    {
+      if (sender is not Button { DataContext: AudioQueueRow row })
+        return;
+
+      IReadOnlyList<AudioQueueRow> rows = _viewModel.AudioQueueRows;
+      for (int at = 0; at < rows.Count; at++)
+      {
+        if (ReferenceEquals(rows[at], row))
+        {
+          _viewModel.PlayQueuedTune(at);
+          return;
+        }
+      }
     }
 
     private void OnForward(object? sender, RoutedEventArgs e)
@@ -601,6 +683,10 @@ namespace MediaPortal.Frontend.Views
     private DispatcherTimer? _skipStepTimer;
 
     private bool _osdVisible = true;
+
+    // The list of tunes offers no place for a caret until a key walks into it, so the window's first focus cannot
+    // land on the tune that is playing and dress it in a dark caret with nobody pointing at it. See the note on the
+    // row in NowPlayingView.axaml and StandOnTune, which opens a row for the caret.
     private bool _osdOpenOnDemand;
     private DateTime _osdMouseSuppressedUntil = DateTime.MinValue;
 
@@ -902,9 +988,6 @@ namespace MediaPortal.Frontend.Views
     private const int OSD_BOUNCE_DIVE_MS = 90;
     private const int OSD_BOUNCE_SPRING_MS = 430;
 
-    private DispatcherTimer? _osdBounceTimer;
-    private TranslateTransform? _osdBounceTransform;
-
     /// <summary>
     /// The direction the panel last nodded against an edge, in points: positive leaning off the bottom, negative
     /// off the top, zero when it rests. The rail's nod is read the same way by its tests and the render probe; this
@@ -915,6 +998,11 @@ namespace MediaPortal.Frontend.Views
     /// <summary>The horizontal mate of <see cref="OsdBounceDiveY"/>: positive leaning off the right, negative off the left.</summary>
     internal double OsdBounceDiveX { get; private set; }
 
+    /// <summary>The same two answers for the list of tunes, which nods on its own beside the panel.</summary>
+    internal double TunesBounceDiveY { get; private set; }
+
+    internal double TunesBounceDiveX { get; private set; }
+
     /// <summary>Whether <paramref name="element"/> is the panel itself or stands inside it.</summary>
     private bool IsWithinOsd(Visual element)
     {
@@ -924,6 +1012,265 @@ namespace MediaPortal.Frontend.Views
       return false;
     }
 
+    // ---------------------------------------------------------------------------------------------
+    // Walking the list of tunes beside the panel.
+    //
+    // The list is not part of the panel - it belongs to the audio arrangement and stays drawn while the panel is
+    // away - so the shared ring and the row walker above both walk past it. These few methods are its side of the
+    // bargain: the transport hands the caret across to it at its right end and back at its left, its rows are
+    // climbed up and down, and a key aimed at the wall beside it nods the list itself, which is the same answer
+    // the panel gives and the only one that tells a viewer the walk ended here rather than went nowhere.
+    // ---------------------------------------------------------------------------------------------
+
+    /// <summary>Whether <paramref name="element"/> is the list of tunes itself or stands inside it.</summary>
+    private bool IsWithinTunes(Visual element)
+    {
+      for (Visual? at = element; at != null; at = at.GetVisualParent())
+        if (ReferenceEquals(at, audioQueue))
+          return true;
+      return false;
+    }
+
+    /// <summary>Whether the list of tunes is drawn, which is the only case in which a key can walk into it.</summary>
+    private bool TunesStanding()
+    {
+      return audioQueue.IsVisible;
+    }
+
+    /// <summary>
+    /// The rows the list shows, in the order they stand: the buttons the list's own template realized. A panel of
+    /// tunes is not named row by row from the code behind - the list makes its rows out of the view model - so
+    /// they are read back off the list here instead of being kept in a second place nobody checks. The container
+    /// the list wraps a template in is not focusable, so it is the button inside it the caret has to be put on.
+    /// </summary>
+    private List<Control> TuneRows()
+    {
+      List<Control> rows = new List<Control>();
+      foreach (object? realized in audioQueueRows.GetRealizedContainers())
+      {
+        if (realized is not Visual container)
+          continue;
+        Button? row = RowOf(container);
+        if (row != null)
+          rows.Add(row);
+      }
+      return rows;
+    }
+
+    /// <summary>
+    /// The row's own button, looked for under the container the list wrapped the template in. Written as a walk
+    /// rather than a query because that is how this screen reads its own tree everywhere else.
+    /// </summary>
+    private static Button? RowOf(Visual container)
+    {
+      if (container is Button row)
+        return row;
+
+      foreach (Visual child in container.GetVisualChildren())
+      {
+        Button? found = RowOf(child);
+        if (found != null)
+          return found;
+      }
+
+      return null;
+    }
+
+    /// <summary>
+    /// Stand the caret on a row of the tune list. A row offers no place for a caret until this moment - see the note
+    /// on the row in NowPlayingView.axaml, why the list may not take the window's first focus - so the row is opened
+    /// here, the one place that answers a key with a step into the list.
+    /// </summary>
+    private static void StandOnTune(Control row)
+    {
+      row.Focusable = true;
+      row.Focus();
+    }
+
+    /// <summary>
+    /// Put the caret on the tune that is playing: whoever steps sideways out of the transport wants to be standing
+    /// at the tune the room is hearing, not at whichever end the list happens to show.
+    /// </summary>
+    private void FocusCurrentTune()
+    {
+      List<Control> rows = TuneRows();
+      if (rows.Count == 0)
+        return;
+
+      IReadOnlyList<AudioQueueRow> shown = _viewModel.AudioQueueRows;
+      int at = 0;
+      for (int i = 0; i < shown.Count && i < rows.Count; i++)
+        if (shown[i].IsCurrent)
+        {
+          at = i;
+          break;
+        }
+
+      StandOnTune(rows[at]);
+    }
+
+    /// <summary>
+    /// What the four keys answer while the caret stands in the list of tunes: up and down climb the rows, left
+    /// steps back onto the transport, and right - the direction the list holds nothing in - nods the list against
+    /// its own edge. Up at the first row nods as well, which is how the end of a record is felt as an end rather
+    /// than as a key somebody dropped; down at the last row does not, because the choices along the foot's right
+    /// hand stand under the list and are the next thing on the screen - see StepDownOutOfTunes.
+    /// </summary>
+    private void MoveTunes(Key key)
+    {
+      List<Control> rows = TuneRows();
+      int at = -1;
+      for (int i = 0; i < rows.Count; i++)
+        if (rows[i].IsKeyboardFocusWithin)
+        {
+          at = i;
+          break;
+        }
+
+      if (at < 0)
+      {
+        // The caret is inside the list but on none of its rows - on its heading, say. The tune playing is where a
+        // key pressed here belongs, rather than the key going unanswered.
+        FocusCurrentTune();
+        return;
+      }
+
+      switch (key)
+      {
+        case Key.Up:
+          if (at > 0)
+            StandOnTune(rows[at - 1]);
+          else
+            BounceTunes(0, -1);
+          break;
+
+        case Key.Down:
+          if (at + 1 < rows.Count)
+            StandOnTune(rows[at + 1]);
+          else
+            StepDownOutOfTunes(rows[at]);
+          break;
+
+        case Key.Right:
+          BounceTunes(1, 0);
+          break;
+
+        case Key.Left:
+          BackToTransport();
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Step out of the list of tunes back onto the row of buttons it stands beside. The panel is raised first if
+    /// the viewer had let it fall asleep, because the caret is about to stand on it and a caret nobody can see is
+    /// worse than no caret at all.
+    /// </summary>
+    private void BackToTransport()
+    {
+      if (!_osdVisible)
+        SetOsdVisible(true);
+
+      List<List<Control>> rows = OsdRows();
+      if (rows.Count == 0 || rows[0].Count == 0)
+        return;
+
+      List<Control> transport = rows[0];
+      transport[transport.Count - 1].Focus();
+    }
+
+    /// <summary>
+    /// Step out of the bottom end of the list of tunes onto the choices that stand under it. The list is not the
+    /// last thing on the screen: its foot is at three hundred and twenty two lines above the floor, and the
+    /// loudspeaker, the full screen and the settings stand at the foot's right hand under that foot (measured at a
+    /// screen as tall as the picture: their middles at one thousand and nineteen lines, the list's foot at seven
+    /// hundred and fifty eight). The way up from those choices into the list is already answered above, so this is
+    /// the same door walked the other way, and the caret lands on whichever of them the row it left stands most
+    /// over - the row and the choices are compared by the place on the screen a viewer sees them, for the same
+    /// reason <see cref="AcrossTheScreen"/> exists. The panel is raised first if the viewer had let it fall asleep,
+    /// because a caret nobody can see is worse than no caret at all. Only where nothing of the panel stands under
+    /// the list does the list nod at its own end, which is the answer a list with nothing under it owes.
+    /// </summary>
+    private void StepDownOutOfTunes(Control left)
+    {
+      if (!_osdVisible)
+        SetOsdVisible(true);
+
+      double? across = AcrossTheScreen(left);
+      double? tunesAcross = AcrossTheScreen(audioQueue);
+      List<List<Control>> rows = OsdRows();
+      Control? below = null;
+      double best = double.MaxValue;
+
+      if (across.HasValue && tunesAcross.HasValue)
+      {
+        foreach (List<Control> line in rows)
+        {
+          foreach (Control control in line)
+          {
+            // Only the controls standing under the list - at or right of its middle, the same border the upward
+            // key uses - are a step down from it. Everything left of that border is beside the list, and the way
+            // sideways out of it is the transport's.
+            double? at = AcrossTheScreen(control);
+            if (!at.HasValue || at.Value < tunesAcross.Value)
+              continue;
+
+            double distance = Math.Abs(at.Value - across.Value);
+            if (distance < best)
+            {
+              best = distance;
+              below = control;
+            }
+          }
+        }
+      }
+
+      if (below == null)
+      {
+        BounceTunes(0, 1);
+        return;
+      }
+
+      below.Focus();
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    // How many rows of the tune list the screen has room for.
+    //
+    // The list stands with its foot a fixed distance above the floor and may grow up to a limit near the top of
+    // the screen; between those two lines it wears only the height its rows need. The numbers below are the ones
+    // the panel is built with in NowPlayingView.axaml: the Border's bottom margin of three hundred and twenty two
+    // lines, the top its own bounds may not go over, the heading of sixty six, the row of fifty two lines plus its
+    // two lines of margin above and below, the items' fourteen lines of bottom margin and the panel's two lines of
+    // rim.
+    //
+    // A screen as tall as the picture leaves room for all ten rows the list ever draws, a window of seven hundred
+    // and twenty leaves four, and the tunes that do not fit are a key away down the list rather than painted over
+    // the top of the screen. The record keeps all its tunes either way - the head of the panel still counts them.
+    // ---------------------------------------------------------------------------------------------
+
+    private const double TUNE_LIST_FOOT = 322;
+    private const double TUNE_LIST_TOP = 76;
+    private const double TUNE_LIST_HEADING = 66;
+    private const double TUNE_LIST_ROW = 56;
+    private const double TUNE_LIST_OTHER = 16;
+
+    /// <summary>
+    /// Hand the list the number of rows the current height has room for. Said again on every resize; the view
+    /// model ignores the answer when nothing changed, so a window being dragged about does not rewrite the list
+    /// row by row.
+    /// </summary>
+    private void GiveTheTunesTheirRoom()
+    {
+      double height = Bounds.Height;
+      if (height <= 0)
+        return;
+
+      int rows = (int) ((height - TUNE_LIST_FOOT - TUNE_LIST_TOP - TUNE_LIST_HEADING - TUNE_LIST_OTHER)
+          / TUNE_LIST_ROW);
+      _viewModel.GiveTunesRoom(rows);
+    }
+
     /// <summary>
     /// The panel's controls grouped into the rows they stand in, top row first, each row left to right, with the
     /// controls that are not drawn or cannot take the focus walked over. An empty row is left out, so a film with
@@ -931,8 +1278,8 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private List<List<Control>> OsdRows()
     {
-      List<Control> top = StandingAmong(chapterBackButton, backButton, pauseButton, stopButton,
-          forwardButton, chapterForwardButton);
+      List<Control> top = StandingAmong(shuffleButton, chapterBackButton, backButton, tuneBackButton,
+          pauseButton, stopButton, tuneForwardButton, forwardButton, chapterForwardButton, repeatButton);
       List<Control> middle = StandingAmong(seekBar);
       List<Control> bottom = StandingAmong(subtitleButton, audioButton, volumeButton, fullscreenButton, settingsButton);
 
@@ -1013,6 +1360,24 @@ namespace MediaPortal.Frontend.Views
       if (row < 0)
         return; // the caret stands on none of the panel's controls; the key is the ring's to answer
 
+      double centerX = (stood ?? left)?.Bounds.Center.X ?? 0;
+
+      // Above the right-hand end of the panel there is exactly one thing: the list of tunes, which stands over
+      // the panel's own rows and reaches further right than any button. So a viewer climbing out of the bottom
+      // row's right-hand choices - the loudspeaker, the full screen, the settings - steps into the list rather
+      // than onto the position line under nothing. The list's own middle line is the border, which keeps the
+      // transport buttons (all of which stand left of it) walking the panel as they always did. Measured in the
+      // screen's own lines, because a button's Bounds are reckoned inside its own row and the list does not
+      // share that row's parent.
+      double? acrossTheScreen = AcrossTheScreen(stood ?? left);
+      double? tunesAcrossTheScreen = AcrossTheScreen(audioQueue);
+      if (downward < 0 && TunesStanding() && acrossTheScreen.HasValue && tunesAcrossTheScreen.HasValue
+          && acrossTheScreen.Value >= tunesAcrossTheScreen.Value)
+      {
+        FocusCurrentTune();
+        return;
+      }
+
       int toward = row + downward;
       if (toward < 0 || toward >= rows.Count)
       {
@@ -1020,9 +1385,23 @@ namespace MediaPortal.Frontend.Views
         return;
       }
 
-      double centerX = (stood ?? left)?.Bounds.Center.X ?? 0;
       Control? move = NearestInRow(rows[toward], centerX);
       move?.Focus();
+    }
+
+    /// <summary>
+    /// How far across the screen a control stands, in the screen's own lines and at its middle. A control's
+    /// <c>Bounds</c> are reckoned inside its own parent, and the panel's rows, the panel and the list of tunes do
+    /// not share one parent, so two controls in different parts of the screen cannot be compared by their numbers
+    /// alone - only by the place on the screen a viewer sees. Null for a control that was never laid out.
+    /// </summary>
+    private double? AcrossTheScreen(Visual? control)
+    {
+      if (control == null || control.Bounds.Width <= 0)
+        return null;
+
+      return control.TranslatePoint(
+          new Avalonia.Point(control.Bounds.Width / 2, control.Bounds.Height / 2), this)?.X;
     }
 
     /// <summary>
@@ -1051,6 +1430,15 @@ namespace MediaPortal.Frontend.Views
 
       List<Control> line = rows[row];
       int toward = index + rightward;
+      if (toward >= line.Count && rightward > 0 && row == 0 && TunesStanding())
+      {
+        // Past the last button of the transport row there is exactly one thing further right, and it is not
+        // another button: the list of tunes stands beside the row, so the row walks into it. Every other row is
+        // answerless that way and nods instead - the position line hands its keys back before ever getting here.
+        FocusCurrentTune();
+        return;
+      }
+
       if (toward < 0 || toward >= line.Count)
       {
         BounceOsd(rightward, 0);
@@ -1070,43 +1458,81 @@ namespace MediaPortal.Frontend.Views
     /// <param name="directionY">+1 to lean off the bottom edge, -1 off the top, 0 for a sideways nod.</param>
     private void BounceOsd(int directionX, int directionY)
     {
-      // One nod at a time; a key pressed while the panel is still travelling starts a fresh lean from wherever it
-      // stands, so a viewer leaning on the arrow sees the panel lean with every press.
-      _osdBounceTimer?.Stop();
+      NodPanel(_osdNod, osdArea, directionX, directionY);
+      OsdBounceDiveX = _osdNod.DiveX;
+      OsdBounceDiveY = _osdNod.DiveY;
+    }
 
-      TranslateTransform nod = osdArea.RenderTransform as TranslateTransform;
-      if (nod == null)
+    /// <summary>
+    /// The same nod for the list of tunes, which stands beside the panel rather than inside it and therefore
+    /// leans on its own: a key aimed at a wall gets the same answer from the list the transport gives from
+    /// itself, and the list is the thing that has to say "there is nothing further over here".
+    /// </summary>
+    private void BounceTunes(int directionX, int directionY)
+    {
+      NodPanel(_tunesNod, audioQueue, directionX, directionY);
+      TunesBounceDiveX = _tunesNod.DiveX;
+      TunesBounceDiveY = _tunesNod.DiveY;
+    }
+
+    /// <summary>
+    /// The moving parts of one nod: whichever panel is leaning leans by its own transform and is driven by its
+    /// own timer, so the transport and the list of tunes can nod at the same time without interrupting each
+    /// other. The numbers of the last lean are kept on it so that a test can read what a key was answered with.
+    /// </summary>
+    private sealed class PanelNod
+    {
+      internal TranslateTransform? Transform;
+      internal DispatcherTimer? Timer;
+      internal double DiveX;
+      internal double DiveY;
+    }
+
+    private readonly PanelNod _osdNod = new PanelNod();
+    private readonly PanelNod _tunesNod = new PanelNod();
+
+    /// <summary>
+    /// Lean <paramref name="panel"/> toward an edge and spring it back. One nod at a time per panel; a key
+    /// pressed while the panel is still travelling starts a fresh lean from wherever it stands, so a viewer
+    /// leaning on the arrow sees the panel lean with every press.
+    /// </summary>
+    private static void NodPanel(PanelNod nod, Control panel, int directionX, int directionY)
+    {
+      nod.Timer?.Stop();
+
+      TranslateTransform transform = panel.RenderTransform as TranslateTransform;
+      if (transform == null)
       {
-        nod = new TranslateTransform();
-        osdArea.RenderTransform = nod;
+        transform = new TranslateTransform();
+        panel.RenderTransform = transform;
       }
-      _osdBounceTransform = nod;
+      nod.Transform = transform;
 
       double diveX = directionX * OSD_BOUNCE_DIVE;
       double diveY = directionY * OSD_BOUNCE_DIVE;
-      double fromX = nod.X;
-      double fromY = nod.Y;
+      nod.DiveX = diveX;
+      nod.DiveY = diveY;
+      double fromX = transform.X;
+      double fromY = transform.Y;
       long started = Environment.TickCount64;
-      OsdBounceDiveX = diveX;
-      OsdBounceDiveY = diveY;
 
       DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
       {
         Interval = TimeSpan.FromMilliseconds(16)
       };
-      _osdBounceTimer = timer;
+      nod.Timer = timer;
 
       timer.Tick += delegate
       {
-        if (!ReferenceEquals(_osdBounceTimer, timer))
+        if (!ReferenceEquals(nod.Timer, timer))
           return; // a newer nod drives the panel from here on
 
         long elapsed = Environment.TickCount64 - started;
         if (elapsed >= OSD_BOUNCE_DIVE_MS + OSD_BOUNCE_SPRING_MS)
         {
           timer.Stop();
-          nod.X = 0;
-          nod.Y = 0;
+          transform.X = 0;
+          transform.Y = 0;
           return;
         }
 
@@ -1114,8 +1540,8 @@ namespace MediaPortal.Frontend.Views
         {
           double u = elapsed / (double)OSD_BOUNCE_DIVE_MS;
           double lean = 1 - (1 - u) * (1 - u);
-          nod.X = fromX + (diveX - fromX) * lean;
-          nod.Y = fromY + (diveY - fromY) * lean;
+          transform.X = fromX + (diveX - fromX) * lean;
+          transform.Y = fromY + (diveY - fromY) * lean;
           return;
         }
 
@@ -1123,8 +1549,8 @@ namespace MediaPortal.Frontend.Views
         const double c1 = 1.70158;
         const double c3 = c1 + 1;
         double back = 1 + c3 * Math.Pow(v - 1, 3) + c1 * Math.Pow(v - 1, 2);
-        nod.X = diveX * (1 - back);
-        nod.Y = diveY * (1 - back);
+        transform.X = diveX * (1 - back);
+        transform.Y = diveY * (1 - back);
       };
 
       timer.Start();
@@ -1318,6 +1744,11 @@ namespace MediaPortal.Frontend.Views
         _ = _viewModel.ReadClearArtAsync();
         _ = _viewModel.ReadDiscAsync();
         _ = _viewModel.ReadMediaInfoAsync();
+        // The stage's picture belongs to the tune, not to the visit: opening the next one wipes every picture
+        // the library had said, so this has to ask again here and not only when the screen started following the
+        // playback. Guarded as every one of these reads is, so the tune that is already asked for is not asked
+        // twice and a film is never asked at all.
+        _ = _viewModel.ReadFanartAsync();
       }
       if (_osdVisible)
       {

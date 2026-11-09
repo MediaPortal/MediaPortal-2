@@ -175,6 +175,11 @@ namespace MediaPortal.Frontend.ViewModels
         // from the player itself rather than from this class's own guess.
         DescribeState(player.State, null);
       }
+
+      // The record's queue decides what comes next and asks for it here, because this class is the only thing
+      // allowed to open a media. It is listened to whether or not there is a player, so that a machine without
+      // one still answers its viewer with a refusal rather than with silence.
+      _queue.PlayRequested += OnQueueTuneAsked;
     }
 
     /// <summary>Raised when any of the properties below changed - always through the marshaller.</summary>
@@ -1544,6 +1549,257 @@ namespace MediaPortal.Frontend.ViewModels
       get { return HasMedia && !IsAudio; }
     }
 
+    private readonly AudioQueue _queue = new AudioQueue();
+
+    /// <summary>
+    /// The rows the panel beside the equalizer draws, which is <see cref="AudioQueue.VisibleRows"/> held in a
+    /// collection so that a list on screen is told when the tune moves. The queue itself is asked once per
+    /// change and the collection is rewritten from it; keeping the two in step row by row would be a
+    /// bookkeeping nobody checks, in the same spirit as <see cref="AllProperties"/>.
+    /// </summary>
+    private readonly ObservableCollection<AudioQueueRow> _audioQueueRows =
+        new ObservableCollection<AudioQueueRow>();
+
+    /// <summary>The aspect the record being played came from, kept for every tune of it.</summary>
+    private string? _runAspect;
+
+    /// <summary>
+    /// The tunes that belong to what is playing: the record a song was pressed from, or the list the press
+    /// happened in. Empty when a lone file was opened, when a film is playing, and after the viewer pressed
+    /// stop - which are all the cases in which nothing is waiting behind the current tune.
+    /// </summary>
+    public IReadOnlyList<AudioQueueRow> AudioQueueRows
+    {
+      get { return _audioQueueRows; }
+    }
+
+    /// <summary>
+    /// Whether the list of tunes beside the equalizer has anything to say. One tune is not a list, and a film
+    /// has no list at all, so this is the answer for the panel and for the two marks that walk it.
+    /// </summary>
+    public bool ShowsAudioQueue
+    {
+      get { return IsAudio && _queue.ShowsList; }
+    }
+
+    /// <summary>
+    /// Where in the record the player stands, "3 / 12", said at the head of the panel.
+    /// </summary>
+    public string AudioQueuePosition
+    {
+      get { return _queue.PositionWords; }
+    }
+
+    /// <summary>
+    /// The name of the record the tunes belong to, at the head of the panel: the heading of the shelf the press
+    /// came out of, which for a shelf opened out of a title is that title's own name. Empty when nothing named a
+    /// record, which leaves the head of the panel to the count alone.
+    /// </summary>
+    public string AudioQueueRecord
+    {
+      get { return _queueRecord ?? string.Empty; }
+    }
+
+    private string? _queueRecord;
+
+    /// <summary>Whether the shuffle mark is lit.</summary>
+    public bool AudioQueueShuffled
+    {
+      get { return _queue.Shuffled; }
+    }
+
+    /// <summary>Whether the record starts again after its last tune.</summary>
+    public bool AudioQueueGoesOn
+    {
+      get { return _queue.GoesOn; }
+    }
+
+    /// <summary>
+    /// Whether a tune is waiting behind the one that plays. Whoever decides whether the screen steps aside at
+    /// the end of a tune asks this: the reference's "close the player when it is finished" (MediaModelSettings'
+    /// DEFAULT_CLOSE_PLAYER_WHEN_FINISHED) was written for a film that really is over, and a record that is
+    /// only halfway through plays on behind whatever screen is on top of it.
+    /// </summary>
+    public bool AudioQueuePlaysOn
+    {
+      get { return _queue.PlaysOn; }
+    }
+
+    /// <summary>Whether the repeat mark is lit at all: anything but "nothing after the last tune".</summary>
+    public bool AudioQueueRepeats
+    {
+      get { return _queue.Repeat != AudioRepeat.None; }
+    }
+
+    /// <summary>Whether this tune alone is the whole of the repeat.</summary>
+    public bool AudioQueueRepeatsOne
+    {
+      get { return _queue.Repeat == AudioRepeat.One; }
+    }
+
+    /// <summary>The repeat mark's answer in words, for the status line and for a screen read aloud.</summary>
+    public string RepeatCaption
+    {
+      get
+      {
+        switch (_queue.Repeat)
+        {
+          case AudioRepeat.All: return "Repeat: all tunes";
+          case AudioRepeat.One: return "Repeat: this tune";
+          default: return "Repeat: off";
+        }
+      }
+    }
+
+    /// <summary>
+    /// Take the tunes a viewer pressed their way into, so that the marks and the panel know what comes next.
+    /// <paramref name="at"/> is the row they pressed; the ones before it stay, because a viewer who opened the
+    /// fourth tune of a record wants to see that three went before it.
+    /// </summary>
+    /// <param name="titles">The shelf the press happened in, in the order the library named it.</param>
+    /// <param name="at">Which of those rows was pressed.</param>
+    /// <param name="aspect">The shelf's aspect, kept for every tune walked from here.</param>
+    /// <param name="record">The name of the record the shelf belongs to, for the head of the panel.</param>
+    public void LoadAudioQueue(IEnumerable<TitleViewModel>? titles, int at, string? aspect, string? record = null)
+    {
+      _runAspect = aspect;
+      _queueRecord = record;
+      if (titles == null || !_queue.Load(titles, at))
+        _queue.Clear();
+
+      ShowQueue();
+
+      ReadTuneLengths();
+    }
+
+    /// <summary>
+    /// Ask the library how long each tune of the record is. Started rather than waited for, because the shelf
+    /// the rows came from carries no lengths - the server writes one only on a title's own answer - and a
+    /// panel that filled its minutes in a moment after drawing the names is a panel that works, while one that
+    /// waited on twelve questions before drawing anything looks stuck.
+    /// </summary>
+    private void ReadTuneLengths()
+    {
+      Func<Guid, Task<MediaItemDetails>>? reader = DetailsReader;
+      if (reader != null)
+        _ = _queue.ReadLengthsAsync(reader);
+    }
+
+    /// <summary>Let go of the record. Called when the viewer stops the player, and when a film opens.</summary>
+    public void ClearAudioQueue()
+    {
+      _queue.Clear();
+      _runAspect = null;
+      _queueRecord = null;
+      ShowQueue();
+    }
+
+    /// <summary>
+    /// Pressing the shuffle mark: the tune that is playing keeps playing, and only what follows it is put in
+    /// a different order.
+    /// </summary>
+    public void ToggleShuffle()
+    {
+      _queue.Shuffled = !_queue.Shuffled;
+      _statusLine = _queue.Shuffled
+          ? "The rest of the record plays in a different order."
+          : "The record plays in its own order again.";
+      ShowQueue();
+    }
+
+    /// <summary>
+    /// Pressing the repeat mark walks its three answers: nothing after the last tune, the record again, and
+    /// this tune for ever.
+    /// </summary>
+    public void CycleRepeat()
+    {
+      _queue.Repeat = _queue.Repeat == AudioRepeat.None
+          ? AudioRepeat.All
+          : _queue.Repeat == AudioRepeat.All ? AudioRepeat.One : AudioRepeat.None;
+      _statusLine = RepeatCaption;
+      ShowQueue();
+    }
+
+    /// <summary>
+    /// On to the next tune of the record. False when there is none to go to, which lets the caller say
+    /// something rather than pretend the mark did something.
+    /// </summary>
+    public bool NextTune()
+    {
+      if (!_queue.Next(true))
+        return Refuse("this is the last tune of the record.");
+      return true;
+    }
+
+    /// <summary>
+    /// Back to the tune before this one, or to the top of this one when there is nothing before it - which is
+    /// what a back mark has always done at the beginning.
+    /// </summary>
+    public bool PreviousTune()
+    {
+      return _queue.Previous();
+    }
+
+    /// <summary>A row of the panel was pressed. The rows shown are the queue's own, so the number is its number.</summary>
+    public bool PlayQueuedTune(int at)
+    {
+      return _queue.PlayAt(at) ? true : Refuse("that tune is not in the list.");
+    }
+
+    /// <summary>
+    /// The queue asks for one of its tunes. It is opened exactly like a press in the library - through
+    /// <see cref="Play(MediaLocation, Guid?, int, string?)"/> - and a tune that will not open leaves the queue
+    /// rather than stopping it, which is the bargain the party's queue has always kept.
+    /// </summary>
+    private void OnQueueTuneAsked(object? sender, AudioQueueRow row)
+    {
+      _marshal(delegate
+      {
+        MediaLocation? location = row.Title.PlaybackLocation;
+        if (location == null)
+        {
+          _queue.Refused(row.Title.Title.Id);
+          return;
+        }
+
+        // The shelf's name and the singer travel with the tune, because opening a media clears both: without
+        // this the second tune of a record lands on a screen that has forgotten it is showing music.
+        string? aspect = _runAspect;
+        if (!Play(location.Value, row.Title.Title.Id, 0, row.Name))
+        {
+          _queue.Refused(row.Title.Title.Id);
+          return;
+        }
+
+        PlayingAspect = aspect;
+        PlayingArtist = row.Title.Artist;
+      });
+    }
+
+    /// <summary>Put the rows the queue has room for on the screen, and tell the bindings to read again.</summary>
+    /// <summary>
+    /// Tell the list how many rows the screen has room for. The list stands with its foot a fixed distance above
+    /// the floor, so the height of the window decides how many tunes fit between that foot and the top of the
+    /// screen; the record itself keeps all its tunes and the head of the panel keeps its count either way.
+    /// </summary>
+    public void GiveTunesRoom(int slots)
+    {
+      int room = Math.Max(1, Math.Min(AudioQueue.SLOTS, slots));
+      if (_queue.Slots == room)
+        return;
+
+      _queue.Slots = room;
+      ShowQueue();
+    }
+
+    private void ShowQueue()
+    {
+      _audioQueueRows.Clear();
+      foreach (AudioQueueRow row in _queue.VisibleRows)
+        _audioQueueRows.Add(row);
+      Raise();
+    }
+
     /// <summary>
     /// Whether the title's lettering stands by the transport. The audio arrangement wears its own picture where
     /// the lettering stands - the cover, four hundred and twenty lines square - and a name drawn twice within a
@@ -1552,6 +1808,18 @@ namespace MediaPortal.Frontend.ViewModels
     public bool ShowsClearArt
     {
       get { return _clearArt != null && !IsAudio; }
+    }
+
+    /// <summary>
+    /// Whether the record's lettering stands over the row of boxes on the left of the audio stage. The same
+    /// picture as <see cref="ShowsClearArt"/>, in the one place of the audio arrangement that is far enough from
+    /// the name under the transport to be read once rather than twice: over the boxes, on the cover's left line.
+    /// A library that carries no clearart.png and no clearlogo.png for the record draws nothing, as it never drew
+    /// the lettering either.
+    /// </summary>
+    public bool ShowsAudioClearArt
+    {
+      get { return _clearArt != null && IsAudio; }
     }
 
     /// <summary>
@@ -2038,6 +2306,9 @@ namespace MediaPortal.Frontend.ViewModels
         return Refuse(_player.LastFailure ?? "the player gave no reason.");
 
       Report(_mediaItemId, reached);
+      // Whoever pressed stop ended the record, not just this tune: nothing after it is waiting any more, so the
+      // list beside the equalizer and the two marks that walk it have nothing left to say.
+      ClearAudioQueue();
       return true;
     }
 
@@ -2349,6 +2620,14 @@ namespace MediaPortal.Frontend.ViewModels
         // ran out of stream, and not the last position, which after the credits is the end of a file rather than
         // the end of a film the viewer watched.
         Report(_mediaItemId, 100, engineEnded: true);
+
+        // A tune that ran out is the end of a tune, not of the record it came from. The queue is the only thing
+        // that knows whether anything follows - it stands empty for a film and for a lone file - and it answers
+        // with the tune it wants opened, which arrives back here through its own request.
+        Guid? ended = _mediaItemId;
+        if (ended != null)
+          _queue.Finished(ended.Value);
+
         Raise();
       });
     }

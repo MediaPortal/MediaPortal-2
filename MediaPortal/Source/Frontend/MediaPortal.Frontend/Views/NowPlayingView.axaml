@@ -277,6 +277,47 @@
       <Setter Property="Background" Value="#42618CB8"/>
       <Setter Property="BorderBrush" Value="#80FFFFFF"/>
     </Style>
+    <!-- The tune that is playing wears the tunes' own inversion: a white plate with its words in black. Every
+         other row of that list is a hole cut in the shade of the panel, so the one row that names what the room
+         is hearing is the brightest thing beside the equalizer and needs no second mark. Only the tunes wear
+         this - the pickers of sound and subtitles keep the lit row they have always had. The plate carries no rim
+         of its own: a rim belongs to the caret, and the caret belongs to the ring, so a row that merely plays
+         stands edge to edge on the shade. Where the ring (or a hand) does stand on it, the caret is the one dark
+         rim in the program - a white ring on a white plate is no mark at all - and the words have to be said in
+         black by the face itself, because the theme dresses a focused button's face in the screen's white, which
+         on a white plate is a word nobody can read. -->
+    <Style Selector="Button.choice.tune.current">
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="#FF000000"/>
+    </Style>
+    <Style Selector="Button.choice.tune.current:focus">
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="BorderBrush" Value="#B3000000"/>
+      <Setter Property="BorderThickness" Value="3"/>
+      <Setter Property="Foreground" Value="#FF000000"/>
+    </Style>
+    <Style Selector="Button.choice.tune.current:focus /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="#FF000000"/>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.choice.tune.current:pointerover">
+      <Setter Property="Background" Value="#FFFFFFFF"/>
+      <Setter Property="BorderBrush" Value="#B3000000"/>
+      <Setter Property="BorderThickness" Value="3"/>
+      <Setter Property="Foreground" Value="#FF000000"/>
+    </Style>
+    <Style Selector="Window:not(.pointer-resting) Button.choice.tune.current:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="#FF000000"/>
+    </Style>
+    <!-- The card the tunes stand on glows while the caret stands inside it, with the one glow this screen's glass
+         knows: twenty two of blur and four of spread in white at forty five per cent, which is what a plate of the
+         transport wears the moment a hand or a ring is on it (PlayerGlassStyles.axaml:136,139). Reaching some
+         fifteen lines out, it stays well inside the card's own margins - sixty two lines to the right edge of the
+         screen, three hundred and twenty two to its foot - so no part of it is cut. Only a walk of the viewer's own
+         can bring it here, since a row offers no place for the caret until StandOnTune opens one. -->
+    <Style Selector="Border#audioQueue:focus-within">
+      <Setter Property="BoxShadow" Value="0 0 22 4 #73FFFFFF"/>
+    </Style>
     <!-- The fill of the position line is white in both its states, not the theme's turquoise: a played part of a
          film reads as a clean white mark over the line. At rest it stands at three quarters strength, and where a
          viewer stands on the line it comes up to full white, so the line answers the caret by brightening rather
@@ -287,6 +328,33 @@
     </Style>
     <Style Selector="Button.seek:focus ProgressBar#progressBar">
       <Setter Property="Foreground" Value="#FFFFFFFF"/>
+    </Style>
+
+    <!-- WHERE THE SOUND AND THE WORDS STAND, and where they stand once the record's list is drawn beside them.
+         Both the bars and the three words of the record begin on the cover's middle axis, at seven hundred and
+         two, and both used to run to the screen's standing right margin of sixty-two. When the list of tunes is
+         drawn - which is whenever a record plays and never otherwise - the bars stop twenty four lines before
+         the list begins, and the two words that can be as long as a record's title break into their second line
+         earlier rather than running under it. These four rules are here rather than numbers on the controls
+         because the room a control has is the stage's business, and the stage is the only thing that knows
+         whether the list is standing there. -->
+    <Style Selector="views|AudioSpectrumBars">
+      <Setter Property="Margin" Value="702,0,62,322"/>
+    </Style>
+    <Style Selector="Panel#audioArea.squeezed views|AudioSpectrumBars">
+      <!-- Sixty-two of standing margin, four hundred and forty-six of list, and the twenty four of air between
+           them: the same three numbers the list is placed by. -->
+      <Setter Property="Margin" Value="702,0,532,322"/>
+    </Style>
+    <!-- At the full width a word wraps at five hundred and twenty, the width the table of the template measured.
+         Squeezed, the six hundred and eighty-six lines between the bars' first bar and the list have to hold the
+         year and the two gaps of forty-five as well, which leaves two hundred and sixty for each of the two words
+         that wrap. -->
+    <Style Selector="StackPanel#audioTable TextBlock.wrapping">
+      <Setter Property="MaxWidth" Value="520"/>
+    </Style>
+    <Style Selector="Panel#audioArea.squeezed StackPanel#audioTable TextBlock.wrapping">
+      <Setter Property="MaxWidth" Value="260"/>
     </Style>
   </UserControl.Styles>
 
@@ -383,7 +451,8 @@
       no stars; no album on the tag, no cell for one. A control that answers nothing is worse than the space it
       would stand in, and that rule was written for the film's panel.
     -->
-    <Panel Name="audioArea" IsVisible="{Binding IsAudio}" IsHitTestVisible="False">
+    <Panel Name="audioArea" IsVisible="{Binding IsAudio}" IsHitTestVisible="False"
+           Classes.squeezed="{Binding ShowsAudioQueue}">
       <!--
         The first layer is the album's own picture across the whole stage, as the mockup lays it (its
         <c>.fanart</c> is the stage's first child) and as the reference's audio screen had it
@@ -481,6 +550,25 @@
         out. Where the skin carries a picture of the answer, the picture is drawn; where it carries none, the word
         stands in the same box, which is what SkinImageMissingConverter exists for.
       -->
+      <!--
+        The record's own lettering, drawn as a picture and not as type: what a media manager leaves beside the
+        files as clearart.png or clearlogo.png. It stands over the row of boxes, on the same left line the cover
+        and the boxes stand on, and takes only the room the picture needs - the reference's own measure for this
+        picture is two hundred and fifty wide by a hundred and twenty high (CurrentlyPlayingAudioDetails.inc),
+        which is what it is capped at here. Most libraries carry none, and the row of boxes then simply stands
+        higher up the screen's left edge, which is the ordinary answer rather than a complaint.
+
+        It is asked for under the tune's own id: the server's walk through the album's folder answers ClearArt and
+        Logo for a track too (LocalFanArtSearch.KINDS), and the importer files both names from the album's folder
+        (AudioTagFanArtHandler.ExtractAlbumFolderCover). A library that filed its lettering under "Logo" only is
+        answered by the second question the reader asks, exactly as the browser's album panel is.
+      -->
+      <Image Name="audioClearArt" MaxWidth="250" MaxHeight="120" Stretch="Uniform"
+             HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="62,0,0,750"
+             Source="{Binding ClearArt, Converter={x:Static views:ArtworkConverter.Instance},
+                              ConverterParameter=small}"
+             IsVisible="{Binding ShowsAudioClearArt}"/>
+
       <StackPanel Orientation="Horizontal" Spacing="10"
                   IsVisible="{Binding ShowsAudioPlaques}"
                   Margin="62,0,0,682" HorizontalAlignment="Left" VerticalAlignment="Bottom">
@@ -525,8 +613,7 @@
         (VisualSpectrumTap.cs).
       -->
       <views:AudioSpectrumBars Name="audioSpectrum" Source="{Binding Spectrum}" Bands="{Binding BandSpectrum}"
-                               Height="300"
-                               Margin="702,0,62,322" VerticalAlignment="Bottom"/>
+                               Height="300" VerticalAlignment="Bottom"/>
 
       <!--
         What the library knows about the title, beginning flush with where the equalizer will stand (the cover's
@@ -564,11 +651,11 @@
              long album is worth a second line rather than a name with three dots behind it. The padding and the
              matching negative margin are the shadow's ground - see the shadows in the resources - and keep the
              lettering on the lines the template measured. -->
-        <StackPanel Orientation="Horizontal" Spacing="45">
+        <StackPanel Name="audioTable" Orientation="Horizontal" Spacing="45">
           <StackPanel Spacing="15"
                       IsVisible="{Binding AlbumName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-            <TextBlock Text="{Binding AlbumName}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"
-                       TextWrapping="Wrap" MaxWidth="520" Effect="{StaticResource audioValueShadow}"
+            <TextBlock Text="{Binding AlbumName}" Classes.wrapping="True" FontSize="33" FontWeight="Bold"
+                       Foreground="#FFFFFFFF" TextWrapping="Wrap" Effect="{StaticResource audioValueShadow}"
                        Padding="10,6,10,12" Margin="-10,-6,-10,-12"/>
             <TextBlock Text="Album" FontSize="20" Foreground="#99FFFFFF"
                        Effect="{StaticResource audioLabelShadow}" Padding="7,4,7,9" Margin="-7,-4,-7,-9"/>
@@ -582,8 +669,8 @@
           </StackPanel>
           <StackPanel Spacing="15"
                       IsVisible="{Binding GenreName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-            <TextBlock Text="{Binding GenreName}" FontSize="33" FontWeight="Bold" Foreground="#FFFFFFFF"
-                       TextWrapping="Wrap" MaxWidth="520" Effect="{StaticResource audioValueShadow}"
+            <TextBlock Text="{Binding GenreName}" Classes.wrapping="True" FontSize="33" FontWeight="Bold"
+                       Foreground="#FFFFFFFF" TextWrapping="Wrap" Effect="{StaticResource audioValueShadow}"
                        Padding="10,6,10,12" Margin="-10,-6,-10,-12"/>
             <TextBlock Text="Genre" FontSize="20" Foreground="#99FFFFFF"
                        Effect="{StaticResource audioLabelShadow}" Padding="7,4,7,9" Margin="-7,-4,-7,-9"/>
@@ -591,6 +678,73 @@
         </StackPanel>
       </StackPanel>
     </Panel>
+
+    <!--
+      The record's own tunes, standing in the room the equalizer gives up. A song is a piece of a record, and the
+      record is the thing a viewer chose: the list says what has been heard, what is coming, and where in it the
+      player stands - which is also the only way a viewer finds out that a queue exists at all without waiting for
+      the first tune to end.
+
+      It is drawn whenever a record plays and never otherwise, so it carries no door of its own: a panel that is
+      always there does not need a handle. The rows are the same rows the subtitle picker uses (Button.choice,
+      the row the film is on lit), because "the one we are on" is one idiom in this program and not two. A press
+      on a row plays that tune.
+
+      The card, its corner and its rim are the cover's numbers - twenty of corner, the plate white at a fifth of
+      its strength - over a ground of the black this screen's own shade wears at three eighths, so the words stay
+      readable over a bright fanart without covering it with a second panel. Thirty-two lines of the screen's
+      standing margin keep it off the right edge, and its foot stands on the line the equalizer's foot stands on,
+      three hundred and twenty two above the floor.
+
+      What the viewer drew round it is a maximum and not a shape: the list may reach from seventy six lines under
+      the top of the screen down to two hundred and twenty three above the floor, but it only ever wears the height
+      its rows need. Ten rows on a screen as tall as the picture, four in a window of seven hundred and twenty, and
+      the rows that do not fit are a key away rather than painted over the edge.
+    -->
+    <Border Name="audioQueue" Width="446" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+            Margin="0,0,62,322" Background="#4D000000" BorderBrush="#33FFFFFF" BorderThickness="1"
+            CornerRadius="20" IsVisible="{Binding ShowsAudioQueue}">
+      <StackPanel>
+        <Grid Height="66" ColumnDefinitions="*,Auto" Margin="20,0">
+          <TextBlock Grid.Column="0" Text="{Binding AudioQueueRecord}" FontSize="22" FontWeight="Bold"
+                     Foreground="#FFFFFFFF" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                     AutomationProperties.Name="Which record is playing"/>
+          <TextBlock Grid.Column="1" Text="{Binding AudioQueuePosition}" FontSize="20" Opacity="0.6"
+                     Foreground="#FFFFFFFF" VerticalAlignment="Center" Margin="12,0,0,0"
+                     AutomationProperties.Name="Where in the record the player stands"/>
+        </Grid>
+        <ItemsControl Name="audioQueueRows" ItemsSource="{Binding AudioQueueRows}" Margin="12,0,12,14">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:AudioQueueRow">
+              <!-- No place for the caret until the viewer walks in (StandOnTune opens a row). The list is drawn
+                   from the first second of a record and is the first thing on this whole screen a caret could stand
+                   on, so an open row would take the window's very first focus - and the tune that plays would wear
+                   a dark caret the whole record through with nobody pointing at it. A click still answers: a row is
+                   pressed, not stood on.
+
+                   The padding is two lines tighter than the picker rows wear (eighteen and ten, against eighteen and
+                   twelve) because a row under the caret pays three lines of rim to the side instead of one: that is
+                   taken out of the padding and not out of the card, which would otherwise grow four lines and push
+                   the whole list up the screen every time the caret walked in. Ten rows of fifty two lines plus four
+                   of margin are what the fit in the code behind counts. -->
+              <Button Classes="choice" Classes.tune="True" Classes.current="{Binding IsCurrent}"
+                      Focusable="False" Click="OnQueueRow" Margin="0,2" Padding="18,10"
+                      HorizontalContentAlignment="Stretch"
+                      AutomationProperties.Name="{Binding Spoken}">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"
+                             TextTrimming="CharacterEllipsis"/>
+                  <!-- The tune's minutes, which the shelf never carried and the library answers one tune at a
+                       time. A tune nobody wrote a length for stands empty rather than at "0:00". -->
+                  <TextBlock Grid.Column="1" Text="{Binding LengthWords}" VerticalAlignment="Center" Opacity="0.6"
+                             Margin="12,0,2,0"/>
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
 
     <!--
       The display a viewer calls over a film: one glass panel along the foot of the picture, three rows tall,
@@ -624,12 +778,27 @@
       price no band of shade asks: a gradient is two colours and a line.
     -->
     <Panel Name="osdArea" VerticalAlignment="Bottom" IsVisible="False">
-      <Panel.Background>
-        <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
-          <GradientStop Offset="0" Color="#CC000000"/>
-          <GradientStop Offset="1" Color="#00000000"/>
-        </LinearGradientBrush>
-      </Panel.Background>
+      <!--
+        The shade is drawn by a band that asks for no clicks of its own. Worn as the panel's own background it was
+        never painted at all - a Panel's background is not drawn here - and it swallowed every press falling
+        anywhere inside its height, which is exactly where the record's tune list stands. The band paints the two
+        colours the row was always described with and lets the press through to whatever stands behind it: the
+        panel's own controls take the press for themselves as they always did, and the view's "a click calls the
+        display" question is asked of the whole screen and not of this band.
+
+        It is a band over a picture, so a song does not wear it. The audio arrangement already rises out of one
+        gradient of its own along the whole stage - black at the foot, a tenth of a lid at the top - and the row
+        stands inside that gradient by design; a second shade over the cover's lower third and over the bars was
+        measured and struck out with the mockup.
+      -->
+      <Border IsHitTestVisible="False" IsVisible="{Binding !IsAudio}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0%,100%" EndPoint="0%,0%">
+            <GradientStop Offset="0" Color="#CC000000"/>
+            <GradientStop Offset="1" Color="#00000000"/>
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
       <StackPanel Margin="62,120,62,15" Spacing="0">
 
         <!--
@@ -663,6 +832,20 @@
               often as there is somewhere to jump, which is the same answer the marks on the line and the two
               pickers of tracks already give.
             -->
+            <!--
+              The two marks of a record stand at the two ends of the row, outside everything else, because they
+              are not steps through the tune but rules for the whole record: what order the rest of it plays in,
+              and whether it ends at all. Both are drawn only while a record is playing - a lone file and a film
+              have no "rest of it" to order, and a mark that can only ever refuse is the promise the file never
+              made. Their skin pictures are the two the viewer chose; a mark that is on wears the lit plate.
+            -->
+            <Button Classes="glass icon" Name="shuffleButton" Click="OnShuffle"
+                    Classes.lit="{Binding AudioQueueShuffled}"
+                    IsVisible="{Binding ShowsAudioQueue}"
+                    AutomationProperties.Name="Play the record in a different order">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='PlayerControl/shuffle'}"/>
+            </Button>
             <Button Classes="glass icon" Name="chapterBackButton" Click="OnChapterBack"
                     IsVisible="{Binding CanChapterBack}"
                     AutomationProperties.Name="Previous chapter">
@@ -674,6 +857,17 @@
                     AutomationProperties.Name="{Binding SkipBackCaption}">
               <Path Data="{Binding SkipBackGlyph,
                           Converter={x:Static views:SkinIconGeometryConverter.Instance}}"/>
+            </Button>
+            <!-- The step of a whole tune, next to the step of half a minute. The two belong beside each other and
+                 wear the same two pictures the film's chapter jumps wear, because they are the same kind of thing
+                 - the mark before this one - asked of a different thing: a song's chapters are its tunes, and a
+                 song has no others. Only a record offers the step; for a film the row keeps the marks the file can
+                 answer. -->
+            <Button Classes="glass icon" Name="tuneBackButton" Click="OnTuneBack"
+                    IsVisible="{Binding ShowsAudioQueue}"
+                    AutomationProperties.Name="Previous tune">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='PlayerControl/previous'}"/>
             </Button>
             <Button Classes="glass transport" Name="pauseButton" Click="OnPause"
                     IsVisible="{Binding CanTransport}"
@@ -690,6 +884,12 @@
               <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                       ConverterParameter='PlayerControl/stop'}"/>
             </Button>
+            <Button Classes="glass icon" Name="tuneForwardButton" Click="OnTuneForward"
+                    IsVisible="{Binding ShowsAudioQueue}"
+                    AutomationProperties.Name="Next tune">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='PlayerControl/next'}"/>
+            </Button>
             <Button Classes="glass icon" Name="forwardButton" Click="OnForward"
                     IsVisible="{Binding CanTransport}"
                     AutomationProperties.Name="{Binding SkipForwardCaption}">
@@ -701,6 +901,23 @@
                     AutomationProperties.Name="Next chapter">
               <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                       ConverterParameter='PlayerControl/next'}"/>
+            </Button>
+            <!-- The third answer of this mark is the same two arrows with a one beside them, because the skin
+                 carries no third picture and inventing a glyph of the same weight by hand would be a mark nobody
+                 recognising a record's tune. The one stands in the mark's empty lower right corner, which the
+                 arrows leave to it, in the same white the glyph wears. -->
+            <Button Classes="glass icon" Name="repeatButton" Click="OnRepeat"
+                    Classes.lit="{Binding AudioQueueRepeats}"
+                    IsVisible="{Binding ShowsAudioQueue}"
+                    AutomationProperties.Name="{Binding RepeatCaption}">
+              <Panel>
+                <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                        ConverterParameter='PlayerControl/repeat'}"/>
+                <TextBlock Text="1" FontSize="15" FontWeight="Bold" IsHitTestVisible="False"
+                           Foreground="{DynamicResource ButtonTextBrush}"
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-1,-3"
+                           IsVisible="{Binding AudioQueueRepeatsOne}"/>
+              </Panel>
             </Button>
           </StackPanel>
         </Grid>

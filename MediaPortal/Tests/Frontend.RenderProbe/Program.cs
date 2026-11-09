@@ -92,7 +92,18 @@ namespace FrontendProbe
         "                   shows the resting floor and not a made-up spectrum\n" +
         "  --osd          put the on-screen display up before the frame is taken. The screen opens with the\n" +
         "                   display away - the film begins alone, and the row waits for a key - so without this\n" +
-        "                   the captured frame has no button row in it, film or song";
+        "                   the captured frame has no button row in it, film or song\n" +
+        "  --album <n>    with --audio: the song was pressed out of a record holding n tunes, so the frame shows\n" +
+        "                   the record's own list beside the equalizer and the bars squeezed to the room that is\n" +
+        "                   left. The tunes are invented names over files nobody opens, standing in for the shelf\n" +
+        "                   the press would have come out of\n" +
+        "  --tunes [n]    with --album: walk the caret into that list first, over the last button of the transport\n" +
+        "                   row, the way the remote does it - the frame then shows the list the caret stands in,\n" +
+        "                   glowing as it glows while a tune of it holds the caret. The number after the flag is\n" +
+        "                   the number of downward keys pressed after the walk, which is how the caret is put at\n" +
+        "                   the list's bottom end or, one key further, on the choice standing under it\n" +
+        "  --shuffle      with --album: the tunes are walked in the shuffled order, which is how the frame shows\n" +
+        "                   the two switches that remember a wish standing lit";
 
     /// <summary>
     /// Runs the probe. Exit codes: <c>0</c> a frame with real content was rendered and written, <c>1</c> the
@@ -111,6 +122,10 @@ namespace FrontendProbe
       bool noPictures = false;
       bool noSpectrum = false;
       bool osd = false;
+      bool caretInTunes = false;
+      int tuneSteps = 0;
+    int albumTunes = 0;
+      bool shuffled = false;
       int width = 1280;
       int height = 720;
 
@@ -158,6 +173,23 @@ namespace FrontendProbe
           case "--osd":
             osd = true;
             break;
+          case "--tunes":
+            caretInTunes = true;
+            // An optional number after the flag is the number of downward keys pressed after the walk in, which is
+            // how a frame is asked for the caret at the list's bottom end - or for the step out of it.
+            if (i + 1 < args.Length && int.TryParse(args[i + 1], out int steps) && steps >= 0)
+            {
+              tuneSteps = steps;
+              i++;
+            }
+            break;
+          case "--album":
+            if (i + 1 >= args.Length || !int.TryParse(args[++i], out albumTunes) || albumTunes < 2)
+              return Usage("--album needs a number of tunes of at least two.");
+            break;
+          case "--shuffle":
+            shuffled = true;
+            break;
           case "--width":
             if (i + 1 >= args.Length || !int.TryParse(args[++i], out width))
               return Usage("--width needs a number.");
@@ -181,6 +213,8 @@ namespace FrontendProbe
         return Usage("a window below 100x100 would not prove anything about rendering.");
       if (audio && !screenName.Equals("nowplaying", StringComparison.Ordinal))
         return Usage("--audio belongs to the playback screen; the other screens have no audio arrangement.");
+      if (caretInTunes && !audio)
+        return Usage("--tunes walks the caret into the list of tunes, which only the audio arrangement has.");
 
       // A frame has to mean the same thing on every machine, and a shelf's shape is read from the viewer's own
       // skin settings when it opens. Those settings belong to the viewer, not to a gate frame - so the probe
@@ -322,6 +356,7 @@ namespace FrontendProbe
       Func<bool>? audioReady = null;
       Action? audioParts = null;
       Action? audioSettle = null;
+      Action? audioWalk = null;
 
       if (screenName.Equals("nowplaying", StringComparison.Ordinal))
       {
@@ -372,6 +407,17 @@ namespace FrontendProbe
                 ? null
                 : SolidPictureOfSize(new[] { 118, 122, 132 }, 432, 432));
           };
+          // The record's lettering, so that the frame shows where the picture stands over the row of boxes. A wide
+          // one on purpose - two hundred and fifty-six by ninety-six is what the server's 'small' copy of a
+          // clearlogo answers at, and the cap the screen paints it under is two hundred and fifty wide, so the
+          // width is the bound that decides and the picture lands narrower than its own height allows. Under
+          // '--nopictures' the library carries none, which is the case most libraries are in.
+          playback.ClearArtReader = delegate (Guid asked)
+          {
+            return Task.FromResult<byte[]?>(noPictures
+                ? null
+                : SolidPictureOfSize(new[] { 60, 200, 90 }, 256, 96));
+          };
           // The picture the stage stands on, asked at the width the stage is painted at. Under '--nopictures' the
           // library keeps none, exactly as most libraries do, and the stage then wears its shade alone.
           playback.FanartReader = delegate (Guid asked)
@@ -392,6 +438,33 @@ namespace FrontendProbe
           // '--real' is the case of a library whose answer about the title holds no artist: the name the song was
           // pressed by is then the only name the screen has, and it has to be enough for the line under the title.
           playback.PlayingArtist = realSong ? "David Guetta" : "Binh";
+
+          // The record the song was pressed out of, for the frames that are meant to show its list. The rows are
+          // the shelf a press would have come out of - the same rows the application hands the screen - over
+          // files nobody opens here, and the tune stood as the pressed one is the third so that the list has
+          // tunes on both sides of it and the panel has to show which way it is walking.
+          if (albumTunes > 0)
+          {
+            List<TitleViewModel> shelf = new List<TitleViewModel>();
+            for (int tune = 1; tune <= albumTunes; tune++)
+            {
+              string number = tune.ToString(System.Globalization.CultureInfo.InvariantCulture);
+              // Named the way the library names a track - "{record}: {number} - {name}"
+              // (MediaManagement/Helpers/TrackInfo.cs:305 with the format string at line 59) - so that a frame
+              // shows whether the list prints the tune or the whole prefixed string.
+              shelf.Add(new TitleViewModel(new MediaTitle(Guid.NewGuid(),
+                  "Nightglass: " + number + " - Tune " + number,
+                  null, 2019, null,
+                  "file:///D:/Musik/" + tune.ToString("00", System.Globalization.CultureInfo.InvariantCulture)
+                      + ".mp3", false, Track: tune)));
+            }
+            playback.LoadAudioQueue(shelf, Math.Min(2, shelf.Count - 1), "AudioItem", "Nightglass");
+
+            // The lit answer of the two switches that remember a wish: asked, so the frame shows what "on" looks
+            // like in this row - the plate a third white and the glyph behind eight lines of glow.
+            if (shuffled)
+              playback.ToggleShuffle();
+          }
         }
         else
         {
@@ -446,6 +519,40 @@ namespace FrontendProbe
               part.InvalidateVisual();
           };
 
+          if (caretInTunes)
+          {
+            // The frame wanted is the list with the caret standing inside it. The step taken is the remote's own -
+            // onto the last button of the transport row and across its end - because a row of the list is no place
+            // for a caret until that walk opens one, and the walk itself is what the frame is meant to show.
+            audioWalk = delegate
+            {
+              Button endOfTransport = playView.GetVisualDescendants().OfType<Button>()
+                  .First(button => button.Name == "repeatButton");
+              endOfTransport.Focus();
+              Pump(TimeSpan.FromMilliseconds(50));
+              endOfTransport.RaiseEvent(new KeyEventArgs
+              {
+                RoutedEvent = InputElement.KeyDownEvent,
+                Key = Key.Right,
+                Source = endOfTransport
+              });
+              Pump(TimeSpan.FromMilliseconds(250));
+
+              // And the keys the frame asked for after the walk, which is how the caret is put at the list's bottom
+              // end or - one key further - on the choice standing under the list.
+              for (int step = 0; step < tuneSteps; step++)
+              {
+                playView.RaiseEvent(new KeyEventArgs
+                {
+                  RoutedEvent = InputElement.KeyDownEvent,
+                  Key = Key.Down,
+                  Source = playView
+                });
+                Pump(TimeSpan.FromMilliseconds(120));
+              }
+            };
+          }
+
           audioParts = delegate
           {
             foreach (Visual part in playView.GetVisualDescendants())
@@ -468,12 +575,50 @@ namespace FrontendProbe
                     + (wanted > words.Bounds.Width + 0.5 ? " ABGESCHNITTEN" : ""));
               }
 
+              if (part is Control control
+                  && control.Classes.Contains("tune") && control.Classes.Contains("current")
+                  && control is Button tune)
+              {
+                // Where the caret on the row that plays comes from: the two states a viewer can put it in and the
+                // box the row paints with, said as numbers so a frame can be read without a guess.
+                Console.WriteLine("  playing tune: focused=" + tune.IsFocused
+                    + " pointerover=" + tune.IsPointerOver
+                    + " border=" + tune.BorderBrush + "/" + tune.BorderThickness
+                    + " background=" + tune.Background + " foreground=" + tune.Foreground);
+                foreach (Visual face in tune.GetVisualDescendants())
+                {
+                  if (face is Avalonia.Controls.Presenters.ContentPresenter presenter
+                      && presenter.Name == "PART_ContentPresenter")
+                  {
+                    Console.WriteLine("  playing tune face: border=" + presenter.BorderBrush
+                        + "/" + presenter.BorderThickness + " foreground=" + presenter.Foreground);
+                    break;
+                  }
+                }
+
+                // Where the window's own caret stands, so that a frame can tell the caret a viewer walked into
+                // the list of tunes from the one a fresh window hands to the first thing it could stand on.
+                object? stood = TopLevel.GetTopLevel(playView)?.FocusManager.GetFocusedElement();
+                string where = "nothing";
+                if (stood is Control still)
+                  where = string.IsNullOrEmpty(still.Name) ? still.GetType().Name : still.Name;
+                else if (stood != null)
+                  where = stood.GetType().Name;
+                Console.WriteLine("  caret stands on: " + where);
+              }
+
               if (part is Control piece
                   && (piece.Name == "audioArea" || piece.Name == "audioCover" || piece.Name == "audioDisc"
-                      || piece.Name == "audioSpectrum" || piece.Name == "osdArea"))
+                      || piece.Name == "audioSpectrum" || piece.Name == "osdArea" || piece.Name == "audioClearArt"
+                      || piece.Name == "audioQueue" || piece.Name == "audioTable"
+                      || (!string.IsNullOrEmpty(piece.Name) && piece is Button)))
               {
                 Console.WriteLine("  " + piece.Name + ": bounds=" + piece.Bounds + " visible=" + piece.IsVisible
-                    + " shown=" + piece.IsEffectivelyVisible);
+                    + " shown=" + piece.IsEffectivelyVisible
+                    + " screen=" + (piece.TranslatePoint(new Avalonia.Point(piece.Bounds.Width / 2,
+                        piece.Bounds.Height / 2), playView) is Avalonia.Point stand
+                        ? stand.X.ToString("0.#") + "," + stand.Y.ToString("0.#")
+                        : "nie gelegt"));
                 if (piece is Decorator framed && framed.Child is Image painting)
                 {
                   Console.WriteLine("           picture: "
@@ -1014,6 +1159,10 @@ namespace FrontendProbe
           return 1;
         }
         Pump(TimeSpan.FromMilliseconds(250));
+
+        // The caret is walked before the compositor passes below, so the frame carries whatever that walk dresses
+        // the list in - see audioWalk.
+        audioWalk?.Invoke();
 
         // The pictures are laid out and drawn only when the compositor gets a pass, and a headless run has no
         // animation to ask for one: the frame is taken from the last composed picture, so a stage whose cover

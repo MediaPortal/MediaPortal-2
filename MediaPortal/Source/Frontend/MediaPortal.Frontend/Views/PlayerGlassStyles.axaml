@@ -56,6 +56,26 @@
         </Transitions>
       </Setter>
     </Style>
+    <!-- A MARK THAT IS ON. Two of the row's marks answer a question with "yes" or "no" - whether the record
+         plays in another order, and whether it goes on - and a yes has to be readable from across the room
+         without reading anything. The answer is the plate itself: the white the resting border already wears at
+         a quarter of its strength, a ring of the white this file uses for light, and the same light spilling
+         past the plate's edge. Everything the pointer and the remote do to a plate keeps outranking this, so a
+         mark that is on and stood on still reads as stood on. -->
+    <Style Selector="Button.glass.lit">
+      <Setter Property="Background" Value="#40FFFFFF"/>
+      <Setter Property="BorderBrush" Value="#73FFFFFF"/>
+      <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    <Style Selector="Button.glass.lit /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BoxShadow" Value="0 0 14 2 #40FFFFFF"/>
+    </Style>
+    <Style Selector="Button.glass.lit Path">
+      <Setter Property="Effect">
+        <DropShadowEffect BlurRadius="8" Color="#80FFFFFF" OffsetX="0" OffsetY="0"/>
+      </Setter>
+    </Style>
+
     <!-- WHAT THE BUTTON WEARS IS WHAT ITS INSIDE WEARS.
          The theme's own button rules dress the ContentPresenter inside the template rather than the button, so
          the grey square it paints at rest and the lighter grey it paints under a pointer lie ON TOP of the glass

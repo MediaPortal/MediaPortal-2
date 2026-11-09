@@ -98,9 +98,47 @@ namespace Tests.Frontend
           "and a film keeps the two buttons that open its lists of sound and subtitle tracks");
     }
 
+    /// <summary>
+    /// The record's lettering - clearart.png or clearlogo.png, whatever the library holds - is one picture with one
+    /// place, and which place that is follows the medium: over the row of boxes on the left of the audio stage, by
+    /// the transport in a film. Two copies of the same word within a hand's breadth is the reading twice.
+    /// </summary>
     [Test]
-    public void NothingPlayingOffersNoTrackLists()
+    public async Task TheLetteringStandsOverTheBoxesForASongAndByTheTransportForAFilm()
     {
+      NowPlayingViewModel song = Player();
+      song.ClearArtReader = delegate (Guid asked) { return Task.FromResult<byte[]?>(new byte[] { 1, 2, 3 }); };
+      song.Play(MediaLocation.FromFile("d:\\music\\nightglass.flac"), Guid.NewGuid(), 0);
+      song.PlayingAspect = "AudioItem";
+      await song.ReadClearArtAsync();
+
+      Assert.That(song.ClearArt, Is.Not.Null, "the library answered the lettering");
+      Assert.That(song.ShowsAudioClearArt, Is.True, "a song wears it over the row of boxes");
+      Assert.That(song.ShowsClearArt, Is.False, "and not a second copy of it by the transport");
+
+      NowPlayingViewModel film = Player();
+      film.ClearArtReader = song.ClearArtReader;
+      film.Play(MediaLocation.FromFile("d:\\media\\the.film.mkv"), Guid.NewGuid(), 0);
+      film.PlayingAspect = "MovieItem";
+      await film.ReadClearArtAsync();
+
+      Assert.That(film.ShowsClearArt, Is.True, "a film wears its lettering by the transport");
+      Assert.That(film.ShowsAudioClearArt, Is.False,
+          "and nothing stands over the row of boxes a film never draws");
+
+      // A library that carries neither file for the record says so by answering nothing, and the stage then wears
+      // no lettering at all - the ordinary case, since most libraries hold none.
+      NowPlayingViewModel bare = Player();
+      bare.ClearArtReader = delegate (Guid asked) { return Task.FromResult<byte[]?>(null); };
+      bare.Play(MediaLocation.FromFile("d:\\music\\nightglass.flac"), Guid.NewGuid(), 0);
+      bare.PlayingAspect = "AudioItem";
+      await bare.ReadClearArtAsync();
+
+      Assert.That(bare.ShowsAudioClearArt, Is.False, "a record without lettering draws none");
+    }
+
+    [Test]
+    public void NothingPlayingOffersNoTrackLists()    {
       // A picker over no film at all promises a list nobody can fill, which is why the buttons followed the media
       // before they followed the medium. Saying "not a song" is therefore not enough to show them.
       NowPlayingViewModel nowPlaying = Player();
