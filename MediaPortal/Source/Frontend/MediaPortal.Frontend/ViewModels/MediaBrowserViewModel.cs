@@ -5484,6 +5484,54 @@ namespace MediaPortal.Frontend.ViewModels
       return parts.Count == 0 ? "No more is known about this title" : string.Join(" · ", parts);
     }
 
+    /// <summary>
+    /// The row a new shelf opens on: the one behind the last title the viewer finished.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Someone who has worked through part of a season or an album does not read it from its head, but the caret
+    /// has always been put at the head.  The row that matters is the one standing behind the last title the
+    /// library says was finished: a season of ten whose second and third episodes are watched opens on the
+    /// fourth - not on the first, which was watched - and ten tracks with the first two played open on the
+    /// third.  A partly watched title counts as not finished, which is what its own row already says with its
+    /// resume figure (<see cref="TitleViewModel.IsPartlyWatched"/>), and whether a row was finished is the row's
+    /// single answer (<see cref="TitleViewModel.Seen"/>: the asking person's percentage at a hundred, or - where
+    /// the server was never told who was asking - a play count above nought).
+    /// </para>
+    /// <para>
+    /// Two answers remain when nothing stands behind the last finished row, because a season watched to its last
+    /// episode has no "next" to stand on: the first row that was never finished, so a hole left earlier in the
+    /// season is found at once; and failing that - everything watched, or nothing watched at all - the first row,
+    /// which is where a wall has always begun.
+    /// </para>
+    /// <para>
+    /// Asked only while nothing is selected, so a shelf that comes in pages (the opening hundred and twenty rows
+    /// first, <see cref="OPENING_PAGE"/>) decides from the rows it had when it opened and the rows landing later
+    /// never pull a caret the viewer may already be walking.  For the two lists this was asked for - an album's
+    /// tracks and a season's episodes - the opening page already holds the whole list.
+    /// </para>
+    /// </remarks>
+    private TitleViewModel? RowTheShelfOpensOn()
+    {
+      int last_finished = -1;
+      for (int i = 0; i < Titles.Count; i++)
+      {
+        if (Titles[i].Seen)
+          last_finished = i;
+      }
+
+      if (last_finished >= 0 && last_finished + 1 < Titles.Count)
+        return Titles[last_finished + 1];
+
+      foreach (TitleViewModel row in Titles)
+      {
+        if (!row.Seen)
+          return row;
+      }
+
+      return Titles.Count > 0 ? Titles[0] : null;
+    }
+
     private async Task ReadAsync(int offset)
     {
       if (_client == null)
@@ -5563,7 +5611,8 @@ namespace MediaPortal.Frontend.ViewModels
         Services.HomeTrace.Log("read.page", "got=" + (answer.Titles?.Count ?? 0)
             + " titles=" + Titles.Count + " more=" + HasMore);
 
-        Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
+        // Where a new shelf stands the caret: behind the last title the viewer finished, rather than at its head.
+        Selected = Selected ?? RowTheShelfOpensOn();
         // The shelf's foot counts what the server counted, not merely what has been read so far - the same
         // answer the status line's "12 of 244" is built from, so the two can never disagree.
         TotalNumber = answer.Total;
@@ -5782,9 +5831,10 @@ namespace MediaPortal.Frontend.ViewModels
 
         HasMore = Titles.Count < MAX_ROWS && AnyGroupOwesMore();
 
-        // The caret goes to the first title of the first group, which is the same answer a flat shelf gives;
-        // a plate is never an answer to "where does a new shelf start", because nothing can stand on it.
-        Selected = Selected ?? (Titles.Count > 0 ? Titles[0] : null);
+        // Where a new shelf stands the caret, the same answer a flat shelf gives - behind the last title the
+        // viewer finished. A plate is never an answer to "where does a new shelf start", because nothing can
+        // stand on it, so the walk is over the titles of the groups rather than over their plates.
+        Selected = Selected ?? RowTheShelfOpensOn();
         RaiseShelfCounters();
 
         string seeing = ActiveSeen == "unwatched" ? "unwatched "
