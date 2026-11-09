@@ -4042,6 +4042,15 @@ namespace MediaPortal.Frontend.ViewModels
         // leaves them there - "Alien: Earth" over "S01E01 · Nimmerland" in words, rather than the whole sentence
         // written twice. Only where a title belongs to no series at all - a film - does its own name head the
         // panel, and then without the year, which the facts name too.
+        // A tune is headed by its own name and by nothing else.  MP2's importer spells a track's TITLE with its
+        // record and its place in front of the tune - "<album>: <number> - <tune>" - which is what the library
+        // holds as the title (TrackInfo.ToString at TrackInfo.cs:658-667, through TrackInfo.TRACK_FORMAT_STR at :59,
+        // written into MediaAspect.ATTR_TITLE at :305), and this heading shows the library's title.  So a viewer
+        // standing on one song read the record's name, a number and two dashes where the song's name belongs.  Both
+        // facts the heading now leaves out are said by the band under it, as "Track" and as "Album".
+        if (!isSeason && IsMusic && !MediaCatalog.IsAlbum(AspectName))
+          name = TrackNameOnly(name, details, title);
+
         DetailsHeading = isSeason
             ? name
             : YearlessName(!string.IsNullOrWhiteSpace(details.SeriesName)
@@ -4166,6 +4175,104 @@ namespace MediaPortal.Frontend.ViewModels
       return name.Substring(0, open).TrimEnd();
     }
 
+    /// <summary>
+    /// The name a tune is called by, without the record it lies on and the number it lies at.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Why the name has to be taken apart at all.</b> The library holds no bare tune name in the fields this
+    /// screen is answered from: the importer writes the composed string through
+    /// <c>TrackInfo.TRACK_FORMAT_STR</c> "{0}: {1} - {2}" (TrackInfo.cs:59, spelled at :660-661) into
+    /// <c>MediaAspect.ATTR_TITLE</c> (:305), and that column is what the row and this heading both read.  The clean
+    /// name does exist in the library - <c>AudioAspect.ATTR_TRACKNAME</c>, written one line later at :307 - but
+    /// neither the title list nor the panel's answer hands it over, so this screen cannot read what it was never
+    /// given.  A server asked in words is the way to fix that properly; until then this is the reading.
+    /// </para>
+    /// <para>
+    /// <b>Why this is an un-formatting and not a guess.</b> Nothing here hunts for a dash in a string it does not
+    /// understand: the number in the middle is checked against the library's own number for this tune
+    /// (<c>AudioAspect.ATTR_TRACK</c>, which the shelf's row carries), the cut is made only where a tune's own name
+    /// is left standing behind it, and a title the importer never spelled that way - a bare file name, a tune with
+    /// no number, a tagger that wrote the song alone - walks through untouched.
+    /// </para>
+    /// </remarks>
+    private static string TrackNameOnly(string name, MediaItemDetails details, TitleViewModel title)
+    {
+      int? placed = title.Title.Track;
+      if (!placed.HasValue || string.IsNullOrWhiteSpace(name))
+        return name;
+
+      // The importer's two spellings, in its own order: the record with the place on it in front of the tune when
+      // the tag knew the record, and the bare place in front of the tune when it did not (TrackInfo.cs:660-665).
+      string place = placed.Value.ToString(CultureInfo.InvariantCulture);
+      string alone = BehindPlace(name, details.Album ?? "", place);
+      return string.IsNullOrEmpty(alone) ? name : alone;
+    }
+
+    /// <summary>
+    /// What stands behind the record and the place in a tune's spelled title - <c>record: number - tune</c> or
+    /// <c>number - tune</c> - or an empty word when the title is not spelled that way with this number.
+    /// </summary>
+    private static string BehindPlace(string name, string album, string place)
+    {
+      // The record's name is used wherever the answer knows it, because then nothing is worked out: the importer's
+      // whole prefix is rebuilt out of the library's own two words and matched against the title as one piece.
+      if (!string.IsNullOrWhiteSpace(album))
+      {
+        string known = album.Trim() + ": " + place + " - ";
+        if (name.StartsWith(known, StringComparison.Ordinal))
+          return name.Substring(known.Length).Trim();
+      }
+
+      // Where the record's name was not answered, the number alone is what has to agree with the library.  A record
+      // whose own name carries a colon is spelled with that colon first and the importer's mark after it, so the
+      // LAST mark of this shape is the importer's.
+      string marked = ": " + place + " - ";
+      int cut = name.LastIndexOf(marked, StringComparison.Ordinal);
+      if (cut > 0)
+        return name.Substring(cut + marked.Length).Trim();
+
+      string bare = place + " - ";
+      return name.StartsWith(bare, StringComparison.Ordinal) ? name.Substring(bare.Length).Trim() : "";
+    }
+
+    /// <summary>
+    /// Which record a tune came from: what the reading of this title answered, and failing that the record the
+    /// importer wrote INTO the tune's title.
+    /// </summary>
+    /// <remarks>
+    /// The answer's own field is <c>AudioAspect.ATTR_ALBUM</c> and is preferred.  It is a young field, though, and a
+    /// server that predates it answers nothing, while the same library has been writing the record into the title
+    /// column all along ("<c>record: number - tune</c>", <c>TrackInfo.TRACK_FORMAT_STR</c> at TrackInfo.cs:59) - so
+    /// reading it back off the spelled title costs nothing and invents nothing.  Only a title that carries the
+    /// library's own number for this tune can be read that way, because the number is what makes the mark certain.
+    /// </remarks>
+    private static string AlbumOfTrack(MediaItemDetails details, TitleViewModel title)
+    {
+      if (!string.IsNullOrWhiteSpace(details.Album))
+        return details.Album!;
+
+      int? placed = title.Title.Track;
+      return placed.HasValue
+          ? RecordNamedIn(title.Name, placed.Value.ToString(CultureInfo.InvariantCulture))
+          : "";
+    }
+
+    /// <summary>
+    /// The record standing in front of <c>"<number> - "</c> in a tune's spelled title, or an empty word when the
+    /// title is not spelled that way with this number.
+    /// </summary>
+    private static string RecordNamedIn(string name, string place)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+        return "";
+
+      // The LAST mark of this shape, because a record whose own name carries a colon is spelled with that colon
+      // first and the importer's mark after it.
+      int cut = name.LastIndexOf(": " + place + " - ", StringComparison.Ordinal);
+      return cut > 0 ? name.Substring(0, cut).Trim() : "";
+    }
+
     private static double? ToldRating(MediaItemDetails details)
     {
       if (details.TotalRating.HasValue && details.TotalRating.Value > 0)
@@ -4219,8 +4326,9 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// Builds the facts the details panel and the home strip stand on, in the order the reference's screens put
-    /// them: the numbers that only this kind of title has (which season, how many episodes), then length, year,
-    /// the day it first ran, the age it was passed for, and the kinds of story it is told in.
+    /// them: the numbers that only this kind of title has (which season, which episode, which place on the
+    /// record), then length, who the music is credited to and which record it came from, the year, the day it
+    /// first ran, the age it was passed for, and the kinds of story it is told in.
     /// </summary>
     /// <remarks>
     /// A fact the server did not answer is left out entirely rather than answered with a dash: the reference drew
@@ -4245,6 +4353,12 @@ namespace MediaPortal.Frontend.ViewModels
           AddFact("Season", details.Season.Value.ToString(CultureInfo.InvariantCulture));
         if (details.Episode.HasValue)
           AddFact("Episode", details.Episode.Value.ToString(CultureInfo.InvariantCulture));
+        // A tune's number is its address inside the record, so it stands where an episode's address stands.  The
+        // panel's answer has no such field - it answers how many tunes a RECORD holds, never which place one
+        // tune has - but the row the viewer is standing on carries the library's own number, which the shelf read
+        // off AudioAspect.ATTR_TRACK (MediaController:4765-4769) and which the row's own left column is drawn from.
+        if (title.Title.Track.HasValue)
+          AddFact("Track", title.Title.Track.Value.ToString(CultureInfo.InvariantCulture));
         // The episode's name is no fact of the shelf's - it stands in bold over the story, where the story's
         // title belongs (see DetailsEpisodeName); the band keeps only the numbers, which are the catalogue.
       }
@@ -4283,6 +4397,30 @@ namespace MediaPortal.Frontend.ViewModels
         }
       }
 
+      // Who made the music and which record it came from, which this band left out until now.  A tune is asked one
+      // thing and an album another, because that is how the library keeps them: the singer of THIS file and the
+      // record it was pressed onto stand on the tune's own audio aspect (AudioAspect.ATTR_ARTISTS, ATTR_ALBUM),
+      // while the name a RECORD is credited to stands on the album's own aspect (AudioAlbumAspect.ATTR_ARTISTS) and
+      // nowhere on a tune - which is why a record is never asked for its "album artist" out of a tune's tag: that
+      // would name a guest musician as the record's own (the server spells the same warning at
+      // MediaController:1858-1866), and an album item carries no audio aspect to read it from at all.
+      // <para>
+      // One name per cell, not the list: both columns are collections in MP2, and every person the library credits
+      // stands in the reading below, where artists and album artists have bands of their own.
+      // </para>
+      if (isAlbum)
+      {
+        // The shelf already read the record's credited name into the row the viewer is standing on
+        // (MediaController:4755-4758); the panel's answer carries a tune's "album artist" tag, which is the right
+        // answer for a tune and the wrong one for a record.
+        AddFact("Album artist", string.IsNullOrWhiteSpace(title.Artist) ? details.AlbumArtist : title.Artist);
+      }
+      else
+      {
+        AddFact("Artist", string.IsNullOrWhiteSpace(details.Artist) ? title.Artist : details.Artist);
+        AddFact("Album", AlbumOfTrack(details, title));
+      }
+
       if (details.Year.HasValue)
         AddFact("Year", details.Year.Value.ToString(CultureInfo.InvariantCulture));
       if (details.FirstAired.HasValue && !isSeason)
@@ -4311,9 +4449,9 @@ namespace MediaPortal.Frontend.ViewModels
         AddFact("Discs", details.DiscCount.Value.ToString(CultureInfo.InvariantCulture));
       if (!string.IsNullOrWhiteSpace(details.Collection))
         AddFact("Collection", details.Collection!.Trim());
-      if (details.PlayCount.HasValue && details.PlayCount.Value > 0)
-        AddFact("Played", details.PlayCount.Value
-            + (details.PlayCount.Value == 1 ? " time" : " times"));
+      // How often a title was watched is deliberately NOT a fact of this panel: the viewer asked for it in the home
+      // screens only, where it is what a favourites wall is standing for. Here it would be the one number on the
+      // panel that says nothing about the title and everything about the viewer's history.
 
       // What stands in the facts band is the whole answer; the gradient over the row of covers repeats the few of
       // them it can wear, in the order the band already has them and in no order of its own.
