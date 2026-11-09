@@ -2420,6 +2420,166 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The mark in the foot's last group that tucks the list of tunes away, proved as a viewer meets it.
+    ///
+    /// (a) It is drawn while a record runs and is not drawn for a lone file, and it stands in the last group of
+    ///     the foot in front of the loudspeaker - which the walk of the keys proves rather than a number, since
+    ///     the group is a row that lays itself out.
+    /// (b) Pressing it steps the <em>panel</em> aside and nothing else: the tune that plays keeps playing, the
+    ///     two marks of the record and its tune steps stay standing in the transport, and the equalizer gets the
+    ///     room back - the panel takes its room out of the bars' row by a class on the stage, and that class has
+    ///     to go with the panel. The mark itself stays: a hidden list is still a record, and the mark is the only
+    ///     door back.
+    /// (c) A caret that was walking the list is not left nowhere when the list goes away; it stands on the mark.
+    /// (d) The keys still walk into the list from the mark and back out of it, and the window leads with the tune
+    ///     that plays when the panel steps back.
+    /// (e) A new record lifts the tuck away - it is a new thing to look at - while the record the panel was
+    ///     tucked away against stays tucked while its tunes walk on.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheMarkInTheFootsLastGroupTucksTheListOfTunesAway()
+    {
+      var player = new FakePlayer();
+      ShellWindow window = ShowPlayback(player, out NowPlayingViewModel screen);
+      OpenOsd(window);
+
+      const int TUNES = 12;
+      List<TitleViewModel> Shelf()
+      {
+        List<TitleViewModel> shelf = new List<TitleViewModel>();
+        for (int number = 1; number <= TUNES; number++)
+        {
+          shelf.Add(new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Tune " + number, null, 2024, null,
+              "file:///D:/Musik/" + number.ToString("00") + ".mp3", false, Track: number)));
+        }
+
+        return shelf;
+      }
+
+      screen.Play(Film("nightglass.mp3"), Shelf()[0].Title.Id, 0, "Nightglass");
+      screen.PlayingAspect = "AudioItem";
+      List<TitleViewModel> record = Shelf();
+      screen.LoadAudioQueue(record, 0, "AudioItem", "Nightglass");
+      Pump();
+
+      Border tunes = ControlNamed<Border>(window, "audioQueue");
+      Panel stage = ControlNamed<Panel>(window, "audioArea");
+      Button tuck = ButtonNamed(window, "playlistButton");
+      Button speaker = ButtonNamed(window, "volumeButton");
+      List<Button> Rows() => tunes.GetVisualDescendants().OfType<Button>().ToList();
+      string TuneOf(Button row) => row.GetVisualDescendants().OfType<TextBlock>()
+          .Select(text => text.Text ?? string.Empty)
+          .First(text => text.StartsWith("Tune ", StringComparison.Ordinal));
+      Button? StandingTune() =>
+          tunes.GetVisualDescendants().OfType<Button>().FirstOrDefault(row => row.IsFocused);
+
+      // (a) A record is running, so the mark is drawn, and it stands in the last group of the foot directly in
+      //     front of the loudspeaker: the keys walk from the settings mark leftwards over the full screen and
+      //     the loudspeaker onto it, and back onto the loudspeaker again. The walk proves the place rather than
+      //     a number, since the group is a row that lays itself out.
+      Assert.That(tunes.IsVisible, Is.True, "a record of twelve tunes drew no list of tunes");
+      Assert.That(tuck.IsVisible, Is.True, "a running record drew no mark to tuck its list away");
+      Assert.That(stage.Classes.Contains("squeezed"), Is.True,
+          "the stage did not lend the list of tunes the room it stands in");
+      Button full = ButtonNamed(window, "fullscreenButton");
+      Button settings = ButtonNamed(window, "settingsButton");
+      Assert.That(settings.Focus(), Is.True);
+      Assert.That(PressKey(settings, Key.Left), Is.True, "the last group of the foot answered the leftward key");
+      Assert.That(full.IsFocused, Is.True, "the leftward key walked out of the foot's last group");
+      Assert.That(PressKey(full, Key.Left), Is.True);
+      Assert.That(speaker.IsFocused, Is.True, "the leftward key did not walk over the loudspeaker");
+      Assert.That(PressKey(speaker, Key.Left), Is.True);
+      Assert.That(tuck.IsFocused, Is.True,
+          "the mark of the list is not standing in front of the loudspeaker");
+      Assert.That(PressKey(tuck, Key.Right), Is.True);
+      Assert.That(speaker.IsFocused, Is.True, "the rightward key walked back onto the loudspeaker");
+
+      // (b) Pressing it puts the panel away. The record is untouched, the transport keeps what a record offers,
+      //     and the room the panel took from the equalizer is lent back.
+      Press(tuck);
+      Assert.That(tunes.IsVisible, Is.False, "the mark did not tuck the list of tunes away");
+      Assert.That(stage.Classes.Contains("squeezed"), Is.False,
+          "the equalizer is still squeezed although the list of tunes stepped aside");
+      Assert.That(tuck.IsVisible, Is.True,
+          "the mark went away with the list it hides, leaving no way back");
+      Assert.That(screen.ShowsTunes, Is.True, "a tucked away list stopped being a running record");
+      foreach (string mark in new[] { "shuffleButton", "repeatButton", "tuneBackButton", "tuneForwardButton" })
+      {
+        Assert.That(ButtonNamed(window, mark).IsVisible, Is.True,
+            "tucking the list away took " + mark + " out of the transport as well");
+      }
+
+      Assert.That(screen.AudioQueuePosition, Is.EqualTo("1 / " + TUNES),
+          "tucking the list away moved the player");
+      Assert.That(screen.TuneThatPlays?.Title.Title.Title, Is.EqualTo("Tune 1"),
+          "tucking the list away changed the tune that plays");
+
+      //     And the record walking on by itself does not bring the panel back: the viewer hid this record's list.
+      Assert.That(screen.NextTune(), Is.True, "the record did not walk to its second tune");
+      Pump();
+      Assert.That(tunes.IsVisible, Is.False, "the next tune of the same record brought the list back");
+      Assert.That(screen.AudioQueuePosition, Is.EqualTo("2 / " + TUNES), "the record did not walk on");
+
+      // (d) Pressed again, the panel steps back - leading with the tune that plays, which is what a panel beside
+      //     a player always shows first.
+      Press(tuck);
+      Assert.That(tunes.IsVisible, Is.True, "the mark did not bring the list of tunes back");
+      Assert.That(stage.Classes.Contains("squeezed"), Is.True, "the list came back without taking its room");
+      Assert.That(Rows().Count, Is.GreaterThan(0), "the list came back with no rows in it");
+      Assert.That(TuneOf(Rows()[0]), Is.EqualTo("Tune 2"),
+          "the list that came back did not lead with the tune that plays");
+
+      //     The keys walk into the list from the mark - it stands under the list, at its left hand - and back
+      //     out of it onto the choices under the list.
+      Assert.That(tuck.Focus(), Is.True);
+      Assert.That(PressKey(tuck, Key.Up), Is.True, "the mark answered the upward key");
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.True,
+          "climbing up from the mark of the list did not step into the list");
+      Assert.That(Rows()[0].IsFocused, Is.True, "the climb from the mark did not land on the tune that plays");
+      //     Down along the rows and off the end of them: the caret walks with the keys, the window rolls under
+      //     it, and only under the last tune of the record is the downward key the list's end - it then lands on
+      //     the choice standing under the list that the row it left stands most over, the loudspeaker.
+      Assert.That(Rows().Count, Is.GreaterThan(1), "the list came back with a single row in it");
+      Button walked = Rows()[0];
+      Button left = walked;
+      for (int stepped = 0; stepped < TUNES; stepped++)
+      {
+        Assert.That(PressKey(walked, Key.Down), Is.True, "a tune of the list answered no downward key");
+        left = walked;
+        if (!PumpUntil(delegate { return StandingTune() != null; }, 200))
+          break; // the caret left the list - which the row it left is the only one to answer with
+
+        walked = StandingTune()!;
+      }
+
+      Assert.That(TuneOf(left), Is.EqualTo("Tune " + TUNES),
+          "the walk down left the list before it reached the last tune of the record");
+      Assert.That(speaker.IsFocused, Is.True,
+          "stepping down out of the record's last tune did not land on the loudspeaker under the list");
+
+      // (c) A caret that was walking the list goes onto the mark when the list is tucked away, rather than being
+      //     left standing in a panel nobody can see.
+      Assert.That(tuck.Focus(), Is.True);
+      Assert.That(PressKey(tuck, Key.Up), Is.True);
+      Assert.That(tunes.IsKeyboardFocusWithin, Is.True, "the caret did not step into the list again");
+      Press(tuck);
+      Assert.That(tunes.IsVisible, Is.False, "the list did not tuck away a second time");
+      Assert.That(tuck.IsFocused, Is.True, "the caret that stood in the list was left nowhere");
+
+      // (e) A new record is a new thing to look at, so the tuck made against the old one does not carry over.
+      screen.LoadAudioQueue(Shelf(), 1, "AudioItem", "Secondglass");
+      Pump();
+      Assert.That(tunes.IsVisible, Is.True, "a new record came up with its list still tucked away");
+      Assert.That(tuck.IsVisible, Is.True, "a new record drew no mark to tuck its list away");
+
+      // (a again) And where no record runs - a lone file, or a film - there is nothing to tuck and no mark.
+      screen.ClearAudioQueue();
+      Pump();
+      Assert.That(tuck.IsVisible, Is.False, "a screen with no record running drew the mark of the list");
+      Assert.That(screen.ShowsTunes, Is.False, "a screen with no record running claims a record runs");
+    }
+
+    /// <summary>
     /// A record with more tunes than the screen has room for rows. The list stands with its foot a fixed distance
     /// above the floor, so on a short window the rows that would fall over the top of the screen are left out and
     /// are a key away down the list instead - while the head of the panel goes on saying how many tunes the record

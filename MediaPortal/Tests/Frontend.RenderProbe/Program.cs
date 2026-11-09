@@ -90,6 +90,9 @@ namespace FrontendProbe
         "  --no-spectrum  with --audio, leave the equalizer without its stand-in source, which is how the bars\n" +
         "                   stand today: no engine in this build answers the spectrum question, so the real frame\n" +
         "                   shows the resting floor and not a made-up spectrum\n" +
+        "  --no-tunes     with --album: press the mark that tucks the list of tunes away, so the frame shows the\n" +
+        "                   equalizer with the room it lends back, and the mark itself still standing in the\n" +
+        "                   foot's last group - a record runs, and the mark is the only door back to the list\n" +
         "  --osd          put the on-screen display up before the frame is taken. The screen opens with the\n" +
         "                   display away - the film begins alone, and the row waits for a key - so without this\n" +
         "                   the captured frame has no button row in it, film or song\n" +
@@ -123,8 +126,9 @@ namespace FrontendProbe
       bool noSpectrum = false;
       bool osd = false;
       bool caretInTunes = false;
+      bool tunesHidden = false;
       int tuneSteps = 0;
-    int albumTunes = 0;
+      int albumTunes = 0;
       bool shuffled = false;
       int width = 1280;
       int height = 720;
@@ -169,6 +173,11 @@ namespace FrontendProbe
             break;
           case "--no-spectrum":
             noSpectrum = true;
+            break;
+          case "--no-tunes":
+            // The frame with the list of tunes tucked away by the mark in the foot's last group: the panel is
+            // gone, the equalizer has its room back, and the mark itself stays drawn while the record runs.
+            tunesHidden = true;
             break;
           case "--osd":
             osd = true;
@@ -215,6 +224,8 @@ namespace FrontendProbe
         return Usage("--audio belongs to the playback screen; the other screens have no audio arrangement.");
       if (caretInTunes && !audio)
         return Usage("--tunes walks the caret into the list of tunes, which only the audio arrangement has.");
+      if (tunesHidden && !audio)
+        return Usage("--no-tunes tucks the list of tunes away, which only the audio arrangement has.");
 
       // A frame has to mean the same thing on every machine, and a shelf's shape is read from the viewer's own
       // skin settings when it opens. Those settings belong to the viewer, not to a gate frame - so the probe
@@ -518,6 +529,13 @@ namespace FrontendProbe
             foreach (Visual part in playView.GetVisualDescendants())
               part.InvalidateVisual();
           };
+
+          if (tunesHidden)
+          {
+            // The mark in the foot's last group was pressed: the panel steps aside, the equalizer takes its room
+            // back, and the mark itself stays - a record is still running, and the mark is the only door back.
+            playback.ToggleTunes();
+          }
 
           if (caretInTunes)
           {

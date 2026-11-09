@@ -480,7 +480,7 @@ namespace MediaPortal.Frontend.ViewModels
         ICONS + "play", ICONS + "pause", ICONS + "fast_rewind", ICONS + "fast_forward", ICONS + "stop",
         ICONS + "eject", ICONS + "volume_up", ICONS + "volume_down",
         ICONS + "volume_mute", ICONS + "volume_off", ICONS + "subtitles", ICONS + "subtitles_off",
-        ICONS + "fullscreen"
+        ICONS + "fullscreen", ICONS + "playlist"
     };
 
     /// <summary>The mark for the transport button: the film asks to be paused while it runs and played while it waits.</summary>
@@ -1597,13 +1597,43 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Whether the list of tunes beside the equalizer has anything to say. One tune is not a list, and a film
-    /// has no list at all, so this is the answer for the panel and for the two marks that walk it.
+    /// Whether a playlist is running: music, and a record of more than one tune the player walks through.
+    /// This is what the button beside the loudspeaker is shown by - it is asked whether there is anything to
+    /// show, not whether the viewer currently wants to see it, because a hidden list still has a list, and
+    /// the button is the only door back to it.
     /// </summary>
-    public bool ShowsAudioQueue
+    public bool ShowsTunes
     {
       get { return IsAudio && _queue.ShowsList; }
     }
+
+    /// <summary>
+    /// Whether the list of tunes beside the equalizer stands there: there is a list (<see cref="ShowsTunes"/>)
+    /// and the viewer has not tucked it away with the button in the bottom row. One tune is not a list, a film
+    /// has no list at all, and a viewer who switched the panel off while a record plays is not served the same
+    /// panel by the next tune of that record - only by the next record, whose <see cref="LoadAudioQueue"/>
+    /// lifts the tuck away again.
+    /// </summary>
+    public bool ShowsAudioQueue
+    {
+      get { return ShowsTunes && _tunesWanted; }
+    }
+
+    /// <summary>
+    /// What the button in the bottom row is for at the moment, which is the opposite of what stands there:
+    /// a viewer looking at the list is offered to hide it, and one looking at the equalizer is offered to
+    /// bring it back.
+    /// </summary>
+    public string TunesCaption
+    {
+      get { return _tunesWanted ? "Hide the list of tunes" : "Show the list of tunes"; }
+    }
+
+    /// <summary>
+    /// Whether the viewer wants the list of tunes. A new record is a new thing to look at, so the tuck made
+    /// against the record before it does not carry over; tunes the record itself walks on through do.
+    /// </summary>
+    private bool _tunesWanted = true;
 
     /// <summary>
     /// Where in the record the player stands, "3 / 12", said at the head of the panel.
@@ -1697,6 +1727,9 @@ namespace MediaPortal.Frontend.ViewModels
     {
       _runAspect = aspect;
       _queueRecord = record;
+      // A record that arrives now is a record the viewer just started, and a panel tucked away against the
+      // record before it is not the viewer's wish about this one.
+      _tunesWanted = true;
       if (titles == null || !_queue.Load(titles, at))
         _queue.Clear();
 
@@ -1724,6 +1757,7 @@ namespace MediaPortal.Frontend.ViewModels
       _queue.Clear();
       _runAspect = null;
       _queueRecord = null;
+      _tunesWanted = true;
       ShowQueue();
     }
 
@@ -1811,6 +1845,29 @@ namespace MediaPortal.Frontend.ViewModels
     public void ReturnTunesToThePlayer()
     {
       _queue.ReturnToPlayer();
+    }
+
+    /// <summary>
+    /// Tuck the list of tunes beside the equalizer away, or bring it back: what the mark in the last group of the
+    /// foot does. The record is not touched - the tune that played goes on playing, and the two marks that order
+    /// the record stay standing in the transport - only the panel steps aside, and with it the room it takes from
+    /// the equalizer. A new record lifts the tuck away by itself, since it is a new thing to look at; the tunes
+    /// the record walks on through do not, since the viewer hid the panel of <em>this</em> record on purpose.
+    /// </summary>
+    public void ToggleTunes()
+    {
+      if (!ShowsTunes)
+        return;
+
+      _tunesWanted = !_tunesWanted;
+      if (!_tunesWanted)
+      {
+        // The window goes back to the player while it steps aside, so that the next press of the mark shows the
+        // tune that plays and not the corner of the record somebody browsed to before hiding the list.
+        _queue.ReturnToPlayer();
+      }
+
+      Raise();
     }
 
     /// <summary>

@@ -1352,6 +1352,22 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// What the mark in the last group of the foot answers: the list of tunes beside the equalizer steps aside,
+    /// or steps back. Only the panel is asked - the record goes on playing the tune it played, and the marks that
+    /// order it stay standing in the transport.
+    /// </summary>
+    private void OnTunesTucked(object? sender, RoutedEventArgs e)
+    {
+      // Whether the caret stands among the rows has to be read before the panel goes away, since a control that
+      // stops being drawn loses the caret with it. A caret that was walking the list cannot be left nowhere: it
+      // goes onto the very mark that hid the list, which is where the viewer presses it again from.
+      bool stoodInTheList = audioQueue.IsKeyboardFocusWithin;
+      _viewModel.ToggleTunes();
+      if (stoodInTheList && !audioQueue.IsVisible)
+        playlistButton.Focus();
+    }
+
+    /// <summary>
     /// Hand the caret to one particular tune of the list - now, or the moment its row is down. Rolling the window
     /// takes the rows away and paints others in their place, and how quickly those rows are buttons again is the
     /// list's own business, so the caret is owed to the tune rather than pushed at whatever is standing.
@@ -1408,7 +1424,7 @@ namespace MediaPortal.Frontend.Views
         SetOsdVisible(true);
 
       double? across = AcrossTheScreen(left);
-      double? tunesAcross = AcrossTheScreen(audioQueue);
+      double? tunesAcross = AcrossTheScreenLeftEdgeOf(audioQueue);
       List<List<Control>> rows = OsdRows();
       Control? below = null;
       double best = double.MaxValue;
@@ -1419,9 +1435,10 @@ namespace MediaPortal.Frontend.Views
         {
           foreach (Control control in line)
           {
-            // Only the controls standing under the list - at or right of its middle, the same border the upward
-            // key uses - are a step down from it. Everything left of that border is beside the list, and the way
-            // sideways out of it is the transport's.
+            // Only the controls standing under the list - at or right of its left edge, the same border the
+            // upward key uses - are a step down from it. Everything left of that border is beside the list, and
+            // the way sideways out of it is the transport's. Of those standing under it the nearest to the row
+            // the caret left wins, which is the loudspeaker at a full screen.
             double? at = AcrossTheScreen(control);
             if (!at.HasValue || at.Value < tunesAcross.Value)
               continue;
@@ -1499,7 +1516,8 @@ namespace MediaPortal.Frontend.Views
       List<Control> top = StandingAmong(shuffleButton, chapterBackButton, backButton, tuneBackButton,
           pauseButton, stopButton, tuneForwardButton, forwardButton, chapterForwardButton, repeatButton);
       List<Control> middle = StandingAmong(seekBar);
-      List<Control> bottom = StandingAmong(subtitleButton, audioButton, volumeButton, fullscreenButton, settingsButton);
+      List<Control> bottom = StandingAmong(subtitleButton, audioButton, playlistButton, volumeButton,
+          fullscreenButton, settingsButton);
 
       List<List<Control>> rows = new List<List<Control>>();
       if (top.Count > 0)
@@ -1582,13 +1600,14 @@ namespace MediaPortal.Frontend.Views
 
       // Above the right-hand end of the panel there is exactly one thing: the list of tunes, which stands over
       // the panel's own rows and reaches further right than any button. So a viewer climbing out of the bottom
-      // row's right-hand choices - the loudspeaker, the full screen, the settings - steps into the list rather
-      // than onto the position line under nothing. The list's own middle line is the border, which keeps the
-      // transport buttons (all of which stand left of it) walking the panel as they always did. Measured in the
-      // screen's own lines, because a button's Bounds are reckoned inside its own row and the list does not
-      // share that row's parent.
+      // row's right-hand choices - the mark that hides the list, the loudspeaker, the full screen, the settings
+      // - steps into the list rather than onto the position line under nothing. The border is the list's own
+      // left edge, since the hiding mark stands under the list's left half and its keys belong to the list just
+      // as much as the loudspeaker's do; every button left of that edge is beside the list and keeps walking the
+      // panel as it always did. Measured in the screen's own lines, because a button's Bounds are reckoned inside
+      // its own row and the list does not share that row's parent.
       double? acrossTheScreen = AcrossTheScreen(stood ?? left);
-      double? tunesAcrossTheScreen = AcrossTheScreen(audioQueue);
+      double? tunesAcrossTheScreen = AcrossTheScreenLeftEdgeOf(audioQueue);
       if (downward < 0 && TunesStanding() && acrossTheScreen.HasValue && tunesAcrossTheScreen.HasValue
           && acrossTheScreen.Value >= tunesAcrossTheScreen.Value)
       {
@@ -1620,6 +1639,20 @@ namespace MediaPortal.Frontend.Views
 
       return control.TranslatePoint(
           new Avalonia.Point(control.Bounds.Width / 2, control.Bounds.Height / 2), this)?.X;
+    }
+
+    /// <summary>
+    /// How far across the screen a control <em>begins</em>, in the screen's own lines, for the same reason
+    /// <see cref="AcrossTheScreen"/> exists. This is the border used against the list of tunes: the list is a
+    /// panel a hand wide, and everything standing between its left edge and its right edge is under it - the
+    /// mark that hides it stands at its left half, and a viewer climbing up from that mark means the list.
+    /// </summary>
+    private double? AcrossTheScreenLeftEdgeOf(Visual? control)
+    {
+      if (control == null || control.Bounds.Width <= 0)
+        return null;
+
+      return control.TranslatePoint(new Avalonia.Point(0, control.Bounds.Height / 2), this)?.X;
     }
 
     /// <summary>

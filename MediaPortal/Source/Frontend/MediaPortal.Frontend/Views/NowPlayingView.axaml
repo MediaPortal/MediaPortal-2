@@ -862,7 +862,7 @@
             -->
             <Button Classes="glass icon" Name="shuffleButton" Click="OnShuffle"
                     Classes.lit="{Binding AudioQueueShuffled}"
-                    IsVisible="{Binding ShowsAudioQueue}"
+                    IsVisible="{Binding ShowsTunes}"
                     AutomationProperties.Name="Play the record in a different order">
               <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                       ConverterParameter='PlayerControl/shuffle'}"/>
@@ -885,7 +885,7 @@
                  song has no others. Only a record offers the step; for a film the row keeps the marks the file can
                  answer. -->
             <Button Classes="glass icon" Name="tuneBackButton" Click="OnTuneBack"
-                    IsVisible="{Binding ShowsAudioQueue}"
+                    IsVisible="{Binding ShowsTunes}"
                     AutomationProperties.Name="Previous tune">
               <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                       ConverterParameter='PlayerControl/previous'}"/>
@@ -906,7 +906,7 @@
                                       ConverterParameter='PlayerControl/stop'}"/>
             </Button>
             <Button Classes="glass icon" Name="tuneForwardButton" Click="OnTuneForward"
-                    IsVisible="{Binding ShowsAudioQueue}"
+                    IsVisible="{Binding ShowsTunes}"
                     AutomationProperties.Name="Next tune">
               <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                       ConverterParameter='PlayerControl/next'}"/>
@@ -929,7 +929,7 @@
                  arrows leave to it, in the same white the glyph wears. -->
             <Button Classes="glass icon" Name="repeatButton" Click="OnRepeat"
                     Classes.lit="{Binding AudioQueueRepeats}"
-                    IsVisible="{Binding ShowsAudioQueue}"
+                    IsVisible="{Binding ShowsTunes}"
                     AutomationProperties.Name="{Binding RepeatCaption}">
               <Panel>
                 <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
@@ -1053,6 +1053,18 @@
                 <TextBlock Text="{Binding AudioTrackName}" TextTrimming="CharacterEllipsis" MaxWidth="240"/>
                 <TextBlock Classes="chevron" Text="&#8250;"/>
               </StackPanel>
+            </Button>
+            <!-- The list of tunes beside the equalizer is a thing a viewer can tuck away, and this is the door
+                 that does it. It stands in front of the loudspeaker, in the last group of the foot, and it is
+                 drawn by the same rule the transport's tune steps follow: only while a record plays. A hidden
+                 list is still a record, so the button stays drawn while the list is away - without it there
+                 would be no way back. Its picture is the mark the viewer handed over: the three lines of a
+                 list with a note standing at their end, copied into the skin's folder exactly as it came. -->
+            <Button Classes="glass icon" Name="playlistButton" Click="OnTunesTucked"
+                    IsVisible="{Binding ShowsTunes}"
+                    AutomationProperties.Name="{Binding TunesCaption}">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='PlayerControl/playlist'}"/>
             </Button>
             <Button Classes="glass icon" Name="volumeButton" Click="OnVolume"
                     AutomationProperties.Name="{Binding VolumeCaption}">
