@@ -66,12 +66,15 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|seen|folders|pictures|browse|news|weather|party|settings|trailer|trailerwait>] [--server <url>] [--aspect <name>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|seen|folders|pictures|browse|news|weather|party|settings|trailer|trailerwait>] [--server <url>] [--aspect <name>] [--layout <list|grid|cover|stacked|carousel>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
+        "  --layout <name>  press the view key until the shelf wears this shape. Needed because the shelf wears\n" +
+        "                   whichever shape the viewer left it in - and pressing the key is the same road the\n" +
+        "                   remote takes\n" +
         "  --audio        with --screen nowplaying: draw the screen as the audio arrangement - a song pressed in\n" +
         "                   the music shelf, with the library's answer, its cover and its record handed over by\n" +
         "                   the same readers the application hands them. Nothing is played by this\n" +
@@ -119,6 +122,7 @@ namespace FrontendProbe
       string? serverUrl = null;
       string screenName = "home";
       string aspectName = "MovieItem";
+      string? layoutWord = null;
       string? theme = null;
       bool audio = false;
       bool realSong = false;
@@ -156,6 +160,11 @@ namespace FrontendProbe
             if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
               return Usage("--aspect needs a name.");
             aspectName = args[++i].Trim();
+            break;
+          case "--layout":
+            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
+              return Usage("--layout needs a shape: list, grid, cover, stacked or carousel.");
+            layoutWord = args[++i].Trim();
             break;
           case "--theme":
             if (i + 1 >= args.Length)
@@ -220,6 +229,30 @@ namespace FrontendProbe
         return Usage("--out is required.");
       if (width < 100 || height < 100)
         return Usage("a window below 100x100 would not prove anything about rendering.");
+
+      BrowserLayout? layoutWanted = null;
+      if (layoutWord != null)
+      {
+        layoutWanted = layoutWord.ToLowerInvariant() switch
+        {
+          "list" => BrowserLayout.List,
+          "grid" => BrowserLayout.Grid,
+          "cover" => BrowserLayout.Cover,
+          "stacked" => BrowserLayout.Stacked,
+          "carousel" => BrowserLayout.Carousel,
+          _ => (BrowserLayout?) null
+        };
+        if (layoutWanted == null)
+          return Usage("--layout wants one of list, grid, cover, stacked or carousel.");
+        if (!screenName.Equals("browser", StringComparison.Ordinal)
+            && !screenName.Equals("cover", StringComparison.Ordinal)
+            && !screenName.Equals("menu", StringComparison.Ordinal)
+            && !screenName.Equals("covermenu", StringComparison.Ordinal)
+            && !screenName.Equals("details", StringComparison.Ordinal)
+            && !screenName.Equals("search", StringComparison.Ordinal)
+            && !screenName.Equals("seen", StringComparison.Ordinal))
+          return Usage("--layout belongs to the library screens; the others have no shapes to wear.");
+      }
       if (audio && !screenName.Equals("nowplaying", StringComparison.Ordinal))
         return Usage("--audio belongs to the playback screen; the other screens have no audio arrangement.");
       if (caretInTunes && !audio)
@@ -1418,19 +1451,24 @@ namespace FrontendProbe
           return 4;
         }
 
-        // What the top of the screen really reads, read off the control rather than from the view model, so that
-        // the heading of a shelf somebody's library was built from is evidence about the screen and not about a
-        // property that was handed to it.
+        // What the filled shelf really is on the screen: rows. It wears no heading of its own (the room's
+        // header carries that) and its status line only stands when the shelf has a problem to report, so
+        // the claim a live shelf can be held to is that its rows stand and read like titles. An earlier
+        // gate here looked for a named heading block the screen stopped having - a gate that could only
+        // ever say "failed", which is what it had become.
         if ((window as ShellWindow)?.Screen is MediaBrowserView browserWindow)
         {
-          TextBlock? headline = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(browserWindow)
-              .OfType<TextBlock>().FirstOrDefault(text => text.Name == "shelfHeading");
-          Console.WriteLine("heading:  " + (headline == null
-              ? "the screen has no text block named \"shelfHeading\""
-              : "\"" + headline.Text + "\" on the screen, \"" + browserScreen.Heading + "\" in the view model"));
-          if (headline == null || string.IsNullOrWhiteSpace(headline.Text))
+          ListBox shelfRows = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(browserWindow)
+              .OfType<ListBox>().First(l => l.Name == "titlesList");
+          int standing = shelfRows.GetRealizedContainers().Count();
+          string firstLine = shelfRows.GetRealizedContainers()
+              .FirstOrDefault(c => c.DataContext is TitleViewModel)?.DataContext is TitleViewModel head
+              ? head.Line : "";
+          Console.WriteLine("heading:  the shelf wears none of its own; " + standing
+              + " row(s) stand, the first reads \"" + firstLine + "\"");
+          if (standing == 0 || string.IsNullOrEmpty(firstLine))
           {
-            Console.WriteLine("FAILED:   the shelf has no heading on the screen.");
+            Console.WriteLine("FAILED:   no row of titles stands on the screen.");
             return 4;
           }
 
@@ -1541,6 +1579,103 @@ namespace FrontendProbe
         {
           Console.WriteLine("FAILED:   the filtered rows are not the watched ones, so the frame proves nothing about the mark.");
           return 1;
+        }
+      }
+
+      if (layoutWanted != null && (window as ShellWindow)?.Screen is MediaBrowserView layoutScreen)
+      {
+        // The V key pressed as a remote sends it, over as many steps as the shape cycle needs: the frame is
+        // then the shape whoever runs this asked for rather than whichever shape the viewer who last used
+        // this settings file happened to leave the shelf in.
+        MediaBrowserViewModel list = (MediaBrowserViewModel) layoutScreen.DataContext!;
+        for (int press = 0; press < 6 && list.Layout != layoutWanted; press++)
+        {
+          layoutScreen.RaiseEvent(new KeyEventArgs
+          {
+            RoutedEvent = InputElement.KeyDownEvent,
+            Key = Key.V,
+            Source = layoutScreen
+          });
+          Pump(TimeSpan.FromMilliseconds(250));
+        }
+        Pump(TimeSpan.FromMilliseconds(500));
+
+        Console.WriteLine("layout:   '" + list.LayoutLabel + "' over " + list.Titles.Count + " title(s)");
+        if (list.Layout != layoutWanted)
+        {
+          Console.WriteLine("FAILED:   the view key never brought the shelf to '" + layoutWanted + "'.");
+          return 1;
+        }
+
+        if (list.Layout == BrowserLayout.List)
+        {
+          // The rows' own numbers, read off the containers the panel realised: a claim about a row's height
+          // that did not come off the screen is no evidence about the screen. The starred height is the
+          // row the caret stands on.
+          ListBox rows = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(layoutScreen)
+              .OfType<ListBox>().First(l => l.Name == "titlesList");
+          List<string> heights = new List<string>();
+          TitleViewModel? head = null;
+          foreach (Control? container in rows.GetRealizedContainers())
+          {
+            if (container is ListBoxItem item)
+            {
+              double? at = item.TranslatePoint(new Point(0, 0), (Visual?) layoutScreen)?.Y;
+              heights.Add(Math.Round(item.Bounds.Height) + "@" + Math.Round(at ?? -1)
+                  + (item.IsSelected ? "*" : ""));
+              head ??= item.DataContext as TitleViewModel;
+            }
+            if (heights.Count >= 6)
+              break;
+          }
+          Console.WriteLine("rows:     heights " + string.Join(", ", heights)
+              + "; template '" + list.GridTemplateKey + "'"
+              + (head == null ? "" : ", first row reads \"" + head.Line + "\" / \"" + head.Detail + "\""));
+
+          // The stood-on row has to answer for the doubled shape: two lines, the poster at the row's height
+          // when the library has one, and the kinds under the name - all read off the controls, not the model.
+          ListBoxItem? stood = rows.GetRealizedContainers().OfType<ListBoxItem>().FirstOrDefault(i => i.IsSelected);
+          if (stood != null)
+          {
+            Grid? shape = stood.GetVisualDescendants().OfType<Grid>()
+                .FirstOrDefault(g => g.Classes.Contains("nereus-row-focus"));
+            // The stood row's picture-frame is whichever of the two the row wears: films and series stand in
+            // the portrait poster, music in the cover's square, and only one of the two is ever visible.
+            Border? poster = stood.GetVisualDescendants().OfType<Border>().FirstOrDefault(b =>
+                (b.Classes.Contains("nereus-row-poster") || b.Classes.Contains("nereus-row-cover"))
+                && b.IsEffectivelyVisible);
+            TextBlock? genres = stood.GetVisualDescendants().OfType<TextBlock>()
+                .FirstOrDefault(t => t.Classes.Contains("nereus-row-genres"));
+            Console.WriteLine("stood:    focus shape " + (shape != null && shape.IsEffectivelyVisible ? "on" : "OFF")
+                + ", row " + Math.Round(stood.Bounds.Height) + " tall, picture "
+                + (poster != null
+                    ? Math.Round(poster.Bounds.Width) + "x" + Math.Round(poster.Bounds.Height)
+                        + (poster.Classes.Contains("nereus-row-cover") ? " (cover)" : " (poster)")
+                    : "none")
+                + ", genres \"" + (genres?.Text ?? "") + "\""
+                + (shape == null ? "" : ", shape " + Math.Round(shape.Bounds.Height) + " tall of parts ["
+                    + string.Join(", ", shape.GetVisualChildren().OfType<Control>()
+                        .Select(part => part.GetType().Name + " " + Math.Round(part.Bounds.Height)))
+                    + "]"));
+            // Which part of the container eats height beyond the row's own tree, read chain by chain: the
+            // doubled row has to stand at twice the resting row's measured 59, and a claim about that has to
+            // say where every point of it lives.
+            string chain = "";
+            Control? walk = stood;
+            while (walk != null && walk != rows)
+            {
+                chain += " > " + walk.GetType().Name + " " + Math.Round(walk.Bounds.Height)
+                    + " m" + walk.Margin.Top + "," + walk.Margin.Bottom
+                    + " p" + (walk is ContentControl cc ? Math.Round(cc.Padding.Top) + "," + Math.Round(cc.Padding.Bottom) : "");
+                walk = walk.GetVisualParent() as Control;
+            }
+            Console.WriteLine("chain:   " + chain);
+            if (shape == null || !shape.IsEffectivelyVisible)
+            {
+              Console.WriteLine("FAILED:   the stood-on row did not put up its doubled shape.");
+              return 1;
+            }
+          }
         }
       }
 

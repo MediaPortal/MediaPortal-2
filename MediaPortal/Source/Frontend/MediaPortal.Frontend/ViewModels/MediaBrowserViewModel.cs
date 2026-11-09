@@ -616,6 +616,73 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// What a resting row says: where it sits in what holds it, then the name, and the year nowhere. The year
+    /// belongs to the row a viewer stands on (see <see cref="FocusedLine"/>); behind every name of a wall of a
+    /// thousand it is a bracket the eye walks past a thousand times to reach the next name.
+    /// </summary>
+    public string RestLine
+    {
+      get
+      {
+        string where = Position;
+        return string.IsNullOrEmpty(where) ? NameWithoutYear : where + " " + NameWithoutYear;
+      }
+    }
+
+    /// <summary>
+    /// The stood-on row's first line: the name and, behind a dot, the year the library knows - spelled as an
+    /// escape so it does not depend on this file's encoding, like <see cref="SeenMark"/>'s tick.
+    /// </summary>
+    public string FocusedLine
+    {
+      get
+      {
+        string what = Title.Year.HasValue
+            ? NameWithoutYear + " \u00B7 " + Title.Year.Value.ToString(CultureInfo.InvariantCulture)
+            : NameWithoutYear;
+        string where = Position;
+        return string.IsNullOrEmpty(where) ? what : where + " " + what;
+      }
+    }
+
+    /// <summary>
+    /// The stood-on row's second line: the kinds the importer wrote on the title, which the list answer carries
+    /// with every row (see <c>MediaController.ReadGenres</c>) - so the wall never waits on a second question.
+    /// </summary>
+    public string GenresLine
+    {
+      get
+      {
+        IReadOnlyList<string>? kinds = Title.Genres;
+        if (kinds == null || kinds.Count == 0)
+          return "";
+        List<string> words = new List<string>();
+        foreach (string kind in kinds)
+        {
+          if (!string.IsNullOrWhiteSpace(kind))
+            words.Add(kind.Trim());
+        }
+        return string.Join(", ", words);
+      }
+    }
+
+    /// <summary>Whether the stood-on row's second line has anything to say.</summary>
+    public bool ShowsGenres
+    {
+      get { return GenresLine.Length > 0; }
+    }
+
+    /// <summary>
+    /// Whether this row's picture is a cover rather than a poster: a record and a track wear the album's
+    /// square, which is the one front picture the import files for music (see <c>MediaCatalog.IsMusic</c>).
+    /// The stood-on row answers this with its frame; the film, series and episode rows keep the poster's.
+    /// </summary>
+    public bool WearsCover
+    {
+      get { return MediaCatalog.IsMusic(ReadThrough); }
+    }
+
+    /// <summary>
     /// The number or address this title has inside the one that holds it: <c>4.</c> for the fourth track,
     /// <c>S02E05</c> for an episode. Empty for the titles that are not inside anything, which is most of what a
     /// television shows.
@@ -1760,8 +1827,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// Music therefore never asks the poster question.
     /// </summary>
     private bool IsMusic
-        => string.Equals(AspectName, "AlbumItem", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(AspectName, "AudioItem", StringComparison.OrdinalIgnoreCase);
+        => MediaCatalog.IsMusic(AspectName);
 
     /// <summary>
     /// The frame the worn skin draws for this shelf's music, or <c>null</c> when it draws none - in which case
@@ -2290,10 +2356,12 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get
       {
-        // Music in the layouts that stand squares wears the album's cover; its rows stay the reference's
-        // rows - names and counts, no picture - because the reference's audio list never wore one either.
+        // Music wears the album's cover in every layout, the layouts that stand squares and the rows alike:
+        // a record calls its front picture a cover and not a poster (see ReadDetailsArtworkAsync), the cover
+        // view's bytes are already warm for the panel, and the database's own blob is silent for most albums -
+        // so the stood-on row's square is filled from the same source the square tiles and the panel read.
         if (IsMusic)
-          return Layout == BrowserLayout.List ? _artwork : CoverArtwork ?? _artwork;
+          return CoverArtwork ?? _artwork;
 
         // A season's cover is the poster it wears on its tiles, which is not in the database - see TileArtworkFor.
         // A movie's cover is the poster too: the reference sized its cover frame for a poster and asked

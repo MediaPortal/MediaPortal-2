@@ -298,6 +298,23 @@
     <Setter Property="Foreground" Value="{DynamicResource ScreenBackgroundBrush}"/>
     <Setter Property="FontWeight" Value="Bold"/>
   </Style>
+  <!-- The row's two shapes trade places on the sheet (the viewer's dialling): a stood-on row doubles to the
+       poster-over-two-lines shape and a resting one shrinks back to the single line. The base shape is spelled
+       as a style rather than as a value in the template because a value written in the template is a local
+       value, and no state rule could ever beat it. Avalonia asks the LAST match, not the most specific one
+       (measured, see the watched eye's block at the foot of this file), so the standing rules follow the
+       resting one. -->
+  <Style Selector="ListBox.nereus-shelf-rows Grid.nereus-row-focus">
+    <Setter Property="IsVisible" Value="False"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:focus Grid.nereus-row-focus,
+                  ListBox.nereus-shelf-rows ListBoxItem:selected Grid.nereus-row-focus">
+    <Setter Property="IsVisible" Value="True"/>
+  </Style>
+  <Style Selector="ListBox.nereus-shelf-rows ListBoxItem:focus Grid.nereus-row-rest,
+                  ListBox.nereus-shelf-rows ListBoxItem:selected Grid.nereus-row-rest">
+    <Setter Property="IsVisible" Value="False"/>
+  </Style>
   <!-- The watched eye on the sheet has its own block at the foot of this file, behind the resting eye's
        rule: Avalonia asks the LAST match, not the most specific one (measured), so a state rule that wants
        to overrule the resting colour has to stand behind it. -->

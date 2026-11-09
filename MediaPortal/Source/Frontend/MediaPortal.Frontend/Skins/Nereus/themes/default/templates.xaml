@@ -538,8 +538,13 @@
   </DataTemplate>
 
   <!--
-    A title's row in the shelf: the name, and what the library knows about it - length, year, where you left
-    off - in the right column, greyed the way Nereus greys everything that is not the headline.
+    A title's row in the shelf, in the two shapes the viewer dialled in: a resting row says the name and the
+    length and nothing else - the year in brackets behind every name of a wall of a thousand made the wall
+    read twice - while the row a viewer stands on doubles to two lines and says more: the poster in its first
+    column (five-point corners, as high as the doubled row, and where the library has none the column stays
+    empty and the words take its place), the name with the year behind a dot over the kinds the importer
+    wrote, and the length right where it always stood, on the first line. The watched eye belongs to resting
+    rows only; the poster took its column.
 
     The reference dressed a row in the skin's turquoise: ButtonListViewControlStyle (Buttons.xaml 392-421)
     laid the medium of the skin's colour over the whole row with a bar of the light of it eight points wide
@@ -552,7 +557,8 @@
   -->
   <DataTemplate x:Key="TitleRowTemplate" x:DataType="vm:TitleViewModel">
     <Panel>
-      <Grid ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="30,4">
+      <!-- The resting row, measured at 59 points tall off the live shelf. -->
+      <Grid Classes="nereus-row-rest" ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="30,4">
         <!--
           Nothing here names its own colour: the row labels take the colour of the row they stand in, which
           is the container's to carry - the screen's light at rest, and the screen's black on the white sheet
@@ -577,9 +583,49 @@
                 Classes="nereus-watched partly nereus-row-watched"
                 IsVisible="{Binding IsPartlyWatched}"/>
         </Panel>
-        <TextBlock Grid.Column="1" Text="{Binding Line}" TextTrimming="CharacterEllipsis"/>
+        <TextBlock Grid.Column="1" Text="{Binding RestLine}" TextTrimming="CharacterEllipsis"/>
         <TextBlock Grid.Column="2" Text="{Binding Detail}" HorizontalAlignment="Right" Opacity="0.65"
                    TextTrimming="CharacterEllipsis"/>
+      </Grid>
+      <!--
+        The stood-on row: twice the resting row's 59 points. The item's container wears 24 points of its own
+        padding (measured: a 110-point grid made a 139-point item; the item is its content + 8 margin + 21
+        chrome, and the resting 59 = 30 text + 8 + 21), so the shape stands at 89 points plus its 8 of
+        margin, which fills the doubled 118 exactly. What picture-frame stands at its head - the portrait
+        poster or the music square - is spelled on the frame itself below.
+      -->
+      <Grid Classes="nereus-row-focus" ColumnDefinitions="Auto,1*" ColumnSpacing="20" MinWidth="700"
+            MinHeight="89" Margin="15,4,30,4">
+        <Panel IsVisible="{Binding HasArtwork}">
+          <!-- The frame follows what the row is: a film, series or season row wears the wall posters' own
+               163:250 portrait shrunk to the row's height (58 across), and a record or a track wears the
+               music cover's square - the reference drew AUDIO_COVER 260x260 (MediaConsts.xaml:57f), shrunk
+               to the same 89 - because a record's front picture is a cover, never a poster. Both frames
+               clip to five-point corners, the way the wall's tile faces clip their progress lines
+               (HomeView.axaml:829-843). The picture is the row's own bytes (MediaBrowserViewModel.PaintRow),
+               so the stood row costs no second fetch. -->
+          <Border Classes="nereus-row-poster" Width="58" Height="89" CornerRadius="5" ClipToBounds="True"
+                  IsVisible="{Binding !WearsCover}">
+            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}" Stretch="UniformToFill"/>
+          </Border>
+          <Border Classes="nereus-row-cover" Width="89" Height="89" CornerRadius="5" ClipToBounds="True"
+                  IsVisible="{Binding WearsCover}">
+            <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter='tile'}" Stretch="UniformToFill"/>
+          </Border>
+        </Panel>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+          <!-- The first line carries the words AND the number: the duration sits at its right edge, the way
+               the resting row carries it, so the stood row says its length on the line it is read on. -->
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="20">
+            <TextBlock Grid.Column="0" Text="{Binding FocusedLine}" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="1" Classes="nereus-row-duration" Text="{Binding Detail}" Opacity="0.65"
+                       TextTrimming="CharacterEllipsis"/>
+          </Grid>
+          <TextBlock Classes="nereus-row-genres" Text="{Binding GenresLine}" Opacity="0.7"
+                     TextTrimming="CharacterEllipsis" IsVisible="{Binding ShowsGenres}"/>
+        </StackPanel>
       </Grid>
     </Panel>
   </DataTemplate>

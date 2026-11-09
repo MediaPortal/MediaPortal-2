@@ -273,6 +273,18 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether an aspect is music: an album or a track. The reference drew every one of these as a square -
+    /// its audio tiles and its audio cover were squares for every view mode and every skin setting
+    /// (MediaConsts.xaml:57f, AUDIO_GRID 205x195 and AUDIO_COVER 260x260) - while its grid-type setting names
+    /// films, series and seasons only. Music therefore never asks the poster question.
+    /// </summary>
+    public static bool IsMusic(string? aspectName)
+    {
+      return string.Equals(aspectName, "AlbumItem", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(aspectName, "AudioItem", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// How the titles inside this aspect are ordered: tracks by their number, episodes by season and number, films
     /// of a collection by name. <c>title</c> for anything else, which is what a whole shelf is ordered by.
     /// </summary>
