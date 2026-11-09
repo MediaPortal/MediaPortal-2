@@ -2501,7 +2501,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 watchPercentage = 100;
               }
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_PERCENTAGE;
-              valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(Convert.ToInt32(watchPercentage.Value));
+              // Whole per cent is all the key can hold, but a fraction is not a nought: the one episode of eight
+              // left at two per cent says the series was opened, and storing the rounded nought would have every
+              // shelf built on "some percentage of this container was seen" answer "never". The smallest figure a
+              // container with a watched child carries is therefore one.
+              int storedPercentage = Convert.ToInt32(watchPercentage.Value);
+              if (storedPercentage == 0 && watchPercentage.Value > 0)
+                storedPercentage = 1;
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(storedPercentage);
               if (command.ExecuteNonQuery() == 0)
               {
                 command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
