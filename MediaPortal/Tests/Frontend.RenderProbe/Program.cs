@@ -1304,6 +1304,7 @@ namespace FrontendProbe
             dialogWindow.GetVisualDescendants().OfType<Avalonia.Controls.ProgressBar>()
                 .FirstOrDefault(line => line.IsIndeterminate && line.IsEffectivelyVisible);
         bool waits = trailerNotice.Waiting;
+        Point? barAt = bar?.TranslatePoint(new Point(0, 0), (Visual?) dialogWindow);
 
         Console.WriteLine("dialog:   heading '" + (heading?.Text ?? "MISSING") + "' "
             + (heading == null ? "" : "at y " + Math.Round(heading.Bounds.Y, 0))
@@ -1311,7 +1312,10 @@ namespace FrontendProbe
                 ? ", waiting with the word '" + (loading?.Text ?? "MISSING") + "' and "
                     + (bar == null ? "no moving bar"
                         : "a bar " + Math.Round(bar.Bounds.Width, 0) + " x "
-                            + Math.Round(bar.Bounds.Height, 0) + " points running on its own")
+                            + Math.Round(bar.Bounds.Height, 0) + " points at "
+                            + (barAt == null ? "nowhere"
+                                : Math.Round(barAt.Value.X, 0) + "," + Math.Round(barAt.Value.Y, 0))
+                            + " running on its own")
                 : ", sentence in " + (sentence == null ? "no block"
                     : Math.Round(sentence.Bounds.Width, 0) + " x " + Math.Round(sentence.Bounds.Height, 0)
                         + " points (" + (sentence.Bounds.Height > 30 ? "wrapped" : "one line") + ")"))

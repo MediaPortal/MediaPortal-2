@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:MediaPortal.Frontend.ViewModels"
         xmlns:theming="clr-namespace:MediaPortal.Frontend.Theming"
@@ -32,17 +32,28 @@
 
       <!-- While the film is being looked up or brought over there is nothing to read off a screen. The one word
            says that something is happening, centred over the bar, and the bar is the ProgressBar the theme already
-           moves on its own - no invented spinner. It wears the same 8-point bar the tiles' progress and the
-           playback line use (HomeView.axaml:833-843, NowPlayingView.axaml:228-240) in the same white text colour
-           as the word above it: the dialog is a piece of writing, not a place for the skin's accent. -->
+           moves on its own - no invented spinner. White like the word above it: the dialog is a piece of writing,
+           not a place for the skin's accent.
+
+           Six rows of colour are painted for a Height of ten: the theme keeps two points above and two below for
+           itself, measured off the rendered screen (a Height of 10 lays 6 rows, a Height of 14 lays 10). Six rows
+           are the four the bar had before plus the two that were asked for.
+
+           The ground and the rounding are on the Border and not on the bar, because the bar's own CornerRadius
+           only rounds the piece that runs and leaves the ground it runs on square - which is a stick with a pill
+           sliding along it. A Border with a corner radius clips what stands in it to its rounded shape, which is
+           the same thing the wall's tile faces do to their progress lines (HomeView.axaml:829-833), so the whole
+           bar - ground and runner - ends as a pill: three points, half of the six that are seen. -->
       <StackPanel IsVisible="{Binding Waiting}" Spacing="14" HorizontalAlignment="Center">
         <TextBlock Text="Loading ..." HorizontalAlignment="Center"
                    Foreground="{DynamicResource TextBrush}" FontSize="22"/>
-        <ProgressBar Height="8" MinWidth="0" Width="360" IsIndeterminate="True"
-                     HorizontalAlignment="Center"
-                     CornerRadius="0" Background="#22FFFFFF"
-                     Foreground="{DynamicResource TextBrush}"
-                     IsHitTestVisible="False"/>
+        <Border Width="360" Height="10" HorizontalAlignment="Center"
+                Background="#22FFFFFF" CornerRadius="5" ClipToBounds="True">
+          <ProgressBar Height="10" MinWidth="0" VerticalAlignment="Stretch"
+                       IsIndeterminate="True" Background="Transparent"
+                       Foreground="{DynamicResource TextBrush}"
+                       IsHitTestVisible="False"/>
+        </Border>
       </StackPanel>
 
       <!-- The reason is a whole sentence, and a sentence needs a place built for it: this wraps over as many lines
