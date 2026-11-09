@@ -101,8 +101,11 @@ namespace Tests.Frontend
     public void AListBesideAPlayerLeadsWithWhatIsComing()
     {
       // Ten rows, twelve tunes, and the tunes that already played are the ones that fall away: the question a
-      // list standing next to a player answers is what comes next.
+      // list standing next to a player answers is what comes next. (The room is said here rather than taken from
+      // the tallest panel, because it is the walking of the window this test is about, not the number of rows a
+      // particular screen has room for.)
       AudioQueue queue = Loaded(12, 3);
+      queue.Slots = 10;
 
       Assert.That(Names(queue),
           Is.EqualTo("Tune 3,Tune 4,Tune 5,Tune 6,Tune 7,Tune 8,Tune 9,Tune 10,Tune 11,Tune 12"));
@@ -116,6 +119,7 @@ namespace Tests.Frontend
       // Standing on the eleventh tune there is only one tune left to promise, so the list fills up backwards
       // rather than drawing nine empty rows.
       AudioQueue queue = Loaded(12, 10);
+      queue.Slots = 10;
 
       Assert.That(Names(queue),
           Is.EqualTo("Tune 3,Tune 4,Tune 5,Tune 6,Tune 7,Tune 8,Tune 9,Tune 10,Tune 11,Tune 12"));
@@ -150,6 +154,7 @@ namespace Tests.Frontend
     public void TheShuffleMarkMovesWhatFollowsAndLeavesTheTuneThatPlays()
     {
       AudioQueue queue = Loaded(12, 3, seed: 7);
+      queue.Slots = 10;
       string playing = queue.Current!.Name;
       string[] before = queue.Rows.Select(row => row.Name).ToArray();
 
@@ -372,6 +377,70 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void TheListOfTunesWalksWithThePlayer()
+    {
+      // The list beside the player is a window that walks with it, and a window that is only repainted when
+      // somebody asks for it stands still: the panel goes on naming tunes the player has already played, and
+      // once the record has walked past them the tune that is playing is not on the panel at all. Five rows of
+      // a sixteen tune record, and while tunes are still coming the playing tune leads the window - what waits
+      // is worth more than what was heard.
+      FakePlayer player = new FakePlayer();
+      NowPlayingViewModel screen = new NowPlayingViewModel(player);
+      try
+      {
+        List<TitleViewModel> shelf = Shelf(16);
+        Assert.That(screen.Play(Playable(shelf[0]), shelf[0].Title.Id, 0, shelf[0].Name), Is.True);
+        screen.PlayingAspect = "AudioItem";
+        screen.LoadAudioQueue(shelf, 0, "AudioItem");
+        screen.GiveTunesRoom(5);
+
+        for (int walked = 0; walked < 5; walked++)
+          player.RaiseEndOfMedia();
+
+        Assert.That(screen.Title, Is.EqualTo("Tune 6"), "the record did not walk on to its sixth tune");
+        Assert.That(screen.AudioQueueRows.Select(row => row.Name),
+            Is.EqualTo(new[] { "Tune 6", "Tune 7", "Tune 8", "Tune 9", "Tune 10" }),
+            "the list stood still while the player walked on");
+        Assert.That(screen.AudioQueueRows.Count(row => row.IsCurrent), Is.EqualTo(1),
+            "and the tune that plays is one of the rows the viewer is shown");
+        Assert.That(screen.AudioQueueRows.First(row => row.IsCurrent).Name, Is.EqualTo("Tune 6"),
+            "the row saying it plays names another tune than the one the player opened");
+      }
+      finally
+      {
+        screen.Dispose();
+      }
+    }
+
+    [Test]
+    public void TheRowThatWasPressedOpensItsOwnTune()
+    {
+      // What a press carries is the row, never a place in the list: a place is counted against a window the
+      // queue may have walked out of since the row was drawn, and counting it against the queue's own window
+      // opens some other tune than the one the viewer pointed at.
+      FakePlayer player = new FakePlayer();
+      NowPlayingViewModel screen = new NowPlayingViewModel(player);
+      try
+      {
+        List<TitleViewModel> shelf = Shelf(16);
+        screen.Play(Playable(shelf[0]), shelf[0].Title.Id, 0, shelf[0].Name);
+        screen.PlayingAspect = "AudioItem";
+        screen.LoadAudioQueue(shelf, 0, "AudioItem");
+        screen.GiveTunesRoom(5);
+        for (int walked = 0; walked < 5; walked++)
+          player.RaiseEndOfMedia();
+
+        AudioQueueRow pressed = screen.AudioQueueRows[1];
+        Assert.That(screen.PlayQueuedTune(pressed), Is.True, "a row of the list refused its press");
+        Assert.That(screen.Title, Is.EqualTo(pressed.Name), "the pressed row opened another tune than its own");
+      }
+      finally
+      {
+        screen.Dispose();
+      }
+    }
+
+    [Test]
     public void ASongPlayedFromNowherePlaysOnToNothing()
     {
       FakePlayer player = new FakePlayer();
@@ -537,6 +606,150 @@ namespace Tests.Frontend
           "a tall screen did not get all the rows the panel ever draws");
       queue.Slots = 0;
       Assert.That(queue.VisibleRows, Has.Count.EqualTo(1), "a screen with no room at all lost the tune it is on");
+    }
+
+    // ---- what a row says about its tune ------------------------------------------------------------------
+
+    [Test]
+    public void ARowWritesTheNumberTheLibraryGaveItsTune()
+    {
+      // The name the library hands over carries the tune's number in front of it ("5 - Song"), and the row cuts
+      // that off because a record's own list does not need the record named twice. What it cuts has to stand
+      // somewhere, and that somewhere is a column of its own: a name with a number glued in front of it reads as
+      // part of the name.
+      AudioQueueRow numbered = new AudioQueueRow(new TitleViewModel(new MediaTitle(Guid.NewGuid(),
+          "5 - Song", null, 2024, null, "file:///D:/Musik/05.mp3", false, Track: 5)));
+      Assert.That(numbered.Name, Is.EqualTo("Song"), "the row went on printing the number inside its name");
+      Assert.That(numbered.NumberWords, Is.EqualTo("5"),
+          "the number that was cut out of the name was never written in front of it");
+
+      // A tune the library never numbered has nothing to write, rather than a nought invented for it.
+      AudioQueueRow unnumbered = new AudioQueueRow(new TitleViewModel(new MediaTitle(Guid.NewGuid(),
+          "Untouched", null, 2024, null, "file:///D:/Musik/x.mp3", false, Artist: "The Long Nights")));
+      Assert.That(unnumbered.NumberWords, Is.Empty, "a tune with no number was given one");
+      Assert.That(unnumbered.Name, Is.EqualTo("Untouched"), "a tune with no number lost its name to the cut");
+    }
+
+    // ---- rolling the window over a record longer than the panel -----------------------------------------
+
+    [Test]
+    public void RollingTheWindowBringsTheTunesAfterItIn()
+    {
+      // Five rows of a twenty tune record with the fourth tune playing. The tunes standing behind the last row are
+      // not lost: the window rolls, and the tune that came in at the bottom is the one the key was aimed at.
+      AudioQueue queue = Loaded(20, 3);
+      queue.Slots = 5;
+      Assert.That(Names(queue), Is.EqualTo("Tune 4,Tune 5,Tune 6,Tune 7,Tune 8"),
+          "the window did not start where the player stands");
+
+      AudioQueueRow? came = queue.Scroll(1);
+      Assert.That(came, Is.Not.Null, "rolling towards the end of a record of twenty tunes was refused");
+      Assert.That(came!.Name, Is.EqualTo("Tune 9"), "the roll did not say which tune came into the window");
+      Assert.That(Names(queue), Is.EqualTo("Tune 5,Tune 6,Tune 7,Tune 8,Tune 9"),
+          "the window did not go with the roll");
+    }
+
+    [Test]
+    public void RollingBackBringsTheTunesBeforeTheWindowIn()
+    {
+      // In the middle of a long record the tunes already heard are the ones off the panel, and rolling back is
+      // how they are looked at again.
+      AudioQueue queue = Loaded(20, 9);
+      queue.Slots = 5;
+      Assert.That(Names(queue), Is.EqualTo("Tune 10,Tune 11,Tune 12,Tune 13,Tune 14"));
+
+      AudioQueueRow? came = queue.Scroll(-1);
+      Assert.That(came!.Name, Is.EqualTo("Tune 9"), "rolling back did not say which tune came into the window");
+      Assert.That(Names(queue), Is.EqualTo("Tune 9,Tune 10,Tune 11,Tune 12,Tune 13"));
+    }
+
+    [Test]
+    public void TheWindowStandsStillAtBothEndsOfTheRecord()
+    {
+      // Above the first tune of a record and under its last there is nothing to roll in, and the key is
+      // answered with "nothing" rather than with a window full of somebody else's tunes.
+      AudioQueue queue = Loaded(20, 0);
+      queue.Slots = 5;
+      Assert.That(queue.Scroll(-1), Is.Null, "the beginning of the record was rolled past");
+      Assert.That(queue.VisibleRows[0].Name, Is.EqualTo("Tune 1"), "the window moved at the first tune");
+
+      for (int rolled = 0; rolled < 20 && queue.Scroll(1) != null; rolled++)
+      {
+      }
+
+      Assert.That(queue.VisibleRows[queue.VisibleRows.Count - 1].Name, Is.EqualTo("Tune 20"),
+          "rolling to the end of a record did not reach its last tune");
+      Assert.That(queue.Scroll(1), Is.Null, "the end of the record was rolled past");
+      Assert.That(queue.VisibleRows, Has.Count.EqualTo(5), "rolling to an end lost rows");
+    }
+
+    [Test]
+    public void ABrowsedWindowKeepsItsPlaceAndTheWalkingRecordCallsItBack()
+    {
+      // Browsing is why the window can be rolled, so a rolled window is not pulled back on the spot - not even
+      // when the roll put the tune that plays off the panel. The record walking on is what calls that tune home
+      // again, and only once the tune it plays has actually left the window: a panel that goes on naming tunes the
+      // player left behind is the complaint this window exists to answer, and a panel that snatches itself away
+      // from under a browsing viewer answers a question nobody asked.
+      AudioQueue queue = Loaded(20, 3);
+      queue.Slots = 5;
+
+      Assert.That(queue.Scroll(1), Is.Not.Null);
+      Assert.That(queue.Current!.Name, Is.EqualTo("Tune 4"), "rolling stopped the tune that was playing");
+      Assert.That(Names(queue), Is.EqualTo("Tune 5,Tune 6,Tune 7,Tune 8,Tune 9"),
+          "the window was pulled back before anybody walked the record");
+
+      for (int walked = 0; walked < 5; walked++)
+        Assert.That(queue.Next(false), Is.True, "the record stopped walking on");
+
+      Assert.That(queue.Current!.Name, Is.EqualTo("Tune 9"), "the record did not walk to its ninth tune");
+      Assert.That(Names(queue), Is.EqualTo("Tune 5,Tune 6,Tune 7,Tune 8,Tune 9"),
+          "a record walking underneath a browsing viewer undid their roll while its own tune was still in view");
+
+      Assert.That(queue.Next(false), Is.True);
+      Assert.That(Names(queue), Is.EqualTo("Tune 10,Tune 11,Tune 12,Tune 13,Tune 14"),
+          "the panel went on showing tunes the player had left behind");
+    }
+
+    [Test]
+    public void WalkingBackIntoTheListCallsTheWindowBackToTheTuneThatPlays()
+    {
+      // A rolled window is a place somebody browsed to, and it stays put - while the record walks underneath it
+      // and while nobody asks it for anything. But a caret that walks back into the list from the buttons asks
+      // for the tune the room is hearing, and that tune outranks the browsed place, so the window is called back
+      // to it rather than leaving the caret standing on a tune somebody had to look for.
+      AudioQueue queue = Loaded(20, 3);
+      queue.Slots = 5;
+      Assert.That(queue.Scroll(1), Is.Not.Null);
+      Assert.That(Names(queue), Is.EqualTo("Tune 5,Tune 6,Tune 7,Tune 8,Tune 9"), "rolling moved the window");
+
+      queue.ReturnToPlayer();
+      Assert.That(Names(queue), Is.EqualTo("Tune 4,Tune 5,Tune 6,Tune 7,Tune 8"),
+          "walking back into the list left the window rolled away from the tune that plays");
+
+      // Asking again is answered by standing still: the window already follows the player, and a panel that
+      // jumped about on every key would be worse than one that holds its place.
+      queue.ReturnToPlayer();
+      Assert.That(Names(queue), Is.EqualTo("Tune 4,Tune 5,Tune 6,Tune 7,Tune 8"),
+          "a window that already followed the player was moved by being asked to");
+    }
+
+    [Test]
+    public void ASmallerPanelDoesNotLoseTheTuneThatPlays()
+    {
+      // The screen decides how many rows fit and may say fewer while a viewer is browsing the far end of the
+      // record. The window shrinks under them, and the tune that plays - the one row a panel beside a player
+      // always has room for - comes back into it.
+      AudioQueue queue = Loaded(20, 3);
+      queue.Slots = 5;
+      for (int rolled = 0; rolled < 20 && queue.Scroll(1) != null; rolled++)
+      {
+      }
+
+      Assert.That(queue.VisibleRows[queue.VisibleRows.Count - 1].Name, Is.EqualTo("Tune 20"));
+      queue.Slots = 3;
+      Assert.That(queue.VisibleRows.Any(row => row.IsCurrent), Is.True,
+          "a panel that lost rows left the tune that plays outside them");
     }
 
     [Test]

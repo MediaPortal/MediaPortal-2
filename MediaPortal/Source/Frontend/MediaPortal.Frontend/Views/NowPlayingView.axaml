@@ -312,9 +312,10 @@
     <!-- The card the tunes stand on glows while the caret stands inside it, with the one glow this screen's glass
          knows: twenty two of blur and four of spread in white at forty five per cent, which is what a plate of the
          transport wears the moment a hand or a ring is on it (PlayerGlassStyles.axaml:136,139). Reaching some
-         fifteen lines out, it stays well inside the card's own margins - sixty two lines to the right edge of the
-         screen, three hundred and twenty two to its foot - so no part of it is cut. Only a walk of the viewer's own
-         can bring it here, since a row offers no place for the caret until StandOnTune opens one. -->
+         twenty lines out, it stays well inside the room the card has - sixty two lines to the right edge of the
+         screen, and on its left hand the forward mark of the transport, whose plate ends fifty two lines off the
+         card's edge - so no part of it is cut. Only a walk of the viewer's own can bring it here, since a row
+         offers no place for the caret until StandOnTune opens one. -->
     <Style Selector="Border#audioQueue:focus-within">
       <Setter Property="BoxShadow" Value="0 0 22 4 #73FFFFFF"/>
     </Style>
@@ -553,17 +554,19 @@
       <!--
         The record's own lettering, drawn as a picture and not as type: what a media manager leaves beside the
         files as clearart.png or clearlogo.png. It stands over the row of boxes, on the same left line the cover
-        and the boxes stand on, and takes only the room the picture needs - the reference's own measure for this
-        picture is two hundred and fifty wide by a hundred and twenty high (CurrentlyPlayingAudioDetails.inc),
-        which is what it is capped at here. Most libraries carry none, and the row of boxes then simply stands
-        higher up the screen's left edge, which is the ordinary answer rather than a complaint.
+        and the boxes stand on, and takes only the room the picture needs. The reference's measure for this
+        picture is two hundred and fifty wide by a hundred and twenty high (CurrentlyPlayingAudioDetails.inc);
+        the viewer asked for forty per cent more of it, which is three hundred and fifty by a hundred and
+        sixty eight - the same shape, read from further back in the room. Most libraries carry none, and the row
+        of boxes then simply stands higher up the screen's left edge, which is the ordinary answer rather than a
+        complaint.
 
         It is asked for under the tune's own id: the server's walk through the album's folder answers ClearArt and
         Logo for a track too (LocalFanArtSearch.KINDS), and the importer files both names from the album's folder
         (AudioTagFanArtHandler.ExtractAlbumFolderCover). A library that filed its lettering under "Logo" only is
         answered by the second question the reader asks, exactly as the browser's album panel is.
       -->
-      <Image Name="audioClearArt" MaxWidth="250" MaxHeight="120" Stretch="Uniform"
+      <Image Name="audioClearArt" MaxWidth="350" MaxHeight="168" Stretch="Uniform"
              HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="62,0,0,750"
              Source="{Binding ClearArt, Converter={x:Static views:ArtworkConverter.Instance},
                               ConverterParameter=small}"
@@ -693,17 +696,22 @@
       The card, its corner and its rim are the cover's numbers - twenty of corner, the plate white at a fifth of
       its strength - over a ground of the black this screen's own shade wears at three eighths, so the words stay
       readable over a bright fanart without covering it with a second panel. Thirty-two lines of the screen's
-      standing margin keep it off the right edge, and its foot stands on the line the equalizer's foot stands on,
-      three hundred and twenty two above the floor.
+      standing margin keep it off the right edge, and its foot stands on the line the cover's foot stands on, two
+      hundred and forty two above the floor.
 
       What the viewer drew round it is a maximum and not a shape: the list may reach from seventy six lines under
-      the top of the screen down to two hundred and twenty three above the floor, but it only ever wears the height
-      its rows need. Ten rows on a screen as tall as the picture, four in a window of seven hundred and twenty, and
-      the rows that do not fit are a key away rather than painted over the edge.
+      the top of the screen down to that foot line, but it only ever wears the height its rows need. Twelve rows on
+      a screen as tall as the picture, five in a window of seven hundred and twenty, and nothing was squeezed to buy
+      them: the rows and the head of the panel are the size they were, and the room came from the foot line alone,
+      eighty lines lower.
+      What does not fit is a key away rather than lost - the drawn rows are a window into the record, the caret
+      walking off the top of the window rolls earlier tunes in and its walking off the bottom rolls later ones in,
+      and it is only under the last tune of the record that the downward key leaves the list for the choices along
+      the foot. The wheel over the list turns that same window: a tune in, out of the end the wheel was turned to.
     -->
     <Border Name="audioQueue" Width="446" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-            Margin="0,0,62,322" Background="#4D000000" BorderBrush="#33FFFFFF" BorderThickness="1"
-            CornerRadius="20" IsVisible="{Binding ShowsAudioQueue}">
+            Margin="0,0,62,242" Background="#4D000000" BorderBrush="#33FFFFFF" BorderThickness="1"
+            CornerRadius="20" IsVisible="{Binding ShowsAudioQueue}" PointerWheelChanged="OnTunesWheel">
       <StackPanel>
         <Grid Height="66" ColumnDefinitions="*,Auto" Margin="20,0">
           <TextBlock Grid.Column="0" Text="{Binding AudioQueueRecord}" FontSize="22" FontWeight="Bold"
@@ -725,18 +733,31 @@
                    The padding is two lines tighter than the picker rows wear (eighteen and ten, against eighteen and
                    twelve) because a row under the caret pays three lines of rim to the side instead of one: that is
                    taken out of the padding and not out of the card, which would otherwise grow four lines and push
-                   the whole list up the screen every time the caret walked in. Ten rows of fifty two lines plus four
-                   of margin are what the fit in the code behind counts. -->
+                   the whole list up the screen every time the caret walked in. Twelve rows of fifty two lines plus
+                   four of margin are what the fit in the code behind counts. -->
               <Button Classes="choice" Classes.tune="True" Classes.current="{Binding IsCurrent}"
                       Focusable="False" Click="OnQueueRow" Margin="0,2" Padding="18,10"
                       HorizontalContentAlignment="Stretch"
                       AutomationProperties.Name="{Binding Spoken}">
-                <Grid ColumnDefinitions="*,Auto">
-                  <TextBlock Grid.Column="0" Text="{Binding Name}" VerticalAlignment="Center"
+                <!-- Three columns, the way the sleeve of a record writes its list: the number the library gave the
+                     tune, the tune's own name, and its minutes at the row's end. The number has a column of its
+                     own rather than being glued in front of the name - the name is what a viewer reads, and a
+                     name that starts with a number reads as a name with a number in front of it. The width is a
+                     width and not a minimum because every row lays its own grid: a column measured per row would
+                     shift the names of the rows with fewer digits sideways. Fifty lines wide, of which twelve
+                     stand between the digits and the name, so thirty eight are left for the digits: a frame
+                     rendered over a record of a hundred and twenty tunes measured its widest three digit number
+                     at thirty five lines at this row's size, and twenty lines had already cut "10", "12" and "13"
+                     sideways. Read at the same strength as the minutes, since both stand beside the name rather
+                     than being it. -->
+                <Grid ColumnDefinitions="50,*,Auto">
+                  <TextBlock Grid.Column="0" Text="{Binding NumberWords}" VerticalAlignment="Center"
+                             TextAlignment="Right" Opacity="0.6" Margin="0,0,12,0"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"
                              TextTrimming="CharacterEllipsis"/>
                   <!-- The tune's minutes, which the shelf never carried and the library answers one tune at a
                        time. A tune nobody wrote a length for stands empty rather than at "0:00". -->
-                  <TextBlock Grid.Column="1" Text="{Binding LengthWords}" VerticalAlignment="Center" Opacity="0.6"
+                  <TextBlock Grid.Column="2" Text="{Binding LengthWords}" VerticalAlignment="Center" Opacity="0.6"
                              Margin="12,0,2,0"/>
                 </Grid>
               </Button>

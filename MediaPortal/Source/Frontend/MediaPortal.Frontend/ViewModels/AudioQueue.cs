@@ -109,11 +109,20 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The number the library gave this tune on its record, or null when it never wrote one. Not drawn in
-    /// front of the name - the template's list carries no numbers - but a reader reading the list aloud gets
-    /// it from <see cref="Spoken"/>, and a list of tunes nobody numbered reads differently.
+    /// The number the library gave this tune on its record, or null when it never wrote one. A list of tunes
+    /// nobody numbered has nothing to stand in front of its names.
     /// </summary>
     public int? Number { get; }
+
+    /// <summary>
+    /// What the row prints in front of its name: the tune's number on its record, empty when the library never
+    /// wrote one. The name itself carries no number - <see cref="TuneName"/> cuts the library's own prefix off
+    /// it - so the number the row shows here is the only place it is written, and it is written in a column of
+    /// its own rather than glued to the name.
+    /// </summary>
+    public string NumberWords => Number.HasValue
+        ? Number.Value.ToString(CultureInfo.InvariantCulture)
+        : string.Empty;
 
     /// <summary>How long the tune is, "3:52", or empty while the library has not answered.</summary>
     public string LengthWords
@@ -209,9 +218,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>
     /// How many rows the panel has room for at the tallest. The panel grows with the record - four tunes make a
     /// four row panel - and stops growing here, because a list taller than the picture behind it is a list the
-    /// viewer has to read past a face. A shorter screen asks for fewer of them (see <see cref="Slots"/>).
+    /// viewer has to read past a face. The number is what the stage has room for between the two lines the
+    /// panel stands between: its foot on the line the cover's foot stands on and its head no higher than the
+    /// top of the screen leaves twelve rows of fifty two lines in a stage as tall as the picture, counting the
+    /// head of the panel and the air beneath the rows in. A shorter screen asks for fewer of them (see
+    /// <see cref="Slots"/>).
     /// </summary>
-    public const int SLOTS = 10;
+    public const int SLOTS = 12;
 
     /// <summary>
     /// How many rows the panel is allowed to show at once, which the screen sets: the list stands with its foot
@@ -228,6 +241,9 @@ namespace MediaPortal.Frontend.ViewModels
         if (_slots == room)
           return;
         _slots = room;
+        // A smaller room can push the tune that plays out of a window somebody had rolled, which is the one case
+        // in which the window goes back to the player by itself.
+        FollowIfLeft();
         Say();
       }
     }
@@ -283,11 +299,19 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The rows the panel shows: the current tune, the ones after it, and as many of the ones before it as
-    /// are left over. The ones after it win against the ones before it because "what is coming" is the
-    /// question a list beside a player answers, and the tunes that already played are the ones a viewer can
-    /// spare.
+    /// The rows the panel shows: a window of <see cref="Slots"/> rows out of <see cref="Walk"/>, standing where
+    /// the viewer rolled it (<see cref="Scroll"/>) and, while nobody rolled it, where the player stands: that
+    /// tune, the ones after it, and as many of the ones before it as are left over. The ones after it win against
+    /// the ones before it because "what is coming" is the question a list beside a player answers, and the tunes
+    /// that already played are the ones a viewer can spare.
     /// </summary>
+    /// <remarks>
+    /// The window is a window and not the record: a record of twenty tunes is not a twenty row panel, and the
+    /// tunes outside the window are a key away rather than lost. A window somebody rolled keeps its place -
+    /// browsing a part of a record is what rolling is for, and it may well roll the tune that plays off the panel
+    /// - and that tune is brought back the moment the record walks (see <see cref="FollowIfLeft"/>), because a
+    /// panel that goes on naming tunes the player has left behind is the complaint this window exists to answer.
+    /// </remarks>
     public IReadOnlyList<AudioQueueRow> VisibleRows
     {
       get
@@ -295,18 +319,96 @@ namespace MediaPortal.Frontend.ViewModels
         if (_at < 0 || _order.Count == 0)
           return Array.Empty<AudioQueueRow>();
 
-        int current = _order[_at];
         int slots = Math.Min(_slots, _order.Count);
-        int after = _order.Count - 1 - _at;
-        int shownAfter = Math.Min(after, slots - 1);
-        int shownBefore = Math.Min(_at, slots - 1 - shownAfter);
+        int top = StandingWindow(slots);
 
-        List<AudioQueueRow> shown = new List<AudioQueueRow>(shownBefore + 1 + shownAfter);
-        for (int at = _at - shownBefore; at <= _at + shownAfter; at++)
+        List<AudioQueueRow> shown = new List<AudioQueueRow>(slots);
+        for (int at = top; at < top + slots; at++)
           shown.Add(_rows[_order[at]]);
         return shown;
       }
     }
+
+    /// <summary>
+    /// Where the panel's window starts: the place it was rolled to, or - while nobody rolled it - the place the
+    /// player stands.
+    /// </summary>
+    private int StandingWindow(int slots)
+    {
+      if (_top >= 0)
+        return Math.Clamp(_top, 0, _order.Count - slots);
+
+      // The place the player stands: its own tune first, then as many tunes as are coming, then as many of the
+      // ones already played as the window has room left for.
+      int after = _order.Count - 1 - _at;
+      int shownAfter = Math.Min(after, slots - 1);
+      int shownBefore = Math.Min(_at, slots - 1 - shownAfter);
+      return _at - shownBefore;
+    }
+
+    /// <summary>
+    /// Bring the window back to the player when the tune that plays is no longer inside it. Asked wherever the
+    /// player's place in the record moved and wherever the room the panel has changed, and nowhere else: a window
+    /// a viewer rolled somewhere else keeps its place while the record stands still, and the walking record is
+    /// what calls the tune that plays home again.
+    /// </summary>
+    private void FollowIfLeft()
+    {
+      if (_top < 0)
+        return;
+
+      int slots = Math.Min(_slots, _order.Count);
+      if (_at < _top || _at >= _top + slots)
+        _top = -1;
+    }
+
+    /// <summary>
+    /// Lets the tune that plays lead the window again. Used when the caret walks back into the list from the
+    /// buttons: browsing may have rolled the playing tune clean off the panel, and the caret is supposed to stand
+    /// on that tune when someone enters the list.
+    /// </summary>
+    public void ReturnToPlayer()
+    {
+      if (_top < 0)
+        return;
+
+      _top = -1;
+      Say();
+    }
+
+    /// <summary>
+    /// Roll the window of rows the list shows, which is how a tune of the record that stands outside the window
+    /// is reached: the caret walks off the bottom of the window and the window walks with it. The window never
+    /// rolls off the record. It may roll the tune that plays out of sight - that is what browsing means - and the
+    /// record walking on brings that tune back (see <see cref="FollowIfLeft"/>).
+    /// </summary>
+    /// <param name="rows">Rows to roll: negative towards the beginning of the record, positive towards its end.</param>
+    /// <returns>
+    /// The tune that came into the window at the edge that was rolled towards - the row the caret has to stand
+    /// on - or null when the window already stood at that edge of the record and did not move.
+    /// </returns>
+    public AudioQueueRow? Scroll(int rows)
+    {
+      if (_at < 0 || _order.Count == 0 || rows == 0)
+        return null;
+
+      int slots = Math.Min(_slots, _order.Count);
+      int standing = StandingWindow(slots);
+      int wanted = Math.Clamp(standing + rows, 0, _order.Count - slots);
+      if (wanted == standing)
+        return null;
+
+      _top = wanted;
+      Say();
+      return _rows[_order[rows > 0 ? wanted + slots - 1 : wanted]];
+    }
+
+    /// <summary>
+    /// Where the panel's window was rolled to, as a place in <see cref="Walk"/>, or -1 while nobody rolled it and
+    /// the window follows the player. Kept as the rolled place rather than the shown one, so that a record
+    /// walking on underneath it can pull the window back without forgetting that somebody was browsing.
+    /// </summary>
+    private int _top = -1;
 
     /// <summary>Whether there is anything to show at all: a lone tune is not a list.</summary>
     public bool ShowsList
@@ -341,6 +443,9 @@ namespace MediaPortal.Frontend.ViewModels
           return;
         _shuffled = value;
         Reorder();
+        // A rolled window is a place in the order, and the shuffle just rewrote that order: the place would
+        // mean some other tune's rows now, so the panel goes back to standing where the player stands.
+        _top = -1;
         Say();
       }
     }
@@ -431,6 +536,7 @@ namespace MediaPortal.Frontend.ViewModels
       _rows.Clear();
       _order.Clear();
       _at = -1;
+      _top = -1;
       _refusals = 0;
       _reading++;
       Say();
@@ -687,6 +793,9 @@ namespace MediaPortal.Frontend.ViewModels
       AudioQueueRow row = _rows[_order[at]];
       row.IsCurrent = true;
       _refusals = 0;
+      // The record walked, so the window is asked whether the tune that plays still stands inside it before the
+      // panel is told to read the window again.
+      FollowIfLeft();
       Ask(row);
     }
 

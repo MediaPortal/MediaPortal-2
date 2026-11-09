@@ -180,6 +180,14 @@ namespace MediaPortal.Frontend.ViewModels
       // allowed to open a media. It is listened to whether or not there is a player, so that a machine without
       // one still answers its viewer with a refusal rather than with silence.
       _queue.PlayRequested += OnQueueTuneAsked;
+      // And the panel beside the equalizer is put down again every time the queue says anything at all, which
+      // includes the walks it makes by itself - a tune ending is nobody's press, and the list of tunes standing
+      // beside the player has to follow the player just the same. Read the other way round - only the presses
+      // that came through this class's own doors repainting the panel - the window over the record quietly
+      // walked on while the screen went on drawing the window it had drawn when the record started: the tune
+      // that plays leaves that picture after a few tunes, and a row pressed in a list nobody is looking at
+      // answers with the tune standing at that place in the window the queue has long since left.
+      _queue.Changed += delegate { ShowQueue(); };
     }
 
     /// <summary>Raised when any of the properties below changed - always through the marshaller.</summary>
@@ -1564,6 +1572,21 @@ namespace MediaPortal.Frontend.ViewModels
     private string? _runAspect;
 
     /// <summary>
+    /// Raised before the rows beside the equalizer are taken away, which is the last moment at which the screen
+    /// can still ask its caret where it stands - the rows it stands on are about to be gone, and a row that is
+    /// gone answers "nowhere" like every other missing thing.
+    /// </summary>
+    public event EventHandler? AudioQueueRowsLeaving;
+
+    /// <summary>
+    /// Raised after the rows beside the equalizer were put down again, which is the moment the screen's rows are
+    /// a different set of tunes than the ones it is drawing. The caret standing among them has to be thought
+    /// about then - see the screen's answer, which keeps it on the tune it stood on or hands it to the tune that
+    /// plays.
+    /// </summary>
+    public event EventHandler? AudioQueueRowsChanged;
+
+    /// <summary>
     /// The tunes that belong to what is playing: the record a song was pressed from, or the list the press
     /// happened in. Empty when a lone file was opened, when a film is playing, and after the viewer pressed
     /// stop - which are all the cases in which nothing is waiting behind the current tune.
@@ -1588,6 +1611,16 @@ namespace MediaPortal.Frontend.ViewModels
     public string AudioQueuePosition
     {
       get { return _queue.PositionWords; }
+    }
+
+    /// <summary>
+    /// The tune the room is hearing - whether or not the panel's window of rows happens to show it, which it may
+    /// not while somebody is browsing the far end of a long record. The caret that walks into the list is owed to
+    /// this tune, and it is this tune a rolled window is called back to.
+    /// </summary>
+    public AudioQueueRow? TuneThatPlays
+    {
+      get { return _queue.Current; }
     }
 
     /// <summary>
@@ -1740,10 +1773,44 @@ namespace MediaPortal.Frontend.ViewModels
       return _queue.Previous();
     }
 
-    /// <summary>A row of the panel was pressed. The rows shown are the queue's own, so the number is its number.</summary>
-    public bool PlayQueuedTune(int at)
+    /// <summary>
+    /// A row of the panel was pressed: that tune now, the ones behind it keeping their places. The row itself
+    /// comes over rather than a number counted against the rows on screen, because those rows are a window out
+    /// of the record which walks whenever the player does - a number aimed at a window that has since moved
+    /// plays whichever tune happens to stand at that place now, which is a different tune from the one a hand
+    /// reached for.
+    /// </summary>
+    public bool PlayQueuedTune(AudioQueueRow row)
     {
-      return _queue.PlayAt(at) ? true : Refuse("that tune is not in the list.");
+      return _queue.PlayRow(row) ? true : Refuse("that tune is not in the list.");
+    }
+
+    /// <summary>
+    /// Roll the panel's window of rows, which is how a tune of the record standing outside the window is reached:
+    /// the caret walks off the end of the window and the window walks with it, so a record longer than the panel
+    /// stays whole instead of ending where its rows do. The window never rolls off the record. Browsing may roll
+    /// the tune that plays out of sight - that is what browsing means - and the record walking on brings it back
+    /// (see <see cref="ReturnTunesToThePlayer"/>). The panel is repainted on its own, through the queue's own
+    /// question (<see cref="AudioQueueRowsChanged"/>), so nothing is drawn twice here.
+    /// </summary>
+    /// <param name="rows">Rows to roll: negative towards the beginning of the record, positive towards its end.</param>
+    /// <returns>
+    /// The tune that came into the window at the edge that was rolled towards - the row to hand the caret to -
+    /// or null when the record ended there and the window stood still.
+    /// </returns>
+    public AudioQueueRow? ScrollTunes(int rows)
+    {
+      return _queue.Scroll(rows);
+    }
+
+    /// <summary>
+    /// Let the tune that plays lead the panel's window again, which is what walking into the list from the
+    /// buttons means: the caret is supposed to land on the tune that plays, and browsing may have rolled that
+    /// tune off the panel. Does nothing while the window already follows the player.
+    /// </summary>
+    public void ReturnTunesToThePlayer()
+    {
+      _queue.ReturnToPlayer();
     }
 
     /// <summary>
@@ -1776,7 +1843,6 @@ namespace MediaPortal.Frontend.ViewModels
       });
     }
 
-    /// <summary>Put the rows the queue has room for on the screen, and tell the bindings to read again.</summary>
     /// <summary>
     /// Tell the list how many rows the screen has room for. The list stands with its foot a fixed distance above
     /// the floor, so the height of the window decides how many tunes fit between that foot and the top of the
@@ -1792,12 +1858,20 @@ namespace MediaPortal.Frontend.ViewModels
       ShowQueue();
     }
 
+    /// <summary>
+    /// Put the rows the queue has room for on the screen, and tell the bindings to read again. Said before and
+    /// again after the painting - <see cref="AudioQueueRowsLeaving"/> and <see cref="AudioQueueRowsChanged"/> -
+    /// because the screen's caret standing among those rows can only be asked where it stands while they are
+    /// still down, and can only be answered once the new ones are.
+    /// </summary>
     private void ShowQueue()
     {
+      AudioQueueRowsLeaving?.Invoke(this, EventArgs.Empty);
       _audioQueueRows.Clear();
       foreach (AudioQueueRow row in _queue.VisibleRows)
         _audioQueueRows.Add(row);
       Raise();
+      AudioQueueRowsChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

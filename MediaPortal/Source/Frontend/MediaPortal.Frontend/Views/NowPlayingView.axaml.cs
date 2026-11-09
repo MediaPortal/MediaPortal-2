@@ -502,25 +502,17 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// A row of the record's list was pressed: that tune now. The row is looked up in the rows the panel is
-    /// showing rather than carrying a number of its own, because the rows the panel shows are a window out of the
-    /// record that moves every time the player does, and a number written into a row at its birth would be the
-    /// number of some other tune by the time a hand reached it.
+    /// A row of the record's list was pressed: that tune now. The row itself goes over to the view model rather
+    /// than its place in the list, because the rows on screen are a window out of the record that walks whenever
+    /// the player does - a place counted against a window that has moved answers with the tune standing there
+    /// now, which is a different tune from the one the hand reached for.
     /// </summary>
     private void OnQueueRow(object? sender, RoutedEventArgs e)
     {
       if (sender is not Button { DataContext: AudioQueueRow row })
         return;
 
-      IReadOnlyList<AudioQueueRow> rows = _viewModel.AudioQueueRows;
-      for (int at = 0; at < rows.Count; at++)
-      {
-        if (ReferenceEquals(rows[at], row))
-        {
-          _viewModel.PlayQueuedTune(at);
-          return;
-        }
-      }
+      _viewModel.PlayQueuedTune(row);
     }
 
     private void OnForward(object? sender, RoutedEventArgs e)
@@ -1022,6 +1014,19 @@ namespace MediaPortal.Frontend.Views
     // the panel gives and the only one that tells a viewer the walk ended here rather than went nowhere.
     // ---------------------------------------------------------------------------------------------
 
+    /// <summary>
+    /// Whether the caret stood inside the list of tunes the last time that list was taken away to be painted over,
+    /// and on which of its tunes. Both are read at that one moment - <see cref="OnTunesLeaving"/> - because it is
+    /// the last moment at which the caret is still standing where it stands: taking the rows away detaches them,
+    /// and a detached row answers "no focus anywhere", which cannot be told apart from a caret that was never in
+    /// the list. Together they are the answer to one question and nothing else: whose row to stand the caret on
+    /// again once the new window of tunes is down.
+    /// </summary>
+    private bool _caretStoodInTunes;
+
+    /// <summary>The tune the caret stood on, or null while it stood in the list but not on one of its rows.</summary>
+    private AudioQueueRow? _tuneCaret;
+
     /// <summary>Whether <paramref name="element"/> is the list of tunes itself or stands inside it.</summary>
     private bool IsWithinTunes(Visual element)
     {
@@ -1088,33 +1093,171 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// The row the list drawn from one particular tune, or null while no row of it stands on the screen. Asked of
+    /// the rows themselves rather than of the tunes the list is showing, because while a window of tunes is being
+    /// painted over, the rows still standing are the ones of the old window: the tune asked for has no row yet,
+    /// which is a different answer from "its row is the third one".
+    /// </summary>
+    private Control? RowOfTune(AudioQueueRow tune)
+    {
+      foreach (Control row in TuneRows())
+        if (ReferenceEquals(row.DataContext, tune))
+          return row;
+
+      return null;
+    }
+
+    /// <summary>
+    /// Stand the caret on the row of one particular tune, which is the row of the list drawn from that tune.
+    /// </summary>
+    /// <returns>Whether a row of that tune was standing on the screen to be stood on.</returns>
+    private bool StandOnRowOf(AudioQueueRow tune)
+    {
+      Control? row = RowOfTune(tune);
+      if (row == null)
+        return false;
+
+      StandOnTune(row);
+      return true;
+    }
+
+    /// <summary>
     /// Put the caret on the tune that is playing: whoever steps sideways out of the transport wants to be standing
-    /// at the tune the room is hearing, not at whichever end the list happens to show.
+    /// at the tune the room is hearing, not at whichever end the list happens to show. A list in which no row says
+    /// it plays - a record whose tune was opened elsewhere, before this screen knew about it - is answered with its
+    /// first row, because a key that came looking for the player is not to go unanswered.
+    ///
+    /// Browsing may have rolled the window of rows clean off the tune that plays, and that tune still outranks
+    /// wherever browsing left the window: the window is called back to the player, and the caret is owed to that
+    /// tune the moment its row is down.
     /// </summary>
     private void FocusCurrentTune()
     {
-      List<Control> rows = TuneRows();
-      if (rows.Count == 0)
+      AudioQueueRow? plays = _viewModel.TuneThatPlays;
+
+      if (plays != null && RowOfTune(plays) == null)
+      {
+        _viewModel.ReturnTunesToThePlayer();
+        StandOnTuneSoon(plays);
+        return;
+      }
+
+      _tuneCaret = plays;
+      StandOnTheTuneThatPlays();
+    }
+
+    /// <summary>
+    /// Stand the caret on whichever row says it plays, and on the head row of a list in which none does.
+    /// </summary>
+    private void StandOnTheTuneThatPlays()
+    {
+      AudioQueueRow? plays = _viewModel.TuneThatPlays;
+      if (plays != null && StandOnRowOf(plays))
         return;
 
-      IReadOnlyList<AudioQueueRow> shown = _viewModel.AudioQueueRows;
-      int at = 0;
-      for (int i = 0; i < shown.Count && i < rows.Count; i++)
-        if (shown[i].IsCurrent)
-        {
-          at = i;
-          break;
-        }
+      foreach (AudioQueueRow row in _viewModel.AudioQueueRows)
+        if (row.IsCurrent && StandOnRowOf(row))
+          return;
 
-      StandOnTune(rows[at]);
+      List<Control> rows = TuneRows();
+      if (rows.Count > 0)
+        StandOnTune(rows[0]);
+    }
+
+    /// <summary>
+    /// The rows beside the equalizer are about to be taken away and painted over with the window of tunes the
+    /// player stands in, which the queue does by itself every time a tune runs out. This is the last moment at
+    /// which the caret can be asked where it stands - see the two fields this writes - and it is asked at no
+    /// other time.
+    /// </summary>
+    private void OnTunesLeaving(object? sender, EventArgs e)
+    {
+      _caretStoodInTunes = audioQueue.IsKeyboardFocusWithin;
+      _tuneCaret = _caretStoodInTunes ? TuneUnderCaret() : null;
+    }
+
+    /// <summary>
+    /// The tune the row under the caret is showing, or null while the caret stands somewhere in the list - its
+    /// head, say - but not on one of its rows.
+    /// </summary>
+    private AudioQueueRow? TuneUnderCaret()
+    {
+      foreach (Control row in TuneRows())
+        if (row.IsKeyboardFocusWithin && row.DataContext is AudioQueueRow tune)
+          return tune;
+
+      return null;
+    }
+
+    /// <summary>
+    /// The new window of tunes is down, and the old rows took the caret standing on one of them with them. A caret
+    /// that walks off over a repaint is worse than one that was never there - it is where the next key lands - so
+    /// it is put down again in the same order of preference the list itself is built in: the tune it stood on,
+    /// while that tune is still on the screen, and otherwise the tune that plays, which is the one tune the list
+    /// always has room for. A caret that stood outside the list stays where it stands; repainting the list is
+    /// nobody's business out by the loudspeaker.
+    /// </summary>
+    private void OnTunesRepainted(object? sender, EventArgs e)
+    {
+      if (!_caretStoodInTunes)
+        return;
+
+      _caretStoodInTunes = false;
+      GiveTheCaretItsTuneSoon();
+    }
+
+    /// <summary>
+    /// Put the caret back onto the tune it was owed to - now, or one beat later, which is when the rows of a
+    /// window that was just painted over are buttons again. Where the beat still brings no row of that tune, the
+    /// list stopped showing it for good - the record walked past it - and the caret stands on the tune that plays,
+    /// which is the one tune a panel beside a player always has room for.
+    /// </summary>
+    private void GiveTheCaretItsTuneSoon()
+    {
+      if (FollowCaretOntoTheTunes())
+        return;
+
+      Dispatcher.UIThread.Post(delegate
+      {
+        if (!FollowCaretOntoTheTunes())
+        {
+          _tuneCaret = null;
+          StandOnTheTuneThatPlays();
+        }
+      }, DispatcherPriority.Loaded);
+    }
+
+    /// <returns>
+    /// Whether the caret is answered: stood on the tune it was owed to, or - while the list owes it nothing - on
+    /// the tune that plays. False while nothing of the list is down to stand on, which is what the beat above is
+    /// for, and false while the tune it owes the caret to has no row among the ones down.
+    /// </returns>
+    private bool FollowCaretOntoTheTunes()
+    {
+      if (_viewModel.AudioQueueRows.Count == 0)
+        return true; // The record left the screen - stopped, or a film opened over it. No row is left to answer with.
+
+      AudioQueueRow? owed = _tuneCaret;
+      if (owed != null)
+        return StandOnRowOf(owed);
+
+      if (TuneRows().Count == 0)
+        return false;
+
+      StandOnTheTuneThatPlays();
+      return true;
     }
 
     /// <summary>
     /// What the four keys answer while the caret stands in the list of tunes: up and down climb the rows, left
     /// steps back onto the transport, and right - the direction the list holds nothing in - nods the list against
-    /// its own edge. Up at the first row nods as well, which is how the end of a record is felt as an end rather
-    /// than as a key somebody dropped; down at the last row does not, because the choices along the foot's right
-    /// hand stand under the list and are the next thing on the screen - see StepDownOutOfTunes.
+    /// its own edge. Up and down do not stop at the rows that are drawn: the rows are a window out of the record,
+    /// so a key at the top of the window rolls earlier tunes in and a key at its bottom rolls later ones in,
+    /// which is the only way a record longer than its panel can be walked to any of its tunes. The two ends of
+    /// the <em>record</em> answer differently, because they are not the same place: above its first tune there is
+    /// nothing, and the key nods the list against its own edge - which is how the beginning of a record is felt as
+    /// a beginning rather than as a key somebody dropped - while under its last tune the choices along the foot's
+    /// right hand stand, and the key steps onto them (see StepDownOutOfTunes).
     /// </summary>
     private void MoveTunes(Key key)
     {
@@ -1140,7 +1283,7 @@ namespace MediaPortal.Frontend.Views
         case Key.Up:
           if (at > 0)
             StandOnTune(rows[at - 1]);
-          else
+          else if (!RollTunes(-1))
             BounceTunes(0, -1);
           break;
 
@@ -1162,6 +1305,65 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// Roll the window of rows the list shows, which is what a key at one of its ends does while the record runs
+    /// further in that direction: the rows are a window out of the record and the record is the list, so the walk
+    /// goes on into tunes that were not drawn a moment ago. The caret is handed to the tune that came in at that
+    /// edge, which is the tune the key was aimed at.
+    /// </summary>
+    /// <returns>
+    /// Whether the record had anything further in that direction to roll in. Where it had nothing - above its
+    /// first tune - the key is the list's own edge to answer, and where it had nothing below its last tune the
+    /// choices standing under the list are the next thing on the screen.
+    /// </returns>
+    private bool RollTunes(int rows)
+    {
+      AudioQueueRow? came = _viewModel.ScrollTunes(rows);
+      if (came == null)
+        return false;
+
+      StandOnTuneSoon(came);
+      return true;
+    }
+
+    /// <summary>
+    /// What the wheel answers over the list of tunes, which is the same thing the two arrow keys answer and for the
+    /// same reason: the rows are a window out of the record, and a record longer than its panel can only be read by
+    /// rolling that window.
+    ///
+    /// Where the caret stands decides what a turn costs, because the two cases are not the same viewer doing the
+    /// same thing. With the caret <em>in</em> the list the turn is the arrow key it points at - the caret walks a
+    /// tune, and at either end of the window the walk rolls the window with it - since a caret left standing on a
+    /// tune the window rolled away from is a caret the screen has quietly taken away. With the caret standing out
+    /// by the loudspeaker a turn rolls the window alone and leaves the caret where it stands: reading through a
+    /// record with the wheel is nobody's business out there, and it must not drag the caret into the list.
+    /// </summary>
+    private void OnTunesWheel(object? sender, PointerWheelEventArgs e)
+    {
+      if (e.Delta.Y == 0 || !audioQueue.IsEffectivelyVisible)
+        return;
+
+      Key towards = e.Delta.Y < 0 ? Key.Down : Key.Up;
+      if (audioQueue.IsKeyboardFocusWithin)
+        MoveTunes(towards);
+      else
+        _viewModel.ScrollTunes(e.Delta.Y < 0 ? 1 : -1);
+
+      e.Handled = true;
+    }
+
+    /// <summary>
+    /// Hand the caret to one particular tune of the list - now, or the moment its row is down. Rolling the window
+    /// takes the rows away and paints others in their place, and how quickly those rows are buttons again is the
+    /// list's own business, so the caret is owed to the tune rather than pushed at whatever is standing.
+    /// </summary>
+    private void StandOnTuneSoon(AudioQueueRow tune)
+    {
+      _tuneCaret = tune;
+      _caretStoodInTunes = true;
+      GiveTheCaretItsTuneSoon();
+    }
+
+    /// <summary>
     /// Step out of the list of tunes back onto the row of buttons it stands beside. The panel is raised first if
     /// the viewer had let it fall asleep, because the caret is about to stand on it and a caret nobody can see is
     /// worse than no caret at all.
@@ -1180,19 +1382,28 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Step out of the bottom end of the list of tunes onto the choices that stand under it. The list is not the
-    /// last thing on the screen: its foot is at three hundred and twenty two lines above the floor, and the
-    /// loudspeaker, the full screen and the settings stand at the foot's right hand under that foot (measured at a
-    /// screen as tall as the picture: their middles at one thousand and nineteen lines, the list's foot at seven
-    /// hundred and fifty eight). The way up from those choices into the list is already answered above, so this is
-    /// the same door walked the other way, and the caret lands on whichever of them the row it left stands most
-    /// over - the row and the choices are compared by the place on the screen a viewer sees them, for the same
-    /// reason <see cref="AcrossTheScreen"/> exists. The panel is raised first if the viewer had let it fall asleep,
-    /// because a caret nobody can see is worse than no caret at all. Only where nothing of the panel stands under
-    /// the list does the list nod at its own end, which is the answer a list with nothing under it owes.
+    /// Step out of the bottom end of the list of tunes - or on into the record, which is what that key mostly
+    /// means: the rows are a window out of the record, so the first thing asked here is whether the record has a
+    /// tune below the window, and if it has the window rolls and the caret stands on the tune that came in
+    /// (<see cref="RollTunes"/>). Only under the last tune of the record is the bottom of the list its end, and
+    /// then the step goes on to what stands under it.
+    ///
+    /// The list is not the last thing on the screen: its foot stands on the line the cover's foot stands on, two
+    /// hundred and forty two lines above the floor, and the loudspeaker, the full screen and the settings stand at
+    /// the foot's right hand under that foot (measured at a screen as tall as the picture: their middles at one
+    /// thousand and nineteen lines, the list's foot at eight hundred and thirty eight). The way up from those
+    /// choices into the list is already answered above, so this is the same door walked the other way, and the
+    /// caret lands on whichever of them the row it left stands most over - the row and the choices are compared by
+    /// the place on the screen a viewer sees them, for the same reason <see cref="AcrossTheScreen"/> exists. The
+    /// panel is raised first if the viewer had let it fall asleep, because a caret nobody can see is worse than no
+    /// caret at all. Only where nothing of the panel stands under the list does the list nod at its own end, which
+    /// is the answer a list with nothing under it owes.
     /// </summary>
     private void StepDownOutOfTunes(Control left)
     {
+      if (RollTunes(1))
+        return;
+
       if (!_osdVisible)
         SetOsdVisible(true);
 
@@ -1231,6 +1442,8 @@ namespace MediaPortal.Frontend.Views
         return;
       }
 
+      // Out of the list and onto a control standing under it. The repaint that follows a tune taking care of the
+      // caret only ever answers a caret that is still inside the list, so nothing has to be unwound here.
       below.Focus();
     }
 
@@ -1239,17 +1452,22 @@ namespace MediaPortal.Frontend.Views
     //
     // The list stands with its foot a fixed distance above the floor and may grow up to a limit near the top of
     // the screen; between those two lines it wears only the height its rows need. The numbers below are the ones
-    // the panel is built with in NowPlayingView.axaml: the Border's bottom margin of three hundred and twenty two
+    // the panel is built with in NowPlayingView.axaml: the Border's bottom margin of two hundred and forty two
     // lines, the top its own bounds may not go over, the heading of sixty six, the row of fifty two lines plus its
     // two lines of margin above and below, the items' fourteen lines of bottom margin and the panel's two lines of
     // rim.
     //
-    // A screen as tall as the picture leaves room for all ten rows the list ever draws, a window of seven hundred
-    // and twenty leaves four, and the tunes that do not fit are a key away down the list rather than painted over
-    // the top of the screen. The record keeps all its tunes either way - the head of the panel still counts them.
+    // The two lines are the two the viewer drew round the panel: its head under the top of the screen, and its
+    // foot on the line the cover's foot stands on - which is why the panel is not tied to the equalizer's foot any
+    // more, since the bars end eighty lines higher and the list was shorter than the room it had been given.
+    // Nothing was squeezed for it: the rows and the head of the panel are the size they were.
+    //
+    // A screen as tall as the picture leaves room for twelve rows, a window of seven hundred and twenty for five,
+    // and the tunes that do not fit are a key away down the list rather than painted over the top of the screen.
+    // The record keeps all its tunes either way - the head of the panel still counts them.
     // ---------------------------------------------------------------------------------------------
 
-    private const double TUNE_LIST_FOOT = 322;
+    private const double TUNE_LIST_FOOT = 242;
     private const double TUNE_LIST_TOP = 76;
     private const double TUNE_LIST_HEADING = 66;
     private const double TUNE_LIST_ROW = 56;
@@ -1677,6 +1895,10 @@ namespace MediaPortal.Frontend.Views
     private void OnFollowingPlayback()
     {
       _viewModel.Changed += OnPlaybackChanged;
+      // The record's list beside the equalizer paints itself over whenever the player walks on, and the caret
+      // standing among its rows has to be read before that and answered after it.
+      _viewModel.AudioQueueRowsLeaving += OnTunesLeaving;
+      _viewModel.AudioQueueRowsChanged += OnTunesRepainted;
       _ = _viewModel.ReadCoverAsync();
       // The record a song came off, asked the same guarded way as the cover: the audio arrangement lays it behind
       // the cover and turns it, and a library that keeps no picture of the disc shows the skin's own record.
@@ -1728,6 +1950,8 @@ namespace MediaPortal.Frontend.Views
     private void OnStoppingPlayback()
     {
       _viewModel.Changed -= OnPlaybackChanged;
+      _viewModel.AudioQueueRowsLeaving -= OnTunesLeaving;
+      _viewModel.AudioQueueRowsChanged -= OnTunesRepainted;
 
       // The record stops with the visit. The song carries on - this screen leaving is not the listener stopping
       // - but nothing here is left turning over a picture nobody is looking at.
