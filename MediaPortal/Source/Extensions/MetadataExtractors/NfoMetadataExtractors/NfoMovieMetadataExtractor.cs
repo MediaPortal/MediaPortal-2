@@ -67,6 +67,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
     private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
 
+    /// <summary>
+    /// The name a folder of a film's own trailer files goes by. Written both ways because a share served from
+    /// Windows does not care about the case of a name and one served from Linux does, and the folders in the
+    /// wild are split between the two.
+    /// </summary>
+    private readonly static ICollection<string> TRAILER_SUBFOLDER_NAMES = new List<string> { "trailers", "Trailers" };
+
     #endregion
 
     #region Private fields
@@ -250,6 +257,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           return false;
         }
 
+        // The metadata file names the trailers somebody tagged, and a film folder commonly carries the studio's
+        // own trailer file beside the film without anybody ever tagging it. Both belong to the film, so the
+        // folder is searched as well.
+        TryWriteTrailerFilesOfFolder(mediaItemAccessor, extractedAspectData);
+
         _debugLogger.Info("[#{0}]: Successfully finished extracting metadata", miNumber);
         ServiceRegistration.Get<ILogger>().Debug("NfoMovieMetadataExtractor: Assigned nfo movie metadata for resource '{0}'", mediaItemAccessor);
         return true;
@@ -260,6 +272,172 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         _debugLogger.Error("[#{0}]: Exception while extracting metadata", e, miNumber);
         return false;
       }
+    }
+
+    /// <summary>
+    /// Notes the trailer files a film's folder carries beside the film itself.
+    /// </summary>
+    /// <param name="mediaItemAccessor">Points to the film the folder belongs to</param>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <remarks>
+    /// <para>
+    /// A metadata file names the trailers somebody typed in. A film folder commonly carries the studio's own
+    /// trailer file as well, and nobody ever tagged it - the tagging tools do not write those. So the folder is
+    /// searched too, by the two names a trailer file is conventionally left under: <c>Alien-trailer.mp4</c>
+    /// beside the film, which is the reference tool's own rule, and anything at all inside a folder called
+    /// <c>trailers</c>.
+    /// </para>
+    /// <para>
+    /// A trailer file is not imported as a film of its own, and this is the reason the search happens here:
+    /// the folder is already open for the film, and a trailer found on the way in is known to belong to this
+    /// film and to no other.
+    /// </para>
+    /// </remarks>
+    private void TryWriteTrailerFilesOfFolder(IResourceAccessor mediaItemAccessor,
+        IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      var mediaFsra = mediaItemAccessor as IFileSystemResourceAccessor;
+      if (mediaFsra == null)
+        return;
+
+      // The folder of a film is the folder its file stands in, or - for a film the library only knows as a
+      // stub, where there is no file behind the item - the folder the item points at itself.
+      var folderPath = mediaFsra.IsFile
+          ? ResourcePathHelper.Combine(mediaFsra.CanonicalLocalResourcePath, "../")
+          : mediaFsra.CanonicalLocalResourcePath;
+
+      IResourceAccessor folderRa;
+      if (!folderPath.TryCreateLocalResourceAccessor(out folderRa))
+        return;
+      var folderFsra = folderRa as IFileSystemResourceAccessor;
+      if (folderFsra == null)
+      {
+        folderRa.Dispose();
+        return;
+      }
+
+      using (folderFsra)
+      {
+        TryWriteTrailerFiles(extractedAspectData, folderFsra, mediaFsra, false);
+        foreach (string subfolderName in TRAILER_SUBFOLDER_NAMES)
+        {
+          if (!folderFsra.ResourceExists(subfolderName))
+            continue;
+          var trailersFolder = folderFsra.GetResource(subfolderName);
+          if (trailersFolder == null)
+            continue;
+          using (trailersFolder)
+            TryWriteTrailerFiles(extractedAspectData, trailersFolder, mediaFsra, true);
+          break;
+        }
+      }
+    }
+
+    /// <summary>
+    /// Writes every trailer file found in the given folder into <see cref="TrailerAspect"/>.
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <param name="folderFsra">The folder to look at, which is the film's own folder or its <c>trailers</c>
+    /// subfolder</param>
+    /// <param name="mediaFsra">The film itself, which is never a trailer of itself</param>
+    /// <param name="everyVideo">If <c>true</c>, every video file in the folder is a trailer, because a folder
+    /// called <c>trailers</c> holds nothing else</param>
+    private void TryWriteTrailerFiles(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData,
+        IFileSystemResourceAccessor folderFsra, IFileSystemResourceAccessor mediaFsra, bool everyVideo)
+    {
+      ICollection<IFileSystemResourceAccessor> files;
+      try
+      {
+        files = folderFsra.GetFiles();
+      }
+      catch (Exception e)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("NfoMovieMetadataExtractor: Cannot list the folder '{0}': {1}",
+            folderFsra, e.Message);
+        return;
+      }
+
+      try
+      {
+        foreach (var file in files)
+        {
+          string label;
+          if (!IsTrailerFile(file, mediaFsra, everyVideo, out label))
+            continue;
+          TrailerAspectWriter.Add(extractedAspectData, file.CanonicalLocalResourcePath.Serialize(),
+              TrailerAspect.KIND_FILE, label);
+        }
+      }
+      finally
+      {
+        // GetFiles hands out an accessor per file and expects the caller to close all of them, also the ones
+        // that were not looked at.
+        foreach (var file in files)
+          file.Dispose();
+      }
+    }
+
+    /// <summary>
+    /// Says whether a file in a film's folder is one of its trailers, and what the trailer is called.
+    /// </summary>
+    private bool IsTrailerFile(IFileSystemResourceAccessor file, IFileSystemResourceAccessor mediaFsra,
+        bool everyVideo, out string label)
+    {
+      label = null;
+      if (!file.IsFile)
+        return false;
+      // The film is not a trailer of itself, whatever it is called.
+      if (file.CanonicalLocalResourcePath.Equals(mediaFsra.CanonicalLocalResourcePath))
+        return false;
+      if (!IsVideoFile(file))
+        return false;
+
+      string name = ResourcePathHelper.GetFileNameWithoutExtension(file.CanonicalLocalResourcePath.Serialize());
+      if (string.IsNullOrEmpty(name))
+        return false;
+      string lower = name.ToLowerInvariant();
+      if (everyVideo)
+      {
+        // A folder called "trailers" says it itself, but a file inside it still carries a name worth showing.
+        label = lower == "trailer" ? null : name;
+        return true;
+      }
+      // The reference tool's rule: the trailer of "Alien" is "Alien-trailer", and a folder that keeps to no
+      // rule at all sometimes just calls the file "trailer".
+      if (lower == "trailer")
+        return true;
+      if (lower.EndsWith("-trailer", StringComparison.Ordinal))
+      {
+        // "Alien - Trailer 2" is the second trailer of the film and is worth showing under its own name.
+        string rest = name.Substring(0, name.Length - "-trailer".Length);
+        label = string.Equals(rest, FilmFolderName(mediaFsra), StringComparison.OrdinalIgnoreCase) ? null : rest;
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Says whether a file is a video by the extension of its name, which is all a folder has to go by.
+    /// </summary>
+    private static bool IsVideoFile(IFileSystemResourceAccessor file)
+    {
+      var localFsra = file as ILocalFsResourceAccessor;
+      if (localFsra == null)
+        return false;
+      string mimeType = MimeTypeDetector.GetMimeTypeFromExtension(localFsra.LocalFileSystemPath);
+      return !string.IsNullOrEmpty(mimeType) && mimeType.StartsWith("video/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// The name of the folder a film stands in, which is the name its trailer files are prefixed with.
+    /// </summary>
+    private string FilmFolderName(IFileSystemResourceAccessor mediaFsra)
+    {
+      var folder = mediaFsra.IsFile
+          ? ResourcePathHelper.Combine(mediaFsra.CanonicalLocalResourcePath, "../")
+          : mediaFsra.CanonicalLocalResourcePath;
+      string name = ResourcePathHelper.GetFileNameWithoutExtension(folder.Serialize());
+      return name ?? string.Empty;
     }
 
     #endregion

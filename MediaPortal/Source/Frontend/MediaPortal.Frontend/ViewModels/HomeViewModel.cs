@@ -50,7 +50,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// thread that owns the visual tree.
   /// </para>
   /// </remarks>
-  public partial class HomeViewModel : ObservableObject
+  public partial class HomeViewModel : ObservableObject, ITrailerAnswerHost
   {
     private ServerApiClient? _client;
     private CancellationTokenSource? _runningRefresh;
@@ -2112,6 +2112,72 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Said when the viewer asked to see one of a tile's short films. The same shape as the library's own ask of
+    /// the same kind (<c>MediaBrowserViewModel.TrailerRequested</c>), because the application owns the player and
+    /// the windows and these screens know neither.
+    /// </summary>
+    public event EventHandler<TrailerRequest>? TrailerRequested;
+
+    /// <summary>
+    /// Hands one of a tile's trailers to the application, or says in the dialog the press came out of why nothing
+    /// can be made of it.
+    /// </summary>
+    /// <remarks>
+    /// The dialog is asked to say the reason rather than the wall, because the wall wears its status line in a
+    /// head band that the content pane covers while a dialog stands over it - a sentence written there is written
+    /// where nobody is looking.
+    /// </remarks>
+    private void PlayTileTrailer(TitleViewModel title, MediaTrailer? trailer,
+        Services.TrailerQuality? quality = null)
+    {
+      if (trailer == null)
+        return;
+
+      _trailerAskedFor = title;
+
+      var address = title.TrailerLocation(trailer);
+      if (address == null)
+      {
+        TitleActions.Say("Nothing can be made of this trailer's address: " +
+                         (string.IsNullOrWhiteSpace(trailer.Source) ? "it names nothing" : trailer.Source));
+        return;
+      }
+
+      TrailerRequested?.Invoke(this, new TrailerRequest(title, trailer, quality));
+    }
+
+    /// <summary>
+    /// The tile a trailer was asked for, so that its answer can be put back into the dialog the press came out of;
+    /// <c>null</c> while no trailer was asked for.
+    /// </summary>
+    private TitleViewModel? _trailerAskedFor;
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// The wall takes its dialog away as soon as a line is pressed, because what a press opens normally stands
+    /// over the wall with no question behind it. A trailer from a video site is the exception worth putting the
+    /// dialog back for: its answer comes seconds later, and the wall's own status line is worn in a head band
+    /// that the content pane covers - a sentence written there is written where nobody is looking.
+    /// </remarks>
+    public void AnswerTrailer(string words)
+    {
+      if (string.IsNullOrEmpty(words))
+      {
+        if (TitleActions.IsOpen)
+          CloseTitleActions();
+        return;
+      }
+
+      TitleViewModel? asked = _trailerAskedFor;
+      if (asked != null && !TitleActions.IsOpen)
+        OpenTitleActions(asked);
+      else if (asked == null)
+        return;
+
+      TitleActions.Say(words);
+    }
+
+    /// <summary>
     /// The question a tile can be asked about the title it shows, and the answer that was stood on. The reference
     /// hung exactly this question on its home tiles - the tile template's
     /// <c>ContextMenuCommand</c> led to <c>MediaItemsActionModel.ShowMediaItemActionsEx</c> with the tile's own
@@ -2161,8 +2227,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// What a line of the dialog does: the same playback report the browser's dialog sends, folded back into the
     /// tile from the server's answer rather than from the press, so that the tile says what the library believes.
     /// </summary>
-    private async Task ReportTileActionAsync(TitleViewModel title, MediaTitleActionKind kind)
+    private async Task ReportTileActionAsync(TitleViewModel title, MediaTitleAction action)
     {
+      if (action.Kind == MediaTitleActionKind.Trailer || action.Kind == MediaTitleActionKind.TrailerChoice
+          || action.Kind == MediaTitleActionKind.TrailerQuality)
+      {
+        // Not a report to the library but an ask of the player, so it leaves here before the server is looked
+        // for: a trailer is not something the library is told about, and it is asked for even on a wall whose
+        // titles the viewer cannot mark watched.
+        PlayTileTrailer(title, action.Trailer, action.Quality);
+        return;
+      }
+
       ServerApiClient? client = Client;
       if (client == null)
       {
@@ -2170,7 +2246,7 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      if (kind == MediaTitleActionKind.Refresh)
+      if (action.Kind == MediaTitleActionKind.Refresh)
       {
         // Not a number to report but a question to ask, so it leaves here rather than joining the two watched
         // marks below, which are both playback reports.
@@ -2178,7 +2254,7 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
-      int percentage = kind == MediaTitleActionKind.SetPlayed ? 100 : 0;
+      int percentage = action.Kind == MediaTitleActionKind.SetPlayed ? 100 : 0;
       try
       {
         MediaPlayback after = await client.ReportPlaybackAsync(title.Title.Id, percentage);

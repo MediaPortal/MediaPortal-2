@@ -129,12 +129,14 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     private MediaTitle _title;
+    private readonly ServerApiClient? _stream;
 
     public TitleViewModel(MediaTitle title, bool holdsTitles = false, ServerApiClient? stream = null,
         string? readThrough = null)
     {
       _title = title;
       _holdsTitles = holdsTitles;
+      _stream = stream;
       ReadThrough = readThrough;
       if (!MediaLibraryPath.TryAsLocalFile(title.Path, out string localPath, out string? reason))
         _unplayableReason = reason;
@@ -175,6 +177,64 @@ namespace MediaPortal.Frontend.ViewModels
         _title = value;
         Raise();
       }
+    }
+
+    /// <summary>
+    /// The short films this title advertises itself with, in the order the library named them. Empty when the
+    /// library knows none, which is the usual case: a trailer has to be tagged in the title's own file or stand
+    /// in its folder under one of the names every tagging tool uses.
+    /// </summary>
+    public IReadOnlyList<MediaTrailer> Trailers
+    {
+      get { return _title.Trailers ?? Array.Empty<MediaTrailer>(); }
+    }
+
+    /// <summary>
+    /// Whether the library knows a trailer of this title, which is what decides whether the question about the
+    /// title offers a line for one.
+    /// </summary>
+    public bool HasTrailers
+    {
+      get { return _title.Trailers != null && _title.Trailers!.Count > 0; }
+    }
+
+    /// <summary>
+    /// What to hand the player for one of this title's trailers: the file on this machine when this machine can
+    /// open it, otherwise the address the server named.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The same order of preference as <see cref="PlaybackLocation"/> and for the same reason: whoever holds the
+    /// bytes should be the one handing them over, and a trailer is two minutes of picture nobody needs to fetch
+    /// across a network when it is sitting in the folder next to them.
+    /// </para>
+    /// <para>
+    /// Nothing comes back for a trailer whose address the server could not make sense of, or for a web address
+    /// this machine cannot read as an address. The screen naming it says that out loud - see
+    /// <see cref="MediaTitleActions.WordsFor"/>.
+    /// </para>
+    /// </remarks>
+    public MediaLocation? TrailerLocation(MediaTrailer trailer)
+    {
+      if (trailer == null || !trailer.IsPlayable)
+        return null;
+
+      // A file trailer is named by the library in the server's own serialization, which this machine can or
+      // cannot open; TryAsLocalFile is the one place that knows which, and it also says why not.
+      if (trailer.Kind == 1 &&
+          MediaLibraryPath.TryAsLocalFile(trailer.Source, out string localPath, out string? _))
+        return MediaLocation.FromFile(localPath);
+
+      string address = trailer.Address!;
+      if (!address.StartsWith("api/", StringComparison.OrdinalIgnoreCase))
+      {
+        // A web address, handed to the player as it stands. A trailer tagged by hand can hold anything, so an
+        // address nothing can read as an address is turned into nothing rather than into an exception.
+        return Uri.TryCreate(address, UriKind.Absolute, out Uri? web) ? MediaLocation.FromUrl(web) : null;
+      }
+
+      // The server's own address for a file it holds. Without a server to ask there is nothing to hand over.
+      return _stream == null ? null : MediaLocation.FromUrl(new Uri(_stream.BaseUrl, address));
     }
 
     /// <summary>
@@ -396,9 +456,26 @@ namespace MediaPortal.Frontend.ViewModels
     /// A finished title is never partly one - the reference drew the full flag alone at a hundred percent,
     /// and two corners on one tile would say two different things about the same viewing.
     /// </summary>
+    /// <summary>
+    /// Whether a tile may wear the partly-watched corner: somebody started it and the server knows how far - by
+    /// the position it holds for this title, or by the figure it worked out of a container's children. A finished
+    /// title is never partly one - the reference drew the full flag alone at a hundred percent, and two corners
+    /// on one tile would say two different things about the same viewing.
+    /// </summary>
     public bool IsPartlyWatched
     {
-      get { return !Seen && Title.Resume.HasValue && Title.Resume.Value > 0; }
+      get
+      {
+        if (Seen)
+          return false;
+
+        // A container is never paused - its episode, its track are - so it carries no position to return to, and
+        // only its figure says anything about it. Both answers mean one thing to the corner: something was
+        // watched here and is not finished.
+        int? percentage = Title.Percentage;
+        return percentage.HasValue && percentage.Value > 0
+            || Title.Resume.HasValue && Title.Resume.Value > 0;
+      }
     }
 
     /// <summary>
@@ -634,7 +711,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// a server that is really answering.
   /// </para>
   /// </remarks>
-  public partial class MediaBrowserViewModel : ObservableObject
+  public partial class MediaBrowserViewModel : ObservableObject, ITrailerAnswerHost
   {
     /// <summary>
     /// Titles the opening question brings.
@@ -2594,6 +2671,18 @@ namespace MediaPortal.Frontend.ViewModels
     public event EventHandler<TitleViewModel>? PlayRequested;
 
     /// <summary>
+    /// Raised when a viewer asked to see one of a title's short films. The application owns the player and the
+    /// windows, so it decides what that means; this class only says whose trailer was asked for and which one.
+    /// </summary>
+    /// <remarks>
+    /// A separate event from <see cref="PlayRequested"/> on purpose, and the difference is what happens
+    /// afterwards: watching a title is reported to the library and leaves the viewer in the player, while a
+    /// trailer is nothing the library should remember and ends back on the tile it was asked for. Folding the two
+    /// into one event would mean a two minute advertisement counting as a viewing.
+    /// </remarks>
+    public event EventHandler<TrailerRequest>? TrailerRequested;
+
+    /// <summary>
     /// Raised when a viewer pressed a row that holds other titles - an album, a series - instead of playing
     /// anything. The application owns the windows, so it decides what "go inside" means; this class only says
     /// which row was pressed and that pressing it could not have meant play.
@@ -2939,6 +3028,8 @@ namespace MediaPortal.Frontend.ViewModels
         return;
       }
 
+      _menuAsksForTrailer = false;
+      _menuAsksForQuality = null;
       RaiseMenuState();
       MenuAnswer = "";
       MenuVisible = true;
@@ -2951,6 +3042,8 @@ namespace MediaPortal.Frontend.ViewModels
     [RelayCommand]
     public void CloseMenu()
     {
+      _menuAsksForTrailer = false;
+      _menuAsksForQuality = null;
       MenuVisible = false;
     }
 
@@ -3007,8 +3100,119 @@ namespace MediaPortal.Frontend.ViewModels
         case MediaTitleActionKind.Refresh:
           await RefreshSelectedAsync();
           break;
+
+        case MediaTitleActionKind.Trailer:
+          // One trailer is an answer and is played; several make the line a question, which this dialog answers
+          // by becoming the question - the same frame, now holding one line per film. A second dialog pushed over
+          // the first would be a room the viewer never walked into, and the back key would have to know about it.
+          MediaTitleAction? only = MediaTitleActions.TrailerToPlay(Selected);
+          if (only == null)
+          {
+            _menuAsksForTrailer = true;
+            RaiseMenuState();
+            MenuAnswer = "Which trailer?";
+          }
+          else if (MediaTitleActions.AsksForQuality(only.Trailer))
+          {
+            // The same frame again, now holding one line per picture size, because the film behind a video site's
+            // page comes in several of them and the page does not say which was meant. The lines are the question
+            // on their own; a sentence over them would only have to be worded badly.
+            _menuAsksForQuality = only.Trailer;
+            RaiseMenuState();
+            MenuAnswer = "";
+          }
+          else
+          {
+            PlayTrailer(only.Trailer);
+          }
+          break;
+
+        case MediaTitleActionKind.TrailerChoice:
+          PlayTrailer(action.Trailer);
+          break;
+
+        case MediaTitleActionKind.TrailerQuality:
+          PlayTrailer(action.Trailer, action.Quality);
+          break;
       }
     }
+
+    /// <summary>
+    /// Asks the application to show one of the selected title's trailers, and says so in the menu's own line when
+    /// nothing can be made of the trailer's address.
+    /// </summary>
+    /// <remarks>
+    /// The dialog is put away before the ask, exactly as every other line does it: what a press opens stands over
+    /// the shelf, not over a question that has already been answered. When the address means nothing the menu
+    /// stays open and the reason stands in it, because a press that closes the dialog and changes nothing on the
+    /// shelf reads as a broken button rather than as an answer.
+    /// </remarks>
+    /// <remarks>
+    /// A film behind a video site's page is the one case the dialog is <b>kept</b> standing for: the answer cannot
+    /// be given at once - the page has to be asked, and a bigger picture has to be brought over first - so the
+    /// question stays on screen and its line carries what is happening and, at the end, the answer. A sentence
+    /// flashed somewhere else over the shelf would be read by nobody, which is what the dialog is for.
+    /// </remarks>
+    private void PlayTrailer(MediaTrailer? trailer, Services.TrailerQuality? quality = null)
+    {
+      TitleViewModel? title = Selected;
+      _menuAsksForTrailer = false;
+      _menuAsksForQuality = null;
+
+      if (title == null || trailer == null)
+        return;
+
+      MediaLocation? location = title.TrailerLocation(trailer);
+      if (location == null)
+      {
+        MenuAnswer = "Nothing can be made of this trailer's address: " +
+                     (string.IsNullOrWhiteSpace(trailer.Source) ? "it names nothing" : trailer.Source);
+        return;
+      }
+
+      string page = location.Value.EngineString;
+      if (!location.Value.IsFile && Services.VideoSiteStream.IsSitePage(page))
+      {
+        // The one press whose answer cannot be given at once: the page has to be asked, and a big picture has to
+        // be brought over first. So the question stays where it is and the application writes into its line -
+        // what is happening now, and at the end the answer or the reason there is none.
+        TrailerRequested?.Invoke(this, new TrailerRequest(title, trailer, quality));
+        return;
+      }
+
+      MenuVisible = false;
+      TrailerRequested?.Invoke(this, new TrailerRequest(title, trailer, quality));
+    }
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// The dialog is put back up even when the shelf had closed it in the meantime: an answer that arrives after
+    /// the playback screen has stood there and gone again has no other place to be read, and a line of a
+    /// playback nudge is cut off in the middle of a sentence.
+    /// </remarks>
+    public void AnswerTrailer(string words)
+    {
+      if (string.IsNullOrEmpty(words))
+      {
+        MenuVisible = false;
+        return;
+      }
+
+      MenuAnswer = words;
+      MenuVisible = true;
+    }
+
+    /// <summary>
+    /// Whether the open menu is asking which of the selected title's trailers was meant, which decides whether it
+    /// shows the title's answers or its films. Cleared whenever the menu is opened or put away.
+    /// </summary>
+    private bool _menuAsksForTrailer;
+
+    /// <summary>
+    /// The film the open menu is asking a picture size for, or nothing while it asks nothing. Third step of the
+    /// same dialog: a film behind a video site's page stands in several sizes and the page does not name one.
+    /// </summary>
+    private MediaTrailer? _menuAsksForQuality;
 
     /// <summary>
     /// Fills <see cref="TitleActions"/> for the title the dialog was opened for.
@@ -3021,8 +3225,12 @@ namespace MediaPortal.Frontend.ViewModels
     private void RebuildTitleActions()
     {
       TitleActions.Clear();
-      foreach (MediaTitleAction action
-          in MediaTitleActions.For(Selected, _client != null, true))
+      IEnumerable<MediaTitleAction> lines = _menuAsksForQuality != null
+          ? MediaTitleActions.QualityChoicesOf(_menuAsksForQuality)
+          : _menuAsksForTrailer
+              ? MediaTitleActions.TrailerChoicesOf(Selected)
+              : MediaTitleActions.For(Selected, _client != null, true);
+      foreach (MediaTitleAction action in lines)
       {
         if (action.Kind == MediaTitleActionKind.SaidOnly && !string.IsNullOrEmpty(MenuWords))
           continue;

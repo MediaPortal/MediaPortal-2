@@ -355,6 +355,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteVideoAspectDirectors);
       _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectGenres);
+      // The trailers the tagging tool found belong to the film and not to one of its files, so they are read
+      // whether this nfo-file is a film's own or the folder's.
+      _supportedAttributes.Add(TryWriteTrailers);
 
       // MP2 left the picture to the FanArt collector of the online movie extractor, which is not what fills a library
       // built from nfo-files. Without this the cover parsed from movie.nfo was thrown away.
@@ -833,7 +836,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       // Example of a valid element:
       // <trailer>This movie tells a story about...</trailer>
-      return ((_currentStub.Trailer = ParseSimpleString(element)) != null);
+      // A metadata file names as many of these as the tagging tool found, so every one of them is kept and not
+      // only the last.
+      string url = ParseSimpleString(element);
+      if (string.IsNullOrEmpty(url))
+        return false;
+      _currentStub.Trailers ??= new List<string>();
+      _currentStub.Trailers.Add(url);
+      return true;
+    }
+
+    /// <summary>
+    /// Tries to write the trailers of the movie into <see cref="TrailerAspect"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteTrailers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      return TryWriteTrailerAspect(extractedAspectData, _stubs[0].Trailers);
     }
 
     /// <summary>

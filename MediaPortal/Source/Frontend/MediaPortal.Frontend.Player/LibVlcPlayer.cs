@@ -97,6 +97,23 @@ namespace MediaPortal.Frontend.Player
     private string? _lastFailure;
     private bool _ended;
     private bool _failed;
+
+    // Whether the media this class last asked for was seen opening, was ever seen playing, and whether anybody
+    // asked for it to stop. The three together answer a question libVLC leaves unasked: a media it cannot
+    // resolve - a video site whose address its resolver no longer understands, measured with VLC 3.0.20 and a
+    // YouTube link - says nothing at all. It reports an opening, tears the input down and reports "nothing
+    // special", without one error event. See StopOrEndState.
+    private bool _openedAnnounced;
+    private bool _playedAtAll;
+    private bool _stopAsked;
+
+    // How far the engine ever said the media had run, and the moment it first said it was playing. "Was ever
+    // playing" is not enough on its own: measured with VLC 3.0.20 and a YouTube address its resolver no longer
+    // resolves, the engine does announce Playing - the audio row of the machine even comes to life - and then
+    // tears the input down without one frame. What stays different from a real film is that the position never
+    // leaves zero and the whole attempt is over at once, so those two are asked as well. See PublishEnding.
+    private long _playedPositionMs;
+    private long _firstPlayedTickMs;
     private bool _disposed;
 
     // libVLC's own default is 100 and no mute; the fields start there so that a player that has never been told
@@ -145,12 +162,12 @@ namespace MediaPortal.Frontend.Player
       // libVLC raises one event per state rather than one state-changed event, so each is wired to the same
       // publisher. Reading State inside the handler is deliberate: it is the engine's own last word, and it keeps
       // this class from keeping a second copy of the truth that can disagree with the native one.
-      _player.NothingSpecial += (s, e) => Publish(StateOf(VLCState.NothingSpecial));
+      _player.NothingSpecial += (s, e) => PublishEnding(VLCState.NothingSpecial);
       _player.Opening += (s, e) => PublishFromOpeningEvent();
       _player.Buffering += (s, e) => PublishFromOpeningEvent();
       _player.Playing += (s, e) => Publish(StateOf(VLCState.Playing));
       _player.Paused += (s, e) => Publish(StateOf(VLCState.Paused));
-      _player.Stopped += (s, e) => Publish(StateOf(VLCState.Stopped));
+      _player.Stopped += (s, e) => PublishEnding(VLCState.Stopped);
       _player.EndReached += OnEndReached;
       _player.EncounteredError += OnEncounteredError;
 
@@ -201,6 +218,13 @@ namespace MediaPortal.Frontend.Player
     /// </summary>
     private static readonly bool ProbeWanted =
         string.Equals(Environment.GetEnvironmentVariable("MP2_FRAMEPROBE"), "1", StringComparison.Ordinal);
+
+    /// <summary>
+    /// How long a media may be seen playing at position zero and still be taken as one that could not be opened.
+    /// Five seconds is a breath for a film and long enough for the engine's answer to a media it cannot resolve,
+    /// which was measured to come and go well inside it.
+    /// </summary>
+    private const long BriefPlayingAttemptMs = 5000;
 
     /// <summary>
     /// Build a player, or say in one sentence why there is none.
@@ -394,6 +418,11 @@ namespace MediaPortal.Frontend.Player
         _lastFailure = null;
         _ended = false;
         _failed = false;
+        _openedAnnounced = false;
+        _playedAtAll = false;
+        _stopAsked = false;
+        _playedPositionMs = 0;
+        _firstPlayedTickMs = 0;
         _current = location;
 
         // A new media begins its own position story. Without this a second file of the same length would have its
@@ -471,7 +500,12 @@ namespace MediaPortal.Frontend.Player
         // Whoever pressed stop ended the media's own story, failure included; the word after this is "stopped",
         // not the reason the media died by.
         lock (_gate)
+        {
           _failed = false;
+          // And it was somebody, not the media: a media that had not reached its first picture when this was
+          // pressed was left, not refused - see PublishEnding.
+          _stopAsked = true;
+        }
         _player.Stop();
         ReleaseMedia();
         TapNow()?.Stop();
@@ -1369,10 +1403,141 @@ namespace MediaPortal.Frontend.Player
 
     private void OnEndReached(object? sender, EventArgs e)
     {
+      string? refusal;
+      lock (_gate)
+        refusal = QuietAttemptLocked();
+
+      if (refusal != null)
+      {
+        // "Ended" after a breath at position zero is the engine's word for a media that never was. Measured with a
+        // trailer standing at a site that redirects its file address to a web page: the engine reads the page,
+        // calls it finished and reports an end 31 ms after it began, which as an end is a story with nothing in it
+        // and as a refusal the one a viewer can do something about.
+        if (ProbeWanted)
+          Console.WriteLine("ended:    taken as a refusal - " + refusal);
+
+        lock (_gate)
+        {
+          _failed = true;
+          _lastFailure = refusal;
+        }
+
+        Publish(PlayerState.Failed);
+        Failed?.Invoke(this, new PlayerFailedEventArgs(refusal));
+        return;
+      }
+
       lock (_gate)
         _ended = true;
       Publish(PlayerState.Ended);
       EndOfMedia?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Publishes the state the engine reached by coming to a stop, after asking the one question the engine does
+    /// not ask itself: whether the media ever played.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Measured with VLC 3.0.20 against a YouTube address its resolver no longer resolves: the engine reports an
+    /// opening, fetches the page, writes "Couldn't extract youtube video URL, please check for updates to this
+    /// script" into its own log, and answers the front end with nothing but <c>NothingSpecial</c> - no error
+    /// event, no end. Taken on its own that is a stopped player, and the viewer is standing in front of a black
+    /// screen that cannot be told apart from a player that is merely quiet. A media that was opened, was seen
+    /// opening and never once played - with nobody having asked it to stop - could not be opened, and that is the
+    /// one reading of the three a viewer can do anything about.
+    /// </para>
+    /// <para>
+    /// The question is asked only about the media this class last handed over, and never after a stop somebody
+    /// pressed, a picture surface being taken apart or the player's own shutdown, so that a viewer walking away
+    /// from a media that had not reached its first picture is not reported as a refusal.
+    /// </para>
+    /// <para>
+    /// "Never played" had to be loosened once, against the same YouTube address: the engine does announce
+    /// <c>Playing</c> for it - the machine's audio row for the front end even appears, which is how it was
+    /// measured - and stops a moment later without a frame. What separates that from a film somebody stopped is
+    /// that the position never left zero and the attempt was over within <see cref="BriefPlayingAttemptMs"/>
+    /// milliseconds, so a real media stopped at its very beginning is still taken as stopped.
+    /// </para>
+    /// </remarks>
+    private void PublishEnding(VLCState native)
+    {
+      string? refusal = null;
+      bool wasOpened = false;
+      bool wasPlayed = false;
+      bool wasEnded = false;
+      bool wasFailed = false;
+      bool wasStoppedByHand = false;
+      long position = 0;
+      long ranFor = 0;
+      lock (_gate)
+      {
+        refusal = QuietAttemptLocked();
+        wasOpened = _openedAnnounced;
+        wasPlayed = _playedAtAll;
+        wasEnded = _ended;
+        wasFailed = _failed;
+        wasStoppedByHand = _stopAsked;
+        position = _playedPositionMs;
+        ranFor = _firstPlayedTickMs == 0 ? 0 : Environment.TickCount64 - _firstPlayedTickMs;
+        if (refusal != null)
+        {
+          _failed = true;
+          _lastFailure = refusal;
+        }
+      }
+
+      if (ProbeWanted)
+      {
+        // The one place the difference between "stopped" and "could not be opened" is decided, so everything it is
+        // decided from belongs in the log: MP2_FRAMEPROBE=1 then says which of them said no.
+        Console.WriteLine("stop:     " + (refusal != null ? "could not be opened" : "taken as " + native)
+            + " - opening=" + wasOpened + " played=" + wasPlayed + " ended=" + wasEnded
+            + " failed=" + wasFailed + " stoppedByHand=" + wasStoppedByHand
+            + " position=" + position + "ms ranFor=" + ranFor + "ms");
+      }
+
+      if (refusal == null)
+      {
+        Publish(StateOf(native));
+        return;
+      }
+
+      Publish(PlayerState.Failed);
+      Failed?.Invoke(this, new PlayerFailedEventArgs(refusal));
+    }
+
+    /// <summary>
+    /// The sentence for a media that was opened and gave nobody anything to look at, or <c>null</c> when the
+    /// attempt looks like a media that really ran.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Asked with <c>_gate</c> held, and it only reads: whoever asks keeps the decision about recording the
+    /// failure, so that the two ways an attempt can come to nothing - the engine's <c>NothingSpecial</c> and its
+    /// <c>EndOfReached</c> - cannot both report the same media.
+    /// </para>
+    /// <para>
+    /// A media nobody ever saw playing is the plain case. One that was seen playing is asked about twice more,
+    /// because the engine does announce <c>Playing</c> for media it cannot deliver: the position has to have never
+    /// left zero and the whole attempt has to have been over within <see cref="BriefPlayingAttemptMs"/>, which is
+    /// what leaves a viewer stopping a real film at its very beginning a stop rather than a complaint.
+    /// </para>
+    /// </remarks>
+    private string? QuietAttemptLocked()
+    {
+      if (_disposed || _failed || _ended || _stopAsked || !_openedAnnounced || !_current.HasValue)
+        return null;
+
+      bool neverPlayed = !_playedAtAll;
+      long ranFor = _firstPlayedTickMs == 0 ? 0 : Environment.TickCount64 - _firstPlayedTickMs;
+      if (!neverPlayed && !(_playedPositionMs <= 0 && ranFor < BriefPlayingAttemptMs))
+        return null;
+
+      string engine = _libVlc.LastLibVLCError ?? string.Empty;
+      return "libVLC could not open " + _current.Value.Describe()
+          + (neverPlayed ? " - it stopped before the first picture." : " - it stopped before its picture moved.")
+          + (engine.Length == 0 ? string.Empty : ": " + engine);
     }
 
     private void OnEncounteredError(object? sender, EventArgs e)
@@ -1450,6 +1615,9 @@ namespace MediaPortal.Frontend.Player
     {
       lock (_gate)
       {
+        // An opening is the engine saying it is working on the media it was handed, which is what tells
+        // PublishEnding a later stop came from the media rather than from the media never having been taken up.
+        _openedAnnounced = true;
         if (_state == PlayerState.Playing || _state == PlayerState.Paused)
           return;
       }
@@ -1466,12 +1634,28 @@ namespace MediaPortal.Frontend.Player
         // against a native event on the first run of these tests.
         if (_disposed)
           return;
+
+        // The first frame is the fact PublishEnding asks about: a media that played and then stopped was stopped,
+        // a media that never played could not be opened. Marked here rather than in one of the state handlers
+        // because this is the one place every state reading of the engine passes through.
+        if (newState == PlayerState.Playing || newState == PlayerState.Paused)
+        {
+          _playedAtAll = true;
+          if (_firstPlayedTickMs == 0)
+            _firstPlayedTickMs = Environment.TickCount64;
+        }
+
         oldState = _state;
         if (oldState == newState)
           return;
         _state = newState;
       }
       StateChanged?.Invoke(this, new PlayerStateChangedEventArgs(oldState, newState));
+
+      // The engine's own events are only visible together with what this class made of them, so the pair of them
+      // goes on the console together.
+      if (ProbeWanted)
+        Console.WriteLine("state:    " + oldState + " -> " + newState);
 
       // The sound has one more layer under this player than libVLC owns: Windows keeps a volume and a mute per
       // application and per output device, remembers them across restarts, and shows that row under the name the
@@ -1523,6 +1707,12 @@ namespace MediaPortal.Frontend.Player
       {
         if (_disposed)
           return;
+
+        // Remembered before the duplicate check below, which is about what a screen still has to be told and not
+        // about what the engine ever said.
+        if (time > _playedPositionMs)
+          _playedPositionMs = time;
+
         if (time == _lastPositionTimeMs && length == _lastPositionLengthMs)
           return;
         _lastPositionTimeMs = time;

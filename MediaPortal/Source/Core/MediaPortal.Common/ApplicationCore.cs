@@ -276,6 +276,7 @@ namespace MediaPortal.Common
         MediaAspect.Metadata,
         VideoAspect.Metadata,
         GenreAspect.Metadata,
+        TrailerAspect.Metadata,
         VideoStreamAspect.Metadata,
         VideoAudioStreamAspect.Metadata,
         SubtitleAspect.Metadata,

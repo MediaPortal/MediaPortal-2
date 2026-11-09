@@ -295,7 +295,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                         mergedEpisode.Tagline = episode.Tagline;
                         mergedEpisode.Thumb = episode.Thumb;
                         mergedEpisode.Top250 = episode.Top250;
-                        mergedEpisode.Trailer = episode.Trailer;
+                        mergedEpisode.Trailers = episode.Trailers;
                         mergedEpisode.Watched = episode.Watched;
                         mergedEpisode.Year = episode.Year;
                         mergedEpisode.Id = episode.Id;

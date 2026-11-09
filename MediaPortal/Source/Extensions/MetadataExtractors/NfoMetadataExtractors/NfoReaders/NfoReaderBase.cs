@@ -292,6 +292,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
 
     #region Protected methods
 
+    /// <summary>
+    /// Writes the trailers a metadata file names into <see cref="TrailerAspect"/>, one row per trailer.
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of MediaItemAspects to write the Attribute to</param>
+    /// <param name="trailers">The addresses as the metadata file wrote them, in the order it wrote them</param>
+    /// <returns><c>true</c> if at least one trailer was written; else <c>false</c></returns>
+    /// <remarks>
+    /// The address goes in as the file wrote it and not as a player would want it, because the translation is
+    /// the part most likely to improve over the years and a title should not have to be imported again for
+    /// that. What is decided here and not later is the kind, since "internet" or "file" is what a shelf
+    /// offers a choice between and reading that off the address again at every question would be silly.
+    /// </remarks>
+    protected static bool TryWriteTrailerAspect(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData,
+        IList<string> trailers)
+    {
+      if (trailers == null)
+        return false;
+      var written = false;
+      foreach (string raw in trailers)
+        written |= TrailerAspectWriter.AddDetected(extractedAspectData, raw?.Trim());
+      return written;
+    }
+
     protected bool TryWriteRelationshipMetadata<T>(TryWriteRelationshipDelegate<T> writeDelegate, T relationshipStub, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
     {
       var result = false;

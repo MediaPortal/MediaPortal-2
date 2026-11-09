@@ -129,9 +129,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public string Tagline { get; set; }
 
     /// <summary>
-    /// Link to a trailer video
+    /// Address of a trailer of the series, as many as the metadata file names. Kept as the file wrote it.
     /// </summary>
-    public string Trailer { get; set; }
+    public IList<string> Trailers { get; set; }
 
     /// <summary>
     /// Genre(s) of the series

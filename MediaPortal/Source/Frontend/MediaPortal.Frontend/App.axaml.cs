@@ -29,6 +29,7 @@ using Avalonia.Threading;
 using MediaPortal.Frontend.Api;
 using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Player;
+using MediaPortal.Frontend.Services;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Skins.Nereus;
 using MediaPortal.Frontend.Theming;
@@ -416,13 +417,25 @@ namespace MediaPortal.Frontend
           {
             if (!args.EngineEnded)
               return;
-            if (!(_nowPlaying.Preferences ?? Settings.PlaybackSettings.Load(null, out _)).ClosePlayerWhenFinished)
-              return;
-            // Asked here, out loud and before the step aside is posted, because the screen's own queue has
-            // already walked on to the next tune by the time the posted step runs: a record that is not
-            // through yet keeps its screen, since the sound that carries on deserves the screen that names it.
-            if (_nowPlaying.AudioQueuePlaysOn)
-              return;
+
+            // A trailer always steps aside when it is through, whatever the setting below says. The setting was
+            // written about a film somebody sat down to watch and may want to look at again; a trailer is two
+            // minutes of advertisement standing between a viewer and the shelf they were reading, and the one
+            // thing they came for is the shelf.
+            bool wasTrailer = _playingTrailer;
+            _playingTrailer = false;
+            if (wasTrailer)
+              _trailerDialog = null;
+            if (!wasTrailer)
+            {
+              if (!(_nowPlaying.Preferences ?? Settings.PlaybackSettings.Load(null, out _)).ClosePlayerWhenFinished)
+                return;
+              // Asked here, out loud and before the step aside is posted, because the screen's own queue has
+              // already walked on to the next tune by the time the posted step runs: a record that is not
+              // through yet keeps its screen, since the sound that carries on deserves the screen that names it.
+              if (_nowPlaying.AudioQueuePlaysOn)
+                return;
+            }
 
             Dispatcher.UIThread.Post(delegate
             {
@@ -431,8 +444,16 @@ namespace MediaPortal.Frontend
               if (_workflow.Current is Workflow.WorkflowFrame current
                   && current.StateId == "nowplaying" && _workflow.Stack.Count > 1)
                 _workflow.Pop();
+              // And the file a fetched trailer was brought into has earned its keep and goes with it.
+              ForgetTrailerFile();
             });
           };
+
+          // What the engine says when it gives up has to reach the viewer. Nothing on the playback screen reads
+          // the status line, so a media that cannot be opened leaves the screen black and the press unanswered -
+          // the one outcome a viewer cannot tell apart from a player that is merely quiet.
+          _nowPlaying.PlaybackFailed += OnPlaybackFailed;
+          desktop.Exit += delegate { _nowPlaying.PlaybackFailed -= OnPlaybackFailed; };
 
           // A title picked on the home screen's "left half way" strip or its content wall is played by exactly
           // the same code as a title picked in the library - same player, same media id handed to the reporter,
@@ -440,6 +461,23 @@ namespace MediaPortal.Frontend
           // others, which are opened there just as they are opened in the shelf.
           _home.ResumeRequested += OnHomeTitlePressed;
           desktop.Exit += delegate { _home.ResumeRequested -= OnHomeTitlePressed; };
+
+          // A trailer asked for from the wall is opened by the same code as one asked for in the library, and it
+          // ends the same way: back on the tile it was asked from.
+          _home.TrailerRequested += OnTrailerChosen;
+          desktop.Exit += delegate { _home.TrailerRequested -= OnTrailerChosen; };
+
+          // What a trailer fetched from a page left in the temp folder is swept once per run, at startup: a
+          // machine that was switched off while a trailer was on screen is the only way one survives, and a
+          // folder that fills up with two-year-old advertisements is not what a temp folder is for. Off the
+          // screen's own thread, because it is a walk over a directory and the first screen is waiting.
+          Task.Run(delegate
+          {
+            int swept = VideoSiteStream.ForgetOldTrailers();
+            if (swept > 0)
+              Console.WriteLine("trailer:  threw away " + swept + " brought trailer"
+                  + (swept == 1 ? "" : "s") + " left over from an earlier run");
+          });
 
           // Ask for the pictures now, before anything is open: an engine decides how it will deliver them when a
           // media starts, so a sink offered afterwards is a question asked after the answer. Refusing is not a
@@ -1387,6 +1425,7 @@ namespace MediaPortal.Frontend
         // No media id travels with a live channel. What is being watched is not in the library, has no position
         // to resume from, and must not be reported as watched - the server's "continue watching" shelf is made of
         // things somebody chose from it, not of whatever the television happened to be showing.
+        _playingTrailer = false;
         if (player.Play(location))
           Console.WriteLine("tv:       " + channel.Name + " - streamed from the backend");
         else
@@ -1628,6 +1667,7 @@ namespace MediaPortal.Frontend
     private Workflow.WorkflowFrame TitlesFrame(MediaBrowserViewModel browser, string label)
     {
       browser.PlayRequested += OnTitleChosen;
+      browser.TrailerRequested += OnTrailerChosen;
       _lastBrowser = browser;
       return new Workflow.WorkflowFrame("titles", label, browser);
     }
@@ -2284,6 +2324,235 @@ namespace MediaPortal.Frontend
     }
 
     /// <summary>
+    /// Whether the player is holding a trailer rather than a title of the library, which is the one thing that
+    /// decides what happens the moment the picture stops.
+    /// </summary>
+    /// <remarks>
+    /// A trailer is not a viewing: nothing is reported to the library about it, and the viewer walks back to the
+    /// shelf they asked from whatever their setting about leaving the player open says. That setting is about a
+    /// film somebody sat down to watch; a two minute advertisement that stayed on the screen until the viewer got
+    /// up and put it away would stand between them and the shelf they were still reading.
+    /// </remarks>
+    private bool _playingTrailer;
+
+    /// <summary>
+    /// A trailer that had to be brought to this machine before it could be played, as the file it was brought
+    /// into; <c>null</c> while nothing of the kind is about.
+    /// </summary>
+    /// <remarks>
+    /// One file at a time, because the player can only play one thing at a time: the file of the trailer that
+    /// was last asked for is kept while that trailer is the thing on screen, and is deleted the moment the
+    /// trailer is over - or fails to start, since a file nobody could watch has no right to sit in the temp
+    /// folder. Anything left by a machine that was switched off mid-trailer is swept at startup by
+    /// <see cref="VideoSiteStream.ForgetOldTrailers"/>.
+    /// </remarks>
+    private string? _trailerTempFile;
+
+    /// <summary>
+    /// The screen a trailer was asked in, so that its answer - the wait, a refusal, or the reason the engine gave
+    /// up - can be put where the question was read; <c>null</c> while no trailer question is open.
+    /// </summary>
+    private ViewModels.ITrailerAnswerHost? _trailerDialog;
+
+    /// <summary>
+    /// Throws away the file a fetched trailer was brought into, if there is one.
+    /// </summary>
+    /// <remarks>
+    /// Said from the trailer's ending, its failure, and any press that opens something else over it. Deleting a
+    /// file the player still holds fails silently on this account - the file simply stays and is swept at the
+    /// next startup - so nothing here waits or reports.
+    /// </remarks>
+    private void ForgetTrailerFile()
+    {
+      string? file = _trailerTempFile;
+      if (file == null)
+        return;
+      _trailerTempFile = null;
+      try
+      {
+        if (System.IO.File.Exists(file))
+        {
+          System.IO.File.Delete(file);
+          Console.WriteLine("trailer:  brought away " + System.IO.Path.GetFileName(file));
+        }
+      }
+      catch (System.Exception)
+      {
+        // The player has not let go of it yet. It is 10 MiB in a temp folder and will be swept at startup.
+      }
+    }
+
+    /// <summary>
+    /// A viewer asked to see one of a title's short films.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The same player opens it as opens a film, and nothing else about the two is the same: no library title
+    /// stands behind it, so nothing is reported and the library is not told the title was watched; no queue
+    /// follows it, or a trailer asked for between two tunes of a record would walk on into the record when it
+    /// ends; and it is put in front of the viewer by this application rather than by the shelf, because a shelf
+    /// that pushed the player screen for its own films does not know that a trailer was asked for at all.
+    /// </para>
+    /// <para>
+    /// Said on the console like every other playback, for the same reason as <see cref="OnTitleChosen"/>: from a
+    /// terminal without a window manager a silent refusal cannot be told apart from a trailer that is merely quiet.
+    /// </para>
+    /// </remarks>
+    private void OnTrailerChosen(object? sender, TrailerRequest request)
+    {
+      // The screen the press came out of carries the answer, because it is the one place the viewer is still
+      // looking: a sentence anywhere else is a playback nudge, and a nudge is one short word wide.
+      ITrailerAnswerHost? dialog = sender as ITrailerAnswerHost;
+      _trailerDialog = dialog;
+
+      if (_nowPlaying == null)
+      {
+        Console.WriteLine("trailer:  " + request.Title.Name + " - this machine has no player");
+        dialog?.AnswerTrailer("This machine has no player, so the trailer cannot be shown.");
+        return;
+      }
+
+      MediaLocation? location = request.Title.TrailerLocation(request.Trailer);
+      if (location == null)
+      {
+        Console.WriteLine("trailer:  " + request.Title.Name + " - nothing can be made of the address '"
+            + request.Trailer.Source + "'");
+        dialog?.AnswerTrailer("Nothing can be made of this trailer's address: "
+            + (string.IsNullOrWhiteSpace(request.Trailer.Source) ? "it names nothing" : request.Trailer.Source));
+        return;
+      }
+
+      // The page of a video site is not a film, and this engine no longer reads pages: see VideoSiteStream. The
+      // lookup costs a second or two and cannot happen on the screen's own thread, so the dialog that asked keeps
+      // standing and says what it is doing, and a lookup that ends in nothing leaves the viewer standing at the
+      // shelf with the reason in front of them rather than in front of an empty playback screen - which is the
+      // difference this whole path is about.
+      string page = location.Value.EngineString;
+      if (!location.Value.IsFile && VideoSiteStream.IsSitePage(page))
+      {
+        string title = request.Title.Name;
+        TrailerQuality? quality = request.Quality;
+        dialog?.AnswerTrailer(VideoSiteStream.WaitWords(quality));
+        Console.WriteLine("trailer:  " + title + " - asking what film stands behind the page"
+            + (quality == null ? "" : " in " + quality.Word));
+
+        Task.Run(delegate
+        {
+          bool found = VideoSiteStream.TryPlayAddress(page, quality, out string stream, out string file,
+              out string whyNot);
+          Dispatcher.UIThread.Post(delegate
+          {
+            if (!found)
+            {
+              Console.WriteLine("trailer:  " + title + " - " + whyNot);
+              dialog?.AnswerTrailer(whyNot);
+              return;
+            }
+
+            // Named by its host only: the address the site hands over is signed, long, and nobody can read it off
+            // a screen from across a room anyway. A film that was brought here first is named by its own file
+            // instead, because that is the thing the viewer waited for.
+            bool fetched = file.Length > 0;
+            if (fetched)
+              Console.WriteLine("trailer:  " + title + " - brought here first: " + file);
+            else
+            {
+              string host = Uri.TryCreate(stream, UriKind.Absolute, out Uri? parsed) ? parsed.Host : "the site";
+              Console.WriteLine("trailer:  " + title + " - the page leads to a film at " + host);
+            }
+
+            // The question is answered, so it is taken away; the playback screen is the answer.
+            dialog?.AnswerTrailer("");
+            _trailerTempFile = fetched ? file : null;
+            OpenTrailer(request, fetched ? MediaLocation.FromFile(file) : MediaLocation.FromUrl(stream),
+                title + " - Trailer");
+          });
+        });
+        return;
+      }
+
+      // Named after the title it belongs to, because this is the line the playback screen wears where a film
+      // wears its own name, and a viewer who walked here from a tile has to be able to tell the two apart.
+      OpenTrailer(request, location.Value, request.Title.Name + " - Trailer");
+    }
+
+    /// <summary>
+    /// Hands an already resolved trailer to the player and shows the playback screen.
+    /// </summary>
+    /// <param name="request">The trailer as it was asked for, which the ending walks back to.</param>
+    /// <param name="location">What the player is to open.</param>
+    /// <param name="worn">The name the playback screen wears.</param>
+    private void OpenTrailer(TrailerRequest request, MediaLocation location, string worn)
+    {
+      bool opened = _nowPlaying!.Play(location, null, 0, worn);
+      if (!opened)
+      {
+        Console.WriteLine("trailer:  refused - " + _nowPlaying.StatusLine);
+        if (_trailerDialog != null)
+          _trailerDialog.AnswerTrailer("The trailer would not start: " + _nowPlaying.StatusLine);
+        return;
+      }
+
+      _playingTrailer = true;
+
+      // No queue, and no shelf either: the trailer of a film is not the next tune of a record, and the mark on
+      // the home tile belongs to the shelf a film was pressed in, not to an advertisement.
+      _nowPlaying.LoadAudioQueue(null, -1, null, null);
+      _nowPlaying.PlayingAspect = null;
+      _nowPlaying.PlayingArtist = null;
+
+      ShowPlaybackScreen();
+      Console.WriteLine("trailer:  " + request.Title.Name + " - " + request.Trailer.KindWord.ToLowerInvariant()
+          + " - " + (location.IsFile
+              ? System.IO.Path.GetFileName(location.EngineString)
+              : location.Describe()));
+    }
+
+    /// <summary>
+    /// The engine gave up on the media it was opening or playing.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Said over the screen the viewer is standing in front of. The playback screen keeps no words of its own
+    /// about a failure - it is a picture, and when there is no picture there is only black - so without this a
+    /// press that could not be honoured is indistinguishable from a player that is merely quiet.
+    /// </para>
+    /// <para>
+    /// A trailer walks back as well. Whoever asked for one was reading a shelf, and the ending of a trailer
+    /// already returns them there; one that never began has even less right to stand between them and it. The
+    /// sentence is shown after the step aside, so that it is read on the shelf rather than on the empty player.
+    /// </para>
+    /// </remarks>
+    private void OnPlaybackFailed(object? sender, PlayerFailedEventArgs args)
+    {
+      Console.WriteLine("failed:   " + args.Reason);
+
+      if (!_playingTrailer)
+      {
+        _shell?.ShowSuperlayer("Superlayer_SkipStep", args.Reason, 6000);
+        return;
+      }
+
+      _playingTrailer = false;
+      // The screen that asked is asked to say it: the reason belongs where the trailer was pressed, and the
+      // playback nudge it used to be thrown into is one short word wide, so half the sentence was cut away.
+      ITrailerAnswerHost? asked = _trailerDialog;
+      _trailerDialog = null;
+      Dispatcher.UIThread.Post(delegate
+      {
+        if (_workflow.Current is Workflow.WorkflowFrame current
+            && current.StateId == "nowplaying" && _workflow.Stack.Count > 1)
+          _workflow.Pop();
+        if (asked != null)
+          asked.AnswerTrailer(args.Reason);
+        else
+          Console.WriteLine("trailer:  nowhere to say it - the screen that asked is gone");
+        // A file that could not be watched has no right to stay in the temp folder.
+        ForgetTrailerFile();
+      });
+    }
+
+    /// <summary>
     /// A viewer pressed OK on a title. This is the moment the library becomes a film.
     /// </summary>
     /// <remarks>
@@ -2293,6 +2562,13 @@ namespace MediaPortal.Frontend
     /// </remarks>
     private void OnTitleChosen(object? sender, TitleViewModel title)
     {
+      // Watching a title is a different errand from watching its trailer, and the difference is what happens when
+      // the picture stops - so the trailer's answer is dropped the moment a real title is opened over it.
+      _playingTrailer = false;
+      _trailerDialog = null;
+      // And a trailer file that was brought here for the advertisement is thrown away when the viewer sits down
+      // to the film instead; it will not be watched after all.
+      ForgetTrailerFile();
       if (_nowPlaying == null)
       {
         Console.WriteLine("play:     " + title.Name + " - this machine has no player");
@@ -2368,6 +2644,7 @@ namespace MediaPortal.Frontend
     /// </remarks>
     private void OnPartySongChosen(object? sender, TitleViewModel title)
     {
+      _playingTrailer = false;
       if (_nowPlaying == null)
       {
         Console.WriteLine("play:     " + title.Name + " - this machine has no player");

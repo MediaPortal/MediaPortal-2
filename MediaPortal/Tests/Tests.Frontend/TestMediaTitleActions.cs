@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Avalonia.Headless.NUnit;
 using NUnit.Framework;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Services;
 using MediaPortal.Frontend.ViewModels;
 
 namespace Tests.Frontend
@@ -252,10 +253,10 @@ namespace Tests.Frontend
       TitleViewModel watched = Title("Alien", 100, 2);
 
       List<string> order = new List<string>();
-      var model = new MediaTitleActionsModel(async (title, kind) =>
+      var model = new MediaTitleActionsModel(async (title, action) =>
       {
         MediaPlayback after = await client.ReportPlaybackAsync(title.Title.Id,
-            kind == MediaTitleActionKind.SetPlayed ? 100 : 0);
+            action.Kind == MediaTitleActionKind.SetPlayed ? 100 : 0);
         order.Add("asked");
         Assert.That(after.Watched, Is.False,
             "the answer the screen folded into its row is not the one the library gives for a title at nought");
@@ -445,9 +446,9 @@ namespace Tests.Frontend
     {
       MediaTitleActionsModel model = null!;
       var asked = new List<MediaTitleActionKind>();
-      model = new MediaTitleActionsModel(delegate (TitleViewModel title, MediaTitleActionKind kind)
+      model = new MediaTitleActionsModel(delegate (TitleViewModel title, MediaTitleAction action)
       {
-        asked.Add(kind);
+        asked.Add(action.Kind);
         model.Say("The library will read " + title.Name + " again and say what it finds");
         return Task.CompletedTask;
       });
@@ -470,7 +471,8 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void TheAskToReadTheFileAgainStandsBehindTheMarkAndDoesNotCareWhereTheFileLies()    {
+    public void TheAskToReadTheFileAgainStandsBehindTheMarkAndDoesNotCareWhereTheFileLies()
+    {
       // The reference looked at the item's own resources before offering this line, because the item was in its
       // hand (RefreshMediaItem.cs:44-49). Here the file sits on the server, and a path this machine cannot open
       // may be exactly right there - so the line is offered and the server refuses with its reason if there is
@@ -506,6 +508,207 @@ namespace Tests.Frontend
           + "never applied to anything but the library's objects (MediaItemsActionModel.cs:113-118)");
       Assert.That(home.Status, Is.Not.Empty, "and the refusal is said rather than left as silence");
     }
+
+    #region Der Trailer und seine Größe
+
+    /// <summary>
+    /// One trailer of one title is an answer, several are a question, and a question is answered by the same
+    /// dialog becoming it rather than by a second dialog standing over the first.
+    /// </summary>
+    [Test]
+    public void TheTrailerOfOneTitleIsAnAnswerAndNotAQuestion()
+    {
+      TitleViewModel one = WithTrailers("Frozen II", Page("bwzLiQZDw2I"));
+
+      MediaTitleAction? only = MediaTitleActions.TrailerToPlay(one);
+      Assert.That(only, Is.Not.Null, "one film behind the line is one answer");
+      Assert.That(only!.Trailer, Is.SameAs(one.Trailers[0]), "and the line carries that film into the ask");
+      Assert.That(only.Word, Is.EqualTo("Trailer (YouTube)"),
+          "the kind stands on the line, because a film at a site and a film on the shelf are two different evenings");
+
+      TitleViewModel three = WithTrailers("Alien: Romulus", Page("bwzLiQZDw2I"), Page("BbBttfs0PB4"),
+          Page("Eao6ApZ3uZ0"));
+      Assert.That(MediaTitleActions.TrailerToPlay(three), Is.Null,
+          "three films behind one line are a question, and a question cannot be played");
+      Assert.That(MediaTitleActions.TrailerChoicesOf(three).Select(a => a.Word),
+          Is.EqualTo(new[] { "Trailer 1 (YouTube)", "Trailer 2 (YouTube)", "Trailer 3 (YouTube)" }),
+          "numbered, because three lines of one and the same words cannot be pointed at from across the room");
+    }
+
+    [Test]
+    public void ATrailerWhoseAddressNothingOpensSaysSoOnItsLine()
+    {
+      MediaTrailer unplayable = new MediaTrailer(0, "Teaser", null,
+          "plugin://plugin.video.youtube/play/?video_id=VWqJifMMgZE");
+      Assert.That(MediaTitleActions.WordsFor(unplayable), Is.EqualTo("Teaser (no address to play)"),
+          "the library's own trailer is named and its problem is said, not silently left out of the list");
+      Assert.That(MediaTitleActions.WordsFor(Page("bwzLiQZDw2I")), Is.EqualTo("Trailer (YouTube)"),
+          "and an address that leads to a film is named for the site it stands at");
+    }
+
+    [Test]
+    public void ThePictureSizeIsAskedOfAPageAndNotOfAFilm()
+    {
+      Assert.That(MediaTitleActions.AsksForQuality(Page("bwzLiQZDw2I")), Is.True,
+          "a page is several films in several sizes and names none of them");
+      Assert.That(MediaTitleActions.AsksForQuality(OnTheShelf("romulus-teaser.mp4")), Is.False,
+          "a file the library holds is one film in the one size it was cut in");
+      Assert.That(MediaTitleActions.AsksForQuality(new MediaTrailer(2, null, "https://www.youtube.com/watch?v=bwzLiQZDw2I",
+          "plugin://plugin.video.youtube/play/?video_id=bwzLiQZDw2I")), Is.False,
+          "and a plug-in address is no page: the resolver does not read it, the player is handed what the server made of it");
+      Assert.That(MediaTitleActions.AsksForQuality(null), Is.False, "nothing to ask about is no question");
+      Assert.That(MediaTitleActions.QualityChoicesOf(null), Is.Empty, "and produces no lines either");
+    }
+
+    [Test]
+    public void EverySizeCarriesTheFilmItWasAskedFor()
+    {
+      MediaTrailer page = Page("bwzLiQZDw2I");
+      List<MediaTitleAction> lines = MediaTitleActions.QualityChoicesOf(page);
+
+      Assert.That(lines, Has.Count.EqualTo(VideoSiteStream.Qualities.Length), "one line per measured size");
+      foreach (MediaTitleAction line in lines)
+      {
+        Assert.That(line.Kind, Is.EqualTo(MediaTitleActionKind.TrailerQuality));
+        Assert.That(line.Trailer, Is.SameAs(page),
+            "the film travels on the line, so that one press is the whole ask rather than half of one");
+        Assert.That(line.Quality, Is.Not.Null, "and the size is carried along with it");
+        Assert.That(line.Word, Is.EqualTo(line.Quality!.Display), "and the line is the size's own words");
+      }
+
+      Assert.That(lines.Select(a => a.Word), Is.EqualTo(VideoSiteStream.Qualities.Select(q => q.Display)),
+          "in the resolver's order, which is smallest first - the top line is the film that starts at once");
+    }
+
+    /// <summary>
+    /// The whole walk of the dialog for a trailer that stands behind a page: the trailer line, then the size
+    /// lines, then one ask. Nothing is played while the size is still unknown, because starting the smallest
+    /// film and then fetching a second one over it is the noise this question exists to prevent.
+    /// </summary>
+    [Test]
+    public async Task TheTrailerOfAPageIsAnsweredWithASizeBeforeAnythingIsPlayed()
+    {
+      var presses = new List<MediaTitleAction>();
+      MediaTitleActionsModel model = new MediaTitleActionsModel(delegate (TitleViewModel title,
+          MediaTitleAction action)
+      {
+        presses.Add(action);
+        return Task.CompletedTask;
+      });
+
+      TitleViewModel frozen = WithTrailers("Frozen II", Page("bwzLiQZDw2I"));
+      model.Open(frozen, true, false);
+
+      await model.PressAsync(model.Actions.First(a => a.Kind == MediaTitleActionKind.Trailer));
+
+      Assert.That(presses, Is.Empty, "the film is not asked for while its size is unknown");
+      Assert.That(model.IsOpen, Is.True,
+          "the dialog that was standing becomes the size question - a second dialog over the first would be a "
+          + "room the viewer never walked into, and the back key would have to know about it");
+      Assert.That(model.Status, Is.Empty,
+          "and the lines are the question on their own: a sentence over them would only have to be worded badly");
+      Assert.That(model.Actions.Select(a => a.Kind),
+          Is.EqualTo(VideoSiteStream.Qualities.Select(q => MediaTitleActionKind.TrailerQuality)),
+          "one line per size, and nothing else left standing");
+
+      await model.PressAsync(model.Actions.First(a => a.Word.StartsWith("bis 720p", StringComparison.Ordinal)));
+
+      Assert.That(presses, Has.Count.EqualTo(1), "one press on one size is the whole ask");
+      Assert.That(presses[0].Kind, Is.EqualTo(MediaTitleActionKind.TrailerQuality));
+      Assert.That(presses[0].Quality!.Word, Is.EqualTo("bis 720p"), "the size that was stood on reaches the ask");
+      Assert.That(presses[0].Trailer, Is.SameAs(frozen.Trailers[0]), "with the film it was stood on for");
+      Assert.That(model.IsOpen, Is.False, "and the dialog is put away, since its answer left it");
+    }
+
+    [Test]
+    public async Task TheTrailerOnTheShelfIsPlayedWithoutBeingAskedAboutAnything()
+    {
+      var presses = new List<MediaTitleAction>();
+      MediaTitleActionsModel model = new MediaTitleActionsModel(delegate (TitleViewModel title,
+          MediaTitleAction action)
+      {
+        presses.Add(action);
+        return Task.CompletedTask;
+      });
+
+      TitleViewModel alien = WithTrailers("Alien: Romulus", OnTheShelf("romulus-teaser.mp4"));
+      model.Open(alien, true, false);
+
+      await model.PressAsync(model.Actions.First(a => a.Kind == MediaTitleActionKind.Trailer));
+
+      Assert.That(presses, Has.Count.EqualTo(1),
+          "a file is one film in one size, so a second question would be a stall in front of an answer");
+      Assert.That(presses[0].Quality, Is.Null, "and no size is pretended for a file");
+      Assert.That(model.IsOpen, Is.False, "the dialog is put away as every other line puts it away");
+    }
+
+    /// <summary>
+    /// The wall's side of a trailer that has to be looked up at a page: the answer arrives after the dialog was
+    /// taken away, and the dialog comes back for it.
+    /// </summary>
+    /// <remarks>
+    /// The wall wears its status line in a head band that the content pane covers while a dialog stands over it,
+    /// so a sentence written there is written where nobody is looking; and a playback nudge is one short word
+    /// wide, which cuts a sentence in half. The dialog the press came out of is the one place left.
+    /// </remarks>
+    [Test]
+    public async Task TheWallTakesItsDialogBackForTheAnswerToATrailer()
+    {
+      HomeViewModel home = new HomeViewModel();
+      var asks = new List<TrailerRequest>();
+      home.TrailerRequested += delegate (object? sender, TrailerRequest request) { asks.Add(request); };
+
+      TitleViewModel frozen = WithTrailers("Frozen II", Page("bwzLiQZDw2I"));
+      home.OpenTitleActions(frozen);
+
+      await home.TitleActions.PressAsync(
+          home.TitleActions.Actions.First(a => a.Kind == MediaTitleActionKind.Trailer));
+      Assert.That(home.TitleActions.Actions.Any(a => a.Kind == MediaTitleActionKind.TrailerQuality), Is.True,
+          "the standing dialog became the size question");
+
+      await home.TitleActions.PressAsync(home.TitleActions.Actions.First(
+          a => a.Kind == MediaTitleActionKind.TrailerQuality && a.Quality!.Word == "bis 720p"));
+
+      Assert.That(asks, Has.Count.EqualTo(1), "one press on one size is one ask");
+      Assert.That(asks[0].Quality!.Word, Is.EqualTo("bis 720p"), "in the size that was stood on");
+      Assert.That(home.TitleActions.IsOpen, Is.False, "and the dialog went with the press, as a wall dialog does");
+
+      string waiting = VideoSiteStream.WaitWords(VideoSiteStream.Qualities[1]);
+      home.AnswerTrailer(waiting);
+      Assert.That(home.TitleActions.IsOpen, Is.True,
+          "the answer brings the dialog back, because it is the only place the viewer is still looking");
+      Assert.That(home.TitleActions.Status, Is.EqualTo(waiting), "and the sentence stands in it, whole");
+
+      home.AnswerTrailer("");
+      Assert.That(home.TitleActions.IsOpen, Is.False, "an answered question is taken away again");
+    }
+
+    /// <summary>
+    /// A trailer at a video site, as a tagging tool writes it: the page, twice over - once as the address to
+    /// open and once as the address the library holds.
+    /// </summary>
+    private static MediaTrailer Page(string id)
+    {
+      string page = "https://www.youtube.com/watch?v=" + id;
+      return new MediaTrailer(3, null, page, page);
+    }
+
+    /// <summary>
+    /// A trailer the library holds as a file.
+    /// </summary>
+    private static MediaTrailer OnTheShelf(string name)
+    {
+      string file = @"D:\Mediaportal\Trailer\" + name;
+      return new MediaTrailer(1, null, file, file);
+    }
+
+    private static TitleViewModel WithTrailers(string name, params MediaTrailer[] trailers)
+    {
+      return new TitleViewModel(new MediaTitle(Guid.NewGuid(), name, null, 2024, null,
+          "local://filme/" + name, false, Percentage: 0, Trailers: trailers));
+    }
+
+    #endregion
 
     #endregion
   }

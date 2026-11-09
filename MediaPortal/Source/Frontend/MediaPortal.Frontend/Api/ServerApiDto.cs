@@ -121,6 +121,60 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("count")] int Count);
 
   /// <summary>
+  /// One of the short films a title advertises itself with, as the server names it.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// <paramref name="Address"/> is what the player is handed and is already in the form the client needs: for a
+  /// trailer the library holds as a file it is this server's own address for it - opened the way a film is
+  /// opened - and for a trailer standing at a video site it is the page of that site. Null means the server
+  /// could make nothing of the address, which a screen says out loud instead of hiding the trailer: the film
+  /// exists, only its address is beyond this front end.
+  /// </para>
+  /// <para>
+  /// <paramref name="Kind"/> is the server's <c>TrailerAspect.KIND_</c> value: <c>0</c> something no player
+  /// here can open, <c>1</c> a file the library holds, <c>2</c> a web address the player opens itself, <c>3</c>
+  /// a film at a video site. It is what a row is labelled with, because "Internet" and "File" are two different
+  /// things to a viewer standing two metres away.
+  /// </para>
+  /// </remarks>
+  public record MediaTrailer(
+      [property: JsonPropertyName("kind")] int Kind,
+      [property: JsonPropertyName("label")] string? Label,
+      [property: JsonPropertyName("address")] string? Address,
+      [property: JsonPropertyName("source")] string? Source)
+  {
+    /// <summary>
+    /// Whether anything can be made of this trailer's address, which is what decides whether a screen offers it
+    /// or only shows it.
+    /// </summary>
+    public bool IsPlayable => !string.IsNullOrEmpty(Address);
+
+    /// <summary>
+    /// What sort of thing this trailer is, in the two words a row can carry: <c>File</c> for one the library
+    /// holds, <c>Internet</c> for a web address, <c>YouTube</c> for a film at that site.
+    /// </summary>
+    /// <remarks>
+    /// The four numbers are the server's <c>TrailerAspect.KIND_</c> values, restated here because the front end
+    /// does not reference the server's media library; a fifth number arriving would otherwise be labelled as a
+    /// file, which is the one label that would send a viewer to look for a film that is not on the machine.
+    /// </remarks>
+    public string KindWord
+    {
+      get
+      {
+        switch (Kind)
+        {
+          case 1: return "File";
+          case 2: return "Internet";
+          case 3: return "YouTube";
+          default: return "Unknown";
+        }
+      }
+    }
+  }
+
+  /// <summary>
   /// One title from <c>GET api/media/titles</c> - one row of the list a viewer picks from.
   /// </summary>
   /// <remarks>
@@ -168,7 +222,12 @@ namespace MediaPortal.Frontend.Api
       // for the person who asked; null when the request named nobody. A play count says how often a title was
       // finished, this says how far the last attempt got, and it is the number the reference decides "watched"
       // and the shape of a title's menu from (AbstractWatchedAction.cs:47-49).
-      [property: JsonPropertyName("percentage")] int? Percentage = null);
+      [property: JsonPropertyName("percentage")] int? Percentage = null,
+      // Appended, like the fields before it. The short films the title advertises itself with, which the context
+      // menu of a shelf asks about while the viewer is still standing there: whether a "Trailer" entry is offered
+      // at all is what this answers, and a menu that needed a second request per title to say it would cost one
+      // request per step of the walk.
+      [property: JsonPropertyName("trailers")] IReadOnlyList<MediaTrailer>? Trailers = null);
 
   /// <summary>
   /// The answer of <c>GET api/media/titles</c>: one page of titles plus what is left behind it.

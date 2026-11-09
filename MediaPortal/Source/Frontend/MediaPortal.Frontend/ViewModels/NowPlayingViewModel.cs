@@ -1200,6 +1200,19 @@ namespace MediaPortal.Frontend.ViewModels
     public event EventHandler<PlaybackReportedEventArgs>? PlaybackReported;
 
     /// <summary>
+    /// Raised when the engine gave up on the media it was opening or playing, carrying the sentence the engine
+    /// said about it.
+    /// </summary>
+    /// <remarks>
+    /// Raised for every media, whether or not a library title stands behind it: the trailer a viewer asked for
+    /// between two shelves can fail exactly as a film does, and only whoever opened it knows where the viewer was
+    /// standing beforehand. The same sentence sits in <see cref="StatusLine"/>, which no screen reads on its own
+    /// - a media that cannot be opened would otherwise leave the viewer in front of a black rectangle that says
+    /// nothing, the one answer indistinguishable from a player that is merely quiet.
+    /// </remarks>
+    public event EventHandler<PlayerFailedEventArgs>? PlaybackFailed;
+
+    /// <summary>
     /// The library title being played, or null for a file that was opened without one.
     /// </summary>
     public Guid? MediaItemId
@@ -2736,6 +2749,10 @@ namespace MediaPortal.Frontend.ViewModels
             ? "The player stopped without saying why."
             : args.Reason!;
         Raise();
+
+        // Said after this screen's own words are in place, so that a listener putting something over the screen
+        // cannot be answered by a status line that has not moved yet.
+        PlaybackFailed?.Invoke(this, args);
       });
     }
 

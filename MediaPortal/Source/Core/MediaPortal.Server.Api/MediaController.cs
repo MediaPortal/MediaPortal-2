@@ -364,6 +364,53 @@ namespace MediaPortal.Server.Api
       /// front of that one album should say.
       /// </remarks>
       public int? TrackCount { get; set; }
+
+      /// <summary>
+      /// The short films this title advertises itself with, or null when the library knows none.
+      /// </summary>
+      /// <remarks>
+      /// On the row and not only on the details answer because the context menu of a shelf asks the question
+      /// while the title is standing there: a "Trailer" entry that needed a second request per title to know
+      /// whether to appear at all would be one request per step of the walk.
+      /// </remarks>
+      public List<TrailerResult> Trailers { get; set; }
+    }
+
+    /// <summary>
+    /// One of the short films a title advertises itself with, as <c>GET api/media/titles</c> and
+    /// <c>GET api/media/items/{id}</c> name them.
+    /// </summary>
+    public class TrailerResult
+    {
+      /// <summary>
+      /// What sort of trailer this is: a file the library holds (<c>1</c>), a web address the player opens
+      /// itself (<c>2</c>), a film at a video site (<c>3</c>), or something this server has no word for
+      /// (<c>0</c>). The numbers are the <c>TrailerAspect.KIND_</c> values.
+      /// </summary>
+      public int Kind { get; set; }
+
+      /// <summary>
+      /// What the trailer is called, when anything does. Null for the trailer nobody named, which a screen
+      /// reads as plain "Trailer".
+      /// </summary>
+      public string Label { get; set; }
+
+      /// <summary>
+      /// Where the trailer is, in the form a player is handed: the server's own address for a file the library
+      /// holds, the page of the video site for a film standing there, the address itself for a web file.
+      /// </summary>
+      /// <remarks>
+      /// Null when nothing can be made of the address the tagging tool wrote. Such a trailer is still named -
+      /// it exists, and a screen that says so and shows <see cref="Source"/> is a better answer than one that
+      /// quietly drops the film from the list.
+      /// </remarks>
+      public string Address { get; set; }
+
+      /// <summary>
+      /// The address as the metadata file wrote it, which for a trailer tagged by the reference tool is its own
+      /// plugin format. Kept so that a screen can say what it was holding when it could not play it.
+      /// </summary>
+      public string Source { get; set; }
     }
 
     /// <summary>
@@ -549,6 +596,13 @@ namespace MediaPortal.Server.Api
         if (hasGenres && aspectId != GenreAspect.ASPECT_ID)
           optional.Add(GenreAspect.ASPECT_ID);
 
+        // The trailers travel along for the same reason and cost the same grouped read. Asked for by name rather
+        // than read from the file beside the title on the spot, because a wall of a thousand films would then
+        // open a thousand folders to answer a question the import already walked through once.
+        bool hasTrailers = metadata.Values.Any(entry => entry != null && entry.AspectId == TrailerAspect.ASPECT_ID);
+        if (hasTrailers && aspectId != TrailerAspect.ASPECT_ID)
+          optional.Add(TrailerAspect.ASPECT_ID);
+
         // What the viewer asked the library to contain. Whitespace counts as nothing asked, because a search box
         // that the viewer cleared should show the whole shelf again rather than an empty one.
         string finding = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
@@ -660,21 +714,30 @@ namespace MediaPortal.Server.Api
             // "What did I leave half way?", about this person: a title with a date under their name whose own
             // percentage lies strictly between nought and a hundred, and a linked episode or track of theirs that
             // is half way or has no date at all (BaseContinueWatchRelationshipMediaListProvider.cs:97-105; the
-            // plain form is BaseContinueWatchMediaListProvider.cs:41-46). The two ends are excluded on purpose:
-            // a finished film is not something left to finish, and one opened and abandoned at the first second
-            // has nothing a viewer would call half way.
+            // plain form is BaseContinueWatchMediaListProvider.cs:41-46). The two ends are excluded on purpose for
+            // a thing that is itself watched: a finished film is not something left to finish, and one opened and
+            // abandoned at the first second has nothing a viewer would call half way.
           {
             IFilter childHalfWay = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
                 new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_DATE),
                 new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
                     RelationalOperator.LT, PlayPercentage(100)));
+            var ownHalves = new List<IFilter>
+            {
+                new NotFilter(new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+                new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
+                    RelationalOperator.LT, PlayPercentage(100))
+            };
+            // The nought end is only barred for the thing that is itself paused. A series' and an album's own
+            // figure is no report but the mean of its children's whole per cent, so the one episode of eight that
+            // stands at two per cent leaves the series standing at nought - and the shelf would throw out the
+            // series that its own episode put on it. For the two containers the date and the "not finished" half
+            // are therefore the whole of the question, and the child half below is what decides.
+            if (aspectId != SeriesAspect.ASPECT_ID && aspectId != AudioAlbumAspect.ASPECT_ID)
+              ownHalves.Add(new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
+                  RelationalOperator.GT, PlayPercentage(0)));
             seenFilter = AskedThroughChildren(aspectId, childHalfWay,
-                BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-                    new NotFilter(new EmptyUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-                    new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
-                        RelationalOperator.LT, PlayPercentage(100)),
-                    new RelationalUserDataFilter(viewer.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE,
-                        RelationalOperator.GT, PlayPercentage(0))));
+                BooleanCombinationFilter.CombineFilters(BooleanOperator.And, ownHalves));
             halfWayChildren = childHalfWay;
           }
           else
@@ -996,9 +1059,10 @@ namespace MediaPortal.Server.Api
         // writes is not one of those, so a season carries nobody's figure and its shelf would say nothing about
         // a half-watched season. Asked live, the children answer: every child of this row is read with the
         // caller's own data, untouched children count as nought, and the rounded mean becomes the row's figure.
-        // Only a row whose own stored figure is missing is asked, and only a container with at least one child
-        // that holds a figure gets an average - a shelf nobody watched keeps its nothing, which is the household
-        // answer's (PlayCount's) ground, not this one's.
+        // Only a row whose own stored figure says nothing is asked - and a stored nought says nothing, because it
+        // is what the rounding of a fraction left behind before the mean learned to keep a one. Only a container
+        // with at least one child that holds a figure gets an average - a shelf nobody watched keeps its nothing,
+        // which is the household answer's (PlayCount's) ground, not this one's.
         if (profile.HasValue)
         {
           Guid childAspect = Guid.Empty, childRole = Guid.Empty, parentRole = Guid.Empty;
@@ -1025,7 +1089,7 @@ namespace MediaPortal.Server.Api
           {
             for (int row = 0; row < items.Count && row < titles.Count; row++)
             {
-              if (titles[row].Percentage.HasValue)
+              if (titles[row].Percentage > 0)
                 continue;
               // Child-first roles, as every relationship walk in this file spells them: the row stands on the
               // child and names this container.
@@ -1043,7 +1107,7 @@ namespace MediaPortal.Server.Api
                 sum += own ?? 0;
               }
               if (anyChildSaid)
-                titles[row].Percentage = (int)Math.Round(sum / (double)children.Count, MidpointRounding.AwayFromZero);
+                titles[row].Percentage = MeanOfChildren(sum, children.Count);
             }
           }
         }
@@ -1406,6 +1470,12 @@ namespace MediaPortal.Server.Api
       public List<string> Genres { get; set; }
 
       /// <summary>
+      /// The short films this title advertises itself with, or null when the library knows none. The same list
+      /// the title row carries (<see cref="TitleResult.Trailers"/>), read the same way.
+      /// </summary>
+      public List<TrailerResult> Trailers { get; set; }
+
+      /// <summary>
       /// The rating a metadata file gives the title, on the hundred-point scale the sites rate with, divided by
       /// ten. <see cref="Rating"/> when the library itself rated the title wins; this is the tool's number for a
       /// library that never rated, and it keeps the decimal - "7.3" is what the tagging site said.
@@ -1633,7 +1703,11 @@ namespace MediaPortal.Server.Api
           // aspect out could only ever say "genres: none" about a title whose shelf had been naming its genre a
           // moment before.  Optional like the rest, because a title no importer ever put a genre on is a title and
           // not a failure.
-          GenreAspect.ASPECT_ID
+          GenreAspect.ASPECT_ID,
+          // Asked for because the "Trailer" entry of a title's menu is decided by whether this answer names any,
+          // and a screen should not have to ask a second question to find out what the title it is standing in
+          // front of advertises itself with.
+          TrailerAspect.ASPECT_ID
         };
 
         MediaItemQuery query = new MediaItemQuery(necessary, optional, new MediaItemIdFilter(id));
@@ -1843,6 +1917,9 @@ namespace MediaPortal.Server.Api
       // genre on the shelf, and the album's own details answer named nothing, because the aspect was not asked for.
       result.Genres = ReadGenres(item);
 
+      // The short films the title advertises itself with, read the same way the title rows read them.
+      result.Trailers = ReadTrailers(item);
+
       // An audio file's own facts, which the audio reading is built from: what it is packed in, how many channels
       // it carries, its bitrate and sample rate, and which disc of how many it is.  Every one of them is the
       // library's own number rather than something this answer works out, and every one of them is a plaque on the
@@ -1905,6 +1982,59 @@ namespace MediaPortal.Server.Api
           .Distinct()
           .ToList();
       return genres.Count > 0 ? genres : null;
+    }
+
+    /// <summary>
+    /// The trailers the library knows for one title, in the order a screen should list them, or <c>null</c> when
+    /// it knows none.
+    /// </summary>
+    /// <param name="item">The title. Its trailer aspect must have been asked for, like every other aspect here.</param>
+    /// <remarks>
+    /// <para>
+    /// The address a tagging tool wrote is translated here and not when it was imported, so that a title
+    /// standing in a library since last year answers with whatever this server can make of its trailer today.
+    /// The translation is at <see cref="TrailerAddress"/>; what is handed over along with it is the kind, which
+    /// the importer already worked out and which is what a choice on a screen is labelled by.
+    /// </para>
+    /// <para>
+    /// A trailer the library holds as a file is <b>not</b> handed over as a path, because a path on the machine
+    /// holding the library means nothing to the machine asking, and one answer that works everywhere is worth
+    /// more than a fast path for the one front end standing next to the server. Such a trailer is reached
+    /// through <see cref="GetTrailerStream"/>, exactly as the film itself is reached through
+    /// <see cref="GetStream"/>, and the index in that address is the position in this list - which is why the
+    /// list is sorted rather than left in whatever order the database happened to return it in.
+    /// </para>
+    /// </remarks>
+    private static List<TrailerResult> ReadTrailers(MediaItem item)
+    {
+      IList<MultipleMediaItemAspect> trailerAspects;
+      if (!MediaItemAspect.TryGetAspects(item.Aspects, TrailerAspect.Metadata, out trailerAspects))
+        return null;
+
+      List<TrailerResult> trailers = trailerAspects
+          .Select(trailer => new TrailerResult
+          {
+            Kind = trailer.GetAttributeValue<int>(TrailerAspect.ATTR_KIND),
+            Label = Text(trailer.GetAttributeValue<string>(TrailerAspect.ATTR_LABEL)),
+            Source = Text(trailer.GetAttributeValue<string>(TrailerAspect.ATTR_URL))
+          })
+          .Where(trailer => trailer.Source != null)
+          .OrderBy(trailer => trailer.Source, StringComparer.OrdinalIgnoreCase)
+          .ToList();
+      if (trailers.Count == 0)
+        return null;
+
+      for (int index = 0; index < trailers.Count; index++)
+      {
+        TrailerResult trailer = trailers[index];
+        trailer.Address = trailer.Kind == TrailerAspect.KIND_FILE
+            // The server's own address for the file, spelled the way this server spells the address of a film
+            // (<c>api/media/items/{id}/stream</c>), so that a front end opens the two the same way. The position
+            // in this list is the number in it, which is why the list above is sorted.
+            ? "api/media/items/" + item.MediaItemId.ToString("D") + "/trailer/" + index + "/stream"
+            : TrailerAddress.ToPlayable(trailer.Source, trailer.Kind);
+      }
+      return trailers;
     }
 
     /// <summary>
@@ -3117,6 +3247,215 @@ namespace MediaPortal.Server.Api
       {
         if (!streamClosesIt && accessor != null)
           accessor.Dispose();
+      }
+    }
+
+    /// <summary>
+    /// One of a title's trailers, as a stream a player can watch.
+    /// </summary>
+    /// <param name="id">The media item the trailer belongs to.</param>
+    /// <param name="number">Which of the title's trailers, counting as <see cref="ReadTrailers"/> lists them -
+    /// which is the order the answer of <c>GET api/media/titles</c> shows them in, so a front end never has to
+    /// count anything itself.</param>
+    /// <param name="cancellationToken">Cancelled when the viewer walks away mid-trailer.</param>
+    /// <remarks>
+    /// <para>
+    /// This is <see cref="GetStream"/> for the short film rather than for the film, and it exists for the same
+    /// reason: the trailer of a library is a file on the machine holding the library, and a television in the
+    /// living room cannot read that. It exists rather than reusing <see cref="GetStream"/> with the trailer's own
+    /// id because a trailer has no id - it is not a title, and it should not turn up on a shelf as one.
+    /// </para>
+    /// <para>
+    /// Only a trailer the library holds as a file is answered here. A trailer standing at a video site has
+    /// nothing on this machine to open, and the answer of <c>GET api/media/titles</c> already names its address
+    /// for the player; being asked to stream one is a front end that mixed the two up, and the answer says so.
+    /// </para>
+    /// <para>
+    /// The address of the file is read out of the library and is never taken from the request, which is what
+    /// makes this route safe to hand a number to: the largest set of files a caller can name is the set the
+    /// importer wrote down, exactly as for the film itself.
+    /// </para>
+    /// </remarks>
+    [HttpGet("items/{id}/trailer/{number}/stream")]
+    [HttpHead("items/{id}/trailer/{number}/stream")]
+    public async Task<IActionResult> GetTrailerStream(Guid id, int number, CancellationToken cancellationToken)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      IResourceAccessor accessor = null;
+      bool streamClosesIt = false;
+
+      try
+      {
+        MediaItemQuery query = new MediaItemQuery(
+            new List<Guid> { MediaAspect.ASPECT_ID },
+            new List<Guid> { TrailerAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID },
+            new MediaItemIdFilter(id));
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, VirtualTitles.LetsVirtualTitlesIn);
+        MediaItem item = items == null ? null : items.FirstOrDefault();
+
+        if (item == null)
+          return NotFound(new StreamResult { Id = id, Error = "this server has no title with the id " + id });
+
+        List<TrailerResult> trailers = ReadTrailers(item);
+        if (trailers == null)
+          return NotFound(new StreamResult { Id = id, Error = "the title " + id + " has no trailer" });
+        if (number < 0 || number >= trailers.Count)
+          return NotFound(new StreamResult
+          {
+            Id = id,
+            Error = "the title " + id + " has " + trailers.Count + " trailer" + (trailers.Count == 1 ? "" : "s") +
+                ", so " + number + " is not one of them"
+          });
+
+        TrailerResult trailer = trailers[number];
+        if (trailer.Kind != TrailerAspect.KIND_FILE)
+        {
+          // Nothing to open here: the trailer is somewhere on the internet, and the front end was handed the
+          // address to take the player to.
+          return NotFound(new StreamResult
+          {
+            Id = id,
+            Error = "this trailer is not a file this server holds; its address is " +
+                (trailer.Address ?? "'" + trailer.Source + "', which this server cannot play")
+          });
+        }
+
+        accessor = OpenTrailerFile(item, trailer.Source);
+        if (accessor == null)
+          return FileGone(id, "'" + trailer.Source + "' is not a file the server can reach");
+
+        IFileSystemResourceAccessor file = accessor as IFileSystemResourceAccessor;
+        if (file == null)
+          return FileGone(id, "the server cannot read the resource the trailer '" + trailer.Source + "' names");
+        if (!file.Exists || !file.IsFile)
+          return FileGone(id, "'" + file.ResourceName + "' is not there any more");
+
+        Stream body = await file.OpenReadAsync().ConfigureAwait(false);
+        streamClosesIt = true;
+
+        return new FileStreamResult(new ResourceReadStream(body, accessor), StreamMediaType(file.ResourceName))
+        {
+          EnableRangeProcessing = true
+        };
+      }
+      catch (IllegalCallException ex)
+      {
+        LogStreamRefusal("the media library refused a trailer request, answering 503: " + ex.Message);
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+      }
+      catch (IOException ex)
+      {
+        return FileGone(id, "the file could not be read: " + ex.Message);
+      }
+      catch (UnauthorizedAccessException ex)
+      {
+        return FileGone(id, "the server is not allowed to read the file: " + ex.Message);
+      }
+      catch (ArgumentException ex)
+      {
+        return FileGone(id, "the trailer the library recorded cannot be reached: " + ex.Message);
+      }
+      catch (NotSupportedException ex)
+      {
+        return FileGone(id, "the server cannot open this kind of resource: " + ex.Message);
+      }
+      finally
+      {
+        if (!streamClosesIt && accessor != null)
+          accessor.Dispose();
+      }
+    }
+
+    /// <summary>
+    /// Opens the file one of a title's trailers was written down as, or <c>null</c> when nothing any provider
+    /// claims comes of it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Two spellings are worth understanding, because both are in the libraries this server is asked about. The
+    /// importer writes a trailer it found in a film's folder as a resource address, which is what a file on a
+    /// share is called here. A metadata file, on the other hand, sometimes names a trailer as a plain path -
+    /// <c>extras/trailer.mp4</c> - which is neither an address nor rooted anywhere, and can only be understood
+    /// against the folder of the title that named it. Both are tried, in that order.
+    /// </para>
+    /// <para>
+    /// The second reading is the one that needs care: that path came out of a file somebody dropped into a
+    /// folder, and a path written by a file is not a promise from the owner of the library. It is therefore
+    /// asked through <see cref="IResourceAccessGuard.IsAllowed"/>, the same question the file server asks before
+    /// it hands over bytes, and a trailer climbing out of every share is refused rather than opened.
+    /// </para>
+    /// </remarks>
+    private static IResourceAccessor OpenTrailerFile(MediaItem item, string source)
+    {
+      if (string.IsNullOrWhiteSpace(source))
+        return null;
+
+      ResourcePath path = null;
+      try
+      {
+        // How this server writes an address is recognisable by the marker between the provider and the path.
+        if (source.IndexOf("://", StringComparison.Ordinal) >= 0)
+          path = ResourcePath.Deserialize(source);
+      }
+      catch (ArgumentException)
+      {
+        // Not how this server writes an address. The reading against the title's folder below is for this case.
+        path = null;
+      }
+
+      if (path == null)
+      {
+        path = TheTitleFolder(item);
+        if (path == null)
+          return null;
+        // One step up from the title's own file is its folder, and inside that folder the metadata file's path
+        // is read. A path climbing out of it with a ".." is not read at all: nothing a metadata file names has
+        // any business leaving the folder of the title that named it.
+        if (source.Split('/', '\\').Any(part => part == ".."))
+          return null;
+        foreach (string part in source.TrimStart('/', '\\').Split('/', '\\'))
+        {
+          if (part.Length == 0)
+            continue;
+          path = ResourcePathHelper.Combine(path, part);
+        }
+      }
+
+      IResourceAccessGuard guard = ServiceRegistration.Get<IResourceAccessGuard>(false);
+      if (guard != null && !guard.IsAllowed(path))
+        return null;
+
+      IResourceAccessor accessor;
+      try
+      {
+        if (path.TryCreateLocalResourceAccessor(out accessor))
+          return accessor;
+      }
+      catch (ArgumentException)
+      {
+        return null;
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// The folder a title's own file stands in, or <c>null</c> when the server cannot name the file at all.
+    /// </summary>
+    private static ResourcePath TheTitleFolder(MediaItem item)
+    {
+      IResourceLocator locator = item.GetResourceLocator();
+      if (locator == null)
+        return null;
+      try
+      {
+        return ResourcePathHelper.Combine(locator.NativeResourcePath, "../");
+      }
+      catch (ArgumentException)
+      {
+        return null;
       }
     }
 
@@ -4408,8 +4747,7 @@ namespace MediaPortal.Server.Api
       foreach (KeyValuePair<int, int> season in sums)
       {
         if (somebodySaid.Contains(season.Key))
-          figures[season.Key] = (int)Math.Round(season.Value / (double)amounts[season.Key],
-              MidpointRounding.AwayFromZero);
+          figures[season.Key] = MeanOfChildren(season.Value, amounts[season.Key]);
       }
       return figures;
     }
@@ -4696,6 +5034,11 @@ namespace MediaPortal.Server.Api
       // name one genre on its shelf and another on the screen standing in front of the viewer.
       result.Genres = ReadGenres(item);
 
+      // The short films the title advertises itself with, which the context menu of a shelf asks about while the
+      // viewer is still standing at the shelf. Read here for the same reason the genres are: an answer that left
+      // them out could only offer "Trailer" for every title or for none.
+      result.Trailers = ReadTrailers(item);
+
       // Where a title sits in the one that holds it, and who made it. Everything here comes off the aspect the
       // request was already about - a caller listing episodes asked for the episode aspect, one listing tracks
       // asked for the audio aspect - so a shelf of films pays nothing for a shelf of music having these fields.
@@ -4857,6 +5200,22 @@ namespace MediaPortal.Server.Api
         return null;
 
       return percentage;
+    }
+
+    /// <summary>
+    /// The mean of a container's children's figures, in whole per cent - with one law the rounding must not
+    /// break: nought is the answer only where nought was watched.
+    /// </summary>
+    /// <remarks>
+    /// The key holds whole per cent, so a mean of eight children of which one stands at two per cent is a
+    /// quarter, and a quarter rounds to nought. Nought is the figure of the untouched, and a shelf that asks
+    /// "what did this viewer leave half way" reads it as "nothing of this was opened" - which throws the series
+    /// out of the shelf its own episode put it on. A fraction therefore always leaves at least a one behind.
+    /// </remarks>
+    private static int MeanOfChildren(int sum, int count)
+    {
+      int figure = (int)Math.Round(sum / (double)count, MidpointRounding.AwayFromZero);
+      return figure == 0 && sum > 0 ? 1 : figure;
     }
 
     /// <summary>

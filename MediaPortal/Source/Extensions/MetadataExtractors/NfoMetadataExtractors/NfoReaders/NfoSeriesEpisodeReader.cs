@@ -222,6 +222,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteVideoAspectDirectors);
       _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectStoryPlot);
+      // Some tagging tools write a trailer for the episode itself, most do not; either way there is nothing to
+      // do when the file names none.
+      _supportedAttributes.Add(TryWriteTrailers);
 
       _supportedAttributes.Add(TryWriteEpisodeAspectTvDbId);
       _supportedAttributes.Add(TryWriteEpisodeAspectSeriesName);
@@ -684,7 +687,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       // Example of a valid element:
       // <trailer>[URL to a trailer]</trailer>
-      return ((_currentStub.Trailer = ParseSimpleString(element)) != null);
+      // A metadata file names as many of these as the tagging tool found, so every one of them is kept and not
+      // only the last.
+      string url = ParseSimpleString(element);
+      if (string.IsNullOrEmpty(url))
+        return false;
+      _currentStub.Trailers ??= new List<string>();
+      _currentStub.Trailers.Add(url);
+      return true;
+    }
+
+    /// <summary>
+    /// Tries to write the trailers of the episode into <see cref="TrailerAspect"/>
+    /// </summary>
+    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s to write into</param>
+    /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
+    private bool TryWriteTrailers(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    {
+      return TryWriteTrailerAspect(extractedAspectData, _stubs[0].Trailers);
     }
 
     #endregion

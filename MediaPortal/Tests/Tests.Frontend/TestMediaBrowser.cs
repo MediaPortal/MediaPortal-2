@@ -45,6 +45,7 @@ using FrontendAspect = MediaPortal.Frontend.Api.MediaAspect;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Services;
 using MediaPortal.Frontend.Player;
 using MediaPortal.Frontend.Settings;
 using MediaPortal.Frontend.Theming;
@@ -8885,6 +8886,109 @@ namespace Tests.Frontend
       Assert.That(ReferenceEquals(home.ContentGroups, dark), Is.True,
           "the step onto the pre-heated neighbour was the pointer swap the reference made it be: the very "
           + "collection the probe laid out stands now, not one emptied and filled again");
+    }
+
+    #endregion
+
+    #region Der Trailer in der Regal-Menü
+
+    /// <summary>
+    /// The shelf's own dialog for a trailer standing behind a page at a video site: three steps in one frame,
+    /// and a size that reaches the application with the film it belongs to.
+    /// </summary>
+    [Test]
+    public async Task ATrailerBehindAPageIsAskedForItsSizeBeforeTheShelfLetsGoOfIt()
+    {
+      MediaBrowserViewModel browser = BrowserOn(new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS));
+      TitleViewModel frozen = new TitleViewModel(new MediaTitle(Guid.NewGuid(), "Frozen II", null, 2019, null,
+          "local://filme/frozen.ii.mkv", false,
+          Trailers: new[] { SitePage("bwzLiQZDw2I") }));
+      browser.Titles.Add(frozen);
+      browser.Selected = frozen;
+
+      var asks = new List<TrailerRequest>();
+      browser.TrailerRequested += delegate (object? sender, TrailerRequest request) { asks.Add(request); };
+
+      browser.ShowMenuCommand.Execute(null);
+      Assert.That(browser.TitleActions.Any(a => a.Kind == MediaTitleActionKind.Trailer), Is.True,
+          "a title the library knows a short film for wears the line");
+
+      await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)browser.RunTitleActionCommand)
+          .ExecuteAsync(browser.TitleActions.First(a => a.Kind == MediaTitleActionKind.Trailer));
+
+      Assert.That(asks, Is.Empty, "the page is several films, so nothing can be asked for yet");
+      Assert.That(browser.MenuVisible, Is.True,
+          "the dialog that was standing becomes the size question - it is the same frame the viewer is in");
+      Assert.That(browser.MenuAnswer, Is.Empty,
+          "and the lines are the question on their own: nothing is said over them");
+      Assert.That(browser.TitleActions.Select(a => a.Kind),
+          Is.EqualTo(VideoSiteStream.Qualities.Select(q => MediaTitleActionKind.TrailerQuality)),
+          "one line per size, and none of the title's own answers left among them");
+
+      await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)browser.RunTitleActionCommand)
+          .ExecuteAsync(browser.TitleActions.First(a => a.Quality != null && a.Quality.Word == "bis 720p"));
+
+      Assert.That(asks, Has.Count.EqualTo(1), "one press on one size is one ask");
+      Assert.That(asks[0].Quality!.Word, Is.EqualTo("bis 720p"), "in the size that was stood on");
+      Assert.That(asks[0].Title, Is.SameAs(frozen), "for the title the line was pressed in");
+
+      // A film behind a page cannot be handed over on the spot - the page has to be asked, and a big picture has
+      // to be brought over first - so the question keeps standing and is the place the answer is written. Said
+      // anywhere else it is said in a playback nudge, whose line is one short word wide.
+      Assert.That(browser.MenuVisible, Is.True, "and the question stays where its answer will be read");
+
+      string waiting = VideoSiteStream.WaitWords(VideoSiteStream.Qualities[1]);
+      browser.AnswerTrailer(waiting);
+      Assert.That(browser.MenuAnswer, Is.EqualTo(waiting), "what is happening is read in the dialog");
+      Assert.That(browser.MenuVisible, Is.True, "and the dialog is not taken away to say it");
+
+      browser.AnswerTrailer("nothing could be found behind the page - the resolver had no answer.");
+      Assert.That(browser.MenuAnswer, Does.StartWith("nothing could be found"),
+          "a refusal is read in the same place, whole and uncropped");
+
+      browser.AnswerTrailer("");
+      Assert.That(browser.MenuVisible, Is.False, "and an answered question is taken away again");
+
+      // The question is a state of the dialog and not of the shelf: a viewer who steps out of it and back in
+      // again stands at the title's answers, not at a size question nobody asked a second time.
+      browser.ShowMenuCommand.Execute(null);
+      Assert.That(browser.TitleActions.Any(a => a.Kind == MediaTitleActionKind.Trailer), Is.True,
+          "opened again, the dialog is a title's dialog again");
+    }
+
+    [Test]
+    public async Task ATrailerTheLibraryHoldsIsPlayedWithoutASizeQuestion()
+    {
+      MediaBrowserViewModel browser = BrowserOn(new DetailsServer(HttpStatusCode.OK, TITANIC_DETAILS));
+      Guid id = Guid.NewGuid();
+      TitleViewModel alien = new TitleViewModel(new MediaTitle(id, "Alien: Romulus", null, 2024, null,
+          "local://filme/romulus.mkv", false,
+          Trailers: new[] { new MediaTrailer(1, null, "api/media/items/" + id.ToString("D") + "/trailer/0/stream",
+              @"D:\Mediaportal\Filme\romulus-teaser.mp4") }));
+      browser.Titles.Add(alien);
+      browser.Selected = alien;
+
+      var asks = new List<TrailerRequest>();
+      browser.TrailerRequested += delegate (object? sender, TrailerRequest request) { asks.Add(request); };
+
+      browser.ShowMenuCommand.Execute(null);
+      await ((CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<MediaTitleAction>)browser.RunTitleActionCommand)
+          .ExecuteAsync(browser.TitleActions.First(a => a.Kind == MediaTitleActionKind.Trailer));
+
+      Assert.That(asks, Has.Count.EqualTo(1),
+          "a file the library holds is one film in one size, so the press goes straight to the player");
+      Assert.That(asks[0].Quality, Is.Null, "and no size is pretended for a file");
+      Assert.That(browser.MenuVisible, Is.False, "the dialog is put away as every other line puts itself away");
+    }
+
+    /// <summary>
+    /// A trailer at a video site, as a tagging tool writes it and as the server hands it over: the page, in the
+    /// address to open and again in the address the library holds.
+    /// </summary>
+    private static MediaTrailer SitePage(string id)
+    {
+      string page = "https://www.youtube.com/watch?v=" + id;
+      return new MediaTrailer(3, null, page, page);
     }
 
     #endregion

@@ -194,9 +194,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public string Tagline { get; set; }
 
     /// <summary>
-    /// Link to a trailer video
+    /// Address of a trailer of the movie, as many as the metadata file names. Kept as the file wrote it, so a
+    /// trailer addressed in the tagging tool's own format is still in here in that format.
     /// </summary>
-    public string Trailer { get; set; }
+    public IList<string> Trailers { get; set; }
 
     /// <summary>
     /// Genre(s) of the movie
