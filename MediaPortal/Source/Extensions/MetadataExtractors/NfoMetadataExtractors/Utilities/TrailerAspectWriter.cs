@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
@@ -48,17 +50,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilit
     /// <param name="kind">One of the <c>TrailerAspect.KIND_</c> values</param>
     /// <param name="label">What the trailer is called, or <c>null</c> for the one nobody named</param>
     /// <returns><c>true</c> if the trailer was new and is now noted; <c>false</c> if the title already carried
-    /// it, which happens because the tagging tool often names the very file that sits in the folder.</returns>
+    /// it, which happens because the tagging tool often names the very file that sits in the folder. A trailer
+    /// standing at a site that answers no more is not noted at all and answers <c>false</c> too.</returns>
     /// <remarks>
     /// A trailer the title already carries is not left alone: its kind and its name are read off the address,
     /// and rewriting them from today's rules is what lets a better reading of an address reach a library
     /// without importing it again. The address itself is the trailer, so it keeps what the file wrote.
+    /// <para>
+    /// Apple's trailer site is shut, so a link from it is refused here and never reaches the database. Tagging
+    /// tools went on writing those links long after the site stopped answering, so refusing them is the only
+    /// thing that keeps them out of new imports. What an older import already stored goes away when the server
+    /// starts; see <c>MediaLibrary.ForgetTrailersAtDeadSites</c>.
+    /// </para>
     /// </remarks>
     public static bool Add(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, string url, int kind,
         string label)
     {
       if (string.IsNullOrEmpty(url))
         return false;
+      if (TrailerAddress.IsDeadSite(url))
+      {
+        ServiceRegistration.Get<ILogger>().Debug("TrailerAspectWriter: Giving up the trailer at '{0}' - that site answers no more", url);
+        return false;
+      }
 
       MultipleMediaItemAspect noted = NotedTrailer(extractedAspectData, url);
       if (noted != null)

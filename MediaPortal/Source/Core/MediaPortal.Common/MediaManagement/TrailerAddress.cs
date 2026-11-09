@@ -56,6 +56,51 @@ namespace MediaPortal.Common.MediaManagement
     private static readonly string[] VIDEO_SITE_HOSTS = { "youtube.com", "youtu.be" };
 
     /// <summary>
+    /// Sites that used to hand out trailer films and now send everybody off to their streaming front page.
+    /// </summary>
+    /// <remarks>
+    /// Measured on this machine with its own HTTP client: an Apple trailer file address answers
+    /// <c>301</c> pointing at <c>https://tv.apple.com/</c> and carries <c>content-type: text/html</c> in the
+    /// reply, both for <c>trailers.apple.com</c> and for <c>movietrailers.apple.com</c>. A trailer is asked
+    /// for its length before anything is played, so such an address does not just fail to play - nothing
+    /// starts at all. That is why these links are not imported and are thrown out of a library that holds
+    /// them already.
+    /// </remarks>
+    private static readonly string[] DEAD_SITE_HOSTS = { "apple.com" };
+
+    /// <summary>
+    /// The sites that answer no more, for whoever wants to ask a database about them in one stroke instead of
+    /// looking at every address on its own.
+    /// </summary>
+    public static IEnumerable<string> DeadSiteHosts
+    {
+      get { return DEAD_SITE_HOSTS; }
+    }
+
+    /// <summary>
+    /// Tells whether a trailer stands at a site that answers no more.
+    /// </summary>
+    /// <param name="raw">The address as the metadata file wrote it, or as the library stored it.</param>
+    /// <remarks>
+    /// All three shapes a dead Apple link is met in are recognised: the plain
+    /// <c>https://movietrailers.apple.com/movies/…/movie-hd.mov</c>, the older
+    /// <c>http://trailers.apple.com/trailers/…</c>, and a trailer bought from a trailer site as
+    /// <c>plugin://plugin.video.hdtrailers_net/video/apple.com/…</c> with the Apple address hidden behind
+    /// the plugin. A look-alike host such as <c>pineapple.com</c> is not caught, because the character in
+    /// front of the host has to be a separator.
+    /// </remarks>
+    public static bool IsDeadSite(string raw)
+    {
+      string text = Clean(raw);
+      if (text.Length == 0)
+        return false;
+      foreach (string host in DEAD_SITE_HOSTS)
+        if (CarriesHost(text, host))
+          return true;
+      return false;
+    }
+
+    /// <summary>
     /// Says what sort of address <paramref name="raw"/> is, without deciding whether it can be played.
     /// </summary>
     /// <returns>One of the <c>TrailerAspect.KIND_</c> values.</returns>
@@ -243,6 +288,28 @@ namespace MediaPortal.Common.MediaManagement
         if (lower.Contains(host))
           return true;
       return false;
+    }
+
+    /// <summary>
+    /// Looks for <paramref name="host"/> in <paramref name="text"/> as a host of its own, that is with a
+    /// separator in front of it and the end of the address, a port, a question mark or an encoded separator
+    /// behind it. The character in front is what keeps <c>pineapple.com</c> from counting as
+    /// <c>apple.com</c>: a dot behind a letter means the host is only the tail of a longer name.
+    /// </summary>
+    private static bool CarriesHost(string text, string host)
+    {
+      for (int from = 0; ;)
+      {
+        int at = text.IndexOf(host, from, StringComparison.OrdinalIgnoreCase);
+        if (at < 0)
+          return false;
+        char before = at == 0 ? '/' : text[at - 1];
+        int after = at + host.Length;
+        char behind = after >= text.Length ? '/' : text[after];
+        if ((before == '/' || before == '.') && (behind == '/' || behind == ':' || behind == '?' || behind == '%'))
+          return true;
+        from = at + 1;
+      }
     }
 
     /// <summary>

@@ -900,9 +900,84 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void ActivateImporterWorker()
     {
+      ForgetTrailersAtDeadSites();
       InitShareWatchers();
       IImporterWorker importerWorker = ServiceRegistration.Get<IImporterWorker>();
       importerWorker.Activate(_mediaBrowsingCallback, _importResultHandler);
+    }
+
+    /// <summary>
+    /// Throws away the trailer links the library holds for sites that answer no more, which today means
+    /// Apple's trailer site.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// An import refuses those links now, but a library imported earlier holds them by the hundred, and not
+    /// one of them can be played: the site sends every file address to its streaming front page and answers
+    /// with a web page. A trailer is asked for its length before anything is played, so such a link does not
+    /// merely fail - nothing starts, and the screen where playback would have been reported has no place for
+    /// the message. Removing the links is the honest end of it.
+    /// </para>
+    /// <para>
+    /// The database does the sieving, so this is cheap on a big library: only titles whose stored trailer
+    /// address mentions one of the dead hosts are read back at all, and of those only the ones really standing
+    /// there are touched. A title carrying a living trailer next to a dead one keeps the living one, since the
+    /// trailer rows of a title are written as a set.
+    /// </para>
+    /// <para>
+    /// This runs on every start rather than once, so a database brought back from a backup is cleaned too.
+    /// </para>
+    /// </remarks>
+    protected void ForgetTrailersAtDeadSites()
+    {
+      ILogger logger = ServiceRegistration.Get<ILogger>();
+      try
+      {
+        if (!_miaManagement.MediaItemAspectStorageExists(TrailerAspect.ASPECT_ID))
+          return;
+        ICollection<IFilter> deadSiteFilters = new List<IFilter>();
+        foreach (string host in TrailerAddress.DeadSiteHosts)
+          deadSiteFilters.Add(new LikeFilter(TrailerAspect.ATTR_URL, "%" + host + "%", ESCAPE_CHAR, false));
+        if (deadSiteFilters.Count == 0)
+          return;
+
+        // Asking for the trailer aspect as a necessary one is what keeps titles without any trailer out of the
+        // answer, because necessary aspects are joined into the query proper.
+        MediaItemQuery query = new MediaItemQuery(new Guid[] { TrailerAspect.ASPECT_ID }, null,
+            BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, deadSiteFilters));
+        CompiledMediaItemQuery compiledQuery = CompiledMediaItemQuery.Compile(_miaManagement, query);
+
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        int thrownAway = 0;
+        using (ITransaction transaction = database.BeginTransaction())
+        {
+          foreach (MediaItem item in compiledQuery.QueryList(database, transaction))
+          {
+            IList<MultipleMediaItemAspect> storedTrailers;
+            if (!MediaItemAspect.TryGetAspects(item.Aspects, TrailerAspect.Metadata, out storedTrailers))
+              continue;
+            IList<MultipleMediaItemAspect> livingTrailers = storedTrailers
+                .Where(trailer => !TrailerAddress.IsDeadSite(trailer.GetAttributeValue<string>(TrailerAspect.ATTR_URL)))
+                .ToList();
+            if (livingTrailers.Count == storedTrailers.Count)
+              continue; // The filter caught a look-alike address, such as a folder named after the site.
+
+            thrownAway += storedTrailers.Count - livingTrailers.Count;
+            _miaManagement.RemoveMIA(transaction, item.MediaItemId, TrailerAspect.ASPECT_ID);
+            foreach (MultipleMediaItemAspect livingTrailer in livingTrailers)
+              _miaManagement.AddOrUpdateMIA(transaction, item.MediaItemId, livingTrailer);
+          }
+          if (thrownAway > 0)
+            transaction.Commit();
+        }
+        if (thrownAway > 0)
+          logger.Info("MediaLibrary: Threw away {0} trailer links standing at sites that answer no more.", thrownAway);
+      }
+      catch (Exception e)
+      {
+        // Nothing here is needed to run the server, so a library that could not be cleaned is reported and left.
+        logger.Warn("MediaLibrary: Could not clean the library of dead trailer links: {0}", e);
+      }
     }
 
     public void Shutdown()
