@@ -72,6 +72,11 @@ namespace FrontendProbe
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
+        "  --inside <id>  list the shelf INSIDE the title of this id, which is how a viewer reaches it by pressing:\n" +
+        "                   a season wall under the series, an episode wall under the season it was pressed from.\n" +
+        "                   Asked of the running server, because a season's and an episode's row reads the series'\n" +
+        "                   name off the row above it, which a whole wall has none of\n" +
+        "  --season <n>  with --inside on an episode wall: which of the series' seasons to stand under\n" +
         "  --layout <name>  press the view key until the shelf wears this shape. Needed because the shelf wears\n" +
         "                   whichever shape the viewer left it in - and pressing the key is the same road the\n" +
         "                   remote takes\n" +
@@ -138,6 +143,8 @@ namespace FrontendProbe
       int albumTunes = 0;
       bool shuffled = false;
       int? standAt = null;
+      Guid insideTitle = Guid.Empty;
+      int insideSeason = 0;
       int width = 1280;
       int height = 720;
 
@@ -164,6 +171,16 @@ namespace FrontendProbe
             if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
               return Usage("--aspect needs a name.");
             aspectName = args[++i].Trim();
+            break;
+          case "--inside":
+            if (i + 1 >= args.Length || !Guid.TryParse(args[i + 1], out insideTitle))
+              return Usage("--inside needs the id of the title the shelf is opened inside.");
+            i++;
+            break;
+          case "--season":
+            if (i + 1 >= args.Length || !int.TryParse(args[i + 1], out insideSeason))
+              return Usage("--season needs the number of the season to stand under.");
+            i++;
             break;
           case "--layout":
             if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
@@ -1037,7 +1054,84 @@ namespace FrontendProbe
                   Array.Empty<AspectAttribute>())));
         }
 
-        MediaBrowserViewModel browser = new MediaBrowserViewModel(client, section);
+        // A shelf can be put inside one title, which is the shape a viewer reaches by pressing and the only shape in
+        // which the rows of a show have something above them to read the show's name from.  What stands above them is
+        // asked of the running server rather than invented, so that the frame carries the words a real library writes.
+        TitleViewModel? above = null;
+        if (live && insideTitle != Guid.Empty)
+        {
+          string holding = aspectName.Equals("EpisodeItem", StringComparison.OrdinalIgnoreCase)
+              ? "SeasonItem"
+              : aspectName.Equals("SeasonItem", StringComparison.OrdinalIgnoreCase)
+                  ? "SeriesItem"
+                  : "";
+          if (holding.Length == 0)
+            return Usage("--inside is for the walls of a show, whose rows read the show's name off the row above:"
+                + " SeasonItem under a series and EpisodeItem under a season.");
+
+          string? refused = null;
+          MediaTitles? aboveRows = null;
+          MediaItemDetails? aboveTitle = null;
+          if (holding.Equals("SeasonItem", StringComparison.Ordinal))
+          {
+            client.GetTitlesAsync("SeasonItem", inside: insideTitle, cancellation: CancellationToken.None)
+                .ContinueWith(delegate (Task<MediaTitles> task)
+                {
+                  if (task.IsFaulted)
+                    refused = task.Exception != null ? task.Exception.GetBaseException().Message : null;
+                  else aboveRows = task.Result;
+                }, TaskScheduler.Default);
+            if (!PumpUntil(delegate { return aboveRows != null || refused != null; }, TimeSpan.FromSeconds(15)))
+            {
+              Console.WriteLine("FAILED:   '" + url + "' did not name the seasons of '" + insideTitle.ToString("D")
+                  + "' within 15 seconds.");
+              return 4;
+            }
+          }
+          else
+          {
+            client.GetItemAsync(insideTitle, cancellation: CancellationToken.None).ContinueWith(
+                delegate (Task<MediaItemDetails> task)
+                {
+                  if (task.IsFaulted)
+                    refused = task.Exception != null ? task.Exception.GetBaseException().Message : null;
+                  else aboveTitle = task.Result;
+                }, TaskScheduler.Default);
+            if (!PumpUntil(delegate { return aboveTitle != null || refused != null; }, TimeSpan.FromSeconds(15)))
+            {
+              Console.WriteLine("FAILED:   '" + url + "' did not answer what '" + insideTitle.ToString("D")
+                  + "' is within 15 seconds.");
+              return 4;
+            }
+          }
+
+          if (refused != null)
+          {
+            Console.WriteLine("FAILED:   the title above the shelf was refused: " + refused);
+            return 4;
+          }
+
+          MediaTitle? standing = holding.Equals("SeasonItem", StringComparison.Ordinal)
+              ? aboveRows!.Titles?.FirstOrDefault(row => insideSeason == 0 || row.Season == insideSeason)
+              : new MediaTitle(insideTitle, aboveTitle!.Title, aboveTitle.SortTitle, aboveTitle.Year,
+                  aboveTitle.RuntimeMinutes, null, false);
+          if (standing == null)
+          {
+            Console.WriteLine("FAILED:   '" + url + "' has no "
+                + (holding.Equals("SeasonItem", StringComparison.Ordinal)
+                    ? "season" + (insideSeason == 0 ? "" : " number " + insideSeason) + " under '"
+                    : "title of the id '") + insideTitle.ToString("D") + "'.");
+            return 4;
+          }
+
+          above = new TitleViewModel(standing, true, client, holding);
+          Console.WriteLine("inside:   the shelf stands under \"" + above.Name + "\", whose own id is asked as "
+              + above.AskId.ToString("D") + (above.AskSeason.HasValue ? " season " + above.AskSeason.Value : ""));
+        }
+
+        MediaBrowserViewModel browser = above == null
+            ? new MediaBrowserViewModel(client, section)
+            : new MediaBrowserViewModel(client, section, above);
         browser.OpenCommand.Execute(null);
         Pump(TimeSpan.FromMilliseconds(500));
         shelfScreen = browser;
@@ -1636,7 +1730,9 @@ namespace FrontendProbe
             // breath and a repaint of the whole screen.
             layoutScreen.InvalidateVisual();
             Pump(TimeSpan.FromMilliseconds(1200));
-          }          List<string> heights = new List<string>();
+          }
+
+          List<string> heights = new List<string>();
           TitleViewModel? head = null;
           foreach (Control? container in rows.GetRealizedContainers())
           {
@@ -1656,7 +1752,12 @@ namespace FrontendProbe
 
           // The stood-on row has to answer for the doubled shape: two lines, the poster at the row's height
           // when the library has one, and the kinds under the name - all read off the controls, not the model.
-          ListBoxItem? stood = rows.GetRealizedContainers().OfType<ListBoxItem>().FirstOrDefault(i => i.IsSelected);
+          // Asked for by the item it carries rather than by the flag alone: a virtualized shelf keeps a
+          // recycled container marked selected for a beat, and reading its model said "3 · Metamorphosis"
+          // over a frame that plainly painted "4 · Beobachtung".
+          ListBoxItem? stood = rows.GetRealizedContainers().OfType<ListBoxItem>()
+              .FirstOrDefault(i => ReferenceEquals(i.DataContext, rows.SelectedItem))
+              ?? rows.GetRealizedContainers().OfType<ListBoxItem>().FirstOrDefault(i => i.IsSelected);
           if (stood != null)
           {
             Grid? shape = stood.GetVisualDescendants().OfType<Grid>()
@@ -1674,6 +1775,8 @@ namespace FrontendProbe
                     ? Math.Round(poster.Bounds.Width) + "x" + Math.Round(poster.Bounds.Height)
                         + (poster.Classes.Contains("nereus-row-cover") ? " (cover)" : " (poster)")
                     : "none")
+                + ", first line \"" + (stood.DataContext is TitleViewModel spoke ? spoke.FocusedLine : "?") + "\""
+                + ", right column \"" + (stood.DataContext is TitleViewModel timed ? timed.Detail : "?") + "\""
                 + ", second line \"" + (second?.Text ?? "") + "\""
                 + "; shelf wears '" + string.Join(" ", rows.Classes) + "'"
                 + ", shapes " + stood.GetVisualDescendants().OfType<Grid>()
@@ -1685,6 +1788,11 @@ namespace FrontendProbe
                     + string.Join(", ", shape.GetVisualChildren().OfType<Control>()
                         .Select(part => part.GetType().Name + " " + Math.Round(part.Bounds.Height)))
                     + "]"));
+            // Whether the shelf beside the rows actually read the stood-on title: the duration a series row
+            // shows in its third column comes from that reading, so a frame without it says the reading never
+            // happened here and nothing about the row's ability to show the length.
+            Console.WriteLine("details:  worn " + list.WantsDetails + ", heading \"" + list.DetailsHeading
+                + "\", facts " + list.DetailsFacts.Count);
             // Which part of the container eats height beyond the row's own tree, read chain by chain: the
             // doubled row has to stand at twice the resting row's measured 59, and a claim about that has to
             // say where every point of it lives.
