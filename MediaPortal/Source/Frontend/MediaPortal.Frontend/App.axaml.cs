@@ -292,6 +292,18 @@ namespace MediaPortal.Frontend
                   ? "this build's own folder beside its executable, written from the source it was compiled from"
                   : "off disk, from " + Theming.SkinEngine.SkinsFolder + " - named in MP2_SKINS_DIR, so NOT the "
                     + "files this build was compiled from"));
+      // Whether that claim is true. The folder beside the executable is a copy, and a copy is only as good as the
+      // build that wrote it, so the two are read against each other here - a screen wearing a stale skin is the
+      // one skin fault that looks exactly like a styling mistake.
+      if (Theming.SkinEngine.SkinsFolder == null
+          || string.Equals(Theming.SkinEngine.SkinsFolder, Theming.SkinEngine.BuiltInSkinsFolder,
+              StringComparison.OrdinalIgnoreCase))
+      {
+        string? markupDrift = Theming.SkinEngine.MarkupDrift(Theming.SkinEngine.BuiltInSkinsFolder,
+            Theming.SkinEngine.SourceSkinsFolder);
+        if (markupDrift != null)
+          Console.WriteLine("skin:     WARN " + markupDrift);
+      }
       if (Theming.SkinEngine.SkinsFolderProblem != null)
         Console.WriteLine("skin:     " + Theming.SkinEngine.SkinsFolderProblem);
       if (wornNow != null)

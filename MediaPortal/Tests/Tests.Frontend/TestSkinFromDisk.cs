@@ -518,6 +518,97 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void TheSkinBesideARunningExecutableIsTheSkinTheProjectHolds()
+    {
+      // The one skin fault that looks exactly like a styling mistake. The folder beside an executable is a copy,
+      // and the copy rule compared timestamps rather than contents, so a build made while the tree stood
+      // somewhere else - a stash for a baseline comparison, a branch returned to - left the screen drawing that
+      // other tree's look while the source and every compiled test held the new one. Measured twice on one
+      // machine: the front end's own folder and this test project's folder both carried an 81849-byte
+      // templates.xaml beside a 85512-byte one in the project.
+      string project = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      Assert.That(Directory.Exists(project), Is.True,
+          "the project's own skin folder has to be readable for this to be checkable");
+
+      Assert.That(SkinEngine.MarkupDrift(SkinEngine.BuiltInSkinsFolder, project), Is.Null,
+          "the loose markup beside this running executable is the markup the project holds; when this fails, "
+          + "whatever is on the screen was drawn from a build of some other tree, and rebuilding is the answer");
+    }
+
+    [Test]
+    public void TheProjectIsFoundByWalkingUpFromItsBuildFolder()
+    {
+      string root = Path.Combine(Path.GetTempPath(), "mp2-skin-project-" + Guid.NewGuid().ToString("N"));
+      string build = Path.Combine(root, "bin", "Debug", "net10.0");
+      Directory.CreateDirectory(Path.Combine(root, "Skins"));
+      Directory.CreateDirectory(build);
+      File.WriteAllText(Path.Combine(root, "MediaPortal.Frontend.csproj"), "<Project/>");
+
+      try
+      {
+        Assert.That(SkinEngine.FindSourceSkinsFolder(build), Is.EqualTo(Path.Combine(root, "Skins")),
+            "the build folder is three levels under the project that wrote it, and the project file beside its "
+            + "Skins folder is what tells the source apart from the copy the build left downstairs");
+
+        File.Delete(Path.Combine(root, "MediaPortal.Frontend.csproj"));
+        Assert.That(SkinEngine.FindSourceSkinsFolder(build), Is.Null,
+            "an installed front end has no project file above it and therefore claims nothing about a source "
+            + "it cannot see");
+      }
+      finally
+      {
+        Directory.Delete(root, true);
+      }
+    }
+
+    [Test]
+    public void MarkupThatMovedIsNamedAndMarkupThatDidNotIsSilent()
+    {
+      string root = Path.Combine(Path.GetTempPath(), "mp2-skin-drift-" + Guid.NewGuid().ToString("N"));
+      string worn = Path.Combine(root, "worn");
+      string source = Path.Combine(root, "project");
+      foreach (string folder in new[] { worn, source })
+      {
+        Directory.CreateDirectory(Path.Combine(folder, "Nereus", "themes", "default"));
+        File.WriteAllText(Path.Combine(folder, "index.txt"), "Nereus\n");
+        File.WriteAllText(Path.Combine(folder, "Nereus", "themes", "default", "styles.xaml"), "<Style/>");
+      }
+
+      try
+      {
+        Assert.That(SkinEngine.MarkupDrift(worn, source), Is.Null,
+            "two folders holding the same markup have nothing to say");
+
+        File.WriteAllText(Path.Combine(worn, "Nereus", "themes", "default", "styles.xaml"), "<Style A='1'/>");
+        string? moved = SkinEngine.MarkupDrift(worn, source);
+        Assert.That(moved, Is.Not.Null.And.Contains("styles.xaml"),
+            "a style that moved is named, because 'the screen is wrong' without a file is no use to whoever "
+            + "is staring at it");
+        Assert.That(moved, Does.Contain("rebuild"), "and the sentence says what to do about it");
+
+        File.Delete(Path.Combine(worn, "index.txt"));
+        Assert.That(SkinEngine.MarkupDrift(worn, source),
+            Is.Not.Null.And.Contains("index.txt is missing beside the executable"),
+            "markup that never arrived is as much a stale skin as markup that arrived and then changed");
+
+        // The skin folder's own pictures are deliberately not part of the question: they are read lazily, and a
+        // picture the copy rule skipped is a different and far rarer story than a style the screen is drawn from.
+        File.WriteAllText(Path.Combine(worn, "index.txt"), "Nereus\n");
+        File.WriteAllText(Path.Combine(worn, "Nereus", "themes", "default", "styles.xaml"), "<Style/>");
+        File.WriteAllBytes(Path.Combine(worn, "Nereus", "a.png"), new byte[] { 1 });
+        File.WriteAllBytes(Path.Combine(source, "Nereus", "a.png"), new byte[] { 2, 3 });
+        Assert.That(SkinEngine.MarkupDrift(worn, source), Is.Null, "pictures are not markup");
+
+        Assert.That(SkinEngine.MarkupDrift(worn, null), Is.Null,
+            "a front end that cannot see a source folder says nothing rather than guessing");
+      }
+      finally
+      {
+        Directory.Delete(root, true);
+      }
+    }
+
+    [Test]
     public void NoMachinesFolderPathIsWrittenIntoTheSkinEngine()
     {
       // The gate that keeps the whole business from coming back. A folder path written into the engine's own

@@ -72,6 +72,21 @@
     <AvaloniaResource Include="Skins\**\sounds\**\*" />
     <None Update="Skins\**\*" CopyToOutputDirectory="PreserveNewest" />
     <!--
+      The markup rides along unconditionally, over the timestamp rule above, and the pictures keep that rule.
+      "PreserveNewest" compares timestamps, and the copy writes the SOURCE's timestamp into the output folder,
+      so what the comparison asks is "was the file touched since it was copied" - never "does the copy still
+      hold what the project holds". A build made while the tree stood somewhere else (a stash for a baseline
+      comparison, a checkout back, a branch switched away and returned) copies that other tree's look into the
+      folder beside the executable, and the screen reads its skin from that folder (SkinEngine.ReadDiskXaml),
+      so the program is current and the look is somebody else's. Measured: a baseline build left a 81849-byte
+      templates.xaml beside a 85512-byte one in the project, and the live client drew the list rows of the
+      build that was never meant to be looked at. Markup is twenty-five small files, so re-writing them every
+      build costs nothing and leaves no window for a stale look; the 1700 pictures are the ones worth skipping.
+    -->
+    <None Update="Skins\**\*.xaml" CopyToOutputDirectory="Always" />
+    <None Update="Skins\**\*.xml" CopyToOutputDirectory="Always" />
+    <None Update="Skins\index.txt" CopyToOutputDirectory="Always" />
+    <!--
       The welcome picture a start opens with - the household's wallpaper behind the PIN question. It rides
       inside the assembly on purpose: the start shows it before any skin folder is even asked about, so it
       cannot live in one.

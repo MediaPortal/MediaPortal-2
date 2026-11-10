@@ -433,6 +433,106 @@ namespace MediaPortal.Frontend.Theming
     public static string? SkinsFolderProblem { get; private set; }
 
     /// <summary>
+    /// The <c>Skins</c> folder of the project this build was compiled from, or null when this process is not
+    /// running out of that project's build folder - which is the normal answer for an installed front end, and
+    /// the answer that claims nothing.
+    /// </summary>
+    internal static string? SourceSkinsFolder => FindSourceSkinsFolder(AppContext.BaseDirectory);
+
+    /// <summary>
+    /// Walks up from a build folder to the project that owns it and names the <c>Skins</c> folder that project
+    /// copies from. The project file beside that folder is what tells the source apart from its own copy, since
+    /// the build writes a <c>Skins</c> folder of its own three levels below and the two look identical.
+    /// </summary>
+    internal static string? FindSourceSkinsFolder(string? fromDirectory)
+    {
+      for (string? dir = fromDirectory; dir != null; dir = Path.GetDirectoryName(dir))
+      {
+        if (File.Exists(Path.Combine(dir, PROJECT_FILE)))
+          return Path.Combine(dir, "Skins");
+      }
+
+      return null;
+    }
+
+    private const string PROJECT_FILE = "MediaPortal.Frontend.csproj";
+
+    /// <summary>
+    /// Whether the loose markup this build put beside its executable is still the markup the project holds, file
+    /// for file and byte for byte, or the sentence saying which file stopped being it.
+    /// </summary>
+    /// <remarks>
+    /// The startup account of a skin claims that the folder beside the executable is "the files this build was
+    /// made from". Until somebody compares them that is an assumption about the copy rule, and the copy rule
+    /// compares timestamps (see the copy rule in the project file), so a build made from another tree used to be
+    /// able to leave the screen wearing that tree's look while every test stayed green on the real one. A person
+    /// looking at such a screen has no way of knowing, and edits the wrong copy of a style file trying to fix
+    /// what they see - which is the reason this is asked on every start rather than on demand.
+    /// </remarks>
+    internal static string? MarkupDrift(string? wornFolder, string? sourceFolder)
+    {
+      if (string.IsNullOrEmpty(wornFolder) || string.IsNullOrEmpty(sourceFolder))
+        return null;
+      if (!Directory.Exists(wornFolder) || !Directory.Exists(sourceFolder))
+        return null;
+
+      string[] worn = MarkupOf(wornFolder);
+      string[] source = MarkupOf(sourceFolder);
+      List<string> apart = new List<string>();
+
+      foreach (string name in worn.Union(source).OrderBy(n => n, StringComparer.Ordinal))
+      {
+        string here = Path.Combine(wornFolder, name);
+        string there = Path.Combine(sourceFolder, name);
+
+        if (!File.Exists(here))
+          apart.Add(name + " is missing beside the executable");
+        else if (!File.Exists(there))
+          apart.Add(name + " is missing from the project");
+        else if (!SameBytes(here, there))
+          apart.Add(name + " is a different file (this build " + new FileInfo(here).Length
+              + " bytes, the project " + new FileInfo(there).Length + ")");
+      }
+
+      if (apart.Count == 0)
+        return null;
+
+      // The names are the useful half of the sentence; a skin whose every file moved at once still has to fit on
+      // one log line, so the rest is counted rather than listed.
+      string listed = string.Join(", ", apart.Take(3));
+      return "the skin beside this executable is NOT the skin the project holds: " + listed
+          + (apart.Count > 3 ? " (and " + (apart.Count - 3) + " more)" : "")
+          + " - rebuild the front end before believing the screen";
+    }
+
+    /// <summary>
+    /// The files of a skin folder that the engine compiles - markup, manifest, font listing - by their path
+    /// inside that folder. Deliberately not the pictures: those are read lazily, one at a time, and a stale
+    /// picture is a different and far rarer story than a stale style.
+    /// </summary>
+    private static string[] MarkupOf(string folder)
+    {
+      return Directory.EnumerateFiles(folder, "*.*", SearchOption.AllDirectories)
+          .Where(file =>
+          {
+            string extension = Path.GetExtension(file).ToLowerInvariant();
+            return extension == ".xaml" || extension == ".xml" || extension == ".txt";
+          })
+          .Select(file => file.Substring(folder.Length).TrimStart('\\', '/').Replace('\\', '/'))
+          .ToArray();
+    }
+
+    private static bool SameBytes(string left, string right)
+    {
+      FileInfo a = new FileInfo(left);
+      FileInfo b = new FileInfo(right);
+      if (a.Length != b.Length)
+        return false;
+
+      return a.Length == 0 || File.ReadAllBytes(left).SequenceEqual(File.ReadAllBytes(right));
+    }
+
+    /// <summary>
     /// Where the skins this front end shipped with live: the Skins folder of this assembly's loose XAML assets.
     /// Settable so a test can point at its own embedded skins. The files ride with the assembly as
     /// AvaloniaResource because that is Avalonia's way of shipping loose markup; the disk folder above is what
