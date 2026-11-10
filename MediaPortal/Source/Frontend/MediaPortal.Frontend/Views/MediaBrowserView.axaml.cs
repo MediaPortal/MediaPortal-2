@@ -199,6 +199,16 @@ namespace MediaPortal.Frontend.Views
         _chromeShell?.SetChromeHeaderOverlay(true);
         _chromeShell?.SetChromeHeaderStowed(true);
 
+        // The search row stands in the head line this screen put away, and the pointer's marks own the corner of
+        // that line - so the row is seated where the marks end, and seated again whenever they come back, go away
+        // or gain the third mark of a screen whose menu lies behind an edge.
+        if (_chromeShell != null)
+        {
+          _chromeShell.CornerNavRightEdgeChanged -= OnCornerNavEdgeChanged;
+          _chromeShell.CornerNavRightEdgeChanged += OnCornerNavEdgeChanged;
+          SeatSearchStrip(_chromeShell.CornerNavRightEdge);
+        }
+
         // And the pointer's handle to this screen's menu, which the window holds in its row of marks for as long
         // as this screen is the one being looked at.
         PushMenuMark();
@@ -214,6 +224,7 @@ namespace MediaPortal.Frontend.Views
         _chromeShell?.SetChromeHeaderOverlay(false);
         _chromeShell?.SetChromeHeaderStowed(false);
         _chromeShell?.SetCornerMenuMark(null, null);
+        _chromeShell?.CornerNavRightEdgeChanged -= OnCornerNavEdgeChanged;
         _chromeShell = null;
       };
       ApplyLayout();
@@ -749,6 +760,20 @@ namespace MediaPortal.Frontend.Views
             return;
         }
 
+        // At the HEAD of the wall, up is a way OUT only while something stands above the wall to be reached: the
+        // search field, once it is on the head line, is stepped into by this arrow.  While nobody has asked for
+        // the field the head keeps its nod - the viewer has nothing above the wall to reach for, and an arrow
+        // that quietly opened a search where the wall means "no further" is a surprise rather than a way in
+        // (viewer note 2026-11-10: the nod at the head is right, the nod is only wrong over a field that waits).
+        // A stack of covers is one row through and through, so its head is everywhere.
+        if (args.Key == Key.Up && titlesList.IsKeyboardFocusWithin && wall_owner.ShowsSearch
+            && (sideways || at_a_wall) && StandingOnTheTopRow(wall_owner))
+        {
+          wall_owner.OpenSearch();
+          args.Handled = true;
+          return;
+        }
+
         if (!at_a_wall)
           return;
 
@@ -843,6 +868,28 @@ namespace MediaPortal.Frontend.Views
               FocusShelf();
               args.Handled = true;
             }
+            else if (searchBox.IsFocused && args.Key == Key.Down)
+            {
+              // Down out of the box is down to the wall, and it is the arrow that answers the one that lifted
+              // the caret up here.  It leaves whatever was searched for standing: a viewer who points down to
+              // look at the matches is not asking for them to be taken away, which is what back does and why
+              // the two keys are not the same key.
+              FocusShelf();
+              args.Handled = true;
+            }
+            else if (searchBox.IsFocused && (args.Key == Key.Up
+                    || args.Key == Key.Right && searchBox.CaretIndex >= (searchBox.Text?.Length ?? 0)))
+            {
+              // The field is the highest thing on this screen and it ends at its own mark, so Up and Right are
+              // answered the way the wall answers its edges: the plate leans that way and springs back.  Nothing
+              // else happens - no word is lost, no caret moves, and no key falls through to the shell, which
+              // would take the viewer off the shelf while they were pointing at the edge of a field.  Right is
+              // the edge only once the caret stands behind the last letter; a caret in the middle of a word is
+              // still editing that word, and the nod must not steal the arrow from a hand on a keyboard.
+              BounceRail(searchField, args.Key == Key.Right ? RAIL_BOUNCE_DIVE : 0,
+                  args.Key == Key.Up ? -RAIL_BOUNCE_DIVE : 0);
+              args.Handled = true;
+            }
             else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args))
             {
               // Back means "away with the newest thing on the screen", which is the title's menu when one is
@@ -883,20 +930,17 @@ namespace MediaPortal.Frontend.Views
                 args.Handled = true;
                 return;
               }
-              if (viewModel.SearchOpen && !viewModel.HasSearch && searchBox.IsFocused)
+              if (viewModel.ShowsSearch)
               {
-                // The field was put on the screen and nothing was typed into it, so back takes the field away
-                // again and gives the arrows back to the shelf. A field holding a search is a different thing and
-                // is answered below.
-                viewModel.SearchOpen = false;
+                // One press of back or Escape is the whole of the way out, wherever the caret happens to stand.
+                // It used to ask the field for the caret first: a search standing there was cleared and the caret
+                // was pushed back into the field, so a viewer had to press the key twice and could never tell
+                // which of the two presses the screen had just answered - and with the caret walking on a tile
+                // below, the field was not covered by any branch at all, so the key fell through to the shell and
+                // left the screen with the field still on it.  Neither the words nor the filter they made survive
+                // the press, because "away with the search" is one wish and not two.
+                viewModel.CloseSearchCommand.Execute(null);
                 FocusShelf();
-                args.Handled = true;
-                return;
-              }
-              if (searchBox.IsFocused || viewModel.HasSearch)
-              {
-                viewModel.ClearSearchCommand.Execute(null);
-                searchBox.Focus();
                 args.Handled = true;
                 return;
               }
@@ -2203,6 +2247,33 @@ namespace MediaPortal.Frontend.Views
     private void RevealSearch()
     {
       Dispatcher.UIThread.Post(delegate { searchBox.Focus(); }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>The breath the search row keeps between itself and the pointer's marks at the window's corner.</summary>
+    private const double SEARCH_STRIP_BREATH = 14;
+
+    /// <summary>Where the search row stands while the pointer is put away and its marks with it.</summary>
+    private const double SEARCH_STRIP_REST = 10;
+
+    /// <summary>How far the search row hangs from the head of the screen and from its right edge.</summary>
+    private const double SEARCH_STRIP_TOP = 9, SEARCH_STRIP_RIGHT = 18;
+
+    private void OnCornerNavEdgeChanged(object? sender, EventArgs args)
+    {
+      SeatSearchStrip(_chromeShell?.CornerNavRightEdge ?? 0);
+    }
+
+    /// <summary>
+    /// Stands the search row clear of the pointer's marks: at the corner's own rest while the pointer is put
+    /// away, and immediately to the right of the marks while they are up.
+    /// </summary>
+    /// <param name="marks_right">
+    /// The line the marks end against, as the window measures it, or zero while they are not on the screen.
+    /// </param>
+    private void SeatSearchStrip(double marks_right)
+    {
+      searchStrip.Margin = new Thickness(marks_right > 0 ? marks_right + SEARCH_STRIP_BREATH : SEARCH_STRIP_REST,
+          SEARCH_STRIP_TOP, SEARCH_STRIP_RIGHT, 0);
     }
 
     /// <summary>
@@ -3855,24 +3926,6 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
-    /// Whether the titles' scroller is standing on the screen.  A shelf behind the search's full-screen
-    /// question or the menu's wall of pictures is drawn no more than a window with its curtain down, so the
-    /// wall behind it wears no mask at all - see <see cref="UpdateShelfFade"/>.  The details panel is NOT such
-    /// a curtain: beside the tiles, over the covers, it leaves the wall in the picture, and its fade answers
-    /// the scroll the same as ever.  IsVisible does not always follow the curtain (the screen asks its layers
-    /// to stay put while it raises them), so the question is put to the layers themselves.
-    /// </summary>
-    private bool TitlesHiddenBehindALayer
-    {
-      get
-      {
-        if (!(DataContext is MediaBrowserViewModel viewModel))
-          return false;
-        return viewModel.ShowsSearch;
-      }
-    }
-
-    /// <summary>
     /// Says what each end of the wall is hiding and, if that is not what the mask already says, writes it on.
     /// </summary>
     private void UpdateShelfFade()
@@ -3887,19 +3940,19 @@ namespace MediaPortal.Frontend.Views
       if (scroller == null)
         return;
 
-      // A wall behind a closed door does not answer the door, and the doors this screen has are its own layers
-      // (see TitlesHiddenBehindALayer).  While one of them stands over the wall, every pixel the wall's mask
-      // costs is a pixel nobody sees - and the layer over the wall is the screen whose picture is tightest:
-      // wall, panel and fanart all compete for one GPU.  So a covered wall wears no mask, and the layer going
-      // down asks again - the remembered depths go with the mask, so the wall recomputes its fade before a
-      // viewer can see it.  (The scroller's own IsVisible is deliberately not asked: it answers the question
-      // of an unfinished tree too, and an unfinished tree is not a closed door.)
+      // A gathered row needs no mask: it already dims every cover by its own distance from the stood one, so the
+      // mask would hide nothing a cover does not hide itself, while making the whole band a surface the compositor
+      // paints again on every frame of a step.  The reference agrees - its carousel and its stack wear no fade over
+      // the row at all.
       //
-      // A gathered row stands in the same queue for the same reason: it already dims every cover by its own
-      // distance from the stood one, so the mask would hide nothing a cover does not hide itself, while making the
-      // whole band a surface the compositor paints again on every frame of a step.  The reference agrees - its
-      // carousel and its stack wear no fade over the row at all.
-      if (TitlesHiddenBehindALayer || RowFadesItsOwnCovers)
+      // NOTHING ELSE on this screen takes the mask off the wall any more.  The search used to, back when it was a
+      // question the screen asked over the whole wall - a curtain behind which the wall was drawn no more than a
+      // window with its curtain down, and every pixel of mask a pixel nobody saw.  The field is a plaque in the
+      // head line now and leaves the wall whole in the picture, so taking its fade away was simply the wall losing
+      // its fade: titles stood cut off hard at the bottom of the screen until the search was put away again
+      // (viewer, 2026-11-10).  The details panel and the title's reading never did this either - see those two in
+      // the notes on the layers.
+      if (RowFadesItsOwnCovers)
       {
         if (scroller.OpacityMask != null || _fadeBefore != UNREAD)
         {
@@ -3909,10 +3962,10 @@ namespace MediaPortal.Frontend.Views
         return;
       }
 
-      // A mask that was put away behind a layer goes back on before the wall is asked where it stands: the
-      // remembered depths are gone with it, and the first frame of the wall should already be dressed.  A row that
-      // fades its own covers is not such a wall, and stays uncovered.
-      if (_shelfFade != null && scroller.OpacityMask == null && !RowFadesItsOwnCovers)
+      // A mask that was put away for a gathered row goes back on before the wall is asked where it stands - a wall
+      // turned from the row back into tiles or a list is such a case: the remembered depths are gone with the
+      // mask, and the first frame of the wall should already be dressed.
+      if (_shelfFade != null && scroller.OpacityMask == null)
         scroller.OpacityMask = _shelfFade;
 
       double view = _fadeRunsSideways ? scroller.Viewport.Width : scroller.Viewport.Height;
@@ -4784,6 +4837,28 @@ namespace MediaPortal.Frontend.Views
         return true;
 
       return standing % ShelfColumns() == 0;
+    }
+
+    /// <summary>
+    /// Whether the caret stands on the row of the wall a viewer points at when they lift the caret out of it -
+    /// the head row, which is the whole first row of tiles and not the first tile alone, for the same reason the
+    /// leading edge is the whole first column (see <see cref="StandingOnTheLeadingEdge"/>).
+    /// </summary>
+    private bool StandingOnTheTopRow(MediaBrowserViewModel viewModel)
+    {
+      int standing = titlesList.SelectedIndex;
+      if (standing < 0 || viewModel.Titles.Count == 0)
+        return false;
+
+      // A stack of covers is one row, so wherever the caret stands on it is the head of the wall - the same read
+      // the leading edge gets (see <see cref="StandingOnTheLeadingEdge"/>).  A row of the list is one tile long,
+      // so its head is its first row.
+      if (viewModel.IsCoverLayout)
+        return true;
+      if (viewModel.Layout == BrowserLayout.List)
+        return standing == 0;
+
+      return standing / ShelfColumns() == 0;
     }
 
     /// <summary>

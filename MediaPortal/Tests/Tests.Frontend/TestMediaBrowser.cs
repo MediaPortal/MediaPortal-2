@@ -3134,6 +3134,24 @@ namespace Tests.Frontend
       LinearGradientBrush atTop = (LinearGradientBrush)scroller.OpacityMask!;
       Assert.That(atTop.GradientStops[0].Color.A, Is.EqualTo((byte)255),
           "the first row has never been scrolled out of the picture, so the head fades nothing");
+      Assert.That(atTop.GradientStops[3].Color.A, Is.EqualTo((byte)0),
+          "while rows wait out of the picture below, so the foot fades");
+
+      // And the search plaque in the head line is no curtain: it covers no row, so the wall behind it keeps the
+      // fade it wore.  This is the defect a viewer pointed at on 2026-11-10 - titles cut off hard at the bottom of
+      // the screen for as long as the field stood there, the fade only returning when the field was put away.
+      browser.OpenSearch();
+      Pump();
+      Assert.That(browser.ShowsSearch, Is.True, "the field stands in the head line");
+      Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
+          "and the wall behind a plaque in the head line still wears its fade");
+      LinearGradientBrush whileSearching = (LinearGradientBrush)scroller.OpacityMask!;
+      Assert.That(whileSearching.GradientStops[3].Color.A, Is.EqualTo((byte)0),
+          "the foot of the wall fades at the bottom of the screen while the field is up, as it did without it");
+      browser.CloseSearchCommand.Execute(null);
+      Pump();
+      Assert.That(scroller.OpacityMask, Is.InstanceOf<LinearGradientBrush>(),
+          "and putting the field away changes nothing about the fade, because the field never had a say in it");
 
       // Which row of the shelf stands at or below a height of the wall - the tile a viewer would stand on to
       // bring the wall that far up.  Rows are found through the containers the list has laid, in order.
@@ -7075,6 +7093,252 @@ namespace Tests.Frontend
       WaitUntil("the shelf back", delegate { return browser.Titles.Count == SHELF.Length; });
       Assert.That(window.IsVisible, Is.True,
           "the first back undid the search rather than leaving the screen; the search was the newest thing");
+    }
+
+    [AvaloniaTest]
+    public void TheHeadLineStandsEmptyUntilTheShelfsMenuRowAsksForTheField()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(b => b.Name == "searchBox");
+      Border field = window.GetVisualDescendants().OfType<Border>().First(b => b.Name == "searchField");
+
+      // Nothing was asked for, so the head line is empty and the wall wears no field.  A magnifier standing
+      // there from the first moment was asked for and taken away again by the viewer on 2026-11-10: the search
+      // comes when a viewer calls it, so nothing waits in the head line to be found.
+      Assert.That(field.IsVisible, Is.False, "the field is not on the wall while nobody is searching");
+      Assert.That(box.IsEffectivelyVisible, Is.False, "and nobody can type into a field that is not there");
+      Assert.That(window.GetVisualDescendants().OfType<Button>().Any(b => b.Name == "searchMark"), Is.False,
+          "no mark waits in the head line for a viewer to discover it");
+
+      // The row of the shelf's own menu is the door the viewer named, and it has to OPEN the field rather than
+      // merely ask for a caret in a field that is not there - which is the nothing-that-happened it used to be.
+      browser.ShowMediaMenuCommand.Execute(null);
+      WaitUntil("the menu to stand open", delegate { return browser.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "mediaMenuList");
+      MediaBrowserMenuEntry search_row = rail.Items.OfType<MediaBrowserMenuEntry>()
+          .First(row => row.Label == "Search");
+      search_row.Command.Execute(null);
+
+      WaitUntil("the rail to go away with the pick", delegate { return !browser.MediaMenuVisible; });
+      Assert.That(browser.SearchOpen, Is.True, "the menu's row opens the search itself");
+      Assert.That(field.IsVisible, Is.True, "and the plaque grows into the head line from then on");
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void AnArrowAtTheHeadOfTheWallStepsIntoTheFieldThatStandsThere()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      titles.SelectedIndex = 0;
+      Pump();
+      WaitUntil("a tile to stand under the caret",
+          delegate { return window.GetVisualDescendants().OfType<ListBoxItem>().Any(item => item.IsSelected); });
+      ListBoxItem stood = window.GetVisualDescendants().OfType<ListBoxItem>().First(item => item.IsSelected);
+      stood.Focus();
+
+      // While nobody has asked for the search, the head of the wall is a wall like its other edges: the arrow is
+      // answered with the wall's nod, the head line stays empty and the caret keeps its tile.  The viewer asked
+      // for that on 2026-11-10 - the nod at the head is right, it is only wrong above a field that waits there.
+      KeyEventArgs at_the_head = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Up,
+        Source = stood
+      };
+      stood.RaiseEvent(at_the_head);
+      Pump();
+      Assert.That(at_the_head.Handled, Is.True, "the wall answers the arrow at its head itself");
+      Assert.That(browser.ShowsSearch, Is.False, "and answers it with its nod, not with a search nobody asked for");
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
+          "the caret stays on the tile it stood on");
+
+      // One of the two doors - the Find key - and the field grows into the head line.
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.F,
+        Source = titles
+      });
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+
+      // Down out of the field hands the wall back with the words still standing - the viewer who points down to
+      // look at the matches is not asking to lose them - and the arrow that lifts off the head of the wall then
+      // walks INTO the field that stands above it, instead of nodding at it.
+      box.Text = "alien";
+      box.CaretIndex = box.Text.Length;
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Down,
+        Source = box
+      });
+      Pump();
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
+          "down out of the field is down onto a result");
+      Assert.That(browser.ShowsSearch, Is.True, "looking at the wall is not taking the search away");
+
+      ListBoxItem stood_again = window.GetVisualDescendants().OfType<ListBoxItem>().First(item => item.IsSelected);
+      stood_again.Focus();
+      stood_again.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Up,
+        Source = stood_again
+      });
+      WaitUntil("the caret back in the field", delegate { return box.IsFocused; });
+      box.CaretIndex = box.Text.Length;
+
+      // And above the field there is nothing: Up nods the plate and leaves the words exactly as they were, while
+      // Right is the plate's own edge once the caret stands behind the last letter.
+      foreach (Key edge in new[] { Key.Up, Key.Right })
+      {
+        KeyEventArgs at_the_edge = new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = edge,
+          Source = box
+        };
+        box.RaiseEvent(at_the_edge);
+        Pump();
+        Assert.That(at_the_edge.Handled, Is.True,
+            "the " + edge + " arrow at the field's edge is answered by the field itself, with a nod");
+        Assert.That(box.IsFocused, Is.True, "and the caret is not moved out of the words by it");
+        Assert.That(box.Text, Is.EqualTo("alien"), "nor is anything typed away by it");
+      }
+      Assert.That(window.IsVisible, Is.True, "the two arrows at the field's edges do not leave the shelf");
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void BackAndEscapeTakeTheFieldAwayWholeFromWhereverTheCaretStands()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      Border field = window.GetVisualDescendants().OfType<Border>().First(plate => plate.Name == "searchField");
+
+      // The field was opened, nothing was typed into it, and the caret still stands inside it.  Escape is the key
+      // a keyboard reaches for, and ONE press has to be the whole answer: the field away, the arrows back on the
+      // wall, and the screen still standing there.
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Escape,
+        Source = box
+      });
+      Pump();
+      Assert.That(browser.SearchOpen, Is.False, "Escape puts the field away again");
+      Assert.That(field.IsVisible, Is.False, "and it is really off the head line, not merely behind something");
+      Assert.That(window.IsVisible, Is.True,
+          "the key was the field's and not the screen's: one press does not throw the viewer out of the shelf");
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.InstanceOf<ListBoxItem>(),
+          "the arrows come back onto a result, so the next arrow walks the wall");
+
+      // A search standing there with the caret walking on a tile below it, which is what a viewer with a remote
+      // has - the arrows left the field with the Down that went looking at the matches.  The remote's Back is the
+      // same action as Escape (KeyBindings defaults: Escape and Back both answer to Back) and has to undo the
+      // field, the words and the filter they made in one press, rather than ask for a caret the viewer cannot aim
+      // at.  This is the case that used to fall through both search branches and reach the shell.
+      browser.SearchText = "alien";
+      browser.FindCommand.Execute(null);
+      WaitUntil("the matches to stand", delegate { return browser.Titles.Count == 2; });
+      titles.SelectedIndex = 0;
+      Pump();
+      ListBoxItem stood = window.GetVisualDescendants().OfType<ListBoxItem>().First(item => item.IsSelected);
+      stood.Focus();
+      Assert.That(field.IsVisible, Is.True,
+          "a field holding a search stands on the head line while its caret is somewhere else");
+      Assert.That(box.IsFocused, Is.False, "and the caret is on a tile, which is where the old code lost the key");
+
+      stood.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Back,
+        Source = stood
+      });
+      WaitUntil("the whole shelf back", delegate { return browser.Titles.Count == SHELF.Length; });
+      Assert.That(browser.HasSearch, Is.False, "the words behind the filter go with the field");
+      Assert.That(browser.SearchOpen, Is.False, "and so does the field itself");
+      Assert.That(field.IsVisible, Is.False, "leaving the head line as empty as it was before the search");
+      Assert.That(window.IsVisible, Is.True,
+          "one press of the remote's back undid the search; the screen only goes on a press that finds nothing to undo");
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void TheSearchRowStandsClearOfThePointersMarksAndUndressedWhileItIsTypedIn()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Panel strip = window.GetVisualDescendants().OfType<Panel>().First(row => row.Name == "searchStrip");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+
+      // Asked for, because nothing is laid before it is asked for: the head line carries no search until a viewer
+      // opens one, so the row only has a size from the moment its plate grows.
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the pointer's marks to stand", delegate { return window.CornerNavRightEdge > 0; });
+      WaitUntil("the search row to be laid", delegate { return strip.Bounds.Width > 0; });
+
+      // The marks are the window's furniture and stand before this screen's, so the row that was put in the same
+      // band has to be laid clear of them - a field with half its plate under the way back is no field.
+      Point where = strip.TranslatePoint(new Point(0, 0), window) ?? new Point(-1, -1);
+      Assert.That(where.X, Is.GreaterThanOrEqualTo(window.CornerNavRightEdge),
+          "the search row stands to the right of the pointer's marks while they are up, not under them");
+      Assert.That(where.Y, Is.LessThan(60),
+          "the row stands in the head line, not in the wall it used to push down");
+
+      // The plaque is 43 points tall - five less than the details row's 48 - and it hangs from its top edge, so
+      // the five points it lost came off its foot while the head of the screen kept the line it always had.
+      Border plaque = window.GetVisualDescendants().OfType<Border>().First(mark => mark.Name == "searchField");
+      Assert.That(plaque.Bounds.Height, Is.EqualTo(43),
+          "the plaque stands 43 points tall, five under the details row's plaques");
+      Point plaque_where = plaque.TranslatePoint(new Point(0, 0), window) ?? new Point(-1, -1);
+      Assert.That(plaque_where.Y, Is.EqualTo(where.Y).Within(0.5),
+          "and it hangs from its top edge: a lower plaque, never a lower-placed one");
+
+      // What the field looks like while the caret is in it is a second question, and the toolkit answers it
+      // without being asked: its own white plate, its own edge, and - for the focused state - a word colour
+      // that on a light theme is near black.  All three are written on the plate inside the field's template,
+      // so that is where they have to be answered (see TextBox.search-box in the view's styles).
+      box.Focus();
+      Pump();
+      Border plate = box.GetVisualDescendants().OfType<Border>().First(part => part.Name == "PART_BorderElement");
+      Assert.That(plate.Background, Is.InstanceOf<ISolidColorBrush>(), "the field brings its own ground");
+      Assert.That(((ISolidColorBrush)plate.Background!).Color.A, Is.EqualTo(0),
+          "the field's ground turns to the theme's white plate the moment the caret stands in it");
+      Assert.That(plate.BorderThickness.Top, Is.EqualTo(0),
+          "and its edge turns to the theme's accent line, which is a box drawn round a box");
+      window.Close();
     }
 
     #endregion

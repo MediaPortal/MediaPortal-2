@@ -3312,9 +3312,16 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Puts the search field on the screen and asks for the caret to be moved into it - one key or one row of the
-    /// menu, and the shelf is searched from there.
+    /// Puts the search field on the screen and asks for the caret to be moved into it - one row of the shelf's
+    /// menu, the Find key, or the arrow lifted off the head of the wall while the field already stands there.
     /// </summary>
+    /// <remarks>
+    /// Both halves belong together and neither alone is an answer: the field is only on the screen while a search
+    /// is open, so asking for its caret without opening it moves the caret onto a control that is not there -
+    /// which is exactly the nothing-that-happened the menu's Search row used to be.  Nothing on the screen waits
+    /// for this call: the head line keeps empty until a viewer asks (2026-11-10), so there is no mark to press,
+    /// and while no field is up the arrow at the head of the wall is the wall's own nod rather than a way in.
+    /// </remarks>
     public void OpenSearch()
     {
       SearchOpen = true;
@@ -3362,7 +3369,7 @@ namespace MediaPortal.Frontend.ViewModels
       await ReadAsync(0);
     }
 
-    /// <summary>Puts the whole shelf back. Escape on the search box comes here.</summary>
+    /// <summary>Puts the whole shelf back.  The X of the field and an Enter on an empty field come here.</summary>
     [RelayCommand]
     public async Task ClearSearchAsync()
     {
@@ -3374,6 +3381,23 @@ namespace MediaPortal.Frontend.ViewModels
       }
 
       await ReadAsync(0);
+    }
+
+    /// <summary>
+    /// Takes the search away whole: the field goes off the head line, its words and the filter they made with it,
+    /// and the wall stands full again.  Back and Escape come here.
+    /// </summary>
+    /// <remarks>
+    /// This is not <see cref="ClearSearchAsync"/> with the field hidden afterwards, and the difference is what a
+    /// viewer can reach: clearing leaves the field standing empty under the caret, so a second press of the same
+    /// key is needed to be rid of it - which is the "there is no way out" a viewer with a remote reported on
+    /// 2026-11-10, having no key that says "and now put the field away too".
+    /// </remarks>
+    [RelayCommand]
+    public async Task CloseSearchAsync()
+    {
+      SearchOpen = false;
+      await ClearSearchAsync();
     }
 
     /// <summary>
@@ -4143,8 +4167,11 @@ namespace MediaPortal.Frontend.ViewModels
           MediaMenuHeading = "Menu";
           AddMenuRow("Search", "search", new RelayCommand(() =>
           {
+            // The same call the Find key makes, and not merely the ask for the caret: the field is only on the
+            // screen while a search is open, so a row that only asked for the caret moved it into a field that
+            // was never put up - the row did nothing at all, which the viewer caught on 2026-11-10.
             HideMediaMenu();
-            SearchFocusRequested?.Invoke(this, EventArgs.Empty);
+            OpenSearch();
           }));
           AddMenuRow(FilterLabel, "filter", new RelayCommand(() => GoToPage(MenuPage.Filter)));
           // Grouping stands beside filtering because it is the same counting asked the other way round, and a

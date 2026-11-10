@@ -543,6 +543,53 @@
       <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
+    <!--
+      The plaque the search field stands in, and the box inside it.  The plaque is the details row's plaque
+      asked to hold a question instead of an answer - the same forty-eight lines, the same six of corner, the
+      same third-of-white ground - because the viewer is being asked to read what they type against the wall
+      behind it, and that is exactly what the row's plaques were made for.
+
+      The box inside it is the toolkit's text box undressed.  Left to itself it brings its own white plate, its
+      own edge and - the part that cannot be seen coming - its own word colour for the moment the caret stands
+      in it, which on this face's light theme is near black: a search field whose typed words turn black on a
+      white slab in the middle of a dark wall.  The theme writes those three on the plate INSIDE its template
+      (Avalonia.Themes.Fluent's TextBox theme, Border#PART_BorderElement, for the ":pointerover" and ":focus"
+      states), so a colour written on the box itself is outbid and the states have to be answered one by one -
+      the same lesson the corner marks learned (see Button.nereus-corner-button in this face's styles).
+    -->
+    <Style Selector="Border.search-field">
+      <Setter Property="Background" Value="#33FFFFFF"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <!-- Five points lower than the details row's plaques (Border.details-logo, 48), and hung from the head of
+           the screen at its top edge: the plate grows downward out of the band, so a lower plate costs the wall
+           nothing it had. -->
+      <Setter Property="Height" Value="43"/>
+      <Setter Property="Padding" Value="12,0,4,0"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
+    </Style>
+    <Style Selector="TextBox.search-box">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="FontSize" Value="24"/>
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="CaretBrush" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="PlaceholderForeground" Value="{DynamicResource MutedTextBrush}"/>
+    </Style>
+    <Style Selector="TextBox.search-box:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+    <Style Selector="TextBox.search-box:focus">
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+    </Style>
+    <Style Selector="TextBox.search-box:focus /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
     <!-- The cards of the two track bands, and the ring one of them wears once the caret stands on it.  A track
          card is looked at rather than chosen - nothing is ever "played" by standing on it - but the caret still
          belongs on the card itself and not on the band around it: the question a viewer asks is " WHICH track",
@@ -1784,40 +1831,10 @@
               </StackPanel>
 
               <!--
-                Finding a title by typing its name. The reference kept the box off the screen until a viewer asked
-                for it - its search was a command in this very menu - and the shelf has no room to spare, so the
-                box does not stand here while nobody types: it comes up when the menu's Search row or the Find key
-                asks for it, and stays up while a search is being held. Escape in the box puts the whole shelf
-                back, Enter asks the server.
+                Finding a title by typing its name used to stand here, in a row of its own that pushed the wall
+                down while nobody was typing. It stands in the head line now - see "searchStrip" under the room -
+                which is where a viewer looks for a question of this kind and where the shelf is not disturbed.
               -->
-              <WrapPanel DockPanel.Dock="Top"
-                         Name="searchRow"
-                         Margin="0,0,0,8"
-                         IsVisible="{Binding ShowsSearch}">
-                <TextBox Name="searchBox"
-                         views:VirtualKeyboardService.Trigger="Menu"
-                         Text="{Binding SearchText, Mode=TwoWay}"
-                         PlaceholderText="Find a title"
-                         Width="300"
-                         FontSize="22"
-                         Padding="14,8"
-                         Margin="0,0,10,4"/>
-                <Button Name="findButton"
-                        Content="Find"
-                        Command="{Binding FindCommand}"
-                        MinWidth="110"
-                        Padding="20,8"
-                        FontSize="22"
-                        Margin="0,0,10,4"/>
-                <Button Name="clearButton"
-                        Content="Clear"
-                        Command="{Binding ClearSearchCommand}"
-                        IsVisible="{Binding HasSearch}"
-                        MinWidth="110"
-                        Padding="20,8"
-                        FontSize="22"
-                        Margin="0,0,10,4"/>
-              </WrapPanel>
 
               <!--
                 The keys this screen answers are not written on it.  A remote carries its labels on itself and
@@ -3040,6 +3057,80 @@
         </Button>
       </Panel>
     </Grid>
+
+    <!--
+      THE SEARCH, standing in the head line the window would wear here.  The shelf stows that line away to keep
+      its fanart whole (MediaBrowserView.axaml.cs, SetChromeHeaderStowed), so the question "which title?" is
+      answered in the band the head line would have taken: the same hundred points of darkened picture at the
+      top edge, nothing of the wall moved out of the way for it.
+
+      It stands at the LEFT of that band and to the RIGHT of the pointer's own marks - the way back, the way
+      home and the menu's handle, which are the window's furniture and are laid before this screen's (see
+      ShellWindow.CornerNavRightEdge, which is what the code behind reads to push this row clear of them).  A
+      search field laid under those marks would be a field with half its plate missing whenever a hand is on a
+      desk, and the marks cannot give way: they are the only way out for that hand.
+
+      ONE thing stands here, and it is off the screen until it is asked for (Viewer note 2026-11-10: the head
+      line wears no magnifier waiting to be clicked - the search comes when the viewer calls it and not before).
+      Two doors put it there - the shelf's own menu row "Search" and the Find key - and while it stands, the
+      arrow lifted off the head of the wall steps back into it; the wall keeps its nod at its head while no
+      field waits above it.  Whichever door was taken, the field grows into this band: one plaque in the corner
+      the details row's plaques wear and five points lower than they are (43 to Border.details-logo's 48, and
+      hung from its top edge, so the plate costs the wall nothing), the magnifier at its left hand, the typed
+      words in the middle and the mark that takes the search away at its right.  Back or Escape takes it away
+      from wherever the caret stands, which is the same answer as that mark; Up and Right nod the plate at its
+      own edges, and no word is written beside the plaque, because nothing else on this screen spells out in
+      words what a picture says.
+    -->
+    <StackPanel Name="searchStrip"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="10,9,18,0"
+                ClipToBounds="False">
+      <Border Name="searchField"
+              Classes="search-field"
+              IsVisible="{Binding ShowsSearch}"
+              VerticalAlignment="Top">
+        <DockPanel>
+          <Path DockPanel.Dock="Left"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                              ConverterParameter='MediaMenu/search'}"
+                Fill="{DynamicResource TextBrush}"
+                Opacity="0.72"
+                Width="24"
+                Height="24"
+                Margin="0,0,12,0"
+                Stretch="Uniform"
+                VerticalAlignment="Center"/>
+          <Button Name="clearSearchMark"
+                  DockPanel.Dock="Right"
+                  Classes="nereus-corner-button nereus-corner-small"
+                  Width="38"
+                  Height="38"
+                  CornerRadius="19"
+                  VerticalAlignment="Center"
+                  Command="{Binding CloseSearchCommand}"
+                  Focusable="False"
+                  ToolTip.Tip="Take the search away"
+                  IsVisible="{Binding ShowsSearch}">
+            <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter='PowerMenu/close'}"
+                  Fill="{DynamicResource TextBrush}"
+                  Width="18"
+                  Height="18"
+                  Stretch="Uniform"/>
+          </Button>
+          <TextBox Name="searchBox"
+                   Classes="search-box"
+                   views:VirtualKeyboardService.Trigger="Menu"
+                   Text="{Binding SearchText, Mode=TwoWay}"
+                   PlaceholderText="Find a title"
+                   Width="340"
+                   VerticalContentAlignment="Center"/>
+        </DockPanel>
+      </Border>
+    </StackPanel>
 
     <!--
       Nothing is painted over the shelf at its head or its foot; see the note below where the two gradient bands

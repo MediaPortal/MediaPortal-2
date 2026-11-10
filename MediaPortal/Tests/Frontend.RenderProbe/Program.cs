@@ -1624,6 +1624,17 @@ namespace FrontendProbe
         MediaBrowserViewModel shelf = (MediaBrowserViewModel) searchScreen.DataContext!;
         int before = shelf.Titles.Count;
 
+        // The field is not on the wall until it is asked for, so the frame asks for it the way a viewer does -
+        // with the Find key - and only then types into the box that has grown into the head line.  Typing into a
+        // box that is not on the screen would prove nothing about the road a viewer takes.
+        searchScreen.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.F,
+          Source = searchScreen
+        });
+        Pump(TimeSpan.FromMilliseconds(250));
+
         TextBox box = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(searchScreen)
             .OfType<TextBox>().First(field => field.Name == "searchBox");
         box.Focus();

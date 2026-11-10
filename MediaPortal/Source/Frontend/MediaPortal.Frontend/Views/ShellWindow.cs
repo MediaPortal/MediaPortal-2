@@ -390,7 +390,8 @@ namespace MediaPortal.Frontend.Views
       _cornerNav.Spacing = 14;
       _cornerNav.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
       _cornerNav.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
-      _cornerNav.Margin = new Avalonia.Thickness(10, 0, 0, 0);
+      // 5 px off the top of the screen (was flush against it), so the row does not sit hard on the edge.
+      _cornerNav.Margin = new Avalonia.Thickness(10, 5, 0, 0);
       _cornerNav.IsVisible = false;
       _cornerBackGlyph = CornerMark(_cornerNav, "One step back", delegate
       {
@@ -400,6 +401,14 @@ namespace MediaPortal.Frontend.Views
       _cornerHomeGlyph = CornerMark(_cornerNav, "Home",
           delegate { _workflow.PopToState("home"); });
       shell.Children.Add(_cornerNav);
+      // The row's width is only known once it has been laid out, and it changes when a screen hands its menu
+      // handle in or takes it back out - so the line screens stand their own top-left furniture against is
+      // re-read off the row itself instead of being remembered from the last time it was asked.
+      _cornerNav.PropertyChanged += delegate (object? sender, AvaloniaPropertyChangedEventArgs args)
+      {
+        if (args.Property == BoundsProperty)
+          UpdateCornerNavEdge();
+      };
 
       // And the window's own two marks at the top right-hand corner, one measure and one behaviour away:
       // the frame that gives the television back to the desktop, and the exit that ends the program. A hand
@@ -678,6 +687,7 @@ namespace MediaPortal.Frontend.Views
           _cornerNav.Children.Remove(_cornerMenuMark);
           _cornerMenuMark = null;
           _cornerMenuGlyph = null;
+          UpdateCornerNavEdge();
         }
 
         _cornerMenuFace = null;
@@ -1195,6 +1205,7 @@ namespace MediaPortal.Frontend.Views
           && current_frame.StateId == "home")
           && !fullScreen && !_viewFullBleed && !_pointerRest.Resting;
       _cornerNav.IsVisible = way_out;
+      UpdateCornerNavEdge();
 
       // The window's two marks at the right stand on the same screens as the way out. The exit belongs to
       // the television alone - in window mode the desktop keeps its own close box - but the way between the
@@ -1203,6 +1214,45 @@ namespace MediaPortal.Frontend.Views
       if (_cornerExitMark != null)
         _cornerExitMark.IsVisible = WindowState == WindowState.FullScreen;
       ChangeCornerToggleFace();
+    }
+
+    /// <summary>
+    /// The line the pointer's marks at the top left hand end against, measured from the window's left edge -
+    /// zero while they are put away with the pointer, so that a screen standing its own furniture at the top of
+    /// the room knows when it has the whole corner to itself.
+    /// </summary>
+    /// <remarks>
+    /// The row is the window's, not the screen's, and its width is not a number anybody could write down: it
+    /// holds two marks on most screens and three on the ones whose menu lies behind an edge (see
+    /// <see cref="SetCornerMenuMark"/>), and it is off the screen whenever the pointer rests. A screen that put
+    /// something at its own top left therefore has to ask where the marks end rather than guess, which is what
+    /// the media shelf does for its search field.
+    /// </remarks>
+    public double CornerNavRightEdge { get; private set; }
+
+    /// <summary>
+    /// Said whenever the line above moves: the pointer came or went, a mark was added or taken away, or the row
+    /// was laid out and is now known to be wider or narrower than it was thought to be.
+    /// </summary>
+    public event EventHandler? CornerNavRightEdgeChanged;
+
+    /// <summary>
+    /// Works the line out again from the row as it stands, and says it when it moved.
+    /// </summary>
+    private void UpdateCornerNavEdge()
+    {
+      // Asked of the row's own measure rather than counted mark by mark: the row knows its spacing, and a mark
+      // the row does not hold cannot be counted. The margin is added because the row's bounds begin INSIDE it,
+      // so the bounds alone would hand a screen a line eleven points under the marks.
+      double edge = !_cornerNav.IsVisible || _cornerNav.Bounds.Width <= 0
+          ? 0
+          : _cornerNav.Bounds.Width + _cornerNav.Margin.Left;
+
+      if (Math.Abs(edge - CornerNavRightEdge) < 0.5)
+        return;
+
+      CornerNavRightEdge = edge;
+      CornerNavRightEdgeChanged?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
