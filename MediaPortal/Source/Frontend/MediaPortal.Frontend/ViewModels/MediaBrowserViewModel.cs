@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
@@ -1381,16 +1382,73 @@ namespace MediaPortal.Frontend.ViewModels
         => CoverLettering != null;
 
     /// <summary>
-    /// The row the story is told in: its own row beside the cover, or - when a disc lies under the cover - the
-    /// row under it.  The panel asks for the number because a screen cannot weigh a condition by itself.
+    /// The row the story is told in: its own row beside the cover, or - when a disc lies under the cover, or when
+    /// the picture stands over its story as an episode's does - the row under it.  The panel asks for the number
+    /// because a screen cannot weigh a condition by itself.
     /// </summary>
-    public int DetailsStoryRow => ShowsDiscBehindCover ? 4 : 3;
+    public int DetailsStoryRow => ShowsDiscBehindCover || DetailsPictureStandsOverStory ? 4 : 3;
 
     /// <summary>
     /// How many of the panel's two columns the story is given: its own column while the cover stands beside it,
     /// and the whole width under a cover that stands over it.
     /// </summary>
-    public int DetailsStoryColumns => ShowsDiscBehindCover ? 2 : 1;
+    public int DetailsStoryColumns => ShowsDiscBehindCover || DetailsPictureStandsOverStory ? 2 : 1;
+
+    /// <summary>
+    /// Whether the picture stands over its story instead of beside it, which only an episode does: the viewer asked
+    /// for the episode's sentence over the panel's whole width on 2026-11-10, because a column of reading with an
+    /// empty column next to it is a hole and not a margin.  The episode's name keeps the picture's side of the row
+    /// above, and the story is told under both.
+    /// </summary>
+    public bool DetailsPictureStandsOverStory => MediaCatalog.IsEpisode(AspectName);
+
+    /// <summary>
+    /// The row the picture stands in: it takes everything the head and the facts leave while the story stands
+    /// beside it - which is what lets a poster of five hundred lines keep its foot on the story's first line - and
+    /// asks for nothing but its own thumbnail once the story is told under it, so that the leftover belongs to the
+    /// reading and never to an empty strip above it.
+    /// </summary>
+    public GridLength DetailsPictureRowHeight
+        => DetailsPictureStandsOverStory ? GridLength.Auto : new GridLength(1, GridUnitType.Star);
+
+    /// <summary>
+    /// The title's own lettering over the story, which is where it stands as long as the story is told beside its
+    /// picture: it is docked over the reading then, and the reading begins under it.
+    /// </summary>
+    public bool ShowsClearArtOverStory => !DetailsPictureStandsOverStory && DetailsClearArt != null;
+
+    /// <summary>
+    /// The title's own lettering in the row its picture stands in, which is what an episode gets: its story is told
+    /// under the thumbnail, and a lettering that travelled with that story would hang a picture of the whole series
+    /// over the episode's sentence - the viewer asked for the name beside the thumbnail and nothing else moved
+    /// (word of 2026-11-10).  The two answers are one picture's two places, never both at once.
+    /// </summary>
+    public bool ShowsClearArtOverPicture => DetailsPictureStandsOverStory && DetailsClearArt != null;
+
+    /// <summary>
+    /// The row the story is told in when it stands under its picture: the counterpart of <see cref="DetailsPictureRowHeight"/>.
+    /// </summary>
+    public GridLength DetailsStoryRowHeight
+        => DetailsPictureStandsOverStory ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
+
+    /// <summary>
+    /// The floor the picture's row keeps for itself, which is the story's floor while the story stands in that row
+    /// and nothing once the story has moved under the picture.  An empty row may not cost a hundred and sixty lines.
+    /// </summary>
+    public double DetailsPictureRowFloor => DetailsPictureStandsOverStory ? 0.0 : STORY_ROW_FLOOR;
+
+    /// <summary>
+    /// The floor the row under the picture keeps, which is nothing while the story is told above it and the story's
+    /// floor as soon as the story is told in it.
+    /// </summary>
+    public double DetailsStoryRowFloor
+        => DetailsPictureStandsOverStory || ShowsDiscBehindCover ? STORY_ROW_FLOOR : 0.0;
+
+    /// <summary>
+    /// What a row the story is told from never shrinks below, said once here and in the view: a row of "*" that is
+    /// measured before its screen has a size leaves nothing at all, and a scroller with no room is not a short story.
+    /// </summary>
+    private const double STORY_ROW_FLOOR = 160;
 
     partial void OnDetailsAlbumDiscChanged(byte[]? value) => RaiseCoverLayout();
 
@@ -1419,12 +1477,15 @@ namespace MediaPortal.Frontend.ViewModels
       OnPropertyChanged(nameof(ShowsLetteringOverCover));
       OnPropertyChanged(nameof(DetailsStoryRow));
       OnPropertyChanged(nameof(DetailsStoryColumns));
+      OnPropertyChanged(nameof(DetailsStoryRowFloor));
     }
 
     partial void OnDetailsClearArtChanged(byte[]? value)
     {
       OnPropertyChanged(nameof(CoverLettering));
       OnPropertyChanged(nameof(ShowsCoverLettering));
+      OnPropertyChanged(nameof(ShowsClearArtOverStory));
+      OnPropertyChanged(nameof(ShowsClearArtOverPicture));
     }
 
     /// <summary>
@@ -4354,8 +4415,11 @@ namespace MediaPortal.Frontend.ViewModels
           return "added";
         case "lastplayed":
           return "lastplayed";
+        // The numbered orders are read row by row from the shelf's first title to its last, which is what a list
+        // with numbers in its margin says.  The disc's note stays where it is right: the place on a record.
         case "season":
         case "episode":
+          return "episode";
         case "track":
           return "track";
         default:

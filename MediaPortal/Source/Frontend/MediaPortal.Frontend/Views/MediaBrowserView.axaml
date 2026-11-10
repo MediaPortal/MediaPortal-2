@@ -2286,21 +2286,29 @@
                   <RowDefinition Height="Auto"/>
                   <!-- The row the four pairs stand in, under the head and above the story. -->
                   <RowDefinition Height="Auto"/>
-                  <!-- The story's row.  A floor of its own, because a row of "*" shrinks to whatever the head and
-                       the foot leave, and on a screen that is stood up small or measured before it has a size that
-                       leaves nothing at all - which is not "a short story", it is a control with no room to be
-                       laid out.  The reference's row for the description was "*" too (MediaItemListMovieDetails.inc:17). -->
-                  <RowDefinition Height="*" MinHeight="160"/>
+                  <!-- The story's row while the story stands beside its picture, and the row the picture stands in
+                       once the story is told under it - which only an episode does.  A floor of its own, because a
+                       row of "*" shrinks to whatever the head and the foot leave, and on a screen that is stood up
+                       small or measured before it has a size that leaves nothing at all - which is not "a short
+                       story", it is a control with no room to be laid out.  The reference's row for the description
+                       was "*" too (MediaItemListMovieDetails.inc:17).  Both height and floor are asked of the view
+                       model because the two rows trade places: whichever of them the story is not told in may not
+                       cost the story a hundred and sixty lines of nothing. -->
+                  <RowDefinition Height="{Binding DetailsPictureRowHeight}"
+                                  MinHeight="{Binding DetailsPictureRowFloor}"/>
                   <!--
-                    The row the story is told in once a disc lies under the cover.  A disc looking out of the
-                    cover's left side needs the column the story stood in (the disc is three hundred sixty one
-                    lines wide and a hundred forty four of them stand outside the cover), so the story goes under
-                    the cover instead and is given the panel's whole width there - the viewer's word on
-                    2026-11-03.  A row of its own rather than a margin, because the story keeps its own scroller
-                    and that scroller wants a row to be measured in; and a row that asks for nothing while no disc
-                    is there, because nothing stands in it then and the story stays in the row above.
+                    The row the story is told in once a disc lies under the cover, or once the picture stands over
+                    its story as an episode's does.  A disc looking out of the cover's left side needs the column
+                    the story stood in (the disc is three hundred sixty one lines wide and a hundred forty four of
+                    them stand outside the cover), so the story goes under the cover instead and is given the
+                    panel's whole width there - the viewer's word on 2026-11-03.  An episode's story is given that
+                    same whole width for the opposite reason: nothing stands beside it any more, and a reading that
+                    stops halfway across the panel with an empty column at its right hand side is a hole (the
+                    viewer's word on 2026-11-10).  A row of its own rather than a margin, because the story keeps
+                    its own scroller and that scroller wants a row to be measured in.
                   -->
-                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="{Binding DetailsStoryRowHeight}"
+                                  MinHeight="{Binding DetailsStoryRowFloor}"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <!-- Two columns, but only the bottom row uses them: the story's column and the picture's column,
@@ -2704,6 +2712,41 @@
                 </Border>
 
                 <!--
+                  THE ROW THE PICTURE STANDS IN, seen from its left column: the title's lettering at the top - where
+                  it has always stood, and where it stays for every title whose story is told beside its picture -
+                  and the episode's own name at the foot.  The name is flush with the panel's left edge and flush
+                  with the thumbnail's foot, so that the two ends of the row are an edge and not a floating word
+                  (the viewer's word on 2026-11-10); it stood over its story before, which cost the story two lines.
+                  The two children never ask for the same ground: the lettering is the picture of the whole title and
+                  keeps the top, the name is one episode's and keeps the foot, and the row asks for the thumbnail
+                  alone, so "the foot" here is the thumbnail's foot and not the bottom of the panel.  Only episodes
+                  wear the name; every other title answers the empty string and the child costs nothing.
+                -->
+                <Grid Grid.Row="3"
+                      Grid.Column="0"
+                      RowDefinitions="*,Auto">
+                  <Image Grid.Row="0"
+                         Source="{Binding DetailsClearArt,
+                                          Converter={x:Static views:ArtworkConverter.Instance},
+                                          ConverterParameter=small}"
+                         Height="140"
+                         MaxWidth="240"
+                         Margin="0,40,0,0"
+                         Stretch="Uniform"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Top"
+                         IsVisible="{Binding ShowsClearArtOverPicture}"/>
+                  <TextBlock Grid.Row="1"
+                             VerticalAlignment="Bottom"
+                             Text="{Binding DetailsEpisodeName}"
+                             FontSize="26"
+                             FontWeight="Bold"
+                             Foreground="{DynamicResource TextBrush}"
+                             TextWrapping="Wrap"
+                             IsVisible="{Binding DetailsEpisodeName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                </Grid>
+
+                <!--
                   THE DISC UNDER ITS COVER, for the albums a library keeps a picture of the disc of.  The reference
                   laid the two into one box: the disc asked for at four hundred twenty lines, the cover at four
                   hundred forty over it, both in a box of four hundred fifty six
@@ -2866,7 +2909,9 @@
                     off the line at the cover's foot now, the home tiles' way of saying it - and the lettering
                     keeps the row's right hand end alone, its height and ask unchanged: a hundred and forty
                     lines, no wider than two hundred and forty. Most libraries hold none, and the frame then
-                    costs nothing.
+                    costs nothing.  It is docked over the reading and not beside the picture, because this is the
+                    case where the reading stands next to its picture; an episode, whose reading is told under its
+                    thumbnail, keeps its lettering up there with the thumbnail instead.
                   -->
                   <Image DockPanel.Dock="Top"
                          Source="{Binding DetailsClearArt,
@@ -2877,19 +2922,7 @@
                          Margin="0,0,0,16"
                          Stretch="Uniform"
                          HorizontalAlignment="Right"
-                         IsVisible="{Binding DetailsClearArt, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                  <!-- The episode's name, in bold over its own story and out of the fact list: the story under
-                       it is this episode's sentence, and a title over its sentence is what a viewer reads -
-                       a number row cannot carry it without the story losing its head. Only episodes wear it;
-                       every other title answers the empty string and the row costs nothing. -->
-                  <TextBlock DockPanel.Dock="Top"
-                             Text="{Binding DetailsEpisodeName}"
-                             FontSize="26"
-                             FontWeight="Bold"
-                             Foreground="{DynamicResource TextBrush}"
-                             TextWrapping="Wrap"
-                             Margin="0,0,0,8"
-                             IsVisible="{Binding DetailsEpisodeName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                         IsVisible="{Binding ShowsClearArtOverStory}"/>
                   <!-- Nothing to read, no room spent: a song whose library wrote no prose about it shows an empty
                        strip of nothing, which reads as a broken panel rather than as a record nobody described
                        (the reference drew no prose block on its audio screen at all). -->
