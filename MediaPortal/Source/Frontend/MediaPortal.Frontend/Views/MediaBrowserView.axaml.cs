@@ -1433,6 +1433,12 @@ namespace MediaPortal.Frontend.Views
     {
       sideMenu.IsVisible = !covers;
       bottomMenu.IsVisible = covers;
+
+      // The rail's two ends are asked about as it stands up, because its rows arrive with it: the first frame of
+      // the slide already has to say whether anything stands above its head.  Its travel is fitted there too, for
+      // the same reason - the scroller the dress goes on only exists once the panel has been stood up.
+      if (!covers)
+        DressTheRail();
     }
 
     /// <summary>
@@ -1577,6 +1583,23 @@ namespace MediaPortal.Frontend.Views
           }
         }
       }, RoutingStrategies.Tunnel);
+
+      // A row of the rail that comes by the caret is kept away from the rail's two ends, as the reference's rail
+      // keeps its stood row a margin from both (see KeepRailRowInSight).  Only the rail that runs down answers:
+      // the row of plates under covers has its own question to answer at its ends, and the viewer asked about the
+      // side rail.
+      if (!ReferenceEquals(list, mediaMenuListBottom))
+      {
+        list.AddHandler(GotFocusEvent, delegate (object? sender, RoutedEventArgs args)
+        {
+          // The caret sometimes lands on something inside the row rather than on the row itself, so the row is
+          // asked for from whatever came into focus.
+          ListBoxItem? row = args.Source as ListBoxItem
+              ?? (args.Source as Visual)?.GetVisualAncestors().OfType<ListBoxItem>().FirstOrDefault();
+          if (row != null)
+            KeepRailRowInSight(row);
+        }, RoutingStrategies.Bubble);
+      }
 
       // The wall a viewer pointed at answers with a nod. Three kinds of key point at one: the key that leads
       // away from the shelf - the left on a rail standing beside the shelf, the DOWN on the rail under covers,
@@ -4282,6 +4305,238 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// The rail's own scroller, looked for on the tree every time it is asked for: the panel the rail hangs in is
+    /// taken out of the tree while the menu is shut (see <see cref="LayTheMenuPanelsDown"/>) and a list that was
+    /// retemplated - which is what putting a skin on does - brings a new one with it.
+    /// </summary>
+    private ScrollViewer? RailScroller()
+      => mediaMenuList.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+
+    /// <summary>
+    /// Dresses the menu's rail for the two things a viewer noticed it was missing: the edge fade over its head and
+    /// its foot, and the glide its rows travel on.  Without the first a row the caret walked above the rail's head
+    /// is cut off there by a straight edge and a menu longer than the room says nothing at its foot (viewer,
+    /// 2026-11-10); without the second every step of the caret lands the wall of rows on its new place in one
+    /// frame, which the same viewer called a hard jump (2026-11-10).
+    /// </summary>
+    /// <remarks>
+    /// Asked every time the rail stands, and not once for the view's life, because the panel is laid down between
+    /// two openings and only the dress that is written on the scroller that stands there now can be seen.  The
+    /// glide goes on permanently, as the shelf's does (see <see cref="InstallShelfGlide"/>): the reference lerps
+    /// every offset change of this very list through its storyboards, a caret step and a wheel notch alike
+    /// (<c>OtherControlsOverrides.xaml:1019-1027</c>).
+    /// </remarks>
+    private void DressTheRail(int tries = 12)
+    {
+      Dispatcher.UIThread.Post(delegate
+      {
+        ScrollViewer? rail = RailScroller();
+        if (rail == null)
+        {
+          // The panel was stood up but its list has not been put together yet - which is what happens when a menu
+          // is opened on a screen that has never measured it.  Asked again on the next pass, for as long as the
+          // panel stands; a rail that never brings a scroller with it is a rail without rows anyway.
+          if (tries > 0 && sideMenu.IsVisible)
+            DressTheRail(tries - 1);
+          return;
+        }
+
+        FitRailGlide(rail);
+
+        // The reading is only asked again for a scroller it does not already watch; one that stands again keeps
+        // the scroller its template made the first time, and its reading with it.
+        if (ReferenceEquals(_railFade?.Band, rail))
+          return;
+
+        _railFade = new BandEndFade(rail, sideways: false);
+        _bandFades.Add(_railFade);
+
+        // A row's own height is not known until the list has laid it out, so the last row of a page that arrived
+        // a moment ago is measured at less than it will be: the margin was kept against a rail shorter than the
+        // one that stood after.  Told when the measure moves, the margin is put on again.
+        rail.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { ReaskTheRailMargin(rail); });
+        AnswerTheRailFollow(rail);
+
+        _railFade.Update();
+        _railStoodRow = null;
+      }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Makes sure the rail that stands right now is dressed, and dresses it if it is not.  Asked of every caret
+    /// that arrives in the rail, because it is cheap - one walk over a rail of a few rows - and because the one
+    /// moment the dress is asked for (the panel standing up) can meet a list that has not been put together yet.
+    /// </summary>
+    private void EnsureRailDressed(ScrollViewer rail)
+    {
+      FitRailGlide(rail);
+
+      if (ReferenceEquals(_railFade?.Band, rail))
+        return;
+
+      _railFade = new BandEndFade(rail, sideways: false);
+      _bandFades.Add(_railFade);
+
+      // As in DressTheRail: the measure of a page that is still arriving is not the measure it ends at, and the
+      // margin has to be put on against the one that stands.
+      rail.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { ReaskTheRailMargin(rail); });
+      AnswerTheRailFollow(rail);
+
+      _railFade.Update();
+    }
+
+    /// <summary>
+    /// Answers the rail's "bring this into view" itself, so that a row the caret walked to arrives inside the
+    /// reference's margin instead of flush against an end of the rail.
+    /// </summary>
+    /// <remarks>
+    /// A list follows its caret by asking its scroller to bring the row into view, and the scroller's answer is the
+    /// least it can do: the row's edge lands on the room's edge, which is inside the fade worn there - the very row
+    /// the viewer stands on would dissolve (2026-11-10, the complaint about the rail).  The reference keeps a
+    /// hundred and ninety points between the stood row and either end of this same rail
+    /// (<c>OtherControlsOverrides.xaml:1019</c>), and asks for it while bringing the row into view - which is the
+    /// moment answered here, because a scroller knows nothing of the fade it wears.  Heard with the handled asked
+    /// for as well: the scroller's own answer is written by a handler of its class, which is served before this
+    /// one, so stepping on it is what leaves the margin standing.
+    /// </remarks>
+    private void AnswerTheRailFollow(ScrollViewer rail)
+    {
+      if (ReferenceEquals(_railFollowAnswered, rail))
+        return;
+
+      _railFollowAnswered = rail;
+      rail.AddHandler(Control.RequestBringIntoViewEvent,
+          delegate(object? sender, RequestBringIntoViewEventArgs e)
+      {
+        // The ask often comes from something inside the row rather than from the row, and what a viewer reads as
+        // stood is the whole row.
+        Visual? asker = e.Source as Visual;
+        ListBoxItem? row = asker as ListBoxItem
+            ?? asker?.GetVisualAncestors().OfType<ListBoxItem>().FirstOrDefault();
+        if (row == null)
+          return;
+
+        KeepRailRowInSight(row);
+        e.Handled = true;
+      }, RoutingStrategies.Bubble, true);
+    }
+
+    /// <summary>
+    /// Asks for the rail's margin to be put on again on the next pass rather than from inside the report of a
+    /// scroll.  Written while the scroller is still telling everyone where it moved, an offset is swallowed - and
+    /// that is exactly the moment the list's own answer to the caret arriving lands the stood row into the fade,
+    /// so the answer has to come a pass later.
+    /// </summary>
+    private void ReaskTheRailMargin(ScrollViewer rail)
+    {
+      Dispatcher.UIThread.Post(delegate
+      {
+        Control? stood = _railStoodRow;
+        if (stood != null && ReferenceEquals(RailScroller(), rail))
+          GlideRailOntoRow(rail, stood);
+      }, DispatcherPriority.Background);
+    }
+
+    /// <summary>Puts the reference's travel on the rail, at the length its own scroll animation runs.</summary>
+    private void FitRailGlide(ScrollViewer rail)
+    {
+      // Asked whether a dress is worn rather than whether both sides are empty: a scroller that wears nothing and
+      // a memory of nothing are not the same thing, and reading them as one leaves the rail bare forever.
+      if (_wornRailGlide != null && ReferenceEquals(rail.Transitions, _wornRailGlide))
+        return;
+
+      Transitions glide = new Transitions();
+      glide.Add(new VectorTransition
+      {
+        Property = ScrollViewer.OffsetProperty,
+        Duration = RAIL_GLIDE,
+        // The easing the skin's own vertical menu scroller wears
+        // (Skins/Nereus/themes/default/styles.xaml:349, the reference's VerticalMediaScrollViewerStyle), which
+        // is also what makes the home menu's column feel as though it is set down rather than fired.
+        Easing = new Avalonia.Animation.Easings.CubicEaseOut()
+      });
+      _wornRailGlide = glide;
+      rail.Transitions = glide;
+    }
+
+    /// <summary>
+    /// Keeps the row the caret stands on away from the rail's two ends, with the reference's margin between the row
+    /// and either of them.  A scroller left to itself does bring a row into sight, but the minimum: the row lands
+    /// flush against the end it came in at - inside the edge fade that is worn there, which would dissolve the very
+    /// row the viewer is standing on.  The reference's rail holds its stood row a hundred and ninety points from
+    /// both ends (<c>OtherControlsOverrides.xaml:1019</c>), which is also more than the ninety-odd points the fade
+    /// zone of a rail of this height takes.
+    /// </summary>
+    private void KeepRailRowInSight(Control row)
+    {
+      ScrollViewer? rail = RailScroller();
+      if (rail == null)
+        return;
+
+      // The dress is asked for here as well as when the panel stands up: a menu opened on a screen that has never
+      // measured its rail meets a list that has not been put together yet, and the caret arriving is the first
+      // moment the scroller it was dressed in certainly stands there.
+      EnsureRailDressed(rail);
+      _railStoodRow = row;
+
+      // The list's own answer to a caret arriving is the bare minimum - it lands the row flush against the end it
+      // came in at, which is inside the fade worn there.  That answer is not fought here (it arrives later than any
+      // pass made now, and it arrives through the rail's own ask, which the view answers with the margin - see
+      // AnswerTheRailFollow); this pass is what carries the caret the moment it arrives, and the two answers read
+      // as one travel because the glide retargets a running travel rather than restarting it.
+      GlideRailOntoRow(rail, row);
+
+      // Asked once more after the layout has had its say: the list's own answer to the caret arriving lands the row
+      // flush against an end during that pass, and the glide retargets the running travel rather than restarting
+      // it, so the two answers read as one travel (see KeepCardInSight).
+      Dispatcher.UIThread.Post(delegate { GlideRailOntoRow(rail, row); }, DispatcherPriority.Loaded);
+
+      // And once more after that answer has been painted towards: the list brings a row in by its own rule, which
+      // stands the row's top at the very last line of the room - the row is then technically in sight and wholly
+      // inside the fade - and it does so on the pass the layout is closed, below the one above.  Asking at a
+      // priority under the layout's own leaves the margin standing.
+      Dispatcher.UIThread.Post(delegate { GlideRailOntoRow(rail, row); }, DispatcherPriority.Background);
+    }
+
+    /// <summary>One pass of the rail's margin: writes the rail's offset if the row does not already lie inside it.</summary>
+    private static void GlideRailOntoRow(ScrollViewer rail, Control row)
+    {
+      Point? at = row.TranslatePoint(new Point(0, 0), rail);
+      if (at == null || rail.Viewport.Height <= 0.0)
+        return;
+
+      double viewport = rail.Viewport.Height;
+      double top = at.Value.Y - rail.Padding.Top;
+      double foot = top + row.Bounds.Height;
+
+      // A rail shorter than a row and two margins cannot hold the margin at both ends, so it is asked for and given
+      // up towards the middle, which leaves the row standing centred - the reference's own answer.
+      double margin = Math.Max(0.0, Math.Min(RAIL_SCROLL_MARGIN, (viewport - row.Bounds.Height) / 2.0));
+      double offset = rail.Offset.Y;
+
+      if (top < margin)
+        offset -= margin - top;
+      else if (foot > viewport - margin)
+        offset += foot - (viewport - margin);
+
+      offset = Math.Clamp(offset, 0.0, Math.Max(0.0, rail.Extent.Height - viewport));
+      if (Math.Abs(offset - rail.Offset.Y) > 0.5)
+        rail.Offset = new Vector(rail.Offset.X, offset);
+    }
+
+    /// <summary>
+    /// The reference's margin between a stood menu row and either end of its rail
+    /// (<c>OtherControlsOverrides.xaml:1019</c>, the <c>ScrollMargin="190,190"</c> of the rail's items panel).
+    /// </summary>
+    private const double RAIL_SCROLL_MARGIN = 190.0;
+
+    /// <summary>
+    /// The length of the reference's rail travel: its <c>ScrollAnimation</c> storyboard runs four hundred
+    /// milliseconds over every scroll of the list (<c>OtherControlsOverrides.xaml:1023</c>).
+    /// </summary>
+    private static readonly TimeSpan RAIL_GLIDE = TimeSpan.FromMilliseconds(400);
+
+    /// <summary>
     /// One band's edge fade: the mask it wears and the depths its two ends were last read at.  The first card of a
     /// band that stands at its left edge has walked out of nothing and stands whole; a card the caret walked past
     /// an edge dissolves into that edge, and a band that still holds cards beyond an edge says so by dissolving the
@@ -4291,31 +4546,41 @@ namespace MediaPortal.Frontend.Views
     {
       private readonly ScrollViewer _band;
 
+      /// <summary>Whether the list runs sideways (a row of cards) or down (the menu's rail).</summary>
+      private readonly bool _sideways;
+
       private LinearGradientBrush? _mask;
 
       private double _before = UNREAD;
 
       private double _after = UNREAD;
 
-      internal BandEndFade(ScrollViewer band)
+      internal BandEndFade(ScrollViewer band, bool sideways = true)
       {
         _band = band;
+        _sideways = sideways;
         band.AddHandler(ScrollViewer.ScrollChangedEvent, delegate
         {
           Update();
         });
       }
 
+      /// <summary>The list this reading watches, so that a caller can ask whether it already holds the answer.</summary>
+      internal ScrollViewer Band => _band;
+
       /// <summary>Says what each end of the band is hiding and, if the mask says otherwise, writes it on.</summary>
       internal void Update()
       {
-        double view = _band.Viewport.Width;
+        double view = _sideways ? _band.Viewport.Width : _band.Viewport.Height;
         if (view <= 0)
           return;
 
+        double offset = _sideways ? _band.Offset.X : _band.Offset.Y;
+        double extent = _sideways ? _band.Extent.Width : _band.Extent.Height;
+
         double zone = EDGE_FADE * view;
-        double before = FadeDepth(_band.Offset.X, zone);
-        double after = FadeDepth(_band.Extent.Width - view - _band.Offset.X, zone);
+        double before = FadeDepth(offset, zone);
+        double after = FadeDepth(extent - view - offset, zone);
         if (before == _before && after == _after)
           return;
 
@@ -4331,8 +4596,8 @@ namespace MediaPortal.Frontend.Views
         }
 
         LinearGradientBrush mask = _mask ??= NewEdgeFade();
-        mask.StartPoint = new RelativePoint(0, 0.5, RelativeUnit.Relative);
-        mask.EndPoint = new RelativePoint(1, 0.5, RelativeUnit.Relative);
+        mask.StartPoint = new RelativePoint(_sideways ? 0.0 : 0.5, _sideways ? 0.5 : 0.0, RelativeUnit.Relative);
+        mask.EndPoint = new RelativePoint(_sideways ? 1.0 : 0.5, _sideways ? 0.5 : 1.0, RelativeUnit.Relative);
         mask.GradientStops[0].Color = FadeColour(before);
         mask.GradientStops[3].Color = FadeColour(after);
         _band.OpacityMask = mask;
@@ -4383,6 +4648,31 @@ namespace MediaPortal.Frontend.Views
     /// for is a mask that is never renewed - each one watches its own band and remembers its own two ends.
     /// </summary>
     private readonly List<BandEndFade> _bandFades = new List<BandEndFade>();
+
+    /// <summary>
+    /// The menu rail's own reading, kept beside the others because it is the same dress read on the other axis -
+    /// and because it is thrown away and asked again whenever the rail is stood up on a new scroller.
+    /// </summary>
+    private BandEndFade? _railFade;
+
+    /// <summary>
+    /// The travel the rail's scroller was last dressed in, kept so that a rail standing again is not dressed twice
+    /// - a transition that is replaced restarts nothing, but it throws away the one it is running.
+    /// </summary>
+    private Transitions? _wornRailGlide;
+
+    /// <summary>
+    /// The row the caret last stood on in the rail.  Kept because the rail's measure can move after the caret
+    /// arrived - a page whose rows were only just laid out is measured taller a pass later - and the margin has to
+    /// be put on against the measure that ends up standing.
+    /// </summary>
+    private Control? _railStoodRow;
+
+    /// <summary>
+    /// The rail whose "bring this into view" was answered for, so that a rail standing again is not asked twice -
+    /// a second answer would scroll the same row a second time in the same frame.
+    /// </summary>
+    private ScrollViewer? _railFollowAnswered;
 
     /// <summary>True while the wall is on a travel and the fade is worn for its destination.</summary>
     private bool _shelfTravelling;
