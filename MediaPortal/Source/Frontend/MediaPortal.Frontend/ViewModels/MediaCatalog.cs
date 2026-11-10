@@ -285,6 +285,18 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// Whether this aspect is a shelf of tracks: the titles filed inside an album.  Spelled apart from
+    /// <see cref="IsMusic"/> because a shelf of albums is asked which record it is while a shelf of tracks is asked
+    /// which number it stands on that record.
+    /// </summary>
+    public static bool IsTrack(string? aspectName)
+    {
+      return string.Equals(aspectName, "AudioItem", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(aspectName, "tracks", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(aspectName, "songs", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// How the titles inside this aspect are ordered: tracks by their number, episodes by season and number, films
     /// of a collection by name. <c>title</c> for anything else, which is what a whole shelf is ordered by.
     /// </summary>

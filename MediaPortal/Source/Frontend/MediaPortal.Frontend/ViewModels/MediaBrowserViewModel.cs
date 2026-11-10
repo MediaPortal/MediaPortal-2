@@ -4223,6 +4223,11 @@ namespace MediaPortal.Frontend.ViewModels
     /// <remarks>
     /// These are exactly the words the server answers (<c>MediaController.ReadSort</c>); one it did not know would
     /// come back silently ordered by name, which is a menu row that lies about what it did.
+    /// <para>
+    /// The shelf is recognised by <see cref="MediaCatalog"/>'s own tests, which speak the server's names for it -
+    /// "EpisodeItem" and "AudioItem".  Comparing against the plain word the screen itself says ("episodes", "tracks")
+    /// matched nothing, which is how a shelf of episodes came to be offered every order except its own number.
+    /// </para>
     /// </remarks>
     private List<(string Word, string Key)> SortChoices()
     {
@@ -4235,13 +4240,13 @@ namespace MediaPortal.Frontend.ViewModels
       };
 
       if (MediaCatalog.IsSeason(AspectName))
+        // A shelf of seasons is one tile per season, so their number is the order the viewer walks them in.
         choices.Insert(1, ("by season number", "season"));
-      else if (string.Equals(AspectName, "episodes", StringComparison.OrdinalIgnoreCase))
-      {
-        choices.Insert(1, ("by season number", "season"));
-        choices.Insert(2, ("by episode number", "episode"));
-      } else if (string.Equals(AspectName, "tracks", StringComparison.OrdinalIgnoreCase)
-          || string.Equals(AspectName, "songs", StringComparison.OrdinalIgnoreCase))
+      else if (MediaCatalog.IsEpisode(AspectName))
+        // An episode screen holds one season only, so asking its number would ask a question the screen already
+        // answered by opening: every row carries the same season.
+        choices.Insert(1, ("by episode number", "episode"));
+      else if (MediaCatalog.IsTrack(AspectName))
         choices.Insert(1, ("by track number", "track"));
 
       return choices;

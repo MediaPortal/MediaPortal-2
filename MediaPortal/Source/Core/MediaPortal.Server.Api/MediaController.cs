@@ -4590,8 +4590,9 @@ namespace MediaPortal.Server.Api
     /// <para>
     /// An episode list is sorted by season and then by episode, because a series is watched in that order and one
     /// column would interleave a season two after a season one. MP2's own screens sort an episode by its number
-    /// (WifiRemote/Helper.cs:315), and an episode number is a collection - a double episode is one item carrying
-    /// two numbers - which the database flattens into the same ordering a single number would get.
+    /// (WifiRemote/Helper.cs:315). Only that those screens read the whole shelf into memory and sort it there: the
+    /// episode number is a collection, and a collection cannot be a column in this query at all, so the order is
+    /// reached through the importer's written number instead - see the <c>episode</c> case below.
     /// </para>
     /// <para>
     /// The empty list means "in whatever order the database fancies", which is what <c>sort=none</c> promises.
@@ -4634,10 +4635,29 @@ namespace MediaPortal.Server.Api
           sorts.Add(new AttributeSortInformation(SeasonAspect.ATTR_SEASON, direction));
           break;
         case "episode":
+          // The season is a number the database can reach - one column, Inline (EpisodeAspect.cs:48-49). The
+          // episode number is not: it is a collection, because a file holding two episodes is one item carrying
+          // two numbers (EpisodeAspect.cs:62-63, Cardinality.ManyToMany), and the query engine refuses collection
+          // attributes as sort keys outright - it drops the key and says nothing (MainQueryBuilder.cs:393-395,
+          // "Sorting can only be done for Inline and MTO attributes"). Asking for the number by name therefore
+          // sorted the shelf by season alone, and inside a season handed back whatever order the database felt
+          // like: measured on this household's Prison Break season three that was 2, 12, 9, 13, 5, 8, 1, 3 ...
           sorts.Add(new AttributeSortInformation(EpisodeAspect.ATTR_SEASON, direction));
-          sorts.Add(new AttributeSortInformation(EpisodeAspect.ATTR_EPISODE, direction));
+          // The number is therefore reached through the name the importer wrote over the episode, which carries
+          // that number with two digits: "<series> S<nn>E<nn> - <name>" (EpisodeInfo.EPISODE_FORMAT_STR:67, the
+          // digits padded by the readers themselves - NfoSeriesEpisodeReader.cs:939-940, PadLeft(2,'0'), and
+          // SeasonInfo.SEASON_FORMAT_STR:54 for the season the same way). Inside one series - which is all a
+          // shelf of episodes ever is - that name sorts in exactly the order its numbers sort, and it is a column
+          // the database can reach. The same shelf after this key: 1 through 13.
+          sorts.Add(new AttributeSortInformation(MediaAspect.ATTR_TITLE, direction));
           break;
         case "track":
+          // An album is listened to disc by disc, so the disc is asked first and the place on that disc second,
+          // which is what MP2's own reader asks for the same shelf (WifiRemote/Helper.cs:397-401). The place on a
+          // disc alone interleaves two discs' first tunes beside one another: measured on this household's
+          // "Born This Way (Special Edition)" it came back 1, 1, 2, 2, 3, 3. Both columns are Inline and reach the
+          // database fine (AudioAspect.cs:84-85 for the tune, :144-145 for the disc).
+          sorts.Add(new AttributeSortInformation(AudioAspect.ATTR_DISCID, direction));
           sorts.Add(new AttributeSortInformation(AudioAspect.ATTR_TRACK, direction));
           break;
       }
