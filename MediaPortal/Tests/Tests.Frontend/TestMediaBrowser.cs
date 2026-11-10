@@ -7886,8 +7886,8 @@ namespace Tests.Frontend
     {
       TitleViewModel track = new TitleViewModel(ARow("Blue in Green", track: 4, artist: "Miles Davis"));
 
-      Assert.That(track.Position, Is.EqualTo("4."));
-      Assert.That(track.Line, Is.EqualTo("4. Blue in Green"),
+      Assert.That(track.Position, Is.EqualTo("4 \u00B7"));
+      Assert.That(track.Line, Is.EqualTo("4 \u00B7 Blue in Green"),
           "a listener looks for the fourth track by its number, and two tracks called 'Untitled' are only "
           + "distinguishable by that number");
       Assert.That(track.Artist, Is.EqualTo("Miles Davis"),
@@ -8049,7 +8049,7 @@ namespace Tests.Frontend
 
         Assert.That(tracks.Heading, Is.EqualTo("Kind of Blue"),
             "headed by the album, because that is where the viewer is");
-        Assert.That(tracks.Titles[0].Line, Is.EqualTo("4. Blue in Green"));
+        Assert.That(tracks.Titles[0].Line, Is.EqualTo("4 · Blue in Green"));
         Assert.That(tracks.Status, Is.EqualTo("2 of 2 tracks, sorted by track"),
             "the rows are counted as what they are: tracks, not two of Kind of Blue");
         Assert.That(tracks.DrillsIn, Is.False, "a track is listened to; a screen that opened another list from it "

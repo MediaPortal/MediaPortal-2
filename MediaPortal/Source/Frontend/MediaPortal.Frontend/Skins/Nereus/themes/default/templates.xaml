@@ -598,10 +598,14 @@
             MinHeight="89" Margin="15,4,30,4">
         <Panel IsVisible="{Binding HasArtwork}">
           <!-- The frame follows what the row is: a film, series or season row wears the wall posters' own
-               163:250 portrait shrunk to the row's height (58 across), and a record or a track wears the
-               music cover's square - the reference drew AUDIO_COVER 260x260 (MediaConsts.xaml:57f), shrunk
-               to the same 89 - because a record's front picture is a cover, never a poster. Both frames
-               clip to five-point corners, the way the wall's tile faces clip their progress lines
+               163:250 portrait shrunk to the row's height (58 across), and a record or a track wears its cover
+               at THE SAME HEIGHT (89), so both frames leave the same room above and below - the viewer's word
+               on 2026-11-05, after a square shrunk to the two lines of text next to it (62) sat too small in
+               the same row.  What is variable is the WIDTH: the frame holds the height and lets the picture
+               say how wide it is, which is what a cover is (the reference drew AUDIO_COVER 260x260, a square,
+               through MediaConsts.xaml:57f) while a poster is a portrait.  The picture is therefore drawn whole
+               rather than cropped: a picture that is wider than it is tall makes a wider frame, not a cut.
+               Both frames clip to five-point corners, the way the wall's tile faces clip their progress lines
                (HomeView.axaml:829-843). The picture is the row's own bytes (MediaBrowserViewModel.PaintRow),
                so the stood row costs no second fetch. -->
           <Border Classes="nereus-row-poster" Width="58" Height="89" CornerRadius="5" ClipToBounds="True"
@@ -609,10 +613,10 @@
             <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
                                     ConverterParameter='tile'}" Stretch="UniformToFill"/>
           </Border>
-          <Border Classes="nereus-row-cover" Width="89" Height="89" CornerRadius="5" ClipToBounds="True"
+          <Border Classes="nereus-row-cover" Height="89" CornerRadius="5" ClipToBounds="True"
                   IsVisible="{Binding WearsCover}">
             <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
-                                    ConverterParameter='tile'}" Stretch="UniformToFill"/>
+                                    ConverterParameter='tile'}" Stretch="Uniform"/>
           </Border>
         </Panel>
         <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
@@ -623,8 +627,11 @@
             <TextBlock Grid.Column="1" Classes="nereus-row-duration" Text="{Binding Detail}" Opacity="0.65"
                        TextTrimming="CharacterEllipsis"/>
           </Grid>
-          <TextBlock Classes="nereus-row-genres" Text="{Binding GenresLine}" Opacity="0.7"
-                     TextTrimming="CharacterEllipsis" IsVisible="{Binding ShowsGenres}"/>
+          <!-- The second line answers whoever the row is about: for music the artist the library credits (a
+               record its album artist, a track its own voice), for everything else the kinds the importer wrote.
+               The view model decides which of the two it is (TitleViewModel.SecondLine). -->
+          <TextBlock Classes="nereus-row-second" Text="{Binding SecondLine}" Opacity="0.7"
+                     TextTrimming="CharacterEllipsis" IsVisible="{Binding ShowsSecondLine}"/>
         </StackPanel>
       </Grid>
     </Panel>

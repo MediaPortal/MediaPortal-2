@@ -84,6 +84,9 @@ namespace FrontendProbe
         "                   is judged on, because it is the strings a real library writes that have to fit\n" +
         "  --nopictures   with --audio: the library keeps no cover, no record picture and no stage picture, so\n" +
         "                   what is drawn then is what the skin carries in place of them\n" +
+        "  --stand <n>  put the caret on the n-th row of a list (0 is the first) before the frame is taken, so the\n" +
+        "                   stood-on row's doubled shape - its two lines, its picture frame - stands on the frame\n" +
+        "                   and can be measured; nothing is focused in a headless frame by itself\n" +
         "  --theme <name> draw the frame wearing one of the three skins: default, nereus or wmc.\n" +
         "                   A name that is not one\n" +
         "                   of those stops the run instead of quietly drawing the colours you always had,\n" +
@@ -134,6 +137,7 @@ namespace FrontendProbe
       int tuneSteps = 0;
       int albumTunes = 0;
       bool shuffled = false;
+      int? standAt = null;
       int width = 1280;
       int height = 720;
 
@@ -207,6 +211,11 @@ namespace FrontendProbe
             break;
           case "--shuffle":
             shuffled = true;
+            break;
+          case "--stand":
+            if (i + 1 >= args.Length || !int.TryParse(args[++i], out int onRow))
+              return Usage("--stand needs the number of the row the caret stands on, e.g. --stand 0.");
+            standAt = onRow;
             break;
           case "--width":
             if (i + 1 >= args.Length || !int.TryParse(args[++i], out width))
@@ -1614,7 +1623,20 @@ namespace FrontendProbe
           // row the caret stands on.
           ListBox rows = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(layoutScreen)
               .OfType<ListBox>().First(l => l.Name == "titlesList");
-          List<string> heights = new List<string>();
+
+          // The caret the viewer would put on a row, put here: the doubled row, its frame and its second line only
+          // exist on the row that is selected, and a headless frame has nothing focused by itself. Selected through
+          // the list itself, which is the road a remote's arrow key takes - the view model is told the same way.
+          if (standAt.HasValue)
+          {
+            rows.SelectedIndex = standAt.Value;
+            Pump(TimeSpan.FromMilliseconds(400));
+            // The layout answers the selection long before the compositor paints it: the numbers were right while
+            // the captured frame still showed the row at rest, so the frame is asked for after a second, longer
+            // breath and a repaint of the whole screen.
+            layoutScreen.InvalidateVisual();
+            Pump(TimeSpan.FromMilliseconds(1200));
+          }          List<string> heights = new List<string>();
           TitleViewModel? head = null;
           foreach (Control? container in rows.GetRealizedContainers())
           {
@@ -1644,15 +1666,21 @@ namespace FrontendProbe
             Border? poster = stood.GetVisualDescendants().OfType<Border>().FirstOrDefault(b =>
                 (b.Classes.Contains("nereus-row-poster") || b.Classes.Contains("nereus-row-cover"))
                 && b.IsEffectivelyVisible);
-            TextBlock? genres = stood.GetVisualDescendants().OfType<TextBlock>()
-                .FirstOrDefault(t => t.Classes.Contains("nereus-row-genres"));
+            TextBlock? second = stood.GetVisualDescendants().OfType<TextBlock>()
+                .FirstOrDefault(t => t.Classes.Contains("nereus-row-second"));
             Console.WriteLine("stood:    focus shape " + (shape != null && shape.IsEffectivelyVisible ? "on" : "OFF")
                 + ", row " + Math.Round(stood.Bounds.Height) + " tall, picture "
                 + (poster != null
                     ? Math.Round(poster.Bounds.Width) + "x" + Math.Round(poster.Bounds.Height)
                         + (poster.Classes.Contains("nereus-row-cover") ? " (cover)" : " (poster)")
                     : "none")
-                + ", genres \"" + (genres?.Text ?? "") + "\""
+                + ", second line \"" + (second?.Text ?? "") + "\""
+                + "; shelf wears '" + string.Join(" ", rows.Classes) + "'"
+                + ", shapes " + stood.GetVisualDescendants().OfType<Grid>()
+                    .Count(g => g.Classes.Contains("nereus-row-focus")) + "/"
+                    + stood.GetVisualDescendants().OfType<Grid>()
+                    .Count(g => g.Classes.Contains("nereus-row-rest"))
+                + ", artwork " + (stood.DataContext is TitleViewModel stoodRow && stoodRow.HasArtwork)
                 + (shape == null ? "" : ", shape " + Math.Round(shape.Bounds.Height) + " tall of parts ["
                     + string.Join(", ", shape.GetVisualChildren().OfType<Control>()
                         .Select(part => part.GetType().Name + " " + Math.Round(part.Bounds.Height)))

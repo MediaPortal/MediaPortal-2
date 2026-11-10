@@ -106,6 +106,19 @@ namespace MediaPortal.Frontend.ViewModels
     public string? ReadThrough { get; }
 
     /// <summary>
+    /// The name the record above this row carries, when the shelf stands inside one: the tracks of an album are
+    /// listed inside that album, and its name is what the importer wrote in front of every one of their names.
+    /// Null for a row on a whole shelf.
+    /// </summary>
+    /// <remarks>
+    /// This is a hint, not the gate: the importer wrote the tune's prefix from the tag's own word while the album's
+    /// library title carries the year as well ("Wasting Light" against "Wasting Light (2011)"), so
+    /// <see cref="TrackNameOnly"/> falls back to the number alone wherever the two words disagree.  That is how the
+    /// panel's heading has always read a tune's name, and a song on a whole shelf is cut by the same reading.
+    /// </remarks>
+    internal string? InsideName { get; set; }
+
+    /// <summary>
     /// The title this row's own answers have to be asked of: its details, its pictures, and the shelf inside it.
     /// </summary>
     /// <remarks>
@@ -374,8 +387,106 @@ namespace MediaPortal.Frontend.ViewModels
         if (MediaCatalog.IsSeason(ReadThrough) && Title.Season.HasValue)
           return "Season " + Title.Season.Value.ToString(CultureInfo.InvariantCulture);
 
-        return string.IsNullOrWhiteSpace(Title.Title) ? "Untitled" : Title.Title!.Trim();
+        // The importer names an audio file "<record>: <number> - <song>" - measured on this library again after
+        // the first try below failed on the live server: "Wasting Light (2011)" is the album's title, while its
+        // first tune is titled "Wasting Light: 1 - Bridge Burning", so the record's word in the tune's name is the
+        // bare tag word WITHOUT the year the importer stuck onto the album. Which is a name written for a shelf
+        // holding every song the house has; a viewer standing inside the record has its cover, its heading and its
+        // number in front of them already. So the row says the tune's own name, by the very same reading the
+        // panel's heading uses - see <see cref="TrackNameOnly"/>.
+        string named = string.IsNullOrWhiteSpace(Title.Title) ? "Untitled" : Title.Title!.Trim();
+        if (MediaCatalog.IsMusic(ReadThrough) && Title.Track is int number)
+          named = TrackNameOnly(named, YearlessName(InsideName ?? ""), number);
+        return named;
       }
+    }
+
+    /// <summary>
+    /// The name with one trailing year taken out: "(2025)" at the end of a name is the year the facts row says
+    /// anyway, and the reference's title line never carried it. Any other bracket stands, because a name like
+    /// "Studio 54 (Live)" is that name and not a year.
+    /// </summary>
+    internal static string YearlessName(string name)
+    {
+      if (name.Length < 7 || !name.EndsWith(")", StringComparison.Ordinal))
+        return name;
+      int open = name.LastIndexOf(" (", StringComparison.Ordinal);
+      if (open < 0 || name.Length != open + 7)
+        return name;
+      for (int digit = open + 2; digit < open + 6; digit++)
+        if (!char.IsDigit(name[digit]))
+          return name;
+      return name.Substring(0, open).TrimEnd();
+    }
+
+    /// <summary>
+    /// The name a tune is called by, without the record it lies on and the number it lies at.
+    /// </summary>
+    /// <param name="name">The name the library holds for the tune.</param>
+    /// <param name="album">The record's word, where the screen knows it; empty when it does not.</param>
+    /// <param name="placed">The tune's own number, or <c>null</c> where the library never numbered it.</param>
+    /// <remarks>
+    /// <para>
+    /// <b>Why the name has to be taken apart at all.</b> The library holds no bare tune name in the fields this
+    /// screen is answered from: the importer writes the composed string through
+    /// <c>TrackInfo.TRACK_FORMAT_STR</c> "{0}: {1} - {2}" (TrackInfo.cs:59, spelled at :660-661) into
+    /// <c>MediaAspect.ATTR_TITLE</c> (:305), and that column is what the row and the panel's heading both read.
+    /// The clean name does exist in the library - <c>AudioAspect.ATTR_TRACKNAME</c>, written one line later at
+    /// :307 - but neither the title list nor the panel's answer hands it over, so this screen cannot read what it
+    /// was never given. A server asked in words is the way to fix that properly; until then this is the reading.
+    /// </para>
+    /// <para>
+    /// <b>Why this is an un-formatting and not a guess.</b> Nothing here hunts for a dash in a string it does not
+    /// understand: the number in the middle is checked against the library's own number for this tune
+    /// (<c>AudioAspect.ATTR_TRACK</c>, which the shelf's row carries), the cut is made only where a tune's own name
+    /// is left standing behind it, and a title the importer never spelled that way - a bare file name, a tune with
+    /// no number, a tagger that wrote the song alone - walks through untouched.
+    /// </para>
+    /// <para>
+    /// <b>Why the record's word is only a hint.</b> The importer wrote the tune's prefix from the tag's own word,
+    /// which is not always the album's library title: measured here, the album is titled "Wasting Light (2011)"
+    /// while its first tune is "Wasting Light: 1 - Bridge Burning". Where the two words disagree the number alone
+    /// decides, which is what the panel's heading has always done; the row and the heading read one name because
+    /// they ask this one method.
+    /// </para>
+    /// </remarks>
+    internal static string TrackNameOnly(string name, string? album, int? placed)
+    {
+      if (!placed.HasValue || string.IsNullOrWhiteSpace(name))
+        return name;
+
+      // The importer's two spellings, in its own order: the record with the place on it in front of the tune when
+      // the tag knew the record, and the bare place in front of the tune when it did not (TrackInfo.cs:660-665).
+      string place = placed.Value.ToString(CultureInfo.InvariantCulture);
+      string alone = BehindPlace(name, album ?? "", place);
+      return string.IsNullOrEmpty(alone) ? name : alone;
+    }
+
+    /// <summary>
+    /// What stands behind the record and the place in a tune's spelled title - <c>record: number - tune</c> or
+    /// <c>number - tune</c> - or an empty word when the title is not spelled that way with this number.
+    /// </summary>
+    private static string BehindPlace(string name, string album, string place)
+    {
+      // The record's name is used wherever the answer knows it, because then nothing is worked out: the importer's
+      // whole prefix is rebuilt out of the library's own two words and matched against the title as one piece.
+      if (!string.IsNullOrWhiteSpace(album))
+      {
+        string known = album.Trim() + ": " + place + " - ";
+        if (name.StartsWith(known, StringComparison.Ordinal))
+          return name.Substring(known.Length).Trim();
+      }
+
+      // Where the record's name was not answered, the number alone is what has to agree with the library.  A record
+      // whose own name carries a colon is spelled with that colon first and the importer's mark after it, so the
+      // LAST mark of this shape is the importer's.
+      string marked = ": " + place + " - ";
+      int cut = name.LastIndexOf(marked, StringComparison.Ordinal);
+      if (cut > 0)
+        return name.Substring(cut + marked.Length).Trim();
+
+      string bare = place + " - ";
+      return name.StartsWith(bare, StringComparison.Ordinal) ? name.Substring(bare.Length).Trim() : "";
     }
 
     /// <summary>The name a viewer scans for, with the article moved to the back - what the server sorted by.</summary>
@@ -666,10 +777,22 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
-    /// <summary>Whether the stood-on row's second line has anything to say.</summary>
-    public bool ShowsGenres
+    /// <summary>
+    /// What the stood-on row's second line says. For music it is who made the thing: an album answers with the
+    /// record's album artist and a track with the voice on that track, which the server keeps in the same cell of
+    /// each row because for a record that cell holds the album artist (measured: every one of this library's 43
+    /// albums answers its artist, "Wasting Light (2011)" answers "Foo Fighters"). For everything else it is the
+    /// kinds the importer wrote, which is what a film is sorted by and what no song is.
+    /// </summary>
+    public string SecondLine
     {
-      get { return GenresLine.Length > 0; }
+      get { return MediaCatalog.IsMusic(ReadThrough) ? Artist.Trim() : GenresLine; }
+    }
+
+    /// <summary>Whether the stood-on row has a second line to say at all.</summary>
+    public bool ShowsSecondLine
+    {
+      get { return SecondLine.Length > 0; }
     }
 
     /// <summary>
@@ -683,7 +806,7 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// The number or address this title has inside the one that holds it: <c>4.</c> for the fourth track,
+    /// The number or address this title has inside the one that holds it: <c>4 ·</c> for the fourth track,
     /// <c>S02E05</c> for an episode. Empty for the titles that are not inside anything, which is most of what a
     /// television shows.
     /// </summary>
@@ -692,7 +815,11 @@ namespace MediaPortal.Frontend.ViewModels
       get
       {
         if (Title.Track.HasValue)
-          return Title.Track.Value.ToString(CultureInfo.InvariantCulture) + ".";
+        {
+          // A dot rather than a full stop: the number and the song are two halves of one row, and a full stop
+          // reads as the end of a sentence the row never began. The stood-on row spells its year the same way.
+          return Title.Track.Value.ToString(CultureInfo.InvariantCulture) + " \u00B7";
+        }
 
         // A season's number is its name rather than an address inside something, and the row already says it;
         // writing "S03" in front of "Season 3" would be the same number twice on one line.
@@ -4282,11 +4409,11 @@ namespace MediaPortal.Frontend.ViewModels
         // standing on one song read the record's name, a number and two dashes where the song's name belongs.  Both
         // facts the heading now leaves out are said by the band under it, as "Track" and as "Album".
         if (!isSeason && IsMusic && !MediaCatalog.IsAlbum(AspectName))
-          name = TrackNameOnly(name, details, title);
+          name = TitleViewModel.TrackNameOnly(name, details.Album, title.Title.Track);
 
         DetailsHeading = isSeason
             ? name
-            : YearlessName(!string.IsNullOrWhiteSpace(details.SeriesName)
+            : TitleViewModel.YearlessName(!string.IsNullOrWhiteSpace(details.SeriesName)
                 ? details.SeriesName!.Trim()
                 : name);
         // The reference's detail screens put the tagline under the title and above the facts - the sentence the
@@ -4390,84 +4517,6 @@ namespace MediaPortal.Frontend.ViewModels
     /// there as it is for the total.
     /// </para>
     /// </remarks>
-    /// <summary>
-    /// The name with one trailing year taken out: "(2025)" at the end of a name is the year the facts row says
-    /// anyway, and the reference's title line never carried it. Any other bracket stands, because a name like
-    /// "Studio 54 (Live)" is that name and not a year.
-    /// </summary>
-    private static string YearlessName(string name)
-    {
-      if (name.Length < 7 || !name.EndsWith(")", StringComparison.Ordinal))
-        return name;
-      int open = name.LastIndexOf(" (", StringComparison.Ordinal);
-      if (open < 0 || name.Length != open + 7)
-        return name;
-      for (int digit = open + 2; digit < open + 6; digit++)
-        if (!char.IsDigit(name[digit]))
-          return name;
-      return name.Substring(0, open).TrimEnd();
-    }
-
-    /// <summary>
-    /// The name a tune is called by, without the record it lies on and the number it lies at.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// <b>Why the name has to be taken apart at all.</b> The library holds no bare tune name in the fields this
-    /// screen is answered from: the importer writes the composed string through
-    /// <c>TrackInfo.TRACK_FORMAT_STR</c> "{0}: {1} - {2}" (TrackInfo.cs:59, spelled at :660-661) into
-    /// <c>MediaAspect.ATTR_TITLE</c> (:305), and that column is what the row and this heading both read.  The clean
-    /// name does exist in the library - <c>AudioAspect.ATTR_TRACKNAME</c>, written one line later at :307 - but
-    /// neither the title list nor the panel's answer hands it over, so this screen cannot read what it was never
-    /// given.  A server asked in words is the way to fix that properly; until then this is the reading.
-    /// </para>
-    /// <para>
-    /// <b>Why this is an un-formatting and not a guess.</b> Nothing here hunts for a dash in a string it does not
-    /// understand: the number in the middle is checked against the library's own number for this tune
-    /// (<c>AudioAspect.ATTR_TRACK</c>, which the shelf's row carries), the cut is made only where a tune's own name
-    /// is left standing behind it, and a title the importer never spelled that way - a bare file name, a tune with
-    /// no number, a tagger that wrote the song alone - walks through untouched.
-    /// </para>
-    /// </remarks>
-    private static string TrackNameOnly(string name, MediaItemDetails details, TitleViewModel title)
-    {
-      int? placed = title.Title.Track;
-      if (!placed.HasValue || string.IsNullOrWhiteSpace(name))
-        return name;
-
-      // The importer's two spellings, in its own order: the record with the place on it in front of the tune when
-      // the tag knew the record, and the bare place in front of the tune when it did not (TrackInfo.cs:660-665).
-      string place = placed.Value.ToString(CultureInfo.InvariantCulture);
-      string alone = BehindPlace(name, details.Album ?? "", place);
-      return string.IsNullOrEmpty(alone) ? name : alone;
-    }
-
-    /// <summary>
-    /// What stands behind the record and the place in a tune's spelled title - <c>record: number - tune</c> or
-    /// <c>number - tune</c> - or an empty word when the title is not spelled that way with this number.
-    /// </summary>
-    private static string BehindPlace(string name, string album, string place)
-    {
-      // The record's name is used wherever the answer knows it, because then nothing is worked out: the importer's
-      // whole prefix is rebuilt out of the library's own two words and matched against the title as one piece.
-      if (!string.IsNullOrWhiteSpace(album))
-      {
-        string known = album.Trim() + ": " + place + " - ";
-        if (name.StartsWith(known, StringComparison.Ordinal))
-          return name.Substring(known.Length).Trim();
-      }
-
-      // Where the record's name was not answered, the number alone is what has to agree with the library.  A record
-      // whose own name carries a colon is spelled with that colon first and the importer's mark after it, so the
-      // LAST mark of this shape is the importer's.
-      string marked = ": " + place + " - ";
-      int cut = name.LastIndexOf(marked, StringComparison.Ordinal);
-      if (cut > 0)
-        return name.Substring(cut + marked.Length).Trim();
-
-      string bare = place + " - ";
-      return name.StartsWith(bare, StringComparison.Ordinal) ? name.Substring(bare.Length).Trim() : "";
-    }
 
     /// <summary>
     /// Which record a tune came from: what the reading of this title answered, and failing that the record the
@@ -5821,7 +5870,8 @@ namespace MediaPortal.Frontend.ViewModels
         {
           TitleViewModel row = new TitleViewModel(title, DrillsIn, _client, AspectName)
           {
-            WatchFlagsShown = WatchFlagsShown
+            WatchFlagsShown = WatchFlagsShown,
+            InsideName = Parent?.Title.Title
           };
 
           // A season the library only counts has its answers somewhere else - the pictures, the details and the
@@ -6151,7 +6201,8 @@ namespace MediaPortal.Frontend.ViewModels
       {
         TitleViewModel row = new TitleViewModel(title, DrillsIn, _client, AspectName)
         {
-          WatchFlagsShown = WatchFlagsShown
+          WatchFlagsShown = WatchFlagsShown,
+          InsideName = Parent?.Title.Title
         };
 
         if (title.ParentId.HasValue)
