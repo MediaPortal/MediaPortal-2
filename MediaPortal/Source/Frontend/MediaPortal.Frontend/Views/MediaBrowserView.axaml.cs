@@ -207,6 +207,12 @@ namespace MediaPortal.Frontend.Views
           _chromeShell.CornerNavRightEdgeChanged -= OnCornerNavEdgeChanged;
           _chromeShell.CornerNavRightEdgeChanged += OnCornerNavEdgeChanged;
           SeatSearchStrip(_chromeShell.CornerNavRightEdge);
+
+          // And the mark that opens the on-screen keys wears which picture it wears from the window, because the
+          // keys can be taken away from anywhere - by their own Done mark, by back, by walking on.
+          _chromeShell.KeyboardStateChanged -= OnKeyboardStateChanged;
+          _chromeShell.KeyboardStateChanged += OnKeyboardStateChanged;
+          UpdateKeyboardMark();
         }
 
         // And the pointer's handle to this screen's menu, which the window holds in its row of marks for as long
@@ -225,6 +231,7 @@ namespace MediaPortal.Frontend.Views
         _chromeShell?.SetChromeHeaderStowed(false);
         _chromeShell?.SetCornerMenuMark(null, null);
         _chromeShell?.CornerNavRightEdgeChanged -= OnCornerNavEdgeChanged;
+        _chromeShell?.KeyboardStateChanged -= OnKeyboardStateChanged;
         _chromeShell = null;
       };
       ApplyLayout();
@@ -877,6 +884,42 @@ namespace MediaPortal.Frontend.Views
               FocusShelf();
               args.Handled = true;
             }
+            else if (searchBox.IsFocused && args.Key == Key.Right
+                && searchBox.CaretIndex >= (searchBox.Text?.Length ?? 0) && StepsToTheKeyboardButton())
+            {
+              // The arrow off the end of the words walks ONTO the mark beside the plate, because that mark is
+              // the only keyboard button to the on-screen keys and a keyboard button the caret cannot reach is no keyboard button for a remote.
+              // It is the last of the field's edges, so the caret has to be behind the last letter first; a caret
+              // in the middle of a word is still editing that word.
+              args.Handled = true;
+            }
+            else if (keyboardToggle.IsFocused && (args.Key == Key.Left || args.Key == Key.Down))
+            {
+              // And back the same way: the arrow that came to the keyboard button takes the caret into the field it belongs
+              // to, and does not leave the screen - which is what the shell behind this handler would do.
+              searchBox.Focus();
+              args.Handled = true;
+            }
+            else if (keyboardToggle.IsFocused && (args.Key == Key.Up || args.Key == Key.Right))
+            {
+              // The keyboard button is the right end of the bench, so it nods the way the plate nods at its own edges.
+              BounceRail(keyboardToggle, args.Key == Key.Right ? RAIL_BOUNCE_DIVE : 0,
+                  args.Key == Key.Up ? -RAIL_BOUNCE_DIVE : 0);
+              args.Handled = true;
+            }
+            else if (keyboardToggle.IsFocused
+                && (Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args)
+                    || Settings.KeyBindings.Current.Is(Settings.KeyAction.PlayPause, args)
+                    || args.Key == Key.Enter || args.Key == Key.Return || args.Key == Key.Space))
+            {
+              // OK on the keyboard button belongs to the keyboard button.  Without this branch the key walked
+              // past every question below it and came out at the bottom of this handler as "play the row", so a
+              // viewer who reached the mark by walking right off the words and pressed OK started a film in the
+              // middle of typing a title.  It is answered here in the tunnel rather than left to the button so
+              // that one press is one toggle: the key never reaches the button's own handler on top of this one.
+              OnKeyboardToggleClicked(keyboardToggle, args);
+              args.Handled = true;
+            }
             else if (searchBox.IsFocused && (args.Key == Key.Up
                     || args.Key == Key.Right && searchBox.CaretIndex >= (searchBox.Text?.Length ?? 0)))
             {
@@ -888,6 +931,16 @@ namespace MediaPortal.Frontend.Views
               // still editing that word, and the nod must not steal the arrow from a hand on a keyboard.
               BounceRail(searchField, args.Key == Key.Right ? RAIL_BOUNCE_DIVE : 0,
                   args.Key == Key.Up ? -RAIL_BOUNCE_DIVE : 0);
+              args.Handled = true;
+            }
+            else if (searchBox.IsFocused && args.Key == Key.Left && searchBox.CaretIndex <= 0
+                && searchBox.SelectionStart == searchBox.SelectionEnd)
+            {
+              // The other edge of the same plate: with the caret before the first letter there is nothing left to
+              // step to, so the plate leans left and springs back instead of the key falling through to the shell
+              // - which would walk the viewer off the shelf while they were pointing at the head of a field.  A
+              // selection is not an edge, so Left keeps its job of collapsing one.
+              BounceRail(searchField, -RAIL_BOUNCE_DIVE, 0);
               args.Handled = true;
             }
             else if (Settings.KeyBindings.Current.Is(Settings.KeyAction.Back, args))
@@ -1034,6 +1087,17 @@ namespace MediaPortal.Frontend.Views
           FocusMenu(browser);
       };
 
+      // The keyboard button to the on-screen keys wears which picture it wears from the window, and the field it belongs to
+      // arrives through three different doors - the shelf's menu row, the Find key, the arrow off the head of
+      // the wall - so the mark is dressed again whenever the field comes up rather than once when the screen was
+      // built.
+      browser.PropertyChanged += delegate (object? sender,
+          System.ComponentModel.PropertyChangedEventArgs args)
+      {
+        if (args.PropertyName == nameof(MediaBrowserViewModel.ShowsSearch))
+          UpdateKeyboardMark();
+      };
+
       // The reading of one title takes the caret with it and brings it back with the wall. It has to: the shelf is
       // off the screen while the reading stands, so a caret left behind on its list is standing on nothing, and
       // the viewer who finished reading would find the arrows answering nobody.
@@ -1118,7 +1182,10 @@ namespace MediaPortal.Frontend.Views
       foreach (Control child in menuActionList.GetVisualDescendants())
       {
         if (child is Button line && line.IsEnabled && line.Focus())
+        {
+          _caretBelongsToTheField = false;
           return true;
+        }
       }
 
       return false;
@@ -1413,6 +1480,7 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void FocusMediaMenu(bool open, bool covers)
     {
+      _caretBelongsToTheField = false;
       if (!open)
       {
         FocusShelf();
@@ -1630,6 +1698,8 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private void FocusShelf()
     {
+      // The caret was asked for by the wall, which ends the field's claim on it (see _caretBelongsToTheField).
+      _caretBelongsToTheField = false;
       if (!titlesList.IsEffectivelyVisible)
         return;
 
@@ -1875,6 +1945,13 @@ namespace MediaPortal.Frontend.Views
     {
       _shelfTileTimer?.Stop();
 
+      // A hand typing in the search field owns the caret, and the selection the wall goes through on its way to
+      // answering a word is no reason to stand a tile under it - that is the caret leaving a field mid-word,
+      // letter for letter, which is what a live search did to the caret until the field was given a claim the
+      // watching has to respect.
+      if (_caretBelongsToTheField)
+        return;
+
       // Asked for at once first: the caller has just scrolled the standing title into view, and scrolling
       // realizes the container right here - a caret that lands in this breath is one that lands before
       // whoever asked has looked again.
@@ -1901,6 +1978,39 @@ namespace MediaPortal.Frontend.Views
         if (left-- <= 0)
         {
           timer.Stop();
+          return;
+        }
+
+        if (_caretBelongsToTheField)
+        {
+          // The field owns the caret, so nothing here is a fall onto the bare list.  Emptying the shelf between
+          // two words of a live search leaves the focus manager naming nothing for a pass or two, and a tile
+          // picked out of that nothing is the caret leaving a hand that is still typing - so the nameless caret
+          // goes back where it came from and the wall keeps its tiles.  The on-screen keys count as the field:
+          // they write into it and took its caret with them when they were put on the screen.
+          if (searchBox.IsFocused || TheKeysHoldTheCaret())
+          {
+            if (--quiet <= 0)
+              timer.Stop();
+            return;
+          }
+
+          bool nameless = fallen == null;
+          bool stripped = fallen is ListBoxItem schale
+              && !ReferenceEquals(schale, titlesList)
+              && titlesList.IndexFromContainer(schale) < 0;
+          if (nameless || stripped)
+          {
+            searchBox.Focus();
+            quiet = 120;
+            return;
+          }
+
+          // Anywhere else the caret came to rest is the viewer's own doing - down onto a result, onto a rail,
+          // into a dialog - and the field has given the caret up.  The watching retires.
+          _caretBelongsToTheField = false;
+          if (--quiet <= 0)
+            timer.Stop();
           return;
         }
 
@@ -2107,6 +2217,15 @@ namespace MediaPortal.Frontend.Views
     private const int RAIL_BOUNCE_DIVE_MS = 90;
     private const int RAIL_BOUNCE_SPRING_MS = 430;
 
+    /// <summary>
+    /// The lean of the last nod, which the nod's own transform cannot witness: the transform stays on the plate
+    /// after the spring and says nothing about which way the plate leaned.  A test that has to tell a nod left
+    /// from a nod right reads these instead.
+    /// </summary>
+    internal double LastNodX { get; private set; }
+
+    internal double LastNodY { get; private set; }
+
     private DispatcherTimer? _railBounceTimer;
     private TranslateTransform? _railBounceTransform;
 
@@ -2157,6 +2276,8 @@ namespace MediaPortal.Frontend.Views
         rail.RenderTransform = nod;
       }
       _railBounceTransform = nod;
+      LastNodX = diveX;
+      LastNodY = diveY;
 
       double fromX = nod.X;
       double fromY = nod.Y;
@@ -2203,12 +2324,37 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// Whether the caret stands on a key of the on-screen keyboard.  Those keys write into this screen's search
+    /// field and take its caret with them when they are put on the screen - the reference's Show() ends by
+    /// taking the focus - so while they hold the caret the field still owns it: the hand pressing the next letter
+    /// is among the keys, and a wall that answered the letter has no right to the caret.
+    /// </summary>
+    private bool TheKeysHoldTheCaret()
+    {
+      Visual? stood = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
+      for (Visual? at = stood; at != null; at = at.GetVisualParent())
+      {
+        if (at is VirtualKeyboardView)
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
     /// Whether the shelf has to be asked for the caret: nothing has the caret, or the caret stands on the shelf's
     /// own list without having reached a tile of it. Anything else the caret stands on inside this screen - a
     /// tile, the head, the details, a field the viewer is typing into - is where the caret stays.
     /// </summary>
     private bool NeedsCaretOnTheShelf()
     {
+      // While the field owns the caret the wall never asks for it.  This is the check that runs a layout round
+      // after an answer landed, and it looks at the caret alone - so with the on-screen keys standing, whose
+      // caret sits among the keys and not in this view, it would answer "the shelf is missing its caret" and
+      // walk the caret onto the first result while a hand is still pressing letters.
+      if (_caretBelongsToTheField)
+        return false;
+
       Visual? focused = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
       if (focused == null)
         return true;
@@ -2239,6 +2385,14 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>
+    /// Whether the caret's home is the search field: the field was asked for (the Find key, the menu's row, a click
+    /// into the box, the keys being put away), and the viewer has not since walked the caret onto the wall, a menu
+    /// or a dialog.  While this holds, a caret that the wall's own recycling leaves nameless belongs back in the
+    /// field - a hand that is still typing must never find itself standing on a tile.
+    /// </summary>
+    private bool _caretBelongsToTheField;
+
+    /// <summary>
     /// Puts the search field on the screen and moves the caret into it. The field is only laid out while somebody
     /// is searching (the reference kept it off the screen until a viewer asked for it, and the shelf has no room to
     /// spare), so it has to be measured before it can be focused - which is why the caret is asked for on the next
@@ -2246,6 +2400,13 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void RevealSearch()
     {
+      // The wall's caret watchdog lives for seconds after its tiles were laid, and emptying the shelf between two
+      // words leaves the caret's element nameless in between - which that watching reads as a fall onto nothing
+      // and fetches back onto a tile.  A hand that has just been handed the field would then find itself on the
+      // wall again, letter by letter, which is the live search a viewer was given on 2026-11-10 and took back
+      // again the same day for exactly this reason.
+      _shelfTileTimer?.Stop();
+      _caretBelongsToTheField = true;
       Dispatcher.UIThread.Post(delegate { searchBox.Focus(); }, DispatcherPriority.Loaded);
     }
 
@@ -2274,6 +2435,60 @@ namespace MediaPortal.Frontend.Views
     {
       searchStrip.Margin = new Thickness(marks_right > 0 ? marks_right + SEARCH_STRIP_BREATH : SEARCH_STRIP_REST,
           SEARCH_STRIP_TOP, SEARCH_STRIP_RIGHT, 0);
+    }
+
+    /// <summary>
+    /// Steps the caret from the end of the field's words onto the keyboard button of the on-screen keys, and answers whether
+    /// it did.  It does not when no keyboard button stands on the screen - a window without a shell has nowhere to hang the
+    /// keys - and the field then keeps the nod its own edge always had.
+    /// </summary>
+    private bool StepsToTheKeyboardButton()
+    {
+      return keyboardToggle.IsEffectivelyVisible && _chromeShell != null && keyboardToggle.Focus();
+    }
+
+    /// <summary>
+    /// The mark beside the field that opens the keys on the screen, and closes them again. Asked of the window,
+    /// because the window is what hosts them; the field is named here because the keys have to type into it.
+    /// </summary>
+    private void OnKeyboardToggleClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs args)
+    {
+      ShellWindow? shell = _chromeShell ?? this.GetVisualAncestors().OfType<ShellWindow>().FirstOrDefault();
+      if (shell == null)
+        return; // nowhere to hang the keys; the mark is not on the screen either, since no chrome means no shell
+
+      if (shell.KeyboardOpen)
+      {
+        shell.CloseVirtualKeyboard();
+        searchBox.Focus(); // the hand that put the keys away is still holding the field
+      }
+      else
+      {
+        shell.ShowVirtualKeyboard(searchBox);
+      }
+
+      UpdateKeyboardMark();
+      args.Handled = true;
+    }
+
+    /// <summary>
+    /// The keys came or went somewhere else - their own Done mark, the back key, a walk to another screen - so
+    /// the mark beside the field is dressed from what the window says.
+    /// </summary>
+    private void OnKeyboardStateChanged(object? sender, EventArgs args)
+    {
+      UpdateKeyboardMark();
+    }
+
+    /// <summary>
+    /// One picture of a keyboard while the keys are away, and the picture of a keyboard with a bar through it
+    /// while they stand: the mark always shows what a press of it will do.
+    /// </summary>
+    private void UpdateKeyboardMark()
+    {
+      bool standing = _chromeShell?.KeyboardOpen == true;
+      keyboardMark.IsVisible = !standing;
+      keyboardOffMark.IsVisible = standing;
     }
 
     /// <summary>
@@ -4692,6 +4907,9 @@ namespace MediaPortal.Frontend.Views
     {
       if (!_caretWaitsForTheBands || !reader.InfoShown)
         return;
+
+      // The reading asked for its own caret, so the field's claim is over.
+      _caretBelongsToTheField = false;
 
       ScrollViewer? band = FirstBandOfTheReading();
       List<Border> cards = band != null ? TrackCards(band) : new List<Border>();

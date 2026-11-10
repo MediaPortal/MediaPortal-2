@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
@@ -1910,11 +1911,24 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// What the viewer has typed into the search box, which is not yet what the list is filtered by - the list
-    /// moves when they press Enter or the Find button, not on every keystroke, because every keystroke would be a
-    /// round trip to the server while the box is still being written in.
+    /// follows a hand that has stopped typing (see <see cref="OnSearchTextChanged"/>), and Enter or the Find
+    /// button answer at once without waiting for that pause.
     /// </summary>
     [ObservableProperty]
     private string _searchText = "";
+
+    /// <summary>
+    /// How long a hand may rest on the last letter before what it has typed so far is taken as a question.  Long
+    /// enough that a word being spelled is not asked about in halves - "ali", "alin", "alien" - and short enough
+    /// that the wall has the matches ready by the time the viewer looks up from the keys.
+    /// </summary>
+    private const int TYPING_PAUSE_MILLISECONDS = 300;
+
+    /// <summary>The pause timer, made once and restarted with every letter.</summary>
+    private DispatcherTimer? _typing;
+
+    /// <summary>Whether the program is writing the box itself, which is never a viewer asking.</summary>
+    private bool _writingWords;
 
     /// <summary>The words the list on screen was read with, or "" when the whole shelf is showing.</summary>
     [ObservableProperty]
@@ -3335,8 +3349,53 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
+    /// The wall follows the field while it is being written in: a hand that has rested on the last letter for
+    /// <see cref="TYPING_PAUSE_MILLISECONDS"/> is asking a question, so the words so far are sent as one.  The
+    /// round trip of the reference, which waited for Enter, left a viewer typing blind - the wall only moved
+    /// after a key nobody presses when they can already see what they meant.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A timer rather than a question per letter, because a shelf of two thousand films is asked over the network
+    /// and "alien" spelled by a remote is five questions otherwise.  Every letter restarts the pause, so it is
+    /// the last letter that is timed.
+    /// </para>
+    /// <para>
+    /// Nothing here has to survive a race: a read belongs to a generation (see <see cref="ReadTheRestAsync"/>),
+    /// and the newer question bumps the number, so the answer to "alin" that arrives after "alien" was asked is
+    /// thrown away by itself.
+    /// </para>
+    /// <para>
+    /// What the program writes into the box is not a viewer asking.  Clearing takes the words and the filter
+    /// together in one go (see <see cref="ClearSearchAsync"/>), and a second question thirty
+    /// hundredths of a second later would ask for the whole shelf a second time.
+    /// </para>
+    /// </remarks>
+    partial void OnSearchTextChanged(string value)
+    {
+      if (_writingWords || !SearchOpen)
+        return;
+
+      _typing ??= new DispatcherTimer(DispatcherPriority.Background)
+      {
+        Interval = TimeSpan.FromMilliseconds(TYPING_PAUSE_MILLISECONDS)
+      };
+
+      _typing.Stop();
+      _typing.Tick -= OnTypingPaused;
+      _typing.Tick += OnTypingPaused;
+      _typing.Start();
+    }
+
+    private async void OnTypingPaused(object? sender, EventArgs e)
+    {
+      _typing?.Stop();
+      await FindAsync();
+    }
+
+    /// <summary>
     /// Filters the list to the titles carrying the words in the search box. Enter on the box and the Find button
-    /// both lead here.
+    /// both lead here, and so does a hand that has stopped typing.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -3353,6 +3412,9 @@ namespace MediaPortal.Frontend.ViewModels
     [RelayCommand]
     public async Task FindAsync()
     {
+      // Enter answers at once, so a question that was already waiting out the typing pause is not wanted twice.
+      _typing?.Stop();
+
       string words = (SearchText ?? "").Trim();
       if (words.Length == 0)
       {
@@ -3373,7 +3435,19 @@ namespace MediaPortal.Frontend.ViewModels
     [RelayCommand]
     public async Task ClearSearchAsync()
     {
-      SearchText = "";
+      // Taking the words away is one errand, not a viewer asking: the shelf comes back here and now, and the box
+      // being emptied by the program must not send a second question thirty hundredths of a second later.
+      _typing?.Stop();
+      _writingWords = true;
+      try
+      {
+        SearchText = "";
+      }
+      finally
+      {
+        _writingWords = false;
+      }
+
       if (HasSearch)
       {
         ActiveSearch = "";

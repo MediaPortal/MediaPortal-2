@@ -1670,6 +1670,19 @@ namespace MediaPortal.Frontend.Views
     public bool KeyboardOpen => _keyboardLayer.IsVisible;
 
     /// <summary>
+    /// Raised when the on-screen keyboard came or went. The mark that opens it wears one picture of a keyboard
+    /// while the keys are away and the picture of a keyboard with a bar through it while they stand, so the
+    /// screen has to be told - a mark reading its state once when it was built would keep promising keys that
+    /// are already on the screen.
+    /// </summary>
+    public event EventHandler? KeyboardStateChanged;
+
+    private void AnnounceKeyboardState()
+    {
+      KeyboardStateChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
     /// Shows the on-screen keyboard for one text field, in the layout the machine's language speaks. The
     /// reference opened this dialog from the editor itself; here the field's shell window hosts it as a layer,
     /// so the field stays visible above its own keys.
@@ -1692,14 +1705,18 @@ namespace MediaPortal.Frontend.Views
       _keyboardLayer.Content = keyboard;
       _keyboardLayer.IsVisible = true;
       UpdatePlaybackBar();
+      AnnounceKeyboardState();
     }
 
     /// <summary>Takes the keyboard away again. Pressing Done, pressing back, or walking to another screen.</summary>
     public void CloseVirtualKeyboard()
     {
+      bool stood = _keyboardLayer.IsVisible;
       _keyboardLayer.IsVisible = false;
       _keyboardLayer.Content = null;
       UpdatePlaybackBar();
+      if (stood)
+        AnnounceKeyboardState();
     }
 
     private void ShowCurrentFrame()

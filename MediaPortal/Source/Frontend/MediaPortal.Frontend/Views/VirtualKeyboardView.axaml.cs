@@ -16,10 +16,12 @@
 */
 
 using System;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using MediaPortal.Frontend.ViewModels;
 
@@ -51,6 +53,18 @@ namespace MediaPortal.Frontend.Views
     private readonly VirtualKeyboardModel _model;
     private readonly Grid[] _grids = new Grid[4];
     private bool _syncing;
+    private EventHandler<Avalonia.AvaloniaPropertyChangedEventArgs>? _followsField;
+    private Button[] _side = Array.Empty<Button>();
+    private DispatcherTimer? _bounceTimer;
+
+    /// <summary>
+    /// How far the keys lean against an edge and spring back.  The dialog's own numbers, the ones the volume
+    /// dialog uses (VolumePicker.axaml.cs:39-41), because this is the same kind of furniture leaning on the
+    /// same screen.
+    /// </summary>
+    private const double KEYS_BOUNCE_DIVE = 22;
+    private const int KEYS_BOUNCE_DIVE_MS = 90;
+    private const int KEYS_BOUNCE_SPRING_MS = 430;
     private EventHandler<Avalonia.Input.KeyEventArgs>? _windowKeys;
     private Window? _keyedWindow;
 
@@ -70,6 +84,10 @@ namespace MediaPortal.Frontend.Views
       InitializeComponent();
 
       BuildGrids();
+
+      // The marks at the left hand answer the five rows of the grids one under the other, so the walk can step
+      // off the left edge of a row onto the mark of that row.
+      _side = new Button[] { altGrButton, shiftButton, capsButton, copyButton, pasteButton };
 
       // The keys are a grid, so the arrow keys walk them like a grid. This package has no directional tab
       // navigation to ask for that - the mode does not exist - so the walk is done here, one row and one
@@ -114,7 +132,7 @@ namespace MediaPortal.Frontend.Views
         for (int r = 0; r < rows.Length; r++)
         {
           VirtualKeyboardKey[] keys = rows[r];
-          Grid rowGrid = new Grid { Margin = new Avalonia.Thickness(0, r == 0 ? 0 : 4, 0, 0) };
+          Grid rowGrid = new Grid { Margin = new Avalonia.Thickness(0, r == 0 ? 0 : 6, 0, 0), ColumnSpacing = 6 };
           if (r == rows.Length - 1)
           {
             // The reference's last row: a wide space and the done button beside it.
@@ -132,11 +150,11 @@ namespace MediaPortal.Frontend.Views
             VirtualKeyboardKey key = keys[c];
             Button button = new Button
             {
+              Classes = { "keyboard-key" },
               Content = key.Legend,
-              FontSize = 20,
-              MinHeight = 44,
-              MinWidth = key.Type == VirtualKeyType.Disabled ? 0 : 30,
-              Padding = new Avalonia.Thickness(2, 4),
+              FontSize = 26,
+              MinWidth = key.Type == VirtualKeyType.Disabled ? 0 : 40,
+              Padding = new Avalonia.Thickness(4, 6),
               HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
               HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
               IsEnabled = key.IsEnabled,
@@ -173,6 +191,17 @@ namespace MediaPortal.Frontend.Views
           && key != Avalonia.Input.Key.Left && key != Avalonia.Input.Key.Right)
         return;
 
+      Button? stood = FocusedKey();
+      if (stood == null)
+      {
+        // Arrows that arrive while the caret still stands in the field take the first key carrying a character,
+        // so that nobody is left pressing arrows against keys which do not answer.
+        Button? first = FirstUsableKey();
+        if (first != null && first.Focus())
+          args.Handled = true;
+        return;
+      }
+
       Grid? rows = null;
       foreach (Control child in gridArea.Children)
       {
@@ -181,6 +210,37 @@ namespace MediaPortal.Frontend.Views
           rows = grid;
           break;
         }
+      }
+
+      // The marks at the left hand belong to the keyboard and are not furniture beside it: they answer the very
+      // rows the grids have, five under five, so the walk steps off the left edge of a row onto the mark of that
+      // row and back.  Asked for, because with a keyboard no hand could reach them at all.
+      int side = SideIndexOf(stood);
+      if (side >= 0)
+      {
+        if (key == Avalonia.Input.Key.Right)
+        {
+          Button? into = rows == null ? null : FirstKeyInRow(rows, side);
+          if (into != null && into.Focus())
+            args.Handled = true;
+          else
+            Bounce(+1, 0);
+          return;
+        }
+
+        if (key == Avalonia.Input.Key.Left)
+        {
+          Bounce(-1, 0);
+          args.Handled = true;
+          return;
+        }
+
+        Button? mark = SideAt(side + (key == Avalonia.Input.Key.Up ? -1 : +1));
+        if (mark != null && mark.Focusable && mark.IsEnabled && mark.Focus())
+          args.Handled = true;
+        else
+          Bounce(0, key == Avalonia.Input.Key.Up ? -1 : +1);
+        return;
       }
 
       if (rows == null)
@@ -211,17 +271,153 @@ namespace MediaPortal.Frontend.Views
         if (!(rows.Children[fromRow] is Grid sameRow))
           return;
         target = NearestKey(sameRow, fromColumn, key == Avalonia.Input.Key.Left ? -1 : +1, false);
+        if (target == null)
+        {
+          // Off the edge of the keys: the left hand lands on the mark of this row, and where even that is gone -
+          // and at the right hand always - the whole keyboard leans into the edge and springs back, which is how
+          // this face says "here is the end" everywhere else.
+          Button? mark = key == Avalonia.Input.Key.Left ? SideAt(fromRow) : null;
+          if (mark != null && mark.Focusable && mark.IsEnabled && mark.Focus())
+            args.Handled = true;
+          else
+            Bounce(key == Avalonia.Input.Key.Left ? -1 : +1, 0);
+          return;
+        }
       }
       else
       {
         int toRow = fromRow + (key == Avalonia.Input.Key.Up ? -1 : +1);
         if (toRow < 0 || toRow >= rows.Children.Count || !(rows.Children[toRow] is Grid row))
+        {
+          Bounce(0, key == Avalonia.Input.Key.Up ? -1 : +1);
+          args.Handled = true;
           return;
+        }
         target = NearestKey(row, fromColumn, -1, true) ?? NearestKey(row, fromColumn, +1, true);
+        if (target == null)
+        {
+          Bounce(0, key == Avalonia.Input.Key.Up ? -1 : +1);
+          args.Handled = true;
+          return;
+        }
       }
 
-      if (target != null && target.Focus())
+      if (target.Focus())
         args.Handled = true;
+    }
+
+    /// <summary>The key of this keyboard the caret stands on, or none when it stands elsewhere.</summary>
+    private Button? FocusedKey()
+    {
+      foreach (Button tile in this.GetVisualDescendants().OfType<Button>())
+      {
+        if (tile.IsFocused)
+          return tile;
+      }
+
+      return null;
+    }
+
+    /// <summary>The left-hand mark of a row, counted from the head: Alt Gr, Shift, Caps Lock, Copy, Paste.</summary>
+    private Button? SideAt(int row)
+    {
+      return row >= 0 && row < _side.Length ? _side[row] : null;
+    }
+
+    /// <summary>Which row a left-hand mark answers, or -1 for a key of the grids.</summary>
+    private int SideIndexOf(Control? key)
+    {
+      for (int r = 0; r < _side.Length; r++)
+      {
+        if (ReferenceEquals(_side[r], key))
+          return r;
+      }
+
+      return -1;
+    }
+
+    /// <summary>The left-most key carrying a character in one row of the standing grid.</summary>
+    private static Button? FirstKeyInRow(Grid rows, int row)
+    {
+      if (row < 0 || row >= rows.Children.Count || !(rows.Children[row] is Grid rowGrid))
+        return null;
+
+      Button? best = null;
+      foreach (Control cell in rowGrid.Children)
+      {
+        if (cell is Button button && button.Focusable && button.IsEnabled
+            && (best == null || Grid.GetColumn(button) < Grid.GetColumn(best)))
+          best = button;
+      }
+
+      return best;
+    }
+
+    /// <summary>Whether the keys are leaning against an edge right now (asked by the tests).</summary>
+    internal bool KeysNodding => _bounceTimer != null && _bounceTimer.IsEnabled;
+
+    /// <summary>
+    /// Lean the whole keyboard toward an edge of the screen and spring it back - the volume dialog's nod
+    /// (VolumePicker.axaml.cs:213) and the rail's (MediaBrowserView), so an edge reads the same everywhere.
+    /// </summary>
+    /// <param name="directionX">+1 off the right edge, -1 off the left, 0 for a vertical nod.</param>
+    /// <param name="directionY">+1 off the bottom edge, -1 off the top, 0 for a sideways nod.</param>
+    private void Bounce(int directionX, int directionY)
+    {
+      // One lean at a time; a key pressed while the keys are still travelling starts a fresh one from wherever
+      // they stand, so a viewer leaning on the arrow sees the keyboard lean with every press.
+      _bounceTimer?.Stop();
+
+      Avalonia.Media.TranslateTransform nod = slab.RenderTransform as Avalonia.Media.TranslateTransform;
+      if (nod == null)
+      {
+        nod = new Avalonia.Media.TranslateTransform();
+        slab.RenderTransform = nod;
+      }
+
+      double diveX = directionX * KEYS_BOUNCE_DIVE;
+      double diveY = directionY * KEYS_BOUNCE_DIVE;
+      double fromX = nod.X;
+      double fromY = nod.Y;
+      long started = Environment.TickCount64;
+
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+      {
+        Interval = TimeSpan.FromMilliseconds(16)
+      };
+      _bounceTimer = timer;
+
+      timer.Tick += delegate
+      {
+        if (!ReferenceEquals(_bounceTimer, timer))
+          return; // a newer lean drives the keys from here on
+
+        long elapsed = Environment.TickCount64 - started;
+        if (elapsed >= KEYS_BOUNCE_DIVE_MS + KEYS_BOUNCE_SPRING_MS)
+        {
+          timer.Stop();
+          nod.X = 0;
+          nod.Y = 0;
+          return;
+        }
+
+        if (elapsed <= KEYS_BOUNCE_DIVE_MS)
+        {
+          double u = elapsed / (double)KEYS_BOUNCE_DIVE_MS;
+          double lean = 1 - (1 - u) * (1 - u);
+          nod.X = fromX + (diveX - fromX) * lean;
+          nod.Y = fromY + (diveY - fromY) * lean;
+          return;
+        }
+
+        double v = (elapsed - KEYS_BOUNCE_DIVE_MS) / (double)KEYS_BOUNCE_SPRING_MS;
+        const double c1 = 1.70158;
+        const double c3 = c1 + 1;
+        double back = 1 + c3 * Math.Pow(v - 1, 3) + c1 * Math.Pow(v - 1, 2);
+        nod.X = diveX * (1 - back);
+        nod.Y = diveY * (1 - back);
+      };
+      timer.Start();
     }
 
     /// <summary>
@@ -380,9 +576,27 @@ namespace MediaPortal.Frontend.Views
     {
       base.OnAttachedToVisualTree(args);
 
+      // The line above the keys shows what the field holds, so it has to follow the FIELD.  A press asks the
+      // model first, and the model redraws the line before the character has reached the field - the line then
+      // stood one press behind, and typing with a real keyboard did not move it at all.  Reading the field on
+      // its own change is the answer: whatever the field holds is what stands over the keys, at once.
+      if (_editor != null)
+      {
+        _followsField = delegate (object? sender, Avalonia.AvaloniaPropertyChangedEventArgs changed)
+        {
+          if (changed.Property == TextBox.TextProperty)
+            editText.Text = DisplayText();
+        };
+        _editor.PropertyChanged += _followsField;
+      }
+
       // Escape or back ends the edit wherever the focus inside the keyboard happens to stand - and, being a
       // tunnel handler on the window, before the shell hears it as a request to leave the screen.
-      _keyedWindow = args.Root as Window;
+      //
+      // Asked of the top level rather than of args.Root: Avalonia hands the root VISUAL there now, and the layer
+      // the keys hang in is not that visual - reading only args.Root left the keys without their handler, so the
+      // back key fell through to the screen and threw the viewer out of it instead of putting the keys away.
+      _keyedWindow = TopLevel.GetTopLevel(this) as Window ?? args.Root as Window;
       if (_keyedWindow != null)
       {
         _windowKeys = delegate (object? sender, Avalonia.Input.KeyEventArgs keys)
@@ -412,6 +626,11 @@ namespace MediaPortal.Frontend.Views
     protected override void OnDetachedFromVisualTree(Avalonia.VisualTreeAttachmentEventArgs args)
     {
       base.OnDetachedFromVisualTree(args);
+      if (_editor != null && _followsField != null)
+      {
+        _editor.PropertyChanged -= _followsField;
+        _followsField = null;
+      }
       if (_keyedWindow != null && _windowKeys != null)
       {
         _keyedWindow.RemoveHandler(KeyDownEvent, _windowKeys);

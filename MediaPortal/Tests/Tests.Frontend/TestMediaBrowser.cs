@@ -6987,6 +6987,143 @@ namespace Tests.Frontend
     }
 
     [AvaloniaTest]
+    public void TheWallAnswersUnderATypingHandAndLeavesTheCaretWhereItIs()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      ListBox titles = window.GetVisualDescendants().OfType<ListBox>()
+          .First(list => list.Name == "titlesList");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+
+      // The field, then the letters of a name written into it as a hand with a keyboard writes them.  The wall is
+      // expected to answer and to leave the caret exactly where the hand is standing: a caret that walks off the
+      // field with every letter takes the field away from the person still typing in it.
+      titles.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.F,
+        Source = titles
+      });
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+
+      box.Text = "alien";
+      WaitUntil("the matches to arrive", delegate { return browser.Titles.Count == 2; });
+      Pump();
+
+      Assert.That(box.IsFocused, Is.True,
+          "the wall answered the word without taking the caret out of the field it was typed in");
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.SameAs(box),
+          "and nothing else on the screen answered it either");
+      Assert.That(browser.Titles.Select(title => title.Name), Is.EqualTo(new[] { "Alien", "Alien Earth" }));
+      Assert.That(browser.Status, Does.Contain("alien"),
+          "the model knows what the wall was asked and what came of it");
+      Assert.That(window.GetVisualDescendants().OfType<TextBlock>()
+              .Any(line => (line.Text ?? "").Contains("alien", StringComparison.Ordinal)),
+          Is.False, "but the screen never paints that sentence over the wall - the wall is the answer");
+    }
+
+    [AvaloniaTest]
+    public void TheWallAnswersWhileTheHandIsStillTyping()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      // The field first, because a hand is only typing while the field stands.  Then the letters of a name come
+      // one by one with the rests a remote makes between them, and no Enter is pressed anywhere below: the wall
+      // is expected to answer once the hand has rested, which is what "live" means to a viewer.
+      browser.OpenSearch();
+
+      browser.SearchText = "a";
+      Pump();
+      Assert.That(browser.ActiveSearch, Is.Empty,
+          "a letter that is being followed by the next letter is not yet a question");
+
+      browser.SearchText = "ali";
+      Pump();
+      browser.SearchText = "alien";
+
+      WaitUntil("the matches to arrive by themselves", delegate { return browser.Titles.Count == 2; });
+
+      Assert.That(browser.ActiveSearch, Is.EqualTo("alien"),
+          "the word the wall was filtered by is the whole word, not a piece of it");
+      Assert.That(browser.Titles.Select(title => title.Name), Is.EqualTo(new[] { "Alien", "Alien Earth" }));
+    }
+
+    [AvaloniaTest]
+    public void TheWallAnswersAKeyPressedLetterWithoutWalkingTheCaretOntoTheWall()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      // The field, then the on-screen keys, which is how a word is spelled without a keyboard on the table.
+      // The keys take the caret with them - the reference's Show() ends that way - so from here on the caret
+      // stands among the keys while the word it writes lives in the field.
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      });
+      Pump();
+      Assert.That(keyButton.IsFocused, Is.True, "the caret stands on the keyboard button");
+      keyButton.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = keyButton
+      });
+      Pump();
+      WaitUntil("the caret among the keys", delegate
+      {
+        return (window.FocusManager.GetFocusedElement() as Visual)?.GetVisualAncestors()
+            .OfType<VirtualKeyboardView>().Any() == true;
+      });
+
+      // One letter pressed on the keys is one letter of the question, and the wall answers it by itself.  It is
+      // expected to answer without touching the caret: the hand that presses the next letter is still among the
+      // keys, and a caret set down on the first result mid-word stands the viewer on a title they never aimed
+      // at - which is also the title that OK would start.
+      VirtualKeyboardView keys = window.GetVisualDescendants().OfType<VirtualKeyboardView>().First();
+      Button letter = keys.GetVisualDescendants().OfType<Button>()
+          .First(tile => tile.IsEffectivelyVisible && tile.IsEnabled && (tile.Content as string) == "n");
+      int standing_before = browser.Titles.Count;
+      letter.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+      Pump();
+
+      WaitUntil("the wall to answer the pressed letter", delegate { return browser.Titles.Count < standing_before; });
+
+      // The rounds the wall needs after its answer: the layout pass that hands the recycled shells out, and the
+      // watching that asks for a caret the recycling left without a tile.  The jump was never in the answer
+      // itself, it was in what the screen did one round later.
+      DateTimeOffset until = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(700);
+      while (DateTimeOffset.UtcNow < until)
+        Pump();
+
+      Assert.That(browser.Titles.Select(title => title.Name),
+          Is.EqualTo(new[] { "Alien", "Alien Earth", "Nimmerland" }));
+      object? stood = window.FocusManager.GetFocusedElement();
+      Assert.That((stood as Visual)?.GetVisualAncestors().OfType<VirtualKeyboardView>().Any(), Is.True,
+          "the caret is still among the keys, where the next letter is pressed: it went to "
+          + (stood?.GetType().Name ?? "nothing"));
+      window.Close();
+    }
+
+    [AvaloniaTest]
     public void ClearingTheBoxBringsTheWholeShelfBack()
     {
       SearchServer server = new SearchServer();
@@ -7204,24 +7341,66 @@ namespace Tests.Frontend
       WaitUntil("the caret back in the field", delegate { return box.IsFocused; });
       box.CaretIndex = box.Text.Length;
 
-      // And above the field there is nothing: Up nods the plate and leaves the words exactly as they were, while
-      // Right is the plate's own edge once the caret stands behind the last letter.
-      foreach (Key edge in new[] { Key.Up, Key.Right })
+      // And above the field there is nothing: Up nods the plate and leaves the words exactly as they were.
+      KeyEventArgs above = new KeyEventArgs
       {
-        KeyEventArgs at_the_edge = new KeyEventArgs
-        {
-          RoutedEvent = InputElement.KeyDownEvent,
-          Key = edge,
-          Source = box
-        };
-        box.RaiseEvent(at_the_edge);
-        Pump();
-        Assert.That(at_the_edge.Handled, Is.True,
-            "the " + edge + " arrow at the field's edge is answered by the field itself, with a nod");
-        Assert.That(box.IsFocused, Is.True, "and the caret is not moved out of the words by it");
-        Assert.That(box.Text, Is.EqualTo("alien"), "nor is anything typed away by it");
-      }
-      Assert.That(window.IsVisible, Is.True, "the two arrows at the field's edges do not leave the shelf");
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Up,
+        Source = box
+      };
+      box.RaiseEvent(above);
+      Pump();
+      Assert.That(above.Handled, Is.True, "the Up arrow above the field is answered by the field itself, with a nod");
+      Assert.That(box.IsFocused, Is.True, "and the caret is not moved out of the words by it");
+      Assert.That(box.Text, Is.EqualTo("alien"), "nor is anything typed away by it");
+      Assert.That(window.IsVisible, Is.True, "the nod at the field's head does not leave the shelf");
+
+      // The head of the words is an edge of the same plate: the arrow that has no letter left of it leans the
+      // plate toward the magnifier and springs back, instead of the key falling through to the shell.
+      box.CaretIndex = 0;
+      KeyEventArgs before_the_first_letter = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Left,
+        Source = box
+      };
+      box.RaiseEvent(before_the_first_letter);
+      Pump();
+      Assert.That(before_the_first_letter.Handled, Is.True,
+          "the arrow before the first letter is answered by the plate itself, with a nod");
+      Assert.That(((MediaBrowserView) window.Screen).LastNodX, Is.LessThan(0.0),
+          "and the plate leans towards the magnifier, not away from it");
+      Assert.That(box.CaretIndex, Is.Zero, "the caret stays before the first letter");
+      Assert.That(box.Text, Is.EqualTo("alien"), "no letter is lost by the nod");
+      Assert.That(window.IsVisible, Is.True, "and the nod at the head of the words does not leave the shelf");
+
+      // With a letter standing left of the caret the same arrow is ordinary editing and stays with the field.
+      box.CaretIndex = 3;
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Left,
+        Source = box
+      });
+      Pump();
+      Assert.That(box.CaretIndex, Is.EqualTo(2),
+          "a caret with a letter left of it is still editing that letter, so the arrow walks instead of nodding");
+
+      // Right behind the last letter is no longer an edge: it walks onto the mark beside the plate, which since
+      // 2026-11-10 is the keyboard button to the on-screen keys and has to be reachable without a keyboard.
+      box.CaretIndex = box.Text.Length;
+      KeyEventArgs off_the_end = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      };
+      box.RaiseEvent(off_the_end);
+      Pump();
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      Assert.That(off_the_end.Handled, Is.True, "the arrow off the end of the words is answered here, not by the shell");
+      Assert.That(keyButton.IsFocused, Is.True, "and it stands the caret on the keyboard button of the on-screen keys");
+      Assert.That(box.Text, Is.EqualTo("alien"), "the walk moved the caret, it typed and deleted nothing");
       window.Close();
     }
 
@@ -7287,6 +7466,400 @@ namespace Tests.Frontend
       Assert.That(field.IsVisible, Is.False, "leaving the head line as empty as it was before the search");
       Assert.That(window.IsVisible, Is.True,
           "one press of the remote's back undid the search; the screen only goes on a press that finds nothing to undo");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The keyboard button to the on-screen keys for a hand that has no keyboard: a mark standing beside the field for exactly
+    /// as long as the field stands, opening the keys with a press and taking them away again with the next, and
+    /// wearing the picture that says which of the two a press will do.  Asked for by the viewer on 2026-11-10, who
+    /// could reach the field with the remote but had no way at all of writing into it - the reference opened its
+    /// keys from the editor's own menu key, which on this front end is a key no remote and no default keyboard
+    /// ever sends.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheKeyboardButtonStandsBesideTheFieldAndOpensAndClosesTheKeys()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+
+      // No field, no keyboard button: while nobody has asked for the search there is nothing to write into, and a mark
+      // promising keys would be a keyboard button cut into a wall with no room behind it.
+      Assert.That(keyButton.IsEffectivelyVisible, Is.False, "The keyboard button is away while the field is away");
+
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+
+      // The two pictures ride inside the mark, and a mark that has never stood on the screen has never been
+      // dressed - so they are looked up from the moment the field, and with it The keyButton, is really on it.
+      Control plain = keyButton.GetVisualDescendants().OfType<Control>().First(m => m.Name == "keyboardMark");
+      Control crossed = keyButton.GetVisualDescendants().OfType<Control>().First(m => m.Name == "keyboardOffMark");
+      Assert.That(keyButton.IsEffectivelyVisible, Is.True, "a field that is there to be typed in stands with its keyboard button");
+      Assert.That(keyButton.Focusable, Is.True,
+          "and a remote can walk onto it - a mark only a mouse could hit is no keyboard button for a viewer on the sofa");
+      Assert.That(plain.IsEffectivelyVisible, Is.True, "while the keys are away the mark promises them");
+      Assert.That(crossed.IsEffectivelyVisible, Is.False, "and does not claim that they are standing already");
+
+      // One press opens the keys for THIS field, and the mark changes to the picture of what its next press does.
+      keyButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, keyButton));
+      Pump();
+      Assert.That(window.KeyboardOpen, Is.True, "The keyboard button opens the keys on the screen");
+      Assert.That(box.IsEffectivelyVisible, Is.True, "while the keys stand, the field stays above them to write in");
+      Assert.That(plain.IsEffectivelyVisible, Is.False, "the promise is spent -");
+      Assert.That(crossed.IsEffectivelyVisible, Is.True, "- and the mark now shows the keys that are standing");
+
+      // The same keyboard button takes them away again, so nobody is shut in with them.
+      keyButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, keyButton));
+      Pump();
+      Assert.That(window.KeyboardOpen, Is.False, "the next press puts the keys away");
+      Assert.That(plain.IsEffectivelyVisible, Is.True, "and the mark promises them again");
+      Assert.That(crossed.IsEffectivelyVisible, Is.False, "on a bench that stands empty");
+      Assert.That(box.IsFocused, Is.True, "into the field the hand was already holding");
+
+      // The keys can also be taken away from somewhere else - their own Done mark, the back key, a walk to the
+      // next screen - and the mark has to follow, because a mark still promising keys that have gone is a keyButton
+      // painted on the wall.
+      keyButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, keyButton));
+      Pump();
+      Assert.That(window.KeyboardOpen, Is.True, "the third press brought the keys back");
+      window.CloseVirtualKeyboard();
+      Pump();
+      Assert.That(plain.IsEffectivelyVisible, Is.True, "and the mark followed them away without anyone touching it");
+      Assert.That(crossed.IsEffectivelyVisible, Is.False, "although the last press had promised the other picture");
+
+      // And the keyboard button goes with the field it belongs to.
+      browser.CloseSearchCommand.Execute(null);
+      Pump();
+      Assert.That(keyButton.IsEffectivelyVisible, Is.False, "no field, no keyboard button");
+      window.Close();
+    }
+
+    /// <summary>
+    /// The road to that keyboard button for a caret, and the order the back key undoes things in: the arrow off the end of
+    /// the words walks onto the keyboard button and the arrow back walks into the words, an arrow inside a word still belongs
+    /// to the hand that is editing it, and while the keys stand the first back is theirs - the field and its words
+    /// only go on the press after them.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheCaretWalksOntoTheKeyboardButtonAndTheBackKeyTakesTheKeysAwayFirst()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      box.Text = "alien";
+      box.CaretIndex = 2;
+
+      // A caret in the middle of a word is editing that word: the arrow is the hand's, not the keyboard button's.
+      KeyEventArgs inside_the_word = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      };
+      box.RaiseEvent(inside_the_word);
+      Pump();
+      Assert.That(box.CaretIndex, Is.EqualTo(3), "right in the middle of a word moves the caret one letter");
+      Assert.That(keyButton.IsFocused, Is.False, "and does not leave the field for the keyboard button");
+
+      // Behind the last letter the same arrow has nothing left to edit, and walks onto The keyButton.
+      box.CaretIndex = box.Text.Length;
+      KeyEventArgs off_the_end = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      };
+      box.RaiseEvent(off_the_end);
+      Pump();
+      Assert.That(off_the_end.Handled, Is.True, "the arrow off the end of the words is answered here, not by the shell");
+      Assert.That(keyButton.IsFocused, Is.True, "and the caret stands on the keyboard button of the on-screen keys");
+      Assert.That(box.Text, Is.EqualTo("alien"), "the walk typed and deleted nothing");
+
+      // Which way back is the way it came.
+      KeyEventArgs back_into_the_words = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Left,
+        Source = keyButton
+      };
+      keyButton.RaiseEvent(back_into_the_words);
+      Pump();
+      Assert.That(back_into_the_words.Handled, Is.True, "The keyboard button answers the arrow that came to it");
+      Assert.That(box.IsFocused, Is.True, "by handing the caret back to the field beside it");
+
+      // And the keyboard button is the right end of the bench: the arrow that has nothing beyond it is answered with a nod,
+      // the same answer the plate gives above its own head, and not with leaving the shelf.
+      box.CaretIndex = box.Text.Length;
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      });
+      Pump();
+      Assert.That(keyButton.IsFocused, Is.True, "the caret is back on the keyboard button for the edge to be tested");
+      KeyEventArgs past_the_button = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = keyButton
+      };
+      keyButton.RaiseEvent(past_the_button);
+      Pump();
+      Assert.That(past_the_button.Handled, Is.True, "the arrow past the keyboard button is answered by the keyboard button itself");
+      Assert.That(keyButton.IsFocused, Is.True, "the caret stays on the mark and only the row nods");
+      Assert.That(window.IsVisible, Is.True, "and the viewer is not thrown out of the shelf by an arrow");
+
+      // With the keys standing, the first back belongs to THEM - the viewer who reaches for the remote's back
+      // means "away with the newest thing on the screen", and the newest thing is the pair of keys.  The field
+      // and the words in it survive that press, and go on the next one.
+      keyButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, keyButton));
+      Pump();
+      Assert.That(window.KeyboardOpen, Is.True, "the keys stand for the back key to find");
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Back,
+        Source = box
+      });
+      Pump();
+      Assert.That(window.KeyboardOpen, Is.False, "the first back is the keys' - it puts them away");
+      Assert.That(browser.SearchOpen, Is.True, "while the field and its words are left standing");
+      Assert.That(browser.SearchText, Is.EqualTo("alien"), "and nothing was deleted out of the field by it");
+
+      box.Focus();
+      Pump();
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Back,
+        Source = box
+      });
+      Pump();
+      Assert.That(browser.SearchOpen, Is.False, "the press after them takes the field away");
+      Assert.That(window.IsVisible, Is.True, "and still does not leave the shelf");
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void OkOnTheKeyboardButtonOpensTheKeysAndNeverPlaysTheRow()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      TitleViewModel? played = null;
+      browser.PlayRequested += delegate (object? sender, TitleViewModel row) { played = row; };
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      box.Text = "alien";
+      box.CaretIndex = box.Text.Length;
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      });
+      Pump();
+      Assert.That(keyButton.IsFocused, Is.True, "the caret stands on the keyboard button");
+
+      // OK belongs to the thing the caret stands on.  Under the mark the very same key is "play this" - the
+      // screen is a wall of things to watch - so a viewer who pointed right off their own word onto the mark and
+      // pressed OK got a film started instead of the keys they were reaching for.
+      KeyEventArgs ok = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = keyButton
+      };
+      keyButton.RaiseEvent(ok);
+      Pump();
+      Assert.That(ok.Handled, Is.True, "the keyboard button answers OK");
+      Assert.That(window.KeyboardOpen, Is.True, "by putting the keys on the screen");
+      Assert.That(played, Is.Null, "and never by playing the row underneath it");
+      Assert.That(browser.SearchOpen, Is.True, "the search stays where it was");
+      Assert.That(box.Text, Is.EqualTo("alien"), "and the word the viewer had typed is untouched");
+
+      // The keys take the caret with them, which is what the reference's Show() does and what makes the first
+      // arrow press land among the letters.  The mark is not asked for a second press; the way out of standing
+      // keys is their own back key and their Done mark.
+      WaitUntil("the caret among the keys", delegate
+      {
+        return (window.FocusManager.GetFocusedElement() as Visual)?.GetVisualAncestors()
+            .OfType<VirtualKeyboardView>().Any() == true;
+      });
+      Assert.That(keyButton.IsFocused, Is.False, "the caret walked off the mark and into the keys");
+      Assert.That(played, Is.Null, "and nothing was played on the way");
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void TheLineAboveTheKeysKeepsUpWithTheField()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      box.Text = "x";
+      box.CaretIndex = box.Text.Length;
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      });
+      Pump();
+      Assert.That(keyButton.IsFocused, Is.True, "the caret stands on the keyboard button");
+      keyButton.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = keyButton
+      });
+      Pump();
+      WaitUntil("the caret among the keys", delegate
+      {
+        return (window.FocusManager.GetFocusedElement() as Visual)?.GetVisualAncestors()
+            .OfType<VirtualKeyboardView>().Any() == true;
+      });
+
+      VirtualKeyboardView keys = window.GetVisualDescendants().OfType<VirtualKeyboardView>().First();
+      TextBox line = keys.GetVisualDescendants().OfType<TextBox>().First(part => part.Name == "editText");
+      Assert.That(line.Text, Is.EqualTo(box.Text), "the line above the keys starts with what the field holds");
+
+      // Asked for because the field was right and the line was not: the press was answered by the model first,
+      // which redrew the line BEFORE the character had reached the field, so the line showed the word as it was
+      // before the last key.  A viewer who cannot see their own last letter believes the keys are deaf.
+      List<Button> letters = keys.GetVisualDescendants().OfType<Button>()
+          .Where(tile => tile.IsEffectivelyVisible && tile.IsEnabled
+              && (tile.Content as string)?.Length == 1
+              && char.IsLetter(((string) tile.Content!)[0]))
+          .ToList();
+      Assert.That(letters.Count, Is.GreaterThanOrEqualTo(2), "the standing grid has letters to press");
+      foreach (Button tile in letters.Take(2))
+      {
+        string legend = (string) tile.Content!;
+        tile.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+        Pump();
+        Assert.That(box.Text, Does.EndWith(legend), "pressing " + legend + " reaches the field");
+        Assert.That(line.Text, Is.EqualTo(box.Text),
+            "and the line above the keys holds the same word at once, not the one before the press");
+      }
+
+      window.Close();
+    }
+
+    [AvaloniaTest]
+    public void TheMarksAtTheLeftHandAreWalkableAndAnEdgeNods()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      box.Text = "x";
+      box.CaretIndex = box.Text.Length;
+      box.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Right, Source = box });
+      Pump();
+      keyButton.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Enter, Source = keyButton });
+      Pump();
+      WaitUntil("the caret among the keys", delegate
+      {
+        return (window.FocusManager.GetFocusedElement() as Visual)?.GetVisualAncestors()
+            .OfType<VirtualKeyboardView>().Any() == true;
+      });
+
+      VirtualKeyboardView keys = window.GetVisualDescendants().OfType<VirtualKeyboardView>().First();
+      string[] marks = new string[] { "altGrButton", "shiftButton", "capsButton", "copyButton", "pasteButton" };
+      Grid rows = keys.GetVisualDescendants().OfType<Grid>().First(grid =>
+          grid.IsVisible && grid.Children.Count == 5 && grid.Children.All(row => row is Grid));
+      Button edge = ((Grid) rows.Children[1]).Children.OfType<Button>()
+          .Where(tile => tile.IsEnabled && tile.Focusable)
+          .OrderBy(tile => Grid.GetColumn(tile)).First();
+
+      Button? Stood()
+      {
+        return keys.GetVisualDescendants().OfType<Button>().FirstOrDefault(tile => tile.IsFocused);
+      }
+
+      void Press(Button on, Avalonia.Input.Key key)
+      {
+        on.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = key, Source = on });
+        Pump();
+      }
+
+      // The marks at the left hand belong to the keyboard.  Asked for because the walk only ever searched the
+      // grids, so Alt Gr, Shift, Caps Lock, Copy and Paste could not be reached with a keyboard at all.
+      edge.Focus();
+      Pump();
+      Press(edge, Key.Left);
+      Button? stood = Stood();
+      Assert.That(stood, Is.Not.Null, "the left edge of a row went somewhere");
+      Assert.That(marks, Does.Contain(stood!.Name), "and onto the mark of that very row");
+
+      Press(stood, Key.Down);
+      stood = Stood();
+      Assert.That(stood!.Name, Is.EqualTo("capsButton"), "up and down walk the marks themselves");
+
+      Press(stood, Key.Right);
+      stood = Stood();
+      Assert.That(marks, Does.Not.Contain(stood!.Name), "and the right hand step goes back into the keys");
+
+      // An edge that cannot be crossed is answered by the nod this face gives everywhere else (the rail, the
+      // volume dialog), so that "here is the end" reads the same on the keys as on the wall.
+      Press(stood, Key.Left);
+      stood = Stood();
+      Assert.That(marks, Does.Contain(stood!.Name), "back onto the mark");
+      Press(stood, Key.Left);
+      Assert.That(keys.KeysNodding, Is.True, "off the left hand, past the marks, the keys nod");
+
+      Button rightEdge = ((Grid) rows.Children[rows.Children.Count - 1]).Children.OfType<Button>()
+          .OrderByDescending(tile => Grid.GetColumn(tile)).First();
+      rightEdge.Focus();
+      Pump();
+      Press(rightEdge, Key.Right);
+      Assert.That(keys.KeysNodding, Is.True, "and off the right hand they nod as well");
+
+      Button last = ((Grid) rows.Children[rows.Children.Count - 1]).Children.OfType<Button>()
+          .OrderByDescending(tile => Grid.GetColumn(tile)).First();
+      last.Focus();
+      Pump();
+      Press(last, Key.Down);
+      Assert.That(keys.KeysNodding, Is.True, "and at the foot of the keys");
+
       window.Close();
     }
 
