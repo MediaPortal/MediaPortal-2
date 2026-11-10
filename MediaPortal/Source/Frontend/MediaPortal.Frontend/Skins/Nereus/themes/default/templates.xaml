@@ -597,24 +597,24 @@
       <Grid Classes="nereus-row-focus" ColumnDefinitions="Auto,1*" ColumnSpacing="20" MinWidth="700"
             MinHeight="89" Margin="15,4,30,4">
         <Panel IsVisible="{Binding HasArtwork}">
-          <!-- The frame follows what the row is: a film, series or season row wears the wall posters' own
-               163:250 portrait shrunk to the row's height (58 across), and a record or a track wears its cover
-               at THE SAME HEIGHT (89), so both frames leave the same room above and below - the viewer's word
-               on 2026-11-05, after a square shrunk to the two lines of text next to it (62) sat too small in
-               the same row.  What is variable is the WIDTH: the frame holds the height and lets the picture
-               say how wide it is, which is what a cover is (the reference drew AUDIO_COVER 260x260, a square,
-               through MediaConsts.xaml:57f) while a poster is a portrait.  The picture is therefore drawn whole
-               rather than cropped: a picture that is wider than it is tall makes a wider frame, not a cut.
-               Both frames clip to five-point corners, the way the wall's tile faces clip their progress lines
-               (HomeView.axaml:829-843). The picture is the row's own bytes (MediaBrowserViewModel.PaintRow),
-               so the stood row costs no second fetch. -->
+          <!-- The frame follows what the row is: a film or series row wears the wall posters' own 163:250
+               portrait shrunk to the row's height (58 across), and a record, a track or an episode wears the
+               picture the import made for it at THE SAME HEIGHT (89), so every frame leaves the same room above
+               and below - the viewer's word on 2026-11-05, after a square shrunk to the two lines of text next
+               to it (62) sat too small in the same row.  What is variable is the WIDTH: the frame holds the
+               height and lets the picture say how wide it is, which is what a cover and a thumbnail are (the
+               reference drew AUDIO_COVER 260x260 and THUMBNAIL 275x168 through MediaConsts.xaml:57f) while a
+               poster is a portrait.  The picture is therefore drawn whole rather than cropped: a picture that is
+               wider than it is tall makes a wider frame, not a cut.  Both frames clip to five-point corners, the
+               way the wall's tile faces clip their progress lines (HomeView.axaml:829-843). The picture is the
+               row's own bytes (MediaBrowserViewModel.PaintRow), so the stood row costs no second fetch. -->
           <Border Classes="nereus-row-poster" Width="58" Height="89" CornerRadius="5" ClipToBounds="True"
-                  IsVisible="{Binding !WearsCover}">
+                  IsVisible="{Binding !WearsOwnPicture}">
             <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
                                     ConverterParameter='tile'}" Stretch="UniformToFill"/>
           </Border>
           <Border Classes="nereus-row-cover" Height="89" CornerRadius="5" ClipToBounds="True"
-                  IsVisible="{Binding WearsCover}">
+                  IsVisible="{Binding WearsOwnPicture}">
             <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance},
                                     ConverterParameter='tile'}" Stretch="Uniform"/>
           </Border>

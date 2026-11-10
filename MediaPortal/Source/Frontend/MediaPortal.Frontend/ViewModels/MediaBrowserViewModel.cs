@@ -116,7 +116,21 @@ namespace MediaPortal.Frontend.ViewModels
     /// <see cref="TrackNameOnly"/> falls back to the number alone wherever the two words disagree.  That is how the
     /// panel's heading has always read a tune's name, and a song on a whole shelf is cut by the same reading.
     /// </remarks>
-    internal string? InsideName { get; set; }
+    internal string? InsideName
+    {
+      get { return _insideName; }
+      set
+      {
+        if (_insideName == value)
+          return;
+        _insideName = value;
+        // The name of the row above is what turns a season's or an episode's title into the series they belong
+        // to, and what lets an episode be numbered by its number alone, so the row is read again as a whole.
+        Raise();
+      }
+    }
+
+    string? _insideName;
 
     /// <summary>
     /// The title this row's own answers have to be asked of: its details, its pictures, and the shelf inside it.
@@ -397,6 +411,8 @@ namespace MediaPortal.Frontend.ViewModels
         string named = string.IsNullOrWhiteSpace(Title.Title) ? "Untitled" : Title.Title!.Trim();
         if (MediaCatalog.IsMusic(ReadThrough) && Title.Track is int number)
           named = TrackNameOnly(named, YearlessName(InsideName ?? ""), number);
+        if (MediaCatalog.IsEpisode(ReadThrough))
+          named = EpisodeNameOnly(named, SeriesName);
         return named;
       }
     }
@@ -487,6 +503,72 @@ namespace MediaPortal.Frontend.ViewModels
 
       string bare = place + " - ";
       return name.StartsWith(bare, StringComparison.Ordinal) ? name.Substring(bare.Length).Trim() : "";
+    }
+
+    /// <summary>
+    /// The episode's own name, taken out of the heading the importer wrote over it.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>What the library holds.</b> An episode's title column carries the whole sentence
+    /// <c>EpisodeInfo.EPISODE_FORMAT_STR</c> "{0} S{1}E{2} - {3}" (EpisodeInfo.cs:67) - the series, the numbers and
+    /// the name - which is a name written for a wall holding every episode the house has and needing to say whose
+    /// it is in every row.  The bare name exists too (<c>EpisodeAspect.ATTR_EPISODE_NAME</c>, EpisodeAspect.cs:75)
+    /// and the screen beside the list reads it, but the title list does not hand it over, so a row has to take the
+    /// heading apart.  Same reason and same reading as <see cref="TrackNameOnly"/> for a tune.
+    /// </para>
+    /// <para>
+    /// <b>Why this is an un-formatting and not a hunt for a dash.</b> The word in front of the separator is only
+    /// believed when it ends on episode numbers - one word of the shape <c>S01E04</c>, or two when one file holds
+    /// two episodes and the importer wrote both ("Prison Break - S04E23 S04E24 - ...") - and when what stands in
+    /// front of those numbers is the series this row belongs to, which the shelf knows from the row above it.  An
+    /// episode whose title was never spelled that way, or one whose series the shelf does not know, walks through
+    /// with the name it was given.
+    /// </para>
+    /// </remarks>
+    internal static string EpisodeNameOnly(string name, string series)
+    {
+      if (string.IsNullOrWhiteSpace(name))
+        return name;
+
+      int mark = name.LastIndexOf(" - ", StringComparison.Ordinal);
+      if (mark <= 0)
+        return name;
+
+      string[] heading = name.Substring(0, mark).Trim().Split(' ');
+      int counted = 0;
+      for (int at = heading.Length - 1; at >= 0 && IsEpisodeMark(heading[at]); at--)
+        counted++;
+      if (counted == 0)
+        return name;
+
+      string before = string.Join(" ", heading, 0, heading.Length - counted).Trim(' ', '-', ':');
+      string known = series.Trim(' ', '-', ':');
+      if (known.Length > 0 && !string.Equals(before, known, StringComparison.Ordinal))
+        return name;
+
+      string own = name.Substring(mark + 3).Trim();
+      return own.Length == 0 ? name : own;
+    }
+
+    /// <summary>
+    /// Whether a word is one of the importer's episode numbers: <c>S01E04</c>, and nothing else.
+    /// </summary>
+    private static bool IsEpisodeMark(string word)
+    {
+      if (word.Length < 5 || (word[0] != 'S' && word[0] != 's'))
+        return false;
+
+      int at = 1;
+      while (at < word.Length && char.IsDigit(word[at]))
+        at++;
+      if (at < 2 || at >= word.Length || (word[at] != 'E' && word[at] != 'e'))
+        return false;
+
+      int end = at + 1;
+      while (end < word.Length && char.IsDigit(word[end]))
+        end++;
+      return end > at + 1 && end == word.Length;
     }
 
     /// <summary>The name a viewer scans for, with the article moved to the back - what the server sorted by.</summary>
@@ -690,6 +772,71 @@ namespace MediaPortal.Frontend.ViewModels
       get { return Title.Resume.HasValue ? Title.Resume.Value + "% watched" : ""; }
     }
 
+    /// <summary>
+    /// The series a season or an episode row belongs to, for the second line of the row.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Neither kind of row carries the series' name of its own: a season is titled after the show
+    /// ("Alien: Earth (2025) S01") and an episode after the show as well ("Alien: Earth S01E04 - Beobachtung",
+    /// EpisodeInfo.EPISODE_FORMAT_STR:67), so the name has to be read back out of a sentence the importer wrote.
+    /// A row never does that to its own name, where an importer spells a series however its tagger had it; it
+    /// reads the name of the row it stands under, which for a season is the series' own row.
+    /// </para>
+    /// <para>
+    /// An episode row stands under a season rather than under a series, and that row's name carries the season's
+    /// number on its end as well as the series' name with its year behind it.  Both are taken off, the number
+    /// first, because <see cref="YearlessName"/> only reads a year standing at the end of a word.  A shelf of
+    /// episodes that was opened at nothing - a wall of every episode the house holds - answers nothing, because
+    /// there is no name above the row to read.
+    /// </para>
+    /// </remarks>
+    string SeriesName
+    {
+      get
+      {
+        string holding = (InsideName ?? "").Trim();
+        if (MediaCatalog.IsEpisode(ReadThrough) && Title.Season.HasValue)
+        {
+          string mark = " S" + Title.Season.Value.ToString("00", CultureInfo.InvariantCulture);
+          if (holding.EndsWith(mark, StringComparison.Ordinal))
+            holding = holding.Substring(0, holding.Length - mark.Length);
+        }
+        return YearlessName(holding).Trim();
+      }
+    }
+
+    /// <summary>
+    /// The number this row stands at inside the thing above it, spelled as the plain number of it: <c>4</c> for
+    /// the fourth episode.  Empty for every other kind of row and for an episode nobody numbered.
+    /// </summary>
+    /// <remarks>
+    /// Inside one season the number is the whole address a viewer needs - the season is the screen they came
+    /// from, and it says its own number, so writing it again in every row of it buries the one figure that
+    /// changes from row to row.  <see cref="Position"/> still spells the season in front of it for the episodes
+    /// of a wall that mixes every show of the house, where nothing above the row says which show this is.
+    /// </remarks>
+    public string EpisodeNumber
+    {
+      get
+      {
+        if (!MediaCatalog.IsEpisode(ReadThrough))
+          return "";
+        return Title.Episode.HasValue
+            ? Title.Episode.Value.ToString(CultureInfo.InvariantCulture)
+            : "";
+      }
+    }
+
+    /// <summary>
+    /// Whether this row of episodes stands under the season it belongs to, which is what lets it be numbered by
+    /// its number alone.  A row knows that from the name of the row above it (see <see cref="InsideName"/>).
+    /// </summary>
+    bool StandsInsideItsSeason
+    {
+      get { return MediaCatalog.IsEpisode(ReadThrough) && !string.IsNullOrWhiteSpace(InsideName); }
+    }
+
     /// <summary>What the left column of the row says: where it sits in what holds it, then the name, then the year.</summary>
     /// <remarks>
     /// <para>
@@ -748,11 +895,28 @@ namespace MediaPortal.Frontend.ViewModels
     {
       get
       {
-        string what = Title.Year.HasValue
+        string what = Title.Year.HasValue && !SaysItsShow
             ? NameWithoutYear + " \u00B7 " + Title.Year.Value.ToString(CultureInfo.InvariantCulture)
             : NameWithoutYear;
         string where = Position;
         return string.IsNullOrEmpty(where) ? what : where + " " + what;
+      }
+    }
+
+    /// <summary>
+    /// Whether the row is one of a show, which does not repeat its year on the stood-on line.
+    /// </summary>
+    /// <remarks>
+    /// The year of an episode is the year its episode was shown, and the year of a season is the year the season
+    /// ran - both are said better by the show they belong to, and the second line of these rows is spent on that
+    /// show.  A film stands for its year, so it keeps the year.
+    /// </remarks>
+    bool SaysItsShow
+    {
+      get
+      {
+        return MediaCatalog.IsSeries(ReadThrough) || MediaCatalog.IsSeason(ReadThrough)
+            || MediaCatalog.IsEpisode(ReadThrough);
       }
     }
 
@@ -781,12 +945,34 @@ namespace MediaPortal.Frontend.ViewModels
     /// What the stood-on row's second line says. For music it is who made the thing: an album answers with the
     /// record's album artist and a track with the voice on that track, which the server keeps in the same cell of
     /// each row because for a record that cell holds the album artist (measured: every one of this library's 43
-    /// albums answers its artist, "Wasting Light (2011)" answers "Foo Fighters"). For everything else it is the
-    /// kinds the importer wrote, which is what a film is sorted by and what no song is.
+    /// albums answers its artist, "Wasting Light (2011)" answers "Foo Fighters").  For a season and an episode it
+    /// is the show they belong to, which is the one thing a row of a show never carries of its own.  For
+    /// everything else it is the kinds the importer wrote, which is what a film is sorted by and what no song is.
     /// </summary>
     public string SecondLine
     {
-      get { return MediaCatalog.IsMusic(ReadThrough) ? Artist.Trim() : GenresLine; }
+      get
+      {
+        if (MediaCatalog.IsMusic(ReadThrough))
+          return Artist.Trim();
+
+        // A season's name is the series' name with the season's number written on it, so what is new under a
+        // season row is the series; an episode's row carries its show's number on its first line but nothing that
+        // says which season it stands in, so it says that behind the show's name.
+        if (MediaCatalog.IsSeason(ReadThrough))
+          return SeriesName;
+        if (MediaCatalog.IsEpisode(ReadThrough))
+        {
+          string show = SeriesName;
+          if (show.Length == 0)
+            return GenresLine;
+          return Title.Season.HasValue
+              ? show + " \u00B7 Season " + Title.Season.Value.ToString(CultureInfo.InvariantCulture)
+              : show;
+        }
+
+        return GenresLine;
+      }
     }
 
     /// <summary>Whether the stood-on row has a second line to say at all.</summary>
@@ -796,13 +982,15 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     /// <summary>
-    /// Whether this row's picture is a cover rather than a poster: a record and a track wear the album's
-    /// square, which is the one front picture the import files for music (see <c>MediaCatalog.IsMusic</c>).
-    /// The stood-on row answers this with its frame; the film, series and episode rows keep the poster's.
+    /// Whether this row's picture keeps its own shape instead of being cropped into the posters' portrait. A
+    /// record and a track wear the album's square, which is the one front picture the audio import files (see
+    /// <c>MediaCatalog.IsMusic</c>); an episode wears the thumbnail the video import took out of its file, which
+    /// is a wide picture and the only one a single episode has. Both are drawn at the row's height with whatever
+    /// width the picture brings; the film and series rows keep the poster's fixed portrait.
     /// </summary>
-    public bool WearsCover
+    public bool WearsOwnPicture
     {
-      get { return MediaCatalog.IsMusic(ReadThrough); }
+      get { return MediaCatalog.IsMusic(ReadThrough) || MediaCatalog.IsEpisode(ReadThrough); }
     }
 
     /// <summary>
@@ -829,6 +1017,11 @@ namespace MediaPortal.Frontend.ViewModels
         if (!Title.Season.HasValue && !Title.Episode.HasValue)
           return "";
 
+        // Under its own season an episode is told apart by its number alone; on a wall that mixes the episodes
+        // of every show in the house the season has to be spelled out in front of it.
+        if (StandsInsideItsSeason)
+          return EpisodeNumber + " \u00B7";
+
         string season = Title.Season.HasValue
             ? "S" + Title.Season.Value.ToString("00", CultureInfo.InvariantCulture)
             : "";
@@ -841,6 +1034,9 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>
     /// The right column: how long it is, how many things are on it, and what is wrong with it if something is.
+    /// An episode that the list could not time says the length its own screen read (see
+    /// <see cref="ReadLengthFromItsAnswer"/>), so the column of the row the viewer stands on agrees with that
+    /// screen.
     /// </summary>
     /// <remarks>
     /// A title that holds others is counted rather than timed. Saying "not playable here" about an album would be
@@ -862,14 +1058,48 @@ namespace MediaPortal.Frontend.ViewModels
 
         if (!Playable)
           return "not playable here";
-        string length = Title.RuntimeMinutes.HasValue
-            ? Title.RuntimeMinutes.Value + " min"
+        int? minutes = Title.RuntimeMinutes ?? _readLength;
+        string length = minutes.HasValue
+            ? minutes.Value + " min"
             : "";
         if (Title.Stub)
           return string.IsNullOrEmpty(length) ? "stub" : length + " · stub";
         return length;
       }
     }
+
+    /// <summary>
+    /// Tells an episode row how long it is, out of the answers this title's own screen read.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The list cannot say how long an episode is, because the library does not know: an episode's aspect has no
+    /// runtime attribute at all (<c>EpisodeAspect.cs:42-99</c>), an episode is not a film aspect either (measured
+    /// on a running server: none of its 88 episode rows answers a length), and the importer that read the number
+    /// off the metadata file put it into the stub and not into the record
+    /// (<c>NfoSeriesEpisodeReader.cs:593-625</c>, where the film reader writes
+    /// <c>MovieAspect.ATTR_RUNTIME_M</c> at <c>NfoMovieReader.cs:1749-1757</c>).
+    /// </para>
+    /// <para>
+    /// The screen beside the list shows a length for the same episode all the same, because asking about ONE title
+    /// makes the server read the file describing the media (<c>MediaController.FillMissingDetailsFromFiles</c>,
+    /// reached as <c>details.RuntimeMinutes</c>).  That answer is already in hand when the row is standing under
+    /// the viewer's caret, so the row takes it: the right column then says the same number as the screen next to
+    /// it instead of nothing.  A row that the list already answered a length for is left alone, and so is every
+    /// kind of row but this one.
+    /// </para>
+    /// </remarks>
+    internal void ReadLengthFromItsAnswer(int? minutes)
+    {
+      if (!MediaCatalog.IsEpisode(ReadThrough) || !minutes.HasValue
+          || Title.RuntimeMinutes.HasValue || _readLength.HasValue)
+        return;
+
+      _readLength = minutes;
+      Raise();
+    }
+
+    int? _readLength;
 
     /// <summary>
     /// Who made this, for the music that says so, and nothing for the media that does not. A second line rather
@@ -4676,6 +4906,9 @@ namespace MediaPortal.Frontend.ViewModels
               ? hours + " h " + (minutes.Value % 60) + " min"
               : minutes.Value + " min";
           AddFact(isSeason || IsMusic ? "Length" : "Runtime", length);
+
+          // The row's own right column is told the same number, which is the only way an episode ever gets one.
+          title.ReadLengthFromItsAnswer(minutes);
         }
       }
 

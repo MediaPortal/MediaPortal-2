@@ -8196,8 +8196,13 @@ namespace Tests.Frontend
             + "contents from the tile it was opened from would read one series' seasons twice and never reach an "
             + "episode, however often the viewer pressed OK");
         Assert.That(episodes.SortOrder, Is.EqualTo("episode"));
-        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S01E02 Low Tide"),
-            "an episode is addressed, and stays addressed however many levels it took to reach it");
+        Assert.That(episodes.Titles[0].Line, Is.EqualTo("2 · Low Tide"),
+            "under its season an episode is numbered rather than addressed: the season is the screen the viewer "
+            + "came from and says its own number, so the row adds nothing but the figure that tells one episode "
+            + "from the next");
+        Assert.That(episodes.Titles[0].SecondLine, Is.EqualTo("Bones · Season 1"),
+            "and the show with its season - the one pair of words a row of a show never carries in its name - "
+            + "stands on the second line, which is where the season went when the number left the first");
         Assert.That(episodes.DrillsIn, Is.False, "an episode is watched; the way down ends here");
       }
     }
@@ -8279,8 +8284,9 @@ namespace Tests.Frontend
             + "through has no name of its own to add");
         Assert.That(episodes.SortOrder, Is.EqualTo("episode"),
             "in the order the episodes were made, which is the order the season would have handed them in");
-        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S01E02 Low Tide"),
-            "an episode is addressed, and stays addressed whether a season screen stood in front of it or not");
+        Assert.That(episodes.Titles[0].Line, Is.EqualTo("2 · Low Tide"),
+            "an episode is numbered, and stays numbered whether a season screen stood in front of it or not - the "
+            + "shelf belongs to one season either way, and that season is the screen the viewer came through");
         Assert.That(episodes.DrillsIn, Is.False, "an episode is watched; the way down ends here");
         Assert.That(episodes.Status, Does.Contain("episodes"),
             "counted with the word for what the screen holds, not with the word for the tile it came from");
@@ -8296,8 +8302,9 @@ namespace Tests.Frontend
         Assert.That(server.Inside, Is.EqualTo(bones.AskId.ToString("D")),
             "a counted season has no id of its own, so its episodes are asked of the series");
         Assert.That(server.Season, Is.EqualTo("2"), "and narrowed to the number the season was counted as");
-        Assert.That(counted.Titles[0].Line, Is.EqualTo("S02E02 Low Tide"),
-            "the shelf the server answered, which is the number the row carried");
+        Assert.That(counted.Titles[0].Line, Is.EqualTo("2 · Low Tide"),
+            "the shelf the server answered, which is the number the row carried, with the episode inside it "
+            + "numbered plainly the way a season's own episodes are");
       }
     }
 
@@ -8342,9 +8349,12 @@ namespace Tests.Frontend
         Assert.That(server.Season, Is.EqualTo("2"),
             "and it says which number it means, or the row of season two opens the whole series' episodes and the "
             + "level the viewer pressed into is gone again");
-        Assert.That(episodes.Titles[0].Line, Is.EqualTo("S02E02 Low Tide"),
-            "the row shows what the narrowed question brought back, so a viewer who pressed season two and got "
-            + "season one's episodes can see it");
+        Assert.That(episodes.Titles[0].Line, Is.EqualTo("2 · Low Tide"),
+            "the row shows what the narrowed question brought back, numbered inside the season it was asked for");
+        Assert.That(episodes.Titles[0].SecondLine, Is.EqualTo("Bones · Season 2"),
+            "and the season the viewer pressed is spelled out on the row's second line - the counted season has no "
+            + "screen of its own above these rows, so the row says whose season two this is rather than leaving the "
+            + "number of the show standing alone");
       }
     }
 
