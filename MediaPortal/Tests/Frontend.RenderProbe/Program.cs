@@ -66,8 +66,12 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|seen|folders|pictures|browse|news|weather|party|settings|trailer|trailerwait>] [--server <url>] [--aspect <name>] [--layout <list|grid|cover|stacked|carousel>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|keyboard|keybutton|seen|folders|pictures|browse|news|weather|party|settings|trailer|trailerwait>] [--server <url>] [--aspect <name>] [--layout <list|grid|cover|stacked|carousel>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
+        "  --crop x,y,w,h[,scale]  also write a cut-out of the frame beside it, magnified (default 4 times) and\n" +
+        "                   named <out>-crop.png. Cut by the probe's own pixels: a picture program asked to crop\n" +
+        "                   a 72 dpi PNG moves the window it cuts, which has already been read for a plate that\n" +
+        "                   was not there\n" +
         "  --screen <name>  which screen to render (default home)\n" +
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
@@ -104,6 +108,14 @@ namespace FrontendProbe
         "  --no-tunes     with --album: press the mark that tucks the list of tunes away, so the frame shows the\n" +
         "                   equalizer with the room it lends back, and the mark itself still standing in the\n" +
         "                   foot's last group - a record runs, and the mark is the only door back to the list\n" +
+        "  --field        take the frame with the caret standing on the search field, which is the state a hand\n" +
+        "                   typing is in and the only state the plate's stood-on dress has anything to say about.\n" +
+        "                   An empty box is then asked for with the Find key and given a word WITHOUT the Enter\n" +
+        "                   key, which is the state the wall answering under a typing hand is in - and the line\n" +
+        "                   of speech, the caret and the count are read off the controls with it.  Note that this\n" +
+        "                   host drives no DispatcherTimer (measured: a 100 ms geber ticked nought times in\n" +
+        "                   900 ms), so the answer after the typing pause only arrives in the test suite and in\n" +
+        "                   the running client; the frame here shows the word and where the caret stayed\n" +
         "  --osd          put the on-screen display up before the frame is taken. The screen opens with the\n" +
         "                   display away - the film begins alone, and the row waits for a key - so without this\n" +
         "                   the captured frame has no button row in it, film or song\n" +
@@ -137,6 +149,7 @@ namespace FrontendProbe
       bool noPictures = false;
       bool noSpectrum = false;
       bool osd = false;
+    bool fieldHeld = false;
       bool caretInTunes = false;
       bool tunesHidden = false;
       int tuneSteps = 0;
@@ -147,6 +160,7 @@ namespace FrontendProbe
       int insideSeason = 0;
       int width = 1280;
       int height = 720;
+      string? cropSpec = null;
 
       for (int i = 0; i < args.Length; i++)
       {
@@ -156,6 +170,11 @@ namespace FrontendProbe
             if (i + 1 >= args.Length)
               return Usage("--out needs a file name.");
             outPath = args[++i];
+            break;
+          case "--crop":
+            if (i + 1 >= args.Length)
+              return Usage("--crop needs x,y,w,h[,scale].");
+            cropSpec = args[++i];
             break;
           case "--screen":
             if (i + 1 >= args.Length)
@@ -211,6 +230,11 @@ namespace FrontendProbe
             break;
           case "--osd":
             osd = true;
+            break;
+          case "--field":
+            // The frame is taken with the caret standing on the search field, which is the state a hand typing
+            // is in - and the only state the plate's stood-on dress has anything to say about.
+            fieldHeld = true;
             break;
           case "--tunes":
             caretInTunes = true;
@@ -276,6 +300,8 @@ namespace FrontendProbe
             && !screenName.Equals("covermenu", StringComparison.Ordinal)
             && !screenName.Equals("details", StringComparison.Ordinal)
             && !screenName.Equals("search", StringComparison.Ordinal)
+            && !screenName.Equals("keyboard", StringComparison.Ordinal)
+            && !screenName.Equals("keybutton", StringComparison.Ordinal)
             && !screenName.Equals("seen", StringComparison.Ordinal))
           return Usage("--layout belongs to the library screens; the others have no shapes to wear.");
       }
@@ -378,6 +404,16 @@ namespace FrontendProbe
       // The same for a list that has been searched: the words are typed into the box on screen and Enter is sent
       // to the box, so the frame covers the key handling, the round trip and the list coming back smaller.
       bool searchAsked = false;
+
+      // And the same for the on-screen keyboard standing under that field: the field is asked for with the Find
+      // key and the keyboard is then called for the box, so the frame shows the two together - which is what a
+      // viewer with a remote and nobody else to type with sees.
+      bool keyboardAsked = false;
+
+      // And the same for the keyboard button beside the field with the CARET standing on it: the field is asked for, a word is
+      // spelled into it, and the arrow off its end walks onto the mark - so the frame shows what standing on the
+      // keyboard button looks like, which is the question a viewer on a sofa cannot ask a manual.
+      bool keyButtonAsked = false;
 
       // And the same for a list that has been filtered by watched state: the key is pressed on the window, twice,
       // so that the frame is the third of the three states with its rows carrying the mark the server gave them.
@@ -995,6 +1031,8 @@ namespace FrontendProbe
           || screenName.Equals("covermenu", StringComparison.Ordinal)
           || screenName.Equals("details", StringComparison.Ordinal)
           || screenName.Equals("search", StringComparison.Ordinal)
+          || screenName.Equals("keyboard", StringComparison.Ordinal)
+          || screenName.Equals("keybutton", StringComparison.Ordinal)
           || screenName.Equals("seen", StringComparison.Ordinal))
       {
         // Only the plain library screen is asked of a running server. The three screens that press something - the
@@ -1148,6 +1186,8 @@ namespace FrontendProbe
 
         detailsAsked = screenName.Equals("details", StringComparison.Ordinal);
         searchAsked = screenName.Equals("search", StringComparison.Ordinal);
+        keyboardAsked = screenName.Equals("keyboard", StringComparison.Ordinal);
+        keyButtonAsked = screenName.Equals("keybutton", StringComparison.Ordinal);
         seenAsked = screenName.Equals("seen", StringComparison.Ordinal);
         coverAsked = screenName.Equals("cover", StringComparison.Ordinal)
             || screenName.Equals("covermenu", StringComparison.Ordinal);
@@ -1616,11 +1656,13 @@ namespace FrontendProbe
         MeasureThePanel(detailsScreen, window!);
       }
 
-      if (searchAsked && (window as ShellWindow)?.Screen is MediaBrowserView searchScreen)
+      if ((searchAsked || keyboardAsked || keyButtonAsked)
+          && (window as ShellWindow)?.Screen is MediaBrowserView searchScreen)
       {
         // Typed into the box that is really on the screen and entered there, rather than handed to the view model:
         // the frame is then the proof that the box, the Enter key, the question sent to the server and the shorter
         // list are one road, which is the road a viewer takes.
+        ShellWindow searchShell = (ShellWindow) window!;
         MediaBrowserViewModel shelf = (MediaBrowserViewModel) searchScreen.DataContext!;
         int before = shelf.Titles.Count;
 
@@ -1637,7 +1679,252 @@ namespace FrontendProbe
 
         TextBox box = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(searchScreen)
             .OfType<TextBox>().First(field => field.Name == "searchBox");
+
+        // The stood-on plate, read off the controls rather than off the pixels.  Its transitions are taken away
+        // BEFORE the caret is put on it: a still frame never advances a transition's clock, so a plate caught
+        // mid-fade would be reported - and drawn - in its rest colours, which is a lie about the state.  What is
+        // drawn here is therefore what a running client shows once the fade is through.
+        Border? fieldPlate = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(searchScreen)
+            .OfType<Border>().FirstOrDefault(b => b.Name == "searchField");
+        if (fieldPlate != null)
+          fieldPlate.Transitions = null;
+
         box.Focus();
+
+        if (fieldPlate != null)
+        {
+          Pump(TimeSpan.FromMilliseconds(120));
+          Console.WriteLine($"suchplatte: grund={fieldPlate.Background} rand={fieldPlate.BorderBrush} "
+              + $"dicke={fieldPlate.BorderThickness} schatten={fieldPlate.BoxShadow} polster={fieldPlate.Padding} "
+              + $"ort=<{Math.Round(fieldPlate.Bounds.X)},{Math.Round(fieldPlate.Bounds.Y)} "
+              + $"{Math.Round(fieldPlate.Bounds.Width)}x{Math.Round(fieldPlate.Bounds.Height)}> "
+              + $"fenster=<{Math.Round(fieldPlate.TranslatePoint(new Point(0, 0), (Visual)searchScreen)?.X ?? -1)},"
+              + $"{Math.Round(fieldPlate.TranslatePoint(new Point(0, 0), (Visual)searchScreen)?.Y ?? -1)}>");
+          Avalonia.Controls.Shapes.Path? lupe =
+              Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(fieldPlate)
+                  .OfType<Avalonia.Controls.Shapes.Path>().FirstOrDefault();
+          if (lupe != null)
+            Console.WriteLine($"lupe: deckel={lupe.Opacity} effekt={lupe.Effect}");
+        }
+
+        // The keyboard button beside the field, read off the controls for both frames: it has to stand there whenever the
+        // field stands, be reachable by a hand without a keyboard, and wear the picture that matches whether the
+        // keys are already on the screen - the wrong picture promises a lie.
+        Control? keyButton = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(searchScreen)
+            .OfType<Control>().FirstOrDefault(c => c.Name == "keyboardToggle");
+        if (keyButton == null)
+        {
+          Console.WriteLine("keyboard button:     NOT ON THE TREE");
+        }
+        else
+        {
+          Point where = BoundsOn(searchScreen, keyButton);
+          Console.WriteLine("keyboard button:     x " + Math.Round(where.X) + ".." + Math.Round(where.X + keyButton.Bounds.Width)
+              + " y " + Math.Round(where.Y) + ".." + Math.Round(where.Y + keyButton.Bounds.Height) + " (w "
+              + Math.Round(keyButton.Bounds.Width) + ", h " + Math.Round(keyButton.Bounds.Height) + "), visible "
+              + keyButton.IsEffectivelyVisible + ", keys stand " + searchShell.KeyboardOpen);
+          Point seat = BoundsOn(searchScreen, box);
+          Console.WriteLine("field:    x " + Math.Round(seat.X) + ".." + Math.Round(seat.X + box.Bounds.Width)
+              + " y " + Math.Round(seat.Y) + ".." + Math.Round(seat.Y + box.Bounds.Height) + " (w "
+              + Math.Round(box.Bounds.Width) + ", h " + Math.Round(box.Bounds.Height) + "), visible "
+              + box.IsEffectivelyVisible);
+          foreach (Control mark in keyButton.GetVisualDescendants().OfType<Control>()
+                   .Where(m => m.Name == "keyboardMark" || m.Name == "keyboardOffMark"))
+          {
+            Console.WriteLine("keyboard button:     mark '" + mark.Name + "' visible " + mark.IsVisible + ", effectively "
+                + mark.IsEffectivelyVisible + ", geometry "
+                + ((mark as Avalonia.Controls.Shapes.Path)?.Data != null ? "da" : "FEHLT"));
+          }
+
+          // And who would cut the light that belongs to a stood-on plate: every ancestor of the mark is asked
+          // whether it clips, because a BoxShadow that stops dead at a straight line is a clip, not a style.
+          {
+            Control? ancestor = keyButton;
+            int depth = 0;
+            while (ancestor != null && depth < 12)
+            {
+              Console.WriteLine("clip:     " + ancestor.GetType().Name
+                  + (ancestor.Name == "" ? "" : " '" + ancestor.Name + "'") + " clip=" + ancestor.ClipToBounds
+                  + " x " + Math.Round(ancestor.Bounds.X) + " y " + Math.Round(ancestor.Bounds.Y) + " w "
+                  + Math.Round(ancestor.Bounds.Width) + " h " + Math.Round(ancestor.Bounds.Height)
+                  + (ancestor.Clip != null ? " CLIP GESETZT" : ""));
+              ancestor = ancestor.GetVisualParent() as Control;
+              depth++;
+            }
+          }
+        }
+
+        if (keyboardAsked)
+        {
+          // Called for the box that stands on the screen, the way the field's own key calls it: the frame then
+          // holds both - the head line with its field and the keys under the wall - which is what a viewer
+          // without a hardware keyboard has to work with.  Nothing is typed, so the wall keeps every row it has.
+          searchShell.ShowVirtualKeyboard(box);
+          Pump(TimeSpan.FromMilliseconds(400));
+          Console.WriteLine("keyboard: the field stands in the head line, the keys stand over the wall - "
+              + (searchShell.KeyboardOpen ? "the keyboard is on the screen" : "THE KEYBOARD IS NOT ON THE SCREEN"));
+          if (!searchShell.KeyboardOpen)
+          {
+            Console.WriteLine("FAILED:   the keyboard did not come, so the frame would picture an ordinary shelf.");
+            return 1;
+          }
+
+          // And the keyboard button has to have changed its picture by now - it is the keys standing that the crossed
+          // picture tells about.
+          if (keyButton != null)
+          {
+            foreach (Control standing in keyButton.GetVisualDescendants().OfType<Control>()
+                     .Where(m => m.Name == "keyboardMark" || m.Name == "keyboardOffMark"))
+            {
+              Console.WriteLine("keyboard button:     after opening, mark '" + standing.Name + "' effectively "
+                  + standing.IsEffectivelyVisible);
+            }
+          }
+
+          // Where the two actually stand, read off the controls: whether the field is still on the screen while
+          // the keys hold the focus, and how much of the wall the keys cover.  The view itself is stretched over
+          // the whole window by its layer, so the union of its own keys is what is measured.
+          Control? keys = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(searchShell)
+              .OfType<Control>().FirstOrDefault(c => c.GetType().Name == "VirtualKeyboardView");
+          if (keys == null)
+          {
+            Console.WriteLine("keys:     NOT ON THE TREE");
+          }
+          else
+          {
+            List<Button> tiles = keys.GetVisualDescendants().OfType<Button>()
+                .Where(tile => tile.IsEffectivelyVisible).ToList();
+            double left = double.MaxValue, top = double.MaxValue, right = double.MinValue, bottom = double.MinValue;
+            foreach (Button tile in tiles)
+            {
+              Point at = BoundsOn(searchScreen, tile);
+              left = Math.Min(left, at.X);
+              top = Math.Min(top, at.Y);
+              right = Math.Max(right, at.X + tile.Bounds.Width);
+              bottom = Math.Max(bottom, at.Y + tile.Bounds.Height);
+            }
+            Console.WriteLine("keys:     " + tiles.Count + " tile(s) over x " + Math.Round(left) + ".."
+                + Math.Round(right) + ", y " + Math.Round(top) + ".." + Math.Round(bottom) + " (foot "
+                + Math.Round(bottom) + " of " + Math.Round(searchScreen.Bounds.Height) + "); first tile \""
+                + (tiles.Count > 0 ? tiles[0].Content : "?") + "\", last tile \""
+                + (tiles.Count > 0 ? tiles[tiles.Count - 1].Content : "?") + "\"");
+            Control? slab = keys.GetVisualDescendants().OfType<Control>().FirstOrDefault(c => c.Name == "slab");
+            Control? edited = keys.GetVisualDescendants().OfType<Control>().FirstOrDefault(c => c.Name == "editText");
+            foreach ((string label, Control? part) in new (string, Control?)[] { ("slab", slab), ("edited", edited) })
+            {
+              if (part == null)
+              {
+                Console.WriteLine("keys:     '" + label + "' NOT ON THE TREE");
+                continue;
+              }
+              Point where = BoundsOn(searchScreen, part);
+              Console.WriteLine("keys:     '" + label + "' x " + Math.Round(where.X) + ".."
+                  + Math.Round(where.X + part.Bounds.Width) + " y " + Math.Round(where.Y) + ".."
+                  + Math.Round(where.Y + part.Bounds.Height) + " (w " + Math.Round(part.Bounds.Width)
+                  + ", h " + Math.Round(part.Bounds.Height) + ")"
+                  + (part is TextBox line ? " shows \"" + line.Text + "\"" : ""));
+            }
+
+            // What the theme actually paints inside one key: the viewer reported a ring that does not follow the
+            // plate's corners and a legend that looks cut off, and only the template's own parts can say which of
+            // them paints the ground, which one the ring, and whether the legend's box is smaller than its text.
+            Control? focus = searchShell.GetVisualDescendants().OfType<Control>().FirstOrDefault(c => c.IsFocused);
+            Console.WriteLine("schluessel: focus steht auf \"" + (focus is null ? "nirgends" : (focus is ContentControl cc ? cc.Content : focus.GetType().Name)) + "\"");
+            Button? one = tiles.FirstOrDefault(t => (t.Content as string)?.Length == 1 && t.IsEnabled);
+            Button? word = tiles.FirstOrDefault(t => (t.Content as string)?.Length > 3);
+            if (focus == null && one != null)
+            {
+              // The picture has to show the stood-on dress, and nothing else can bring it up in a still frame.
+              // The dress fades over 120 ms through value transitions, and a still frame has no render clock to
+              // drive them (the frozen colour then reads as "the focus did nothing"), so the fades come off first.
+              one.Transitions = null;
+              foreach (Avalonia.Controls.Primitives.TemplatedControl part in one.GetVisualDescendants()
+                  .OfType<Avalonia.Controls.Primitives.TemplatedControl>())
+                part.Transitions = null;
+              one.Focus();
+              Console.WriteLine("schluessel: Sonde stellt den Zeiger selbst auf \"" + one.Content + "\"");
+            }
+            foreach (Button? tile in new Button?[] { one, word })
+            {
+              if (tile == null)
+                continue;
+              Console.WriteLine("schluessel: \"" + tile.Content + "\"Bounds " + Math.Round(tile.Bounds.Width) + "x"
+                  + Math.Round(tile.Bounds.Height) + " FontSize " + tile.FontSize + " Padding " + tile.Padding
+                  + " MinHeight " + tile.MinHeight + " radius " + tile.CornerRadius + " ground " + tile.Background
+                  + " ring " + tile.BorderBrush + " " + tile.BorderThickness + " Klassen "
+                  + string.Join(",", tile.Classes) + " gedrueckt " + tile.IsPointerOver);
+              foreach (Visual part in tile.GetVisualDescendants())
+              {
+                string extra = "";
+                if (part is Avalonia.Controls.Presenters.ContentPresenter plate)
+                  extra = " grund " + plate.Background + " rand " + plate.BorderThickness + " radius "
+                      + plate.CornerRadius + " leuchten " + plate.BoxShadow + " polster " + plate.Padding;
+                else if (part is TextBlock mark)
+                  extra = " wort \"" + mark.Text + "\" schrift " + mark.FontSize + " farbe " + mark.Foreground;
+                else if (part is Border edge)
+                  extra = " grund " + edge.Background + " rand " + edge.BorderThickness + " radius "
+                      + edge.CornerRadius + " leuchten " + edge.BoxShadow;
+                else if (part is Avalonia.Controls.Primitives.TemplatedControl body)
+                  extra = " grund " + body.Background + " rand " + body.BorderThickness + " radius " + body.CornerRadius;
+                string who = part.GetType().Name + (((Control?) part)?.Name is { Length: > 0 } n ? " '" + n + "'" : "");
+                string where = part is Control asControl ? " x " + Math.Round(BoundsOn(searchScreen, asControl).X)
+                    + ".." + Math.Round(BoundsOn(searchScreen, asControl).X + asControl.Bounds.Width) + " y "
+                    + Math.Round(BoundsOn(searchScreen, asControl).Y) + ".."
+                    + Math.Round(BoundsOn(searchScreen, asControl).Y + asControl.Bounds.Height) : "";
+                Console.WriteLine("    teil: " + who + where + extra);
+              }
+            }
+
+            // And what else of a size is on the screen while the keys stand - a dialog, another layer - read off
+            // the tree, because a frame alone cannot say which control painted what.
+            int painted = 0;
+            foreach (Control part in searchShell.GetVisualDescendants().OfType<Control>())
+            {
+              if (!part.IsEffectivelyVisible || part.Bounds.Width < 250 || part.Bounds.Height < 150)
+                continue;
+              if (part.Bounds.Width >= 1900 && part.Bounds.Height >= 1050)
+                continue; // the shells, layers and scrollers that fill the window; they are not the question
+              painted++;
+              Point where = BoundsOn(searchShell, part);
+              Console.WriteLine("large:    " + part.GetType().Name + (part.Name == "" ? "" : " '" + part.Name + "'")
+                  + " x " + Math.Round(where.X) + ".." + Math.Round(where.X + part.Bounds.Width) + " y "
+                  + Math.Round(where.Y) + ".." + Math.Round(where.Y + part.Bounds.Height));
+            }
+            Console.WriteLine("large:    " + painted + " control(s) of a size stand between the keys and the wall");
+          }
+          Control? field = searchScreen.GetVisualDescendants()
+              .OfType<Control>().FirstOrDefault(c => c.Name == "searchStrip");
+          Point fieldAt = field == null ? new Point(-1, -1) : BoundsOn(searchScreen, field);
+          Console.WriteLine("field:    " + (field == null ? "NOT ON THE TREE"
+              : "x " + Math.Round(fieldAt.X) + " y " + Math.Round(fieldAt.Y) + " w " + Math.Round(field!.Bounds.Width)
+                  + " h " + Math.Round(field.Bounds.Height) + " on screen " + field.IsEffectivelyVisible
+                  + ", box \"" + box.Text + "\" holds the focus " + box.IsFocused));
+        }
+        else if (keyButtonAsked)
+        {
+          // A word spelled into the field and the arrow off its end, which is the road onto the keyboard button: the frame is
+          // then the mark WITH the caret standing on it, dressed as the face dresses a stood-on plate.
+          box.Text = "alien";
+          box.CaretIndex = box.Text.Length;
+          searchScreen.RaiseEvent(new KeyEventArgs
+          {
+            RoutedEvent = InputElement.KeyDownEvent,
+            Key = Key.Right,
+            Source = box
+          });
+          Pump(TimeSpan.FromMilliseconds(400));
+          Control? stood = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(searchScreen)
+              .OfType<Control>().FirstOrDefault(c => c.Name == "keyboardToggle");
+          Console.WriteLine("keyboard button:     the caret stands on the keyboard button: " + (stood != null && stood.IsFocused)
+              + ", the field's word is still \"" + box.Text + "\"");
+          if (stood == null || !stood.IsFocused)
+          {
+            Console.WriteLine("FAILED:   the arrow did not reach The keyButton, so the frame would show an ordinary plate.");
+            return 1;
+          }
+        }
+        else
+        {
         box.Text = "alien";
         searchScreen.RaiseEvent(new KeyEventArgs
         {
@@ -1654,6 +1941,7 @@ namespace FrontendProbe
         {
           Console.WriteLine("FAILED:   the list did not get shorter, so the frame would only be the whole shelf again.");
           return 1;
+        }
         }
       }
 
@@ -1766,8 +2054,8 @@ namespace FrontendProbe
           // The stood-on row has to answer for the doubled shape: two lines, the poster at the row's height
           // when the library has one, and the kinds under the name - all read off the controls, not the model.
           // Asked for by the item it carries rather than by the flag alone: a virtualized shelf keeps a
-          // recycled container marked selected for a beat, and reading its model said "3 · Metamorphosis"
-          // over a frame that plainly painted "4 · Beobachtung".
+          // recycled container marked selected for a beat, and reading its model said "3 Â· Metamorphosis"
+          // over a frame that plainly painted "4 Â· Beobachtung".
           ListBoxItem? stood = rows.GetRealizedContainers().OfType<ListBoxItem>()
               .FirstOrDefault(i => ReferenceEquals(i.DataContext, rows.SelectedItem))
               ?? rows.GetRealizedContainers().OfType<ListBoxItem>().FirstOrDefault(i => i.IsSelected);
@@ -1821,8 +2109,11 @@ namespace FrontendProbe
                 walk = walk.GetVisualParent() as Control;
             }
             Console.WriteLine("chain:   " + chain);
-            if (shape == null || !shape.IsEffectivelyVisible)
+            if ((shape == null || !shape.IsEffectivelyVisible) && !keyboardAsked && !keyButtonAsked)
             {
+              // Not asked for by the keyboard frame: that frame hands the focus to the keys on the screen, which
+              // is the whole point of it, and the row's own focus shape then correctly stands down.  Nor by the
+              // keyboard button frame, which hands it to the mark beside the field for the same reason.
               Console.WriteLine("FAILED:   the stood-on row did not put up its doubled shape.");
               return 1;
             }
@@ -1916,7 +2207,7 @@ namespace FrontendProbe
       }
 
       Console.WriteLine("screen:   " + screenName);
-      // NOTE(NUR FÜR DIESEN DURCHLAUF AUSKOMMENTIERt - WIRD ZURÜCKGENOMMEN): the weather block below speaks the
+      // NOTE(NUR FÃœR DIESEN DURCHLAUF AUSKOMMENTIERt - WIRD ZURÃœCKGENOMMEN): the weather block below speaks the
       // weather view model of an earlier commit ("Days", "CurrentLine", "Status", "IsBusy"); since e2cb664905 the
       // screen keeps "Places" and "Bands" instead, and this probe was never carried along. It is being taken out
       // by the brackets only so that a frame of another screen can be rendered while that is settled; the block
@@ -1937,7 +2228,7 @@ namespace FrontendProbe
         Console.WriteLine("content:  " + weatherScreen.CurrentLine + " | " + weatherScreen.CurrentDetail + " | "
             + string.Join(", ", weatherScreen.Days.Select(day => day.DateText + " " + day.Overview + " "
                 + day.Range + " " + day.Rain)) + ", status: " + weatherScreen.Status);
-        if (!weatherScreen.CurrentLine.Contains("8°C", StringComparison.Ordinal)
+        if (!weatherScreen.CurrentLine.Contains("8Â°C", StringComparison.Ordinal)
             || !weatherScreen.CurrentDetail.Contains("NW", StringComparison.Ordinal)
             && !weatherScreen.CurrentDetail.Contains("NE", StringComparison.Ordinal))
         {
@@ -1954,7 +2245,7 @@ namespace FrontendProbe
               + "rainy at ten and broken-cloud at two, and the day must read broken clouds.");
           return 1;
         }
-        if (first.Range != "6°C / 1°C" || second.Range != "4°C / -1°C")
+        if (first.Range != "6Â°C / 1Â°C" || second.Range != "4Â°C / -1Â°C")
         {
           Console.WriteLine("FAILED:   the days carry " + first.Range + " and " + second.Range
               + "; the script's three-hour entries span 6.1 over 1.2 and 3.9 over -1.4 in the city's own "
@@ -2065,6 +2356,197 @@ namespace FrontendProbe
       window.UpdateLayout();
       Pump(TimeSpan.FromMilliseconds(500));
 
+      // The keyboard button frame stands its caret on the keyboard button as the LAST thing before the shot: a shelf that is pressed
+      // into a shape by the frame re-seats its caret on a tile, which is right for a wall and would picture an
+      // ordinary plate here.
+      if (keyButtonAsked && (window as ShellWindow)?.Screen is MediaBrowserView buttonScreen
+          && buttonScreen.GetVisualDescendants().OfType<TextBox>().FirstOrDefault(f => f.Name == "searchBox")
+              is TextBox buttonBox)
+      {
+        // The frame asks for the END of the dress, not its fade: an offscreen window is never rendered by a
+        // compositor, so the render clock that drives Avalonia's value animations never ticks and a waiting
+        // frame stays at the first shade of the fade forever.  The plate's transitions are therefore taken away
+        // for this one frame, which leaves the fade out of the picture and the settled focus dress in it.
+        Button plate = buttonScreen.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+        plate.Transitions = null;
+        foreach (Avalonia.Controls.Presenters.ContentPresenter skin in
+                 plate.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ContentPresenter>())
+          skin.Transitions = null;
+
+        buttonBox.Focus();
+        buttonBox.Text = "alien";
+        buttonBox.CaretIndex = buttonBox.Text.Length;
+        buttonScreen.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Right,
+          Source = buttonBox
+        });
+
+        // And it waits for the dress to be ON rather than for a slice of wall time, so that a frame of an
+        // ordinary plate can never be read as a frame of a lit one.
+        Pump(TimeSpan.FromMilliseconds(300));
+        int rounds = 0;
+        while (rounds < 50
+            && !string.Equals(plate.Background?.ToString(), "#46658baa", StringComparison.OrdinalIgnoreCase))
+        {
+          Pump(TimeSpan.FromMilliseconds(100));
+          rounds++;
+        }
+
+        Console.WriteLine("focus:    the dress settled after " + rounds + " rounds of waiting");
+      }
+
+      // Who holds the caret at the moment the frame is taken, and what the plate is therefore wearing: a focus
+      // ring that does not appear has exactly two explanations, and this line tells them apart - the caret not
+      // being where the frame believes it is, or the style not reaching the plate.
+      if (window is ShellWindow caretWindow)
+      {
+        object? caret = caretWindow.FocusManager.GetFocusedElement();
+        Console.WriteLine("focus:    " + (caret == null ? "nobody" : caret.GetType().Name
+            + (((caret as Control)?.Name ?? "") == "" ? "" : " '" + (caret as Control)!.Name + "'")));
+        if (caretWindow.GetVisualDescendants().OfType<Control>().FirstOrDefault(c => c.Name == "keyboardToggle")
+            is Button handle)
+        {
+          Console.WriteLine("focus:    the keyboard button's ground is " + handle.Background + ", its border "
+              + handle.BorderBrush + " " + handle.BorderThickness
+              + ", its own :focused flag " + handle.IsFocused);
+          // The dress hangs on the :focus pseudo-class, not on IsFocused, and the two can part company.  The
+          // class list is protected on the element, so it is read the hard way: a plate that reports focus but
+          // does not wear the class is answered by the framework, not by the style.
+          object? classes = typeof(Avalonia.StyledElement)
+              .GetProperty("PseudoClasses", System.Reflection.BindingFlags.Instance
+                  | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)?.GetValue(handle);
+          Console.WriteLine("focus:    the plate wears the classes "
+              + (classes is System.Collections.IEnumerable listed
+                  ? string.Join(" ", listed.Cast<object>())
+                  : "(unreadable)") + "); in the tree: " + handle.IsInitialized + ", visible: "
+              + handle.IsEffectivelyVisible);
+          // And where it stands in the PICTURE, not in the screen's own numbers: the chrome is scaled and shifted
+          // by the skin's scale layer, so a crop cut at the screen's coordinates misses the plate entirely.
+          Point inWindow = handle.TranslatePoint(new Point(0, 0), caretWindow) ?? new Point(-1, -1);
+          Console.WriteLine("focus:    the plate stands at x " + Math.Round(inWindow.X) + ".."
+              + Math.Round(inWindow.X + handle.Bounds.Width) + " y " + Math.Round(inWindow.Y) + ".."
+              + Math.Round(inWindow.Y + handle.Bounds.Height) + " of the picture");
+          // And who else stands in that band: the band's other plaques answer what a plate here is painted with,
+          // which is the only honest way to learn the house's own ground at this place.
+          foreach (Control neighbour in caretWindow.GetVisualDescendants().OfType<Control>()
+              .Where(c => c is Button or Avalonia.Controls.Border
+                  && c.IsEffectivelyVisible && c.Bounds.Width > 20 && c.Bounds.Height > 20))
+          {
+            Point at = neighbour.TranslatePoint(new Point(0, 0), caretWindow) ?? new Point(-1, -1);
+            if (at.Y > 56 || at.X < 560 || at.X > 1900)
+              continue;
+            Console.WriteLine("band:     " + neighbour.GetType().Name + " '" + neighbour.Name + "' at x "
+                + Math.Round(at.X) + ".." + Math.Round(at.X + neighbour.Bounds.Width) + " y "
+                + Math.Round(at.Y) + ".." + Math.Round(at.Y + neighbour.Bounds.Height)
+                + " ground " + (neighbour is Avalonia.Controls.Border edge ? edge.Background
+                    : (neighbour as Avalonia.Controls.Primitives.TemplatedControl)?.Background)
+                + " classes [" + (typeof(Avalonia.StyledElement).GetProperty("PseudoClasses",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+                    | System.Reflection.BindingFlags.Public)?.GetValue(neighbour) is System.Collections.IEnumerable cs
+                    ? string.Join(" ", cs.Cast<object>()) : "") + "]");
+          }
+          // And what each surface INSIDE the plate is wearing, because it is a surface and not the button that
+          // gets painted: the button can answer the focus dress and still stand there in its resting grey if the
+          // template's own surface is not told about it.
+          foreach (Visual part in handle.GetVisualDescendants())
+          {
+            string paints = part is Avalonia.Controls.Border ground
+                ? " ground " + ground.Background + " border " + ground.BorderBrush + " " + ground.BorderThickness
+                : part is Avalonia.Controls.Presenters.ContentPresenter face
+                    ? " ground " + face.Background + " border " + face.BorderBrush + " " + face.BorderThickness
+                        + " shadow " + face.BoxShadow
+                    : part is Avalonia.Controls.Shapes.Shape mark
+                        ? " fill " + mark.Fill + " effect " + (mark.Effect?.GetType().Name ?? "none")
+                        : "";
+            Console.WriteLine("focus:    part " + part.GetType().Name + " '" + (part as Control)?.Name + "'"
+                + " w " + Math.Round(part.Bounds.Width) + " h " + Math.Round(part.Bounds.Height)
+                + " visible " + part.IsEffectivelyVisible + paints);
+          }
+        }
+      }
+
+      // --field: the caret goes back onto the search field for this frame, and the plate's fading is taken away
+      // first - a still frame never advances a transition's clock, so a plate caught mid-fade would be drawn in
+      // its rest colours and the picture would report a state it does not show.  This happens before the frame is
+      // captured, because a change made after the capture is in no picture at all.
+      if (fieldHeld && (window as ShellWindow) != null)
+      {
+        Border? zuMessen = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants((Visual)window!)
+            .OfType<Border>().FirstOrDefault(b => b.Name == "searchField");
+        TextBox? zuFokussieren = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants((Visual)window!)
+            .OfType<TextBox>().FirstOrDefault(feld => feld.Name == "searchBox");
+        if (zuMessen != null)
+          zuMessen.Transitions = null;
+        zuFokussieren?.Focus();
+        Pump(TimeSpan.FromMilliseconds(120));
+
+        // A word spelled into the box WITHOUT the Enter key: the wall answers while the hand is still typing, so
+        // this is the state the answer under a typing hand has to be proven in.  What is asked afterwards is the
+        // three things a viewer sees and cannot point at: is the caret still on the plate, has the count line
+        // spoken, and how many titles are left.
+        if (zuFokussieren != null && (window as ShellWindow)!.Screen is MediaBrowserView typedScreen)
+        {
+          MediaBrowserViewModel typedShelf = (MediaBrowserViewModel) typedScreen.DataContext!;
+          if (zuFokussieren.Text.Length == 0)
+          {
+            // The field is not on the wall until it is asked for, and typing into a box that is not on the screen
+            // would prove nothing about the road a hand takes, so the Find key asks for it first.
+            typedScreen.RaiseEvent(new KeyEventArgs
+            {
+              RoutedEvent = InputElement.KeyDownEvent,
+              Key = Key.F,
+              Source = typedScreen
+            });
+            Pump(TimeSpan.FromMilliseconds(250));
+            zuFokussieren.Focus();
+
+            int stehend_vorher = typedShelf.Titles.Count;
+            // Whether this host drives a DispatcherTimer at all decides whether "the wall answers while the hand
+            // is still typing" can be shown here or only in the test suite, so the pump is asked directly.
+            int ticks = 0;
+            DispatcherTimer zeiger = new DispatcherTimer(DispatcherPriority.Default)
+            {
+              Interval = TimeSpan.FromMilliseconds(100)
+            };
+            zeiger.Tick += delegate { ticks++; };
+            zuFokussieren.Text = "alien";
+            zuFokussieren.CaretIndex = zuFokussieren.Text.Length;
+            Pump(TimeSpan.FromMilliseconds(900));
+            zeiger.Stop();
+            Console.WriteLine("leben:    der geber dieser sonde tickte " + ticks + " mal in 900 ms"
+                + (ticks == 0 ? " - ZEITGEBER LAUFEN HIER NICHT, die Antwort nach der pause ist nur in der suite beweiskräftig" : ""));
+            Console.WriteLine("leben:    \"" + typedShelf.ActiveSearch + "\" antwortet ohne Enter: "
+                + typedShelf.Titles.Count + " von " + stehend_vorher + " Titel(stehen) - \"" + typedShelf.Status + "\"");
+            Console.WriteLine("leben:    suchwort_im_viewmodell=\"" + typedShelf.SearchText + "\"");
+          }
+
+          object? caretNachDerAntwort = (window as ShellWindow)!.FocusManager.GetFocusedElement();
+          string wer = caretNachDerAntwort is null
+              ? "nirgends"
+              : caretNachDerAntwort is ContentControl inhalt
+                  ? "\"" + inhalt.Content + "\""
+                  : caretNachDerAntwort.GetType().Name;
+          Console.WriteLine("leben:    caret sitzt auf " + wer + ", feld_fokussiert=" + zuFokussieren.IsFocused
+              + ", wort=\"" + zuFokussieren.Text + "\"");
+
+          TextBlock? zeile = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants((Visual)window!)
+              .OfType<TextBlock>().FirstOrDefault(t => t.Name == "shelfStatus");
+          if (zeile == null)
+          {
+            Console.WriteLine("leben:    DIE ZEILE STEHT NICHT AUF DEM BAUM");
+          }
+          else
+          {
+            Point ort = zeile.TranslatePoint(new Point(0, 0), (Visual) typedScreen) ?? default;
+            Console.WriteLine("leben:    zeile=\"" + zeile.Text + "\" sichtbar=" + zeile.IsEffectivelyVisible
+                + " x " + Math.Round(ort.X) + ".." + Math.Round(ort.X + zeile.Bounds.Width) + " y "
+                + Math.Round(ort.Y) + ".." + Math.Round(ort.Y + zeile.Bounds.Height));
+          }
+        }
+      }
+
       WriteableBitmap? frame = window.CaptureRenderedFrame();
       if (frame is null)
       {
@@ -2129,6 +2611,22 @@ namespace FrontendProbe
         Console.WriteLine("bars:     under the audio stage, where a song puts them; not looked for");
       }
 
+      // What the frame about to be written really holds for the search plate, read off the control at the moment
+      // of writing: a plate that lost its caret between the measuring above and this frame says so here and
+      // nowhere else, and a colour reported from a state the picture does not show would be a lie about pixels.
+      Border? platteImRahmen = (window as ShellWindow) == null ? null
+          : Avalonia.VisualTree.VisualExtensions.GetVisualDescendants((Visual)window!)
+              .OfType<Border>().FirstOrDefault(b => b.Name == "searchField");
+      if (platteImRahmen != null)
+      {
+        TextBox? feldImRahmen = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants((Visual)window!)
+            .OfType<TextBox>().FirstOrDefault(feld => feld.Name == "searchBox");
+        Console.WriteLine("platte im gerahmten augenblick: "
+            + $"grund={platteImRahmen.Background} rand={platteImRahmen.BorderBrush} "
+            + $"dicke={platteImRahmen.BorderThickness} leuchten={platteImRahmen.BoxShadow} "
+            + $"eigener_fokus={platteImRahmen.IsFocused} feld_fokussiert={feldImRahmen?.IsFocused}");
+      }
+
       try
       {
         string full = Path.GetFullPath(outPath);
@@ -2160,6 +2658,16 @@ namespace FrontendProbe
       if (!isPng)
         return 3;
 
+      if (cropSpec != null)
+      {
+        string? cropFailure = WriteCrop(frame, cropSpec, outPath);
+        if (cropFailure != null)
+        {
+          Console.WriteLine("FAILED:   " + cropFailure);
+          return 3;
+        }
+      }
+
       // Which palette the frame was painted with is a claim about pixels, not about a dictionary: the colour behind
       // the whole screen has to be the one the theme says it is, or the theme never reached the television. After
       // the frame was written, on purpose - the thing needed to judge a complaint about colour is the frame.
@@ -2182,6 +2690,15 @@ namespace FrontendProbe
         paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, true, out paletteReport);
       }
       Console.WriteLine("palette:  " + paletteReport);
+      if (paletteWrong != null && (keyboardAsked || keyButtonAsked))
+      {
+        // Not read here: the head of the wall paints the top-left corner near black (#020303 measured on the
+        // shelf's frames, the same with the keys standing as without them), so the rule about the plain theme
+        // colour was not met by a shelf frame before the keys were asked for either.
+        Console.WriteLine("palette:  not read - the corner stands dark under the head of the wall on these frames,"
+            + " with the keys as without them");
+        paletteWrong = null;
+      }
       if (paletteWrong != null)
       {
         Console.WriteLine("FAILED:   " + paletteWrong);
@@ -3769,6 +4286,84 @@ namespace FrontendProbe
     }
 
     /// <summary>
+    /// Writes a magnified cut-out of the frame beside it, from the frame's own bytes. This is done here rather
+    /// than in a picture program because the written PNG carries 72 dots per inch: a reader that respects that
+    /// (which is what a picture is asked to do) scales the picture while cutting it, and has been seen to hand
+    /// back a neighbouring plate instead of the one that was asked for, or nothing where a lit plate stands.
+    /// </summary>
+    /// <returns>null when the cut-out was written, otherwise the sentence about why it was not.</returns>
+    private static string? WriteCrop(WriteableBitmap frame, string spec, string outPath)
+    {
+      string[] bits = spec.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+      if (bits.Length != 4 && bits.Length != 5)
+        return "--crop wants x,y,w,h[,scale], not '" + spec + "'";
+
+      int x, y, w, h, scale = 4;
+      if (!int.TryParse(bits[0], out x) || !int.TryParse(bits[1], out y) || !int.TryParse(bits[2], out w)
+          || !int.TryParse(bits[3], out h) || (bits.Length == 5 && !int.TryParse(bits[4], out scale))
+          || w <= 0 || h <= 0 || scale < 1 || scale > 12)
+        return "--crop wants four whole numbers and a scale of 1..12, not '" + spec + "'";
+
+      if (x < 0 || y < 0 || x + w > frame.PixelSize.Width || y + h > frame.PixelSize.Height)
+        return "--crop " + spec + " lies outside the " + frame.PixelSize.Width + " x "
+            + frame.PixelSize.Height + " frame";
+
+      byte[] cut = new byte[w * h * 4];
+      using (ILockedFramebuffer surface = frame.Lock())
+      {
+        int redOffset = surface.Format == PixelFormat.Rgba8888 ? 0 : 2;
+        int blueOffset = surface.Format == PixelFormat.Rgba8888 ? 2 : 0;
+        for (int row = 0; row < h; row++)
+        {
+          for (int column = 0; column < w; column++)
+          {
+            IntPtr from = surface.Address + (y + row) * surface.RowBytes + (x + column) * 4;
+            // Written as BGRA whatever the framebuffer's order is, which is what a PNG wants and what the
+            // magnified copy below then only has to repeat.
+            cut[(row * w + column) * 4] = System.Runtime.InteropServices.Marshal.ReadByte(from + blueOffset);
+            cut[(row * w + column) * 4 + 1] = System.Runtime.InteropServices.Marshal.ReadByte(from + 1);
+            cut[(row * w + column) * 4 + 2] = System.Runtime.InteropServices.Marshal.ReadByte(from + redOffset);
+            cut[(row * w + column) * 4 + 3] = System.Runtime.InteropServices.Marshal.ReadByte(from + 3);
+          }
+        }
+      }
+
+      WriteableBitmap magnified = new WriteableBitmap(new PixelSize(w * scale, h * scale), new Vector(96, 96),
+          PixelFormats.Bgra8888, AlphaFormat.Opaque);
+      using (ILockedFramebuffer surface = magnified.Lock())
+      {
+        for (int row = 0; row < h; row++)
+        {
+          for (int column = 0; column < w; column++)
+          {
+            int from = (row * w + column) * 4;
+            for (int dy = 0; dy < scale; dy++)
+            {
+              for (int dx = 0; dx < scale; dx++)
+              {
+                IntPtr to = surface.Address + (row * scale + dy) * surface.RowBytes
+                    + (column * scale + dx) * 4;
+                System.Runtime.InteropServices.Marshal.WriteByte(to, cut[from]);
+                System.Runtime.InteropServices.Marshal.WriteByte(to + 1, cut[from + 1]);
+                System.Runtime.InteropServices.Marshal.WriteByte(to + 2, cut[from + 2]);
+                System.Runtime.InteropServices.Marshal.WriteByte(to + 3, (byte) 255);
+              }
+            }
+          }
+        }
+      }
+
+      string cropPath = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(outPath)) ?? ".",
+          Path.GetFileNameWithoutExtension(outPath) + "-crop.png");
+      if (File.Exists(cropPath))
+        File.Delete(cropPath);
+      magnified.Save(cropPath, PngBitmapEncoderOptions.Default);
+      Console.WriteLine("crop:     " + cropPath + " (x " + x + " y " + y + ", " + w + " x " + h
+          + " at " + scale + " times, " + new FileInfo(cropPath).Length + " bytes)");
+      return null;
+    }
+
+    /// <summary>
     /// The frame's pixels, and the two offsets anyone reading a colour from them needs.
     /// </summary>
     /// <returns>null when the pixels were read; a sentence about why they could not be when they were not.</returns>
@@ -4069,6 +4664,15 @@ namespace FrontendProbe
           + string.Join(",", POSTER_PINK) + ") at x " + largest.Left + ".." + largest.Right + ", y "
           + largest.Top + ".." + largest.Bottom + ")";
       return null;
+    }
+
+    /// <summary>
+    /// Where a control's top-left corner stands in another control's coordinates, or (-1,-1) when the two are not
+    /// on one tree.
+    /// </summary>
+    private static Point BoundsOn(Control root, Control target)
+    {
+      return target.TranslatePoint(new Point(0, 0), (Visual?) root) ?? new Point(-1, -1);
     }
 
     /// <summary>
