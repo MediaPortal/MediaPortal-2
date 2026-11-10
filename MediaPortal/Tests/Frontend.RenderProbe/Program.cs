@@ -1612,6 +1612,8 @@ namespace FrontendProbe
           Console.WriteLine("FAILED:   the screen showed no details, so the frame would be the plain list twice.");
           return 1;
         }
+
+        MeasureThePanel(detailsScreen, window!);
       }
 
       if (searchAsked && (window as ShellWindow)?.Screen is MediaBrowserView searchScreen)
@@ -1793,6 +1795,8 @@ namespace FrontendProbe
             // happened here and nothing about the row's ability to show the length.
             Console.WriteLine("details:  worn " + list.WantsDetails + ", heading \"" + list.DetailsHeading
                 + "\", facts " + list.DetailsFacts.Count);
+            if (list.WantsDetails)
+              MeasureThePanel(layoutScreen, window!);
             // Which part of the container eats height beyond the row's own tree, read chain by chain: the
             // doubled row has to stand at twice the resting row's measured 59, and a claim about that has to
             // say where every point of it lives.
@@ -4054,6 +4058,89 @@ namespace FrontendProbe
           + string.Join(",", POSTER_PINK) + ") at x " + largest.Left + ".." + largest.Right + ", y "
           + largest.Top + ".." + largest.Bottom + ")";
       return null;
+    }
+
+    /// <summary>
+    /// Where the details panel and everything it paints really stands, measured off the drawn screen rather than
+    /// from the numbers written in the skin: the panel's boxes and the wall's own picture, each with its lower edge,
+    /// so that the question "does anything of the panel hang past the bottom of the window" is answered by a number.
+    /// </summary>
+    private static void MeasureThePanel(MediaBrowserView screen, Window window)
+    {
+      Console.WriteLine("window:   " + Math.Round(window.ClientSize.Width) + " x "
+          + Math.Round(window.ClientSize.Height)
+          + " | the view itself: " + Math.Round(screen.Bounds.Width) + " x " + Math.Round(screen.Bounds.Height));
+
+      // The parts of the panel that paint something, because the rule is about every word and every picture of it.
+      foreach (Control piece in Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(screen)
+          .OfType<Control>()
+          .Where(delegate (Control c)
+          {
+            return c.Name == "coverAlone" || c.Name == "coverOnDisc" || c.Name == "discBehindCover"
+                || c.Name == "storyBox" || c.Name == "detailsWords" || c.Name == "detailsPanel";
+          }))
+      {
+        var stoodPiece = piece.TransformToVisual(window);
+        Rect pieceStood = stoodPiece.HasValue
+            ? new Rect(piece.Bounds.Size).TransformToAABB(stoodPiece.Value)
+            : new Rect(piece.Bounds.Size);
+        // The screen is laid out in the skin's own space (1920x1080 and friends) and scaled into the window, so the
+        // number that answers "what stands under the line" is where the piece stands inside the view.
+        var inTheView = piece.TransformToVisual(screen);
+        Rect pieceInView = inTheView.HasValue
+            ? new Rect(piece.Bounds.Size).TransformToAABB(inTheView.Value)
+            : new Rect(piece.Bounds.Size);
+        Console.WriteLine("piece:    " + piece.Name + " y " + Math.Round(pieceStood.Y)
+            + " h " + Math.Round(pieceStood.Height) + " x " + Math.Round(pieceStood.Width)
+            + " foot " + Math.Round(pieceStood.Bottom)
+            + " | in the view: y " + Math.Round(pieceInView.Y) + " foot " + Math.Round(pieceInView.Bottom)
+            + " asked " + (double.IsNaN(piece.Height) ? "auto" : Math.Round(piece.Height).ToString())
+            + " max " + (double.IsInfinity(piece.MaxHeight) ? "none" : Math.Round(piece.MaxHeight).ToString())
+            + (piece.IsVisible ? "" : " (not drawn)"));
+      }
+
+      // The wall's own picture, because its lower edge is the line the viewer measures the panel against.
+      Visual? wall = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(screen)
+          .OfType<Visual>()
+          .FirstOrDefault(delegate (Visual v) { return v.GetType().Name == "DissolveImage"; });
+      if (wall != null)
+      {
+        var stoodWall = wall.TransformToVisual(window);
+        Rect wallStood = stoodWall.HasValue
+            ? new Rect(wall.Bounds.Size).TransformToAABB(stoodWall.Value)
+            : new Rect(wall.Bounds.Size);
+        Console.WriteLine("wall:     y " + Math.Round(wallStood.Y) + " h " + Math.Round(wallStood.Height)
+            + " foot " + Math.Round(wallStood.Bottom));
+      }
+
+      // And the chain of boxes the story's letters stand in, from the letters outward.
+      Visual? story = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(screen)
+          .OfType<Visual>()
+          .FirstOrDefault(delegate (Visual v) { return (v as Control)?.Name == "detailsText"; });
+      if (story == null)
+      {
+        Console.WriteLine("boxes:    the story's text was not on the screen to be measured.");
+        return;
+      }
+
+      for (Visual? box = story; box != null; box = Avalonia.VisualTree.VisualExtensions.GetVisualParent(box))
+      {
+        var placed = box.TransformToVisual(window);
+        Rect stood = placed.HasValue
+            ? new Rect(box.Bounds.Size).TransformToAABB(placed.Value)
+            : new Rect(box.Bounds.Size);
+        string called = (box as Control)?.Name ?? "";
+        int lines = (box as TextBlock)?.MaxLines ?? 0;
+        Console.WriteLine("box:      " + box.GetType().Name + (called.Length > 0 ? " '" + called + "'" : "")
+            + " x " + Math.Round(stood.X) + " y " + Math.Round(stood.Y)
+            + " w " + Math.Round(stood.Width) + " h " + Math.Round(stood.Height)
+            + " foot " + Math.Round(stood.Bottom)
+            + (lines > 0 ? " lines " + lines : ""));
+        if (ReferenceEquals(box, window))
+        {
+          break;
+        }
+      }
     }
 
     private static string? CheckPosters(WriteableBitmap frame, bool detailsOpen, out string report)

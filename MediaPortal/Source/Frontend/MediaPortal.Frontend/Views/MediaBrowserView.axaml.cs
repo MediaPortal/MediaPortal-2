@@ -448,12 +448,30 @@ namespace MediaPortal.Frontend.Views
         // A window that changed size changed the middle of its picture, which is what both shapes hold their stood
         // cover at and what the shift of their whole row is measured from.
         WearShelfShape(true);
+        // And a window that changed size moved the line its details end at, which is measured off that height.
+        FitStoryIntoThePanel();
       };
       ApplyColumns();
 
       // The plot reads itself down the panel when the worn face says so - the reference's three scroll
       // switches, obeyed. See PlotAutoScroll for what each answer means.
       new PlotAutoScroll(plotScroller, browser);
+
+      // The plot is cut to the room the panel has (see FitStoryIntoThePanel). That room is a measurement and not a
+      // written number: it moves with the window, with the row the story is told from beside or under the cover, and
+      // with the heads an album's lettering or an episode's name stand over it. Every one of those ends in the
+      // story's own box being laid out again, which is the moment the number is worth taking - taken after the pass
+      // that moved it, because a height read during the pass is the height the pass is about to change.
+      plotScroller.SizeChanged += delegate { AskForThePanelToBeFitted(); };
+      detailsWords.SizeChanged += delegate { AskForThePanelToBeFitted(); };
+      browser.PropertyChanged += delegate (object? sender,
+          System.ComponentModel.PropertyChangedEventArgs args)
+      {
+        if (args.PropertyName == nameof(MediaBrowserViewModel.DetailsStoryRow)
+            || args.PropertyName == nameof(MediaBrowserViewModel.DetailsVisible)
+            || args.PropertyName == nameof(MediaBrowserViewModel.ShowsSideDetails))
+          AskForThePanelToBeFitted();
+      };
 
       // A double-click on a row means the Enter that plays it (or opens the series behind it); the search box
       // keeps its Enter for the caret's sake and gets no second path. See HomeWindow for the general reason.
@@ -2313,6 +2331,119 @@ namespace MediaPortal.Frontend.Views
         new ColumnDefinition(GridLength.Star),
         new ColumnDefinition(new GridLength(details))
       };
+    }
+
+    /// <summary>
+    /// Asks for the panel's measuring once more, at the next moment the layout has stopped moving: several of the
+    /// panel's parts change in one and the same pass, and measuring between two of them measures a panel that is
+    /// still being built.
+    /// </summary>
+    private void AskForThePanelToBeFitted()
+    {
+      if (_panelFittingAsked)
+        return;
+
+      _panelFittingAsked = true;
+      Dispatcher.UIThread.Post(delegate
+      {
+        _panelFittingAsked = false;
+        FitStoryIntoThePanel();
+      }, DispatcherPriority.Loaded);
+    }
+
+    private bool _panelFittingAsked;
+
+    /// <summary>
+    /// How far above the lower edge of the screen's own space the details end - a hundred lines of the skin, which
+    /// is the space the panel is measured in and not the window it is displayed in, so that the line travels with
+    /// the picture instead of sliding under it on a window of another shape.  Nothing the panel says or shows
+    /// stands under this line; the viewer drew the line on 2026-11-10, gave it seventy lines, and asked for thirty
+    /// more on 2026-11-10 after seeing it.
+    /// </summary>
+    private const double DETAILS_FLOOR = 100;
+
+    /// <summary>
+    /// The least room the panel will itself reach for, which is the floor the story's own row carries in the view
+    /// (<c>MinHeight="160"</c> in MediaBrowserView.axaml, and the same number the view has always asked for a story).
+    /// Under this the measuring stands back: a panel shorter than one story is a window that has no room for the
+    /// panel at all, and there the clipping, not the measuring, is what keeps the words off the black.
+    /// </summary>
+    private const double STORY_FLOOR = 160;
+
+    /// <summary>
+    /// Keeps the details panel above the line a hundred lines over the lower edge of the space it is drawn in: the
+    /// panel's own box is given the height that leaves it, and the story inside it the number of lines that fit in
+    /// what the panel's head, its facts and the box's own heads then leave.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Why the view has to measure this at all: a box only keeps to a height it is handed, and neither of the two
+    /// boxes was handed one.  The words' grid stands in a Panel which lets its child grow to whatever the child's
+    /// rows ask for - and the row the story is told from is a row of "*" beside the cover, which asks for what is
+    /// left, and a row of "Auto" under a disc, which asks for everything the plot wants.  A plot of nine hundred
+    /// lines therefore asked for nine hundred, which is what ran the words of a long reading a hundred lines past
+    /// the bottom of the screen and cut them through the middle of a glyph.
+    /// </para>
+    /// <para>
+    /// So: the window's height minus the floor, less the height at which the panel's words begin, is the panel's
+    /// height; what is left under the heads of the story box is the story's height; and the plot is cut to the
+    /// lines that fit that height, counted in the line height the view wrote for its own letters, ended with three
+    /// dots by the trimming the view asks for rather than cut mid-glyph.  Both numbers are read and not written
+    /// down because an album brings its lettering over its story, an episode brings its name, a record under a disc
+    /// brings the panel's whole width, and nobody knows the window beforehand.
+    /// </para>
+    /// </remarks>
+    private void FitStoryIntoThePanel()
+    {
+      if (!detailsWords.IsEffectivelyVisible)
+        return;
+
+      // Measured in the skin's own pixels, which is the space the panel is laid out in: the shell may draw that
+      // space bigger or smaller on the screen (ChromeSkinScale), and a line drawn in the skin is meant to travel
+      // with it.  This view's own height is the height of that space.
+      double height = Bounds.Height;
+      if (height <= 0)
+        return;
+
+      Point stood = detailsWords.TranslatePoint(new Point(0, 0), this) ?? new Point(0, -1);
+      if (stood.Y < 0)
+        return;
+
+      // The panel's own height, said in the one line the viewer drew: a hundred lines above the lower edge.
+      double room = height - DETAILS_FLOOR - stood.Y;
+
+      // Under a story's worth of room the panel is kept to that much and no more, which is the same floor the
+      // story's own row asks for: a window of that shape has no room for the panel, and it is the clipping - not a
+      // guess made here - that keeps its words off the black under the line.
+      if (room < STORY_FLOOR)
+      {
+        if (!double.IsNaN(detailsWords.Height) && detailsWords.Height > STORY_FLOOR)
+          detailsWords.Height = STORY_FLOOR;
+        room = STORY_FLOOR;
+      }
+
+      if (double.IsNaN(detailsWords.Height) || Math.Abs(detailsWords.Height - room) > 0.5)
+        detailsWords.Height = room;
+
+      // The story's own box, which is the grid's child: its top edge is said in the grid's coordinates, which is
+      // exactly the pair of numbers the leftover needs.
+      if (plotScroller.Parent is not Control box || !ReferenceEquals(box.Parent, detailsWords))
+        return;
+
+      double left = detailsWords.Bounds.Height - box.Bounds.Y;
+      if (left < STORY_FLOOR)
+        left = STORY_FLOOR;
+
+      if (Math.Abs(box.MaxHeight - left) > 0.5)
+        box.MaxHeight = left;
+
+      double line = detailsText.LineHeight;
+      int lines = line > 0 ? (int)(plotScroller.Bounds.Height / line) : 0;
+      if (lines < 1)
+        lines = 1;
+
+      if (detailsText.MaxLines != lines)
+        detailsText.MaxLines = lines;
     }
 
     /// <summary>

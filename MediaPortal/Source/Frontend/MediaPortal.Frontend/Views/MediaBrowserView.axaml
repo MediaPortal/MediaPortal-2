@@ -2260,10 +2260,21 @@
                 drawn when the panel's only children were the head, the facts and the story. The progress ring and
                 the title's lettering stand at the foot of the head now - where the reference stood them - and on a
                 living-room window of nine hundred and sixty lines that pushed the ring, and with it the last lines
-                of the story, past the bottom edge of the screen. Two hundred leaves the ground still running past
-                the edge (which is what it is for) and keeps the words and the ring inside the picture.
+                of the story, past the bottom edge of the screen.
+
+                Two hundred stays, because the margin is not what holds the words in any more: a box only keeps to a
+                height it is handed, and this one was handed none - the Panel above it let it grow to everything its
+                rows asked for, which for a long reading was a hundred lines past the bottom of the screen.  The view
+                now hands it its height (MediaBrowserView.FitStoryIntoThePanel), measured from the one line the
+                viewer drew under the details: A HUNDRED lines above the lower edge of the space this panel is drawn
+                in, which is the window's own edge when the skin is drawn at its own size.  Clipping is the
+                same rule written down twice, so that neither a word nor a picture can get past it by some route the
+                measuring did not think of.
               -->
-              <Grid Margin="0,140,50,200">
+              <Grid Name="detailsWords"
+                    Margin="0,140,50,200"
+                    VerticalAlignment="Top"
+                    ClipToBounds="True">
                 <Grid.RowDefinitions>
                   <!-- The band the picture used to be described in.  The viewer moved those answers to the left
                        hand side of the reading on 2026-11-02, under the word "Video"; four plaques were asked to
@@ -2807,11 +2818,22 @@
                   the cover and is given both columns - the disc needs the column this one had, and under the
                   cover nothing stands in the way of the full width any more.
                 -->
-                <StackPanel Grid.Row="{Binding DetailsStoryRow}"
-                            Grid.Column="0"
-                            Grid.ColumnSpan="{Binding DetailsStoryColumns}"
-                            Spacing="8"
-                            Margin="0,40,0,0">
+                <!--
+                  A dock and not a stack, because a stack asks every child what it wants and hands out no room:
+                  the story then took the height of its whole plot - nine hundred and ten lines of it on a window
+                  of seven hundred and sixty-eight - and ran the words down past the bottom of the picture and off
+                  the screen. Here the lettering, the title's picture and the episode's name dock to the top as
+                  much as they need, and the story is given what is left and no more.  What is left is measured by
+                  the view (MediaBrowserView.FitStoryIntoThePanel), which is the only place that can know it: the
+                  row this box stands in is a row of "*" beside the cover and a row of "Auto" under it, and a row
+                  of "Auto" hands out exactly what it is asked for, which is everything.
+                -->
+                <DockPanel Name="storyBox"
+                           Grid.Row="{Binding DetailsStoryRow}"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="{Binding DetailsStoryColumns}"
+                           LastChildFill="True"
+                           Margin="0,40,0,0">
                   <!--
                     THE ALBUM'S OWN LETTERING, over its story and nowhere else: the reference stood it at the left
                     hand end of the album's column, a hundred and twenty lines tall and asked of the server no
@@ -2826,7 +2848,8 @@
                     same name twice on one screen is not showing it better.  An album that has neither kind says
                     nothing, which the frame below already promises by disappearing with the bytes.
                   -->
-                  <Image Source="{Binding DetailsAlbumLettering,
+                  <Image DockPanel.Dock="Top"
+                         Source="{Binding DetailsAlbumLettering,
                                           Converter={x:Static views:ArtworkConverter.Instance},
                                           ConverterParameter=small}"
                          Height="120"
@@ -2845,7 +2868,8 @@
                     lines, no wider than two hundred and forty. Most libraries hold none, and the frame then
                     costs nothing.
                   -->
-                  <Image Source="{Binding DetailsClearArt,
+                  <Image DockPanel.Dock="Top"
+                         Source="{Binding DetailsClearArt,
                                           Converter={x:Static views:ArtworkConverter.Instance},
                                           ConverterParameter=small}"
                          Height="140"
@@ -2858,11 +2882,13 @@
                        it is this episode's sentence, and a title over its sentence is what a viewer reads -
                        a number row cannot carry it without the story losing its head. Only episodes wear it;
                        every other title answers the empty string and the row costs nothing. -->
-                  <TextBlock Text="{Binding DetailsEpisodeName}"
+                  <TextBlock DockPanel.Dock="Top"
+                             Text="{Binding DetailsEpisodeName}"
                              FontSize="26"
                              FontWeight="Bold"
                              Foreground="{DynamicResource TextBrush}"
                              TextWrapping="Wrap"
+                             Margin="0,0,0,8"
                              IsVisible="{Binding DetailsEpisodeName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                   <!-- Nothing to read, no room spent: a song whose library wrote no prose about it shows an empty
                        strip of nothing, which reads as a broken panel rather than as a record nobody described
@@ -2877,9 +2903,10 @@
                                FontSize="23"
                                LineHeight="32"
                                Foreground="{DynamicResource TextBrush}"
-                               TextWrapping="Wrap"/>
+                               TextWrapping="Wrap"
+                               TextTrimming="CharacterEllipsis"/>
                   </ScrollViewer>
-                </StackPanel>
+                </DockPanel>
               </Grid>
             </Panel>
           </Border>
