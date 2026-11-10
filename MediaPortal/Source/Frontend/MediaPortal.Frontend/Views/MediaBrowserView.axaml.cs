@@ -2540,7 +2540,11 @@ namespace MediaPortal.Frontend.Views
         // Not a ClearValue: that would take the markup's floor away for good, and the wall would stand on the
         // bottom edge whatever the markup says.  The number is the markup's and is put back as it was read.
         titlesList.Margin = _shelfFloor;
-        ScrollViewer.SetVerticalScrollBarVisibility(titlesList, ScrollBarVisibility.Auto);
+        // No bar beside the wall either, for the same reason the cover row has none: the shelf is walked with the
+        // caret and slides to the stood-on title by itself, so a bar only ever drew a bright strip down the edge
+        // of the room, next to the last column of posters.  Hidden and not Disabled - the wheel, the page keys and
+        // the caret still have to be able to move the wall; only its drawing is asked for.
+        ScrollViewer.SetVerticalScrollBarVisibility(titlesList, ScrollBarVisibility.Hidden);
         ScrollViewer.SetHorizontalScrollBarVisibility(titlesList, ScrollBarVisibility.Disabled);
         if (viewModel.Layout != BrowserLayout.List)
           titlesList.ItemsPanel = TILE_PANEL;

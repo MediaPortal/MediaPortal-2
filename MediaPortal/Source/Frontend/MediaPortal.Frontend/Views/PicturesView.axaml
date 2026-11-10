@@ -49,12 +49,15 @@
                    MaxWidth="900" />
       </StackPanel>
 
+      <!-- The wall of pictures is walked with the caret like every other shelf, so it needs no bar beside it -
+           Hidden, not Disabled: the caret, the keys and the wheel still move the wall. -->
       <ListBox Name="tilesList" theming:SkinTemplates.TileTemplate="PictureTileTemplate"
                Focusable="True"
                ItemsSource="{Binding Tiles}"
                SelectedItem="{Binding Selected, Mode=TwoWay}"
                Background="Transparent"
-               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               ScrollViewer.VerticalScrollBarVisibility="Hidden">
         <ListBox.ItemsPanel>
           <ItemsPanelTemplate>
             <WrapPanel />

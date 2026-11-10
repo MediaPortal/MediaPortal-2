@@ -1856,6 +1856,7 @@
                        ItemTemplate="{StaticResource BuiltinRowsTemplate}"
                        FontSize="24"
                        Margin="0,0,0,53"
+                       ScrollViewer.VerticalScrollBarVisibility="Hidden"
                        ClipToBounds="False"/>
             </DockPanel>
 
