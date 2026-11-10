@@ -1515,6 +1515,19 @@ namespace MediaPortal.Server.Api
 
       public string Certification { get; set; }
 
+      /// <summary>
+      /// How old the viewer has to be for this title, in years, or null when the mark names no number.
+      /// What the library keeps is a mark - "US_TV14", "DE_FSK16" - and a screen printing that mark
+      /// shows the viewer a code instead of the one thing the mark exists for. So the server reads the
+      /// years off its own table (CertificationMapper, the same table the country translation is read
+      /// from) and answers them here, which lets a screen say "16" and leave the mark at home. A mark
+      /// asking for nothing answers "0" rather than nothing at all: "FSK 0" and "G" are verdicts the
+      /// certificate handed down like any other, and a screen that fell silent on them would leave the
+      /// viewer wondering whether the title was ever rated. Only a mark the table does not know, and a
+      /// title carrying no mark at all, answer null.
+      /// </summary>
+      public int? Age { get; set; }
+
       /// <summary>The collection a film belongs to, e.g. "Alien Collection". Null for the rest.</summary>
       public string Collection { get; set; }
 
@@ -1770,6 +1783,10 @@ namespace MediaPortal.Server.Api
         // Translated last, because the file beside a title can be the only place its certificate is written down,
         // and a household that asked for its own country's mark should get it whichever of the two sources spoke.
         result.Certification = ShownCertification(item, result.Certification);
+        // Asked of the word that now stands in the answer rather than of the one the library keeps: when the
+        // household had its marks translated, the translation picks its own country's nearest mark, and the
+        // screen must show the years that go with the mark it is showing.
+        result.Age = ShownAge(item, result.Certification);
         return result;
       }
       catch (IllegalCallException ex)
@@ -2726,6 +2743,35 @@ namespace MediaPortal.Server.Api
     /// levels above it, so a library with season folders and one without are both read.
     /// </para>
     /// </remarks>
+    /// <summary>
+    /// How old the viewer has to be for the mark this household is told about, in years, or null when the mark
+    /// names no number.
+    /// </summary>
+    /// <param name="item">The title, whose aspects say whether it is a film or something of a series.</param>
+    /// <param name="shown">The certificate as it is being answered, which <see cref="ShownCertification"/> picked.</param>
+    /// <remarks>
+    /// What the library keeps is a mark - "US_TV14" - and a screen printing that mark shows the viewer a code
+    /// instead of the fourteen years the code stands for, so the years are read off the table the country
+    /// translation is read from too. Asked of the SHOWN mark rather than of the stored one: a household that had
+    /// its marks translated gets the nearest mark of its own country, and the number has to go with the mark it
+    /// is actually shown. A mark the table does not know answers null, for the same reason the translation
+    /// refuses to guess - a screen inventing an age would forbid titles the certificate never forbade. A mark
+    /// that asks for nothing ("DE_FSK0", "US_G") answers "0" and is shown as such: it is a verdict the
+    /// certificate handed down like any other, and a screen falling silent on it would leave the viewer
+    /// wondering whether the title was ever rated at all.
+    /// </remarks>
+    private static int? ShownAge(MediaItem item, string shown)
+    {
+      if (string.IsNullOrEmpty(shown) || item == null || item.Aspects == null)
+        return null;
+
+      CertificationMapping mark;
+      bool known = item.Aspects.ContainsKey(MovieAspect.ASPECT_ID)
+          ? CertificationMapper.TryFindMovieCertification(shown, out mark)
+          : CertificationMapper.TryFindSeriesCertification(shown, out mark);
+      return known ? mark.AllowedAge : (int?)null;
+    }
+
     /// <summary>
     /// The age certificate this household is told about, out of the one the library holds.
     /// </summary>

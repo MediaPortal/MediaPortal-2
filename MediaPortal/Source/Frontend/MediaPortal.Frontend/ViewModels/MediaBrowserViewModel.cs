@@ -5010,8 +5010,15 @@ namespace MediaPortal.Frontend.ViewModels
       if (details.FirstAired.HasValue && !isSeason)
         AddFact(IsMusic ? "Released" : "First aired",
             details.FirstAired.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-      if (!string.IsNullOrWhiteSpace(details.Certification) && AgeLogosShown)
-        AddFact("Age", FirstAge(details.Certification!));
+      // How old the viewer has to be, as a plain number. What the library keeps is a mark - "US_TV14" - and a
+      // row printing that shows the viewer a code instead of the fourteen years the code stands for, so the
+      // server reads the years off its own certificate table and sends them. A mark asking for nothing ("FSK 0",
+      // "G") arrives as 0 and stands as 0, because it is a verdict like any other; only a title whose mark the
+      // table does not know - or which carries none - leaves the row out, which is what the panel does with
+      // everything it does not know. Gated by the skin's switch, which hung the certification logo on the
+      // poster in the reference.
+      if (AgeLogosShown && details.Age.HasValue)
+        AddFact("Age", details.Age.Value.ToString(CultureInfo.InvariantCulture));
       if (details.Genres != null && details.Genres.Count > 0)
       {
         List<string> kinds = new List<string>();
@@ -5069,21 +5076,6 @@ namespace MediaPortal.Frontend.ViewModels
       _collectionFilmsFor = "";
       OnPropertyChanged(nameof(ShowsCollectionFilms));
       DetailsCollection = named;
-    }
-
-    /// <summary>
-    /// The first of the ages a library wrote down for one title.
-    /// </summary>
-    /// <remarks>
-    /// An importer that matched several labels files them all under the one heading, separated by slashes
-    /// (<c>DE:FSK 16 / DE:FSK-16 / DE:FSK16 / DE:16 / DE:ab 16</c>) - one answer written five ways, which takes
-    /// the whole width of the panel away from the kinds of story standing beside it. The panel is a screen, not
-    /// the library's record: it says the age once, in the spelling the library met first.
-    /// </remarks>
-    private static string FirstAge(string certification)
-    {
-      int slash = certification.IndexOf('/');
-      return slash < 0 ? certification.Trim() : certification.Substring(0, slash).Trim();
     }
 
     /// <summary>One fact on the panel's list, which is only added when it has something to say.</summary>
@@ -6045,8 +6037,8 @@ namespace MediaPortal.Frontend.ViewModels
       // The age a viewer has to be, shown where the reference showed its age certification logo - and obeying
       // the same switch (EnableAgeCertificationLogos), because the reference's logos and this machine's word
       // answer the same question and one off means the other off.
-      if (!string.IsNullOrWhiteSpace(details.Certification) && AgeLogosShown)
-        parts.Add(details.Certification!.Trim());
+      if (AgeLogosShown && details.Age.HasValue)
+        parts.Add("age " + details.Age.Value.ToString(CultureInfo.InvariantCulture));
 
       // The number the panel is lit with, said in words too - the same answer the stars are lit from, so that the
       // sentence beside the plot and the stars above it can never say two different things.

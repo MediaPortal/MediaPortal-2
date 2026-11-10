@@ -1284,8 +1284,8 @@ namespace MediaPortal.Frontend.ViewModels
               + details.FirstAired.Value.ToString("d MMM yyyy", CultureInfo.InvariantCulture));
         if (details.RuntimeMinutes != null)
           lines.Add("runs " + Format(details.RuntimeMinutes.Value * 60_000L));
-        if (!string.IsNullOrEmpty(details.Certification))
-          lines.Add("rated " + details.Certification);
+        if (details.Age.HasValue)
+          lines.Add("age " + details.Age.Value.ToString(CultureInfo.InvariantCulture));
         if (details.Rating != null)
           lines.Add("your rating: " + details.Rating.Value + "/10");
         else if (details.TotalRating != null)

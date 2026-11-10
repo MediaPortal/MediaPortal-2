@@ -4164,7 +4164,7 @@ namespace Tests.Frontend
     private static readonly string TITANIC_DETAILS =
         "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"runtimeMinutes\":195,"
         + "\"overview\":\"A drawing from 1912 leads a treasure hunter to a wreck.\","
-        + "\"certification\":\"PG-13\",\"rating\":9,\"playCount\":2,"
+        + "\"certification\":\"PG-13\",\"age\":13,\"rating\":9,\"playCount\":2,"
         + "\"lastPlayed\":\"2025-03-02T00:00:00\"}";
 
     /// <summary>
@@ -4402,8 +4402,9 @@ namespace Tests.Frontend
           "the reference detail screens put the studio's sentence under the title, and the server has always "
           + "carried it - a details panel that drops it is reading the library with half an eye");
       Assert.That(browser.DetailsLine, Does.Contain("195 min"));
-      Assert.That(browser.DetailsLine, Does.Contain("PG-13"),
-          "how old a viewer has to be is the first thing two people argue about over a film");
+      Assert.That(browser.DetailsLine, Does.Contain("age 13"),
+          "how old a viewer has to be is the first thing two people argue about over a film, and the panel says "
+          + "the fourteen years rather than the letters the importer happened to write down");
       Assert.That(browser.DetailsLine, Does.Contain("rated 9/10"));
       Assert.That(browser.DetailsLine, Does.Contain("watched 2"), "and whether they have seen it");
       Assert.That(browser.DetailsLine, Does.Contain("2025-03-02"));
@@ -4417,8 +4418,8 @@ namespace Tests.Frontend
     public void TheAgeCertificationSwitchCommandsTheDetailsLine()
     {
       // EnableAgeCertificationLogos hung the certification logo on the poster in the reference. This
-      // machine's skins ship no logo pictures, so the certification stands in words - and the same switch
-      // says yes or no to the same fact.
+      // machine's skins ship no logo pictures, so the age stands in words - and the same switch says yes or
+      // no to the same fact.
       string previousDir = Environment.GetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR") ?? "";
       Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR",
           Path.Combine(Path.GetTempPath(), "mp2-age-" + Guid.NewGuid().ToString("N")));
@@ -4430,14 +4431,14 @@ namespace Tests.Frontend
         FrontendTheme.Apply(app, "nereus", out _);
 
         string details =
-            "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"certification\":\"PG-13\"}";
+            "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"certification\":\"PG-13\",\"age\":13}";
         DetailsServer server = new DetailsServer(HttpStatusCode.OK, details);
         MediaBrowserViewModel browser = BrowserOn(server);
         browser.Selected = new TitleViewModel(
             new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
 
         WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
-        Assert.That(browser.DetailsLine, Does.Contain("PG-13"),
+        Assert.That(browser.DetailsLine, Does.Contain("age 13"),
             "the switch ships on, and the age the film carries is said");
 
         NereusSkinSettings off = new NereusSkinSettings();
@@ -4459,6 +4460,26 @@ namespace Tests.Frontend
           FrontendTheme.Apply(Application.Current!, wasTheme, out _);
         Environment.SetEnvironmentVariable("MP2_SKIN_SETTINGS_DIR", previousDir.Length == 0 ? null : previousDir);
       }
+    }
+
+    [AvaloniaTest]
+    public void ATitleAnyoneMaySeeSaysItsZero()
+    {
+      // "FSK 0" is a verdict the certificate handed down like any other, and the number it asks for is none.
+      // A row falling silent here would read exactly like a title nobody ever rated, and a viewer has no way
+      // of telling the two apart - so the panel says the zero.
+      string details =
+          "{\"id\":\"" + TITANIC + "\",\"title\":\"Titanic\",\"year\":1997,\"certification\":\"DE_FSK0\",\"age\":0}";
+      DetailsServer server = new DetailsServer(HttpStatusCode.OK, details);
+      MediaBrowserViewModel browser = BrowserOn(server);
+      browser.Selected = new TitleViewModel(
+          new MediaTitle(new Guid(TITANIC), "Titanic", null, 1997, null, null, false));
+
+      WaitUntil("the details to open", delegate { return browser.DetailsVisible; });
+      Assert.That(AnswerOf(browser, "Age"), Is.EqualTo("0"),
+          "zero is an answer, and the row of the panel says it out loud");
+      Assert.That(browser.DetailsLine, Does.Contain("age 0"),
+          "and so does the sentence beside the plot, which is the same answer in a sentence");
     }
 
     [AvaloniaTest]

@@ -363,7 +363,14 @@ namespace MediaPortal.Frontend.Api
       // a song does not.  A server too old to answer still reads as this record, with every one of them null.
       [property: JsonPropertyName("artist")] string? Artist = null,
       [property: JsonPropertyName("album")] string? Album = null,
-      [property: JsonPropertyName("albumArtist")] string? AlbumArtist = null)
+      [property: JsonPropertyName("albumArtist")] string? AlbumArtist = null,
+      // Appended last for the same reason: how old the viewer has to be, in years, which the server reads off
+      // its own certificate table.  What the library keeps is a mark - "US_TV14" - and a screen printing that
+      // mark shows the viewer a code instead of the one thing the mark is there for, so the number travels
+      // beside the word. A mark asking for nothing arrives as 0 and is shown as 0 - "FSK 0" is a verdict like
+      // any other. Null only when there is no mark to read or the table does not know it, and then a screen
+      // says nothing about age.
+      [property: JsonPropertyName("age")] int? Age = null)
   {
     /// <summary>
     /// The longest single line of prose the title carries, or null when it carries none. What a details screen

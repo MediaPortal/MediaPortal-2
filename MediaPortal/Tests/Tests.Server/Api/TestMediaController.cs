@@ -888,6 +888,84 @@ namespace Tests.Server.Api
     }
 
     [Test]
+    public void TheAgeOfAFilmIsTheYearsItsCertificateAsksFor()
+    {
+      // A front end handed "US_TV14" prints "US_TV14", which is a code, not the answer. The years come with the
+      // mark from the server's own table, so the screen can say what a viewer has to be and leave the code out.
+      Guid id = Guid.NewGuid();
+      MediaItem item = CreateCertifiedItem(id, "Alien Earth", "PG-13");
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+      Assert.That(result.Age, Is.EqualTo(13),
+          "PG-13 asks for thirteen years, and thirteen is what a screen wants to write");
+    }
+
+    [Test]
+    public void TheAgeOfATitleAnyoneMaySeeIsSaidAsZero()
+    {
+      // "FSK 0" is a verdict the certificate handed down like any other, so it is answered like any other: a
+      // screen falling silent on it would leave the viewer wondering whether the title was ever rated at all.
+      Guid id = Guid.NewGuid();
+      MediaItem item = CreateCertifiedItem(id, "Alien Earth", "FSK 0");
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+      Assert.That(result.Age, Is.EqualTo(0),
+          "no restriction is still an answer, and the only one that tells the viewer the title was rated");
+    }
+
+    [Test]
+    public void TheAgeOfACertificateNobodyCanAnswerForIsNotSaid()
+    {
+      // A mark the table holds nothing for has no number to give. Guessing one from the letters of a foreign
+      // mark would have the screen forbid titles the certificate never forbade, so nothing is said instead.
+      Guid id = Guid.NewGuid();
+      MediaItem item = CreateCertifiedItem(id, "Alien Earth", "NOT_RATED");
+
+      ActionResult<MediaController.ItemResult> action;
+      MediaController.ItemResult result = GetItem(
+          CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+      Assert.That(result.Age, Is.Null,
+          "no mark, no number - the panel leaves the row out rather than inventing a restriction");
+    }
+
+    [Test]
+    public void TheAgeTravelsWithTheCertificateTheHouseholdIsShown()
+    {
+      // A household reading German marks is told "FSK 18" for an American "R", and the translation picks the
+      // nearest German mark, which can ask for a year more than the stored one. Then the number has to move
+      // with the word: a screen writing "FSK 18" over a thirteen is a screen contradicting itself.
+      MediaCertificationSettings countries = new MediaCertificationSettings
+      {
+        DisplayMovieCertificationCountry = "DE"
+      };
+      TheHouseholdWishes(countries);
+      try
+      {
+        Guid id = Guid.NewGuid();
+        MediaItem item = CreateCertifiedItem(id, "Alien Earth", "R");
+
+        ActionResult<MediaController.ItemResult> action;
+        MediaController.ItemResult result = GetItem(
+            CreateLibrary(new List<MediaItem> { item }, 1, out _, out _), id, out action);
+
+        Assert.That(result.Certification, Is.EqualTo("FSK 18"));
+        Assert.That(result.Age, Is.EqualTo(18),
+            "seventeen is what the American mark asked for, but the screen is showing the German one");
+      }
+      finally
+      {
+        NobodyWishesAnything();
+      }
+    }
+
+    [Test]
     public void ACertificateOfTheCountryTheHouseholdNamedStandsUntouched()
     {
       MediaCertificationSettings countries = new MediaCertificationSettings

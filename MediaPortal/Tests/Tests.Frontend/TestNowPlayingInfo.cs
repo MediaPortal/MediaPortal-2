@@ -48,7 +48,8 @@ namespace Tests.Frontend
     {
       return new MediaItemDetails(id, "The Film", null, 1999, new DateTime(1999, 3, 5),
           new List<string> { "Drama", "Crime" }, 120, "A film about film.", null, null, "FSK 16",
-          null, null, 8.4, null, null, null, null, null, null, "d:\\media\\the.film.mkv", false, null);
+          null, null, 8.4, null, null, null, null, null, null, "d:\\media\\the.film.mkv", false, null,
+          Age: 16);
     }
 
     [Test]
@@ -64,7 +65,7 @@ namespace Tests.Frontend
       Assert.That(nowPlaying.MediaInfoText, Does.Contain("The Film (1999)"));
       Assert.That(nowPlaying.MediaInfoText, Does.Contain("Drama, Crime"));
       Assert.That(nowPlaying.MediaInfoText, Does.Contain("first aired 5 Mar 1999"));
-      Assert.That(nowPlaying.MediaInfoText, Does.Contain("rated FSK 16"));
+      Assert.That(nowPlaying.MediaInfoText, Does.Contain("age 16"));
       Assert.That(nowPlaying.MediaInfoText, Does.Contain("d:\\media\\the.film.mkv"));
       Assert.That(nowPlaying.MediaInfoText, Does.Contain("A film about film."));
     }
