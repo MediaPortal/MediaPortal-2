@@ -163,14 +163,16 @@ public sealed class ClientSettings
   };
 
   /// <summary>
-  /// The three answers the language row walks, in the order the reference walked them: the machine's own
-  /// first, then the two languages MP2 itself shipped translations for.
+  /// The answers the language row walks: the machine's own first, then the languages this front end has words
+  /// and a keyboard for. The reference offered its two; French joined when the French keyboard was ported, since
+  /// a layout nobody can choose is a layout nobody gets.
   /// </summary>
   public static readonly (string Code, string Label)[] LANGUAGES =
   {
     ("", "System default"),
     ("en-GB", "English"),
-    ("de-DE", "Deutsch")
+    ("de-DE", "Deutsch"),
+    ("fr-FR", "Français")
   };
 
   /// <summary>

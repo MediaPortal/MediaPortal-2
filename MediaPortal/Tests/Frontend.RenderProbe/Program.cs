@@ -1803,11 +1803,63 @@ namespace FrontendProbe
               right = Math.Max(right, at.X + tile.Bounds.Width);
               bottom = Math.Max(bottom, at.Y + tile.Bounds.Height);
             }
+            static string Worn(Button tile) =>
+                tile.Content is string word ? word
+                : tile.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>()
+                      .FirstOrDefault()?.Tag as string ?? tile.Content?.ToString() ?? "?";
             Console.WriteLine("keys:     " + tiles.Count + " tile(s) over x " + Math.Round(left) + ".."
                 + Math.Round(right) + ", y " + Math.Round(top) + ".." + Math.Round(bottom) + " (foot "
                 + Math.Round(bottom) + " of " + Math.Round(searchScreen.Bounds.Height) + "); first tile \""
-                + (tiles.Count > 0 ? tiles[0].Content : "?") + "\", last tile \""
-                + (tiles.Count > 0 ? tiles[tiles.Count - 1].Content : "?") + "\"");
+                + (tiles.Count > 0 ? Worn(tiles[0]) : "?") + "\", last tile \""
+                + (tiles.Count > 0 ? Worn(tiles[tiles.Count - 1]) : "?") + "\"");
+            foreach (string markName in new[] { "shiftButton", "capsButton" })
+            {
+              Button? mark = keys.GetVisualDescendants().OfType<Button>()
+                  .FirstOrDefault(tile => tile.Name == markName);
+              if (mark == null)
+              {
+                Console.WriteLine("marks:    '" + markName + "' NOT ON THE TREE");
+                continue;
+              }
+
+              Point at = BoundsOn(searchScreen, mark);
+              Avalonia.Controls.Shapes.Path? shape = mark.GetVisualDescendants()
+                  .OfType<Avalonia.Controls.Shapes.Path>().FirstOrDefault();
+              Console.WriteLine("marks:    '" + markName + "' x " + Math.Round(at.X) + ".."
+                  + Math.Round(at.X + mark.Bounds.Width) + " y " + Math.Round(at.Y) + ".."
+                  + Math.Round(at.Y + mark.Bounds.Height)
+                  + (shape == null ? " carries NO shape" : " -> shape x "
+                      + Math.Round(BoundsOn(searchScreen, shape).X) + ".."
+                      + Math.Round(BoundsOn(searchScreen, shape).X + shape.Bounds.Width) + " y "
+                      + Math.Round(BoundsOn(searchScreen, shape).Y) + ".."
+                      + Math.Round(BoundsOn(searchScreen, shape).Y + shape.Bounds.Height) + " \""
+                      + shape.Tag + "\""));
+            }
+
+            foreach (string drawnClass in new[] { "keyboard-space", "keyboard-back", "keyboard-done" })
+            {
+              Button? tile = keys.GetVisualDescendants().OfType<Button>()
+                  .FirstOrDefault(t2 => t2.Classes.Contains(drawnClass));
+              if (tile == null)
+              {
+                Console.WriteLine("marks:    class '" + drawnClass + "' NOT ON THE TREE");
+                continue;
+              }
+
+              Point at = BoundsOn(searchScreen, tile);
+              Avalonia.Controls.Shapes.Path? shape = tile.GetVisualDescendants()
+                  .OfType<Avalonia.Controls.Shapes.Path>().FirstOrDefault();
+              Console.WriteLine("marks:    '" + drawnClass + "' x " + Math.Round(at.X) + ".."
+                  + Math.Round(at.X + tile.Bounds.Width) + " y " + Math.Round(at.Y) + ".."
+                  + Math.Round(at.Y + tile.Bounds.Height)
+                  + (shape == null ? " carries NO shape" : " -> shape x "
+                      + Math.Round(BoundsOn(searchScreen, shape).X) + ".."
+                      + Math.Round(BoundsOn(searchScreen, shape).X + shape.Bounds.Width) + " y "
+                      + Math.Round(BoundsOn(searchScreen, shape).Y) + ".."
+                      + Math.Round(BoundsOn(searchScreen, shape).Y + shape.Bounds.Height) + " \""
+                      + shape.Tag + "\""));
+            }
+
             Control? slab = keys.GetVisualDescendants().OfType<Control>().FirstOrDefault(c => c.Name == "slab");
             Control? edited = keys.GetVisualDescendants().OfType<Control>().FirstOrDefault(c => c.Name == "editText");
             foreach ((string label, Control? part) in new (string, Control?)[] { ("slab", slab), ("edited", edited) })

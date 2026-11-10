@@ -95,6 +95,48 @@ namespace Tests.Frontend
     }
 
     [Test]
+    public void FrenchSpeaksAzertyAndItsOwnLetters()
+    {
+      string normal = string.Concat(VirtualKeyboardLayout.French.For(false, false)
+          .SelectMany(row => row).Where(k => k.Type == VirtualKeyType.Text).Select(k => k.Legend));
+      Assert.That(normal, Does.Contain("°"),
+          "the degree sign closes the number row, where the reference's French file has it");
+
+      // The reference's French file puts the u with the grave accent in its SHIFTED fourth row, beside the angle
+      // brackets - not on the key beside the L where a French hardware keyboard carries it.  That is what the file
+      // says, so that is what the port carries.
+      string shifted = string.Concat(VirtualKeyboardLayout.French.For(true, false)
+          .SelectMany(row => row).Where(k => k.Type == VirtualKeyType.Text).Select(k => k.Legend));
+      Assert.That(shifted, Does.Contain("ù"),
+          "the u with the grave accent is reached with the shift, exactly where the reference's French file puts it");
+
+      Assert.That(VirtualKeyboardLayout.French.For(false, false)[1].Take(6).Select(k => k.Legend),
+          Is.EqualTo(new[] { "a", "z", "e", "r", "t", "y" }),
+          "the row under the numbers begins a z e r t y, which is what makes the layout AZERTY");
+      Assert.That(VirtualKeyboardLayout.French.For(true, false)[1].Take(6).Select(k => k.Legend),
+          Is.EqualTo(new[] { "A", "Z", "E", "R", "T", "Y" }), "and the shifted grid turns those very letters over");
+
+      // The French file of the reference reuses the base file's number row and its two Alt-Gr grids instead of
+      // writing its own, so the digits stand unshifted and the Alt-Gr grids ARE the English ones - which is what
+      // the French file does, checked key for key against both files before it was ported.
+      Assert.That(VirtualKeyboardLayout.French.For(false, false)[0][0].Legend, Is.EqualTo("1"),
+          "the number row is the base file's: a 1 is typed without the shift");
+      Assert.That(VirtualKeyboardLayout.French.For(false, true),
+          Is.SameAs(VirtualKeyboardLayout.English.For(false, true)),
+          "and its Alt-Gr grid is the base file's grid, not a copy of it");
+    }
+
+    [Test]
+    public void EnglishSpeaksQwertyAndStandsBehindEveryLanguageWithoutItsOwnFile()
+    {
+      Assert.That(VirtualKeyboardLayout.English.For(false, false)[1].Take(4).Select(k => k.Legend),
+          Is.EqualTo(new[] { "q", "w", "e", "r" }),
+          "the base file is QWERTY, so an English viewer gets the row their keyboard has");
+      Assert.That(VirtualKeyboardLayout.English.For(false, false)[3][0].Legend, Is.EqualTo("z"),
+          "and the z keeps its place at the end of the bottom row, where AZERTY hands it to the second row");
+    }
+
+    [Test]
     public void TheCulturePicksItsLayoutTheWayTheReferenceFallsBack()
     {
       Assert.That(VirtualKeyboardLayout.ForCulture("de"), Is.SameAs(VirtualKeyboardLayout.German));
@@ -102,9 +144,17 @@ namespace Tests.Frontend
       Assert.That(VirtualKeyboardLayout.ForCulture(" DE "), Is.SameAs(VirtualKeyboardLayout.German),
           "the name is trimmed and caseless before it is asked");
 
-      // The reference carries no layout beyond its own language and English, and every other language falls
+      // The reference carries two language files of its own, so both answers are found by the two letters the
+      // layout lookup puts behind the resource name - VirtualKeyboardStyle_de and VirtualKeyboardStyle_fr.
+      Assert.That(VirtualKeyboardLayout.ForCulture("fr"), Is.SameAs(VirtualKeyboardLayout.French));
+      Assert.That(VirtualKeyboardLayout.ForCulture("fr-FR"), Is.SameAs(VirtualKeyboardLayout.French));
+      Assert.That(VirtualKeyboardLayout.ForCulture("fr-CA"), Is.SameAs(VirtualKeyboardLayout.French),
+          "a French-Canadian viewer is answered by the French file, as the reference answers a child culture by its parent");
+
+      // The reference carries no layout beyond those two and English, and every other language falls
       // back to the English file - the same answer a null or an empty culture name gives.
       Assert.That(VirtualKeyboardLayout.ForCulture("en"), Is.SameAs(VirtualKeyboardLayout.English));
+      Assert.That(VirtualKeyboardLayout.ForCulture("en-GB"), Is.SameAs(VirtualKeyboardLayout.English));
       Assert.That(VirtualKeyboardLayout.ForCulture("it"), Is.SameAs(VirtualKeyboardLayout.English));
       Assert.That(VirtualKeyboardLayout.ForCulture(null), Is.SameAs(VirtualKeyboardLayout.English));
       Assert.That(VirtualKeyboardLayout.ForCulture(""), Is.SameAs(VirtualKeyboardLayout.English));

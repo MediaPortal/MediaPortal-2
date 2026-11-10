@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="MediaPortal.Frontend.Views.VirtualKeyboardView"
              Name="keyboardScreen">
@@ -31,6 +31,8 @@
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="MinHeight" Value="60"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
       <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
       <Setter Property="FocusAdorner" Value="{x:Null}"/>
       <Setter Property="Transitions">
@@ -128,37 +130,53 @@
 
       <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
 
-        <!-- The reference's ControlArea: its three sticky modifiers, then Copy and Paste. -->
-        <StackPanel Grid.Column="0" Spacing="6" MinWidth="150">
+        <!--
+          The reference's ControlArea: its three sticky modifiers, then Copy and Paste.  Like the reference this
+          is a one column grid (VirtualKeyboardStyle.xaml:24-28), so every key of the column is as broad as the
+          broadest of them - the words measure the column, and a key that wears a shape takes no room of its own
+          and asks for none beyond what its neighbours already needed.
+        -->
+        <Grid Grid.Column="0" ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
+          <!--
+            Every one of these keys is stretched to the column's breadth on purpose: a button of this front end
+            asks to stand at the left of its room unless it is told otherwise (which is why the keys of the grids
+            are stretched in code too, VirtualKeyboardView.axaml.cs:275), and left to itself each key of the
+            column would shrink to its own word or shape.
+          -->
           <ToggleButton Name="altGrButton"
                         Classes="keyboard-key"
+                        Grid.Row="0"
+                        HorizontalAlignment="Stretch"
                         Content="Alt Gr"
-                        HorizontalContentAlignment="Center"
                         FontSize="20"
                         Padding="8,10"/>
           <ToggleButton Name="shiftButton"
                         Classes="keyboard-key"
-                        Content="Shift"
-                        HorizontalContentAlignment="Center"
+                        Grid.Row="1"
+                        HorizontalAlignment="Stretch"
                         FontSize="20"
                         Padding="8,10"/>
           <ToggleButton Name="capsButton"
                         Classes="keyboard-key"
-                        Content="Caps Lock"
-                        HorizontalContentAlignment="Center"
+                        Grid.Row="2"
+                        HorizontalAlignment="Stretch"
                         FontSize="20"
                         Padding="8,10"/>
           <Button Name="copyButton"
                   Classes="keyboard-key"
+                  Grid.Row="3"
+                  HorizontalAlignment="Stretch"
                   Content="Copy"
                   FontSize="20"
                   Padding="8,10"/>
           <Button Name="pasteButton"
                   Classes="keyboard-key"
+                  Grid.Row="4"
+                  HorizontalAlignment="Stretch"
                   Content="Paste"
                   FontSize="20"
                   Padding="8,10"/>
-        </StackPanel>
+        </Grid>
 
         <!-- The four grids; exactly one is visible, per the reference's state expressions. -->
         <StackPanel Grid.Column="1" Name="gridArea" Spacing="6"/>

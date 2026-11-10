@@ -87,6 +87,15 @@
     <None Update="Skins\**\*.xml" CopyToOutputDirectory="Always" />
     <None Update="Skins\index.txt" CopyToOutputDirectory="Always" />
     <!--
+      The words a viewer reads - the same strings_*.xml files the reference's localization module read out of its
+      skin folder (Theming/SkinWords.cs says why this front end reads them itself rather than asking a service it
+      does not own). They are markup of a kind, they are three small files, and a stale copy next to the
+      executable would spell the keyboard in yesterday's language, so they ride unconditionally like the skin's
+      own markup does. strings_en.xml is the SkinBase file as it ships; strings_de.xml and strings_fr.xml are the
+      translations this repository's Transifex cache holds for SkinBase, copied over unedited.
+    -->
+    <None Update="Language\**\*.xml" CopyToOutputDirectory="Always" />
+    <!--
       The welcome picture a start opens with - the household's wallpaper behind the PIN question. It rides
       inside the assembly on purpose: the start shows it before any skin folder is even asked about, so it
       cannot live in one.

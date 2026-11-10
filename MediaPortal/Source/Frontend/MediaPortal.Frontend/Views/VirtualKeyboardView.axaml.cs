@@ -58,6 +58,18 @@ namespace MediaPortal.Frontend.Views
     private DispatcherTimer? _bounceTimer;
 
     /// <summary>
+    /// How long a hand has to hold the back key before it starts eating, and how fast it eats afterwards.  The
+    /// reference never repeated at all - one press was one letter, and a name typed three letters too long was
+    /// deleted with twelve presses of a remote - so this is a wish of the viewer rather than a port, and it is
+    /// kept to the one key that deletes.
+    /// </summary>
+    private static readonly TimeSpan REPEAT_AFTER = TimeSpan.FromMilliseconds(500);
+
+    private static readonly TimeSpan REPEAT_EVERY = TimeSpan.FromMilliseconds(60);
+    private DispatcherTimer? _eating;
+    private bool _backKeyAte;
+
+    /// <summary>
     /// How far the keys lean against an edge and spring back.  The dialog's own numbers, the ones the volume
     /// dialog uses (VolumePicker.axaml.cs:39-41), because this is the same kind of furniture leaning on the
     /// same screen.
@@ -82,6 +94,20 @@ namespace MediaPortal.Frontend.Views
       _editor = editor;
       _model = new VirtualKeyboardModel(layout);
       InitializeComponent();
+
+      // Shift, Caps Lock and the marks at the end of the last row need no word in any language - every keyboard
+      // draws them, so the worn skin's vectors draw them (MediaMenu/shift, shift_lock, space_bar,
+      // keyboard_return, keyboard_backspace).  Three names are left, and those are the three a drawing cannot say:
+      // Alt Gr, Copy and Paste.  The reference asked its localization service for such labels
+      // (VirtualKeyboardControl.cs:731); this front end reads the same files itself - see SkinWords - and keeps
+      // the markup's English underneath, so a machine whose language files were not shipped still shows a word a
+      // viewer can read rather than the file's own brackets.
+      Theming.SkinWords.UseCurrentLanguage();
+      altGrButton.Content = Theming.SkinWords.Say("[Keys.AltGr]", "Alt Gr");
+      copyButton.Content = Theming.SkinWords.Say("[Keys.Copy]", "Copy");
+      pasteButton.Content = Theming.SkinWords.Say("[Keys.Paste]", "Paste");
+      WearMark(shiftButton, "shift");
+      WearMark(capsButton, "shift_lock");
 
       BuildGrids();
 
@@ -111,6 +137,67 @@ namespace MediaPortal.Frontend.Views
     {
       _model.Begin(_editor?.Text);
       ReflectState();
+    }
+
+    /// <summary>
+    /// The shape the skin carries for one key, or nothing when the worn skin carries no such vector - a key that
+    /// shows a shapeless box is worse than a key that shows its word, so the caller keeps the legend in that case.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The vectors come from the skin's vector catalog like every other icon of this front end, and they are
+    /// picked up in the brush the skin wears for text (ShellWindow.cs:738), so a shape sits in a key the way a
+    /// letter does.  The shape stands in a panel of its own because the key's content area hugs its content: a
+    /// lone shape would be pulled to one side of the key instead of standing in its middle.
+    /// </para>
+    /// </remarks>
+    private static Panel? Mark(string face, double size = 26)
+    {
+      Theming.WornSkin? worn = SkinImageConverter.WornPictures();
+      Avalonia.Media.Geometry? shape = worn?.Vectors.Load("MediaMenu/" + face);
+      if (shape == null)
+        return null;
+
+      // The panel asks for no more room than the shape itself.  The keys of the side column are measured by their
+      // words and all stand at one breadth (VirtualKeyboardView.axaml:131-137), so a floor here would have a shape
+      // ask for room that no word of the language ever asked for.
+      Grid place = new Grid
+      {
+        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
+      };
+
+      place.Children.Add(new Avalonia.Controls.Shapes.Path
+      {
+        Data = shape,
+        Fill = SkinInk(),
+        Width = size,
+        Height = size,
+        Stretch = Avalonia.Media.Stretch.Uniform,
+        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
+        IsHitTestVisible = false,
+
+        // Which face the key wears, said by the shape itself so that a probe or a test can ask it.
+        Tag = "MediaMenu/" + face
+      });
+
+      return place;
+    }
+
+    /// <summary>Puts one shape on a key of the side column, and leaves the word standing if the skin has none.</summary>
+    private static void WearMark(Button key, string face)
+    {
+      Panel? mark = Mark(face, 26);
+      if (mark != null)
+        key.Content = mark;
+    }
+
+    /// <summary>The colour the skin wears for text; white when no skin is worn at all.</summary>
+    private static Avalonia.Media.IBrush SkinInk()
+    {
+      object? ink = null;
+      Avalonia.Application.Current?.TryFindResource("TextBrush", out ink);
+      return ink as Avalonia.Media.IBrush ?? Avalonia.Media.Brushes.White;
     }
 
     /// <summary>
@@ -148,20 +235,82 @@ namespace MediaPortal.Frontend.Views
           for (int c = 0; c < keys.Length; c++)
           {
             VirtualKeyboardKey key = keys[c];
+
+            // Three keys say what they are by their shape and not by a word: the space bar, the back key and the
+            // key at the end of the last row.  They wear the vectors the skin carries, so no language has
+            // anything to translate about them, and they carry a class of their own - mark or no mark - so that
+            // the styles and the tests can name them without reading a legend.
+            string keyClass = key.Type switch
+            {
+              VirtualKeyType.Space => "keyboard-space",
+              VirtualKeyType.Backspace => "keyboard-back",
+              VirtualKeyType.Done => "keyboard-done",
+              _ => ""
+            };
+            Panel? mark = keyClass switch
+            {
+              "keyboard-space" => Mark("space_bar"),
+              "keyboard-back" => Mark("keyboard_backspace"),
+              "keyboard-done" => Mark("keyboard_return"),
+              _ => null
+            };
+
             Button button = new Button
             {
               Classes = { "keyboard-key" },
-              Content = key.Legend,
+              Content = (object?)mark ?? key.Legend,
               FontSize = 26,
-              MinWidth = key.Type == VirtualKeyType.Disabled ? 0 : 40,
+
+              // Every key is at least as wide as it is tall (MinHeight 60, VirtualKeyboardView.axaml:32) except
+              // the closing key, which is the one a viewer aims for without looking: it gets a hand's width of
+              // its own, a key and a half.  The disabled fillers ask for nothing.
+              MinWidth = key.Type switch
+              {
+                VirtualKeyType.Disabled => 0,
+                VirtualKeyType.Done => 90,
+                _ => 40
+              },
               Padding = new Avalonia.Thickness(4, 6),
               HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
               HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
               IsEnabled = key.IsEnabled,
               IsTabStop = key.IsEnabled
             };
+            if (keyClass.Length > 0)
+              button.Classes.Add(keyClass);
             Grid.SetColumn(button, c);
-            button.Click += delegate { Press(key); };
+            button.Click += delegate
+            {
+              if (key.Type == VirtualKeyType.Backspace && _backKeyAte)
+              {
+                // The held key already ate on its own, and the release that closes the click is the moment the
+                // hand stopped wanting letters gone.  Swallow that one, or a held key would eat a letter more
+                // than the viewer counted.
+                _backKeyAte = false;
+                return;
+              }
+
+              Press(key);
+            };
+
+            if (key.Type == VirtualKeyType.Backspace)
+            {
+              // A pointer holds a key; a remote does not, and a keyboard repeats by itself.  So the eating starts
+              // with the pointer going down on this one key and ends the moment the pointer lets go, the key is
+              // left, or the grid is put away.
+              // Tunnelled, not bubbled: the key is a button, and a button takes the press for its own click before
+              // the press can travel back out again (PlotAutoScroll.cs:75).
+              button.AddHandler(Avalonia.Input.InputElement.PointerPressedEvent, delegate
+              {
+                _backKeyAte = false;
+                StartEatingBackspace();
+              }, RoutingStrategies.Tunnel);
+              button.AddHandler(Avalonia.Input.InputElement.PointerReleasedEvent,
+                  delegate { StopEatingBackspace(); }, RoutingStrategies.Tunnel);
+              button.AddHandler(Avalonia.Input.InputElement.PointerCaptureLostEvent,
+                  delegate { StopEatingBackspace(); }, RoutingStrategies.Tunnel);
+            }
+
             rowGrid.Children.Add(button);
           }
 
@@ -455,6 +604,7 @@ namespace MediaPortal.Frontend.Views
       bool finished = _model.Press(key);
       if (finished)
       {
+        StopEatingBackspace();
         CloseRequested?.Invoke(this, EventArgs.Empty);
         return;
       }
@@ -499,6 +649,67 @@ namespace MediaPortal.Frontend.Views
         _editor.SelectedText = "";
       }
     }
+
+    /// <summary>
+    /// A hand that keeps the back key down goes on eating letters, the way every keyboard does it.  The reference
+    /// never repeated - one press was one letter, so a name typed three letters too long cost three presses of a
+    /// remote held in the hand - and a remote still works that way because the remote itself sends the presses.
+    /// Only a pointer holds a key down without saying so, so the eating follows the pointer: it starts when the
+    /// pointer goes down on this one key and ends when it lets go, is led away, or the keyboard is put away.
+    /// </summary>
+    private void StartEatingBackspace()
+    {
+      StopEatingBackspace();
+
+      // Background, the priority the typing pause uses (MediaBrowserViewModel.cs:3379): a key eating letters on
+      // its own must never outrank the drawing of the screen.
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background)
+      {
+        Interval = REPEAT_AFTER
+      };
+      _eating = timer;
+      bool waiting = true;
+
+      timer.Tick += delegate
+      {
+        if (!ReferenceEquals(_eating, timer))
+          return; // a newer hold drives the key from here on
+
+        if (waiting)
+        {
+          // The first tick is the end of the pause a viewer meant as one press; from here the key eats quickly.
+          waiting = false;
+          timer.Interval = REPEAT_EVERY;
+        }
+
+        EatOneMoreLetter();
+      };
+
+      timer.Start();
+    }
+
+    /// <summary>
+    /// One letter gone by a key that eats on its own, counted so that the click the pointer's release closes does
+    /// not eat a letter on top of the ones the holding already ate.  Separate from the timer because a test cannot
+    /// wait for a dispatcher timer - none of them ever fires in the headless test host, which is also why the
+    /// typing pause of the wall is not proven by a timer test either.
+    /// </summary>
+    internal void EatOneMoreLetter()
+    {
+      _backKeyAte = true;
+      Press(VirtualKeyboardKey.Backspace);
+    }
+
+    /// <summary>Ends the eating.  The last letter the held key ate stays eaten.</summary>
+    private void StopEatingBackspace()
+    {
+      DispatcherTimer? timer = _eating;
+      _eating = null;
+      timer?.Stop();
+    }
+
+    /// <summary>Whether the back key is currently eating on its own.</summary>
+    internal bool BackKeyEating => _eating != null && _eating.IsEnabled;
 
     private void ReflectState()
     {
@@ -626,6 +837,8 @@ namespace MediaPortal.Frontend.Views
     protected override void OnDetachedFromVisualTree(Avalonia.VisualTreeAttachmentEventArgs args)
     {
       base.OnDetachedFromVisualTree(args);
+      StopEatingBackspace();
+      _bounceTimer?.Stop();
       if (_editor != null && _followsField != null)
       {
         _editor.PropertyChanged -= _followsField;

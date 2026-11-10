@@ -29,6 +29,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -7121,6 +7122,255 @@ namespace Tests.Frontend
           "the caret is still among the keys, where the next letter is pressed: it went to "
           + (stood?.GetType().Name ?? "nothing"));
       window.Close();
+    }
+
+    [AvaloniaTest]
+    public void AHandHoldingTheBackKeyEatsTheWordLetterByLetter()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      Button keyButton = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      box.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = box
+      });
+      Pump();
+      keyButton.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = keyButton
+      });
+      Pump();
+      VirtualKeyboardView keys = window.GetVisualDescendants().OfType<VirtualKeyboardView>().First();
+
+      // A word in the field and the caret behind it, which is where a viewer who typed too much wants the back
+      // key.  The word is written into the field rather than pressed key by key because the test is about the
+      // hand staying on the back key, not about how the word got there.
+      box.Text = "Buchstaben";
+      box.CaretIndex = box.Text.Length;
+      Pump();
+
+      Button back = keys.GetVisualDescendants().OfType<Button>()
+          .First(tile => tile.Classes.Contains("keyboard-back"));
+      WaitUntil("the back key to be laid out", delegate { return back.Bounds.Width > 8; });
+      Point onTheKey = back.TranslatePoint(new Point(back.Bounds.Width / 2, back.Bounds.Height / 2), window)
+          ?? new Point(2, 2);
+
+      // The pointer goes down on the key and stays down.  A remote does not do this - it sends one press per
+      // press of its own key - so only a pointer held on the key asks the keyboard to keep deleting on its own.
+      window.MouseDown(onTheKey, MouseButton.Left);
+      Pump();
+      Assert.That(keys.BackKeyEating, Is.True, "a pointer holding the key down sets the eating going");
+
+      // The eating itself, letter by letter.  A dispatcher timer drives it in the client, and no dispatcher timer
+      // ever fires in this host - measured: zero ticks of a fifty-millisecond timer in a second of pumping, at
+      // every priority - so the letters are eaten through the very call the timer makes.  What the pointer brings
+      // here is the counting: every letter the holding ate is one the click must not eat a second time.
+      keys.EatOneMoreLetter();
+      keys.EatOneMoreLetter();
+      keys.EatOneMoreLetter();
+      Pump();
+      Assert.That(box.Text, Is.EqualTo("Buchsta"),
+          "three letters eaten by the hold leave the rest of the word standing in the field");
+
+      // Letting go closes a click as well, and that click is swallowed: a hand that held the key and stopped
+      // wanted the letters it stopped at, not one more.
+      window.MouseUp(onTheKey, MouseButton.Left);
+      Pump();
+      Assert.That(keys.BackKeyEating, Is.False, "the eating ends with the pointer");
+      Assert.That(box.Text, Is.EqualTo("Buchsta"),
+          "the release eats nothing on top of the letters the holding ate");
+
+      int left = box.Text.Length;
+      DateTimeOffset until = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(400);
+      while (DateTimeOffset.UtcNow < until)
+        Pump();
+      Assert.That(box.Text.Length, Is.EqualTo(left), "and no letter goes away after the hand let go");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The same key pressed the ordinary way - pointer down and up again, no holding - still eats exactly the one
+    /// letter it always ate.  Without this, the swallowing that keeps a held key honest would quietly cost every
+    /// ordinary press its letter.
+    /// </summary>
+    [AvaloniaTest]
+    public void ASinglePressOfTheBackKeyEatsExactlyOneLetter()
+    {
+      SearchServer server = new SearchServer();
+      MediaBrowserViewModel browser = BrowserOn(server);
+      ShellWindow window = new ShellWindow(new MediaBrowserView(browser));
+      window.Show();
+      WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+      TextBox box;
+      VirtualKeyboardView keys;
+      OpenKeysOverTheField(window, browser, out box, out keys);
+
+      box.Text = "Buchstaben";
+      box.CaretIndex = box.Text.Length;
+      Pump();
+
+      Button back = keys.GetVisualDescendants().OfType<Button>()
+          .First(tile => tile.Classes.Contains("keyboard-back"));
+      WaitUntil("the back key to be laid out", delegate { return back.Bounds.Width > 8; });
+      Point onTheKey = back.TranslatePoint(new Point(back.Bounds.Width / 2, back.Bounds.Height / 2), window)
+          ?? new Point(2, 2);
+
+      window.MouseDown(onTheKey, MouseButton.Left);
+      Pump();
+      window.MouseUp(onTheKey, MouseButton.Left);
+      Pump();
+
+      Assert.That(box.Text, Is.EqualTo("Buchstabe"),
+          "one press of the pointer is one letter gone, holding or not holding");
+      Assert.That(keys.BackKeyEating, Is.False, "and a press that was not held leaves no eating behind");
+      window.Close();
+    }
+
+    /// <summary>
+    /// Opens the on-screen keys over the field the way a viewer does - the field, the arrow to the mark beside
+    /// it, and the key that presses that mark - and hands back the field and the keys.
+    /// </summary>
+    /// <summary>
+    /// What every keyboard draws, this keyboard draws too: the shift mark, the caps lock mark, the space bar, the
+    /// back key and the key at the end of the last row wear the shapes the skin carries, and no word of any
+    /// language stands in them.  Only the three names a shape cannot say - Alt Gr, Copy and Paste - stay words.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheKeysEveryKeyboardDrawsWearTheShapesTheSkinCarries()
+    {
+      Application app = Application.Current!;
+      string? previousFolder = SkinEngine.SkinsFolder;
+      string previousTheme = FrontendTheme.CurrentName(app);
+      SkinEngine.SkinsFolder = Path.Combine(MetadataPath("FrontendSource"), "Skins");
+      ShellWindow? window = null;
+      try
+      {
+        FrontendTheme.Apply(app, "nereus", out string? _);
+        Assert.That(SkinEngine.Apply(app, "nereus", out string? skinProblem), Is.True, skinProblem ?? "");
+        WornSkin? worn = SkinEngine.Worn(app);
+        Assert.That(worn, Is.Not.Null, "the shipped skin came onto the application");
+
+        foreach (string face in new[] { "MediaMenu/shift", "MediaMenu/shift_lock", "MediaMenu/space_bar",
+                                        "MediaMenu/keyboard_backspace", "MediaMenu/keyboard_return" })
+          Assert.That(worn!.Vectors.Has(face), Is.True, "the keyboard wants '" + face + "' and the skin has none");
+
+        SearchServer server = new SearchServer();
+        MediaBrowserViewModel browser = BrowserOn(server);
+        window = new ShellWindow(new MediaBrowserView(browser));
+        window.Show();
+        WaitUntil("the shelf to arrive", delegate { return browser.Titles.Count == SHELF.Length; });
+
+        OpenKeysOverTheField(window, browser, out TextBox box, out VirtualKeyboardView keys);
+
+        foreach (string[] drawn in new[]
+                 {
+                   new[] { "shiftButton", "MediaMenu/shift" },
+                   new[] { "capsButton", "MediaMenu/shift_lock" },
+                   new[] { "keyboard-space", "MediaMenu/space_bar" },
+                   new[] { "keyboard-back", "MediaMenu/keyboard_backspace" },
+                   new[] { "keyboard-done", "MediaMenu/keyboard_return" }
+                 })
+        {
+          Button key = keys.GetVisualDescendants().OfType<Button>().First(tile =>
+              tile.Name == drawn[0] || tile.Classes.Contains(drawn[0]));
+
+          Assert.That(key.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>()
+                  .Select(shape => shape.Tag).ToList(), Has.Some.EqualTo(drawn[1]),
+              "'" + drawn[0] + "' was to wear the skin's shape " + drawn[1]);
+
+          // And the shape stands in the middle of its key, not at the edge of it - which is what a key whose
+          // content area hugs its content does to a shape of twenty points.
+          Avalonia.Controls.Shapes.Path? mark = key.GetVisualDescendants()
+              .OfType<Avalonia.Controls.Shapes.Path>().First();
+          Point? middle = mark.TranslatePoint(
+              new Point(mark.Bounds.Width / 2, mark.Bounds.Height / 2), key);
+          Assert.That(middle, Is.Not.Null, "'" + drawn[0] + "' stands on no key");
+          Assert.That(Math.Abs(middle!.Value.X - key.Bounds.Width / 2), Is.LessThanOrEqualTo(2),
+              "'" + drawn[0] + "' carries its shape at its edge rather than in its middle");
+        }
+
+        // Every key of the side column is as broad as the broadest of them, so that a key wearing a shape neither
+        // crowds its wordy neighbours nor shrinks to the width of its drawing.
+        Button Tile(string name) => keys.GetVisualDescendants().OfType<Button>().First(tile =>
+            tile.Name == name || tile.Classes.Contains(name));
+        double[] column = new[] { "altGrButton", "shiftButton", "capsButton", "copyButton", "pasteButton" }
+            .Select(name => Tile(name).Bounds.Width).ToArray();
+        Assert.That(column, Has.All.EqualTo(column[0]).Within(1.0),
+            "the keys of the side column are to stand at one breadth - the breadth the broadest of them asks for - " +
+            "and stand at " + string.Join(", ", column.Select(width => width.ToString("0.#"))) +
+            ", while they ask for " + string.Join(", ", new[] { "altGrButton", "shiftButton", "capsButton",
+                "copyButton", "pasteButton" }.Select(name => Tile(name).DesiredSize.Width.ToString("0.#"))));
+
+        // The key that ends the edit is the one a viewer aims for without looking, so it is broader than the
+        // letters it stands beside and not merely as broad as its own shape.
+        double letter = keys.GetVisualDescendants().OfType<Button>()
+            .Where(tile => tile.Classes.Contains("keyboard-key") && !tile.Classes.Contains("keyboard-space") &&
+                           !tile.Classes.Contains("keyboard-back") && !tile.Classes.Contains("keyboard-done"))
+            .Min(tile => tile.Bounds.Width);
+        Assert.That(Tile("keyboard-done").Bounds.Width, Is.GreaterThanOrEqualTo(90),
+            "the closing key is to be a hand's width, and is " + Tile("keyboard-done").Bounds.Width);
+        Assert.That(Tile("keyboard-done").Bounds.Width, Is.GreaterThan(letter),
+            "the closing key is to stand out from the letters beside it, which are " + letter + " broad");
+
+        // A word for these keys would have to be a word in the language the viewer's settings name, and there is
+        // none to name - not in English, not in German, not in French.
+        string[] said = keys.GetVisualDescendants().OfType<Button>()
+            .Select(tile => tile.Content as string).OfType<string>().ToArray();
+        foreach (string word in new[] { "Shift", "Umschalttaste", "Caps Lock", "Feststelltaste", "Verr. Maj.",
+                                        "Done", "Fertig", "Terminé", "˿" })
+          Assert.That(said, Does.Not.Contain(word), "no key is allowed to wear the word " + word);
+
+        // And what a shape cannot say is still a word the language files answer.
+        Assert.That(keys.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "altGrButton").Content,
+            Is.InstanceOf<string>(), "Alt Gr stays a word");
+      }
+      finally
+      {
+        window?.Close();
+        SkinEngine.Clear(app);
+        SkinEngine.SkinsFolder = previousFolder;
+        FrontendTheme.Apply(app, previousTheme, out string? _);
+      }
+    }
+
+    private void OpenKeysOverTheField(ShellWindow window, MediaBrowserViewModel browser,
+        out TextBox box, out VirtualKeyboardView keys)
+    {
+      Button mark = window.GetVisualDescendants().OfType<Button>().First(tile => tile.Name == "keyboardToggle");
+      TextBox field = window.GetVisualDescendants().OfType<TextBox>().First(item => item.Name == "searchBox");
+      browser.OpenSearch();
+      Pump();
+      WaitUntil("the caret in the field", delegate { return field.IsFocused; });
+      field.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Right,
+        Source = field
+      });
+      Pump();
+      mark.RaiseEvent(new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = Key.Enter,
+        Source = mark
+      });
+      Pump();
+      box = field;
+      keys = window.GetVisualDescendants().OfType<VirtualKeyboardView>().First();
     }
 
     [AvaloniaTest]

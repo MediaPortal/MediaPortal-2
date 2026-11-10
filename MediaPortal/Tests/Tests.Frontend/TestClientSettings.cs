@@ -101,7 +101,7 @@ namespace Tests.Frontend
     }
 
     [Test]
-    public void TheLanguageRowWalksTheThreeAnswersTheReferenceShipped()
+    public void TheLanguageRowWalksTheAnswersTheFrontEndHasWordsFor()
     {
       ClientSettingsViewModel screen = new ClientSettingsViewModel(_file);
       SkinSettingOption language = OptionNamed(screen, "Language");
@@ -111,6 +111,9 @@ namespace Tests.Frontend
       Assert.That(language.ValueText, Is.EqualTo("English"));
       language.Press();
       Assert.That(language.ValueText, Is.EqualTo("Deutsch"));
+      language.Press();
+      Assert.That(language.ValueText, Is.EqualTo("Français"),
+          "the French keyboard is ported and the French words are shipped, so the row has to be able to say French");
       language.Press();
       Assert.That(language.ValueText, Is.EqualTo("System default"), "the row is a round trip, not a one-way door");
 

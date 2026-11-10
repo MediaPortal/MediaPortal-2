@@ -253,6 +253,8 @@ namespace MediaPortal.Frontend.ViewModels
           LastRow[0]
         });
 
+    internal VirtualKeyboardKey[][] AltGrRows => _altGr;
+
     internal VirtualKeyboardKey[][] ShiftedAltGrRows => _shiftedAltGr;
     /// <summary>
     /// The German layout, key for key from the reference's <c>VirtualKeyboardStyle_de.xaml</c>: QWERTZ, the
@@ -338,17 +340,81 @@ namespace MediaPortal.Frontend.ViewModels
         English.ShiftedAltGrRows);
 
     /// <summary>
-    /// The layout the reference would pick for this culture: its German file answers German, and everything
-    /// else answers the base file - the same fallback its layout lookup walked (exact culture, then parent,
-    /// then the layout without a language at all).
+    /// The French layout, key for key from the reference's <c>VirtualKeyboardStyle_fr.xaml:70-266</c> and
+    /// <c>:285-489</c>: AZERTY - the <c>a</c> stands where the base file has its <c>q</c>, the <c>w</c> where it
+    /// has its <c>z</c> - and the number row of the base file, which the French file reuses instead of writing
+    /// the digits behind a shift.  Its Alt-Gr grids are the base file's, key for key and legend for legend
+    /// (compared by script over both files; the only difference is that the French file spells the word "Space"
+    /// on the space key of its Shift-AltGr row, which this class draws the way the base file does), so the same
+    /// objects carry both.  Its own rows keep the reference's asymmetry: the letter row under the numbers is
+    /// twelve keys unshifted and thirteen shifted, because the reference draws one grid per state and stretches
+    /// each grid's own columns.
+    /// </summary>
+    public static readonly VirtualKeyboardLayout French = new VirtualKeyboardLayout(
+        new[]
+        {
+          new[]
+          {
+            Ch('1'), Ch('2'), Ch('3'), Ch('4'), Ch('5'), Ch('6'), Ch('7'), Ch('8'), Ch('9'), Ch('0'),
+            Ch('°'), Ch('-'), Ch('+'), VirtualKeyboardKey.Backspace
+          },
+          new[]
+          {
+            Ch('a'), Ch('z'), Ch('e'), Ch('r'), Ch('t'), Ch('y'), Ch('u'), Ch('i'), Ch('o'), Ch('p'),
+            Ch('^'), Ch('/')
+          },
+          new[]
+          {
+            Ch('q'), Ch('s'), Ch('d'), Ch('f'), Ch('g'), Ch('h'), Ch('j'), Ch('k'), Ch('l'), Ch('m'), Ch('*')
+          },
+          new[]
+          {
+            Ch('w'), Ch('x'), Ch('c'), Ch('v'), Ch('b'), Ch('n'), Ch(','), Ch(';'), Ch(':'), Ch('.')
+          },
+          LastRow[0]
+        },
+        new[]
+        {
+          new[]
+          {
+            Ch('~'), Ch('!'), Ch('@'), Ch('#'), Ch('$'), Ch('%'), Ch('^'), Ch('&'), Ch('\''), Ch('('), Ch(')'),
+            Ch('_'), Ch('\\'), VirtualKeyboardKey.Backspace
+          },
+          new[]
+          {
+            Ch('A'), Ch('Z'), Ch('E'), Ch('R'), Ch('T'), Ch('Y'), Ch('U'), Ch('I'), Ch('O'), Ch('P'),
+            Ch('{'), Ch('}'), Ch('|')
+          },
+          new[]
+          {
+            Ch('Q'), Ch('S'), Ch('D'), Ch('F'), Ch('G'), Ch('H'), Ch('J'), Ch('K'), Ch('L'), Ch('M'), Ch('"')
+          },
+          new[]
+          {
+            Ch('W'), Ch('X'), Ch('C'), Ch('V'), Ch('B'), Ch('N'), Ch('ù'), Ch('<'), Ch('>'), Ch('?')
+          },
+          LastRow[0]
+        },
+        English.AltGrRows,
+        English.ShiftedAltGrRows);
+
+    /// <summary>
+    /// The layout the reference would pick for this culture: its German file answers German, its French file
+    /// answers French, and everything else answers the base file - the same fallback its layout lookup walked
+    /// (exact culture, then parent, then the layout without a language at all;
+    /// <c>VirtualKeyboardControl.cs:729-750</c>).
     /// </summary>
     public static VirtualKeyboardLayout ForCulture(string? cultureName)
     {
-      if (!string.IsNullOrWhiteSpace(cultureName) &&
-          cultureName.Trim().ToLowerInvariant().StartsWith("de", StringComparison.Ordinal))
+      if (!string.IsNullOrWhiteSpace(cultureName))
       {
-        return German;
+        string two = cultureName.Trim().ToLowerInvariant();
+        if (two.StartsWith("de", StringComparison.Ordinal))
+          return German;
+        if (two.StartsWith("fr", StringComparison.Ordinal))
+          return French;
       }
+
       return English;
     }
   }
