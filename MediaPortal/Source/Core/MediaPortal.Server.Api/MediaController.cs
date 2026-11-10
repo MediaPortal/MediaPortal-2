@@ -829,6 +829,7 @@ namespace MediaPortal.Server.Api
         // loudly is kinder than agreeing.
         IFilter withinFilter = null;
         string insideName = null;
+        bool insideOneAlbum = false;
         if (inside != Guid.Empty)
         {
           MediaItem parent = FindParentTitle(mediaLibrary, metadata, inside);
@@ -839,6 +840,11 @@ namespace MediaPortal.Server.Api
               Error = "this server has no title with the id '" + inside.ToString("D") + "' to list titles inside"
             });
 
+          // Held on to because the disc is only a place within one record: a shelf of tunes standing inside an
+          // album is walked disc by disc, while the same order asked of the whole library would lead every
+          // album's first tune with the same number.
+          insideOneAlbum = parent.Aspects != null
+              && parent.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID);
           // Held on to because a season counted off episode numbers has no title of its own to show: its row wears
           // the series' name with the number on the end, which is the spelling the reference uses for a season.
           SingleMediaItemAspect parentMedia;
@@ -994,7 +1000,7 @@ namespace MediaPortal.Server.Api
         // of its children the viewer played, :112-117). A caller naming a sort still gets the sort they named.
         List<ISortInformation> sorts = seeing == "favorite" && string.IsNullOrEmpty(sort)
             ? FavoriteSorts(viewer, aspectId)
-            : BuildSorts(sortBy, order);
+            : BuildSorts(sortBy, order, insideOneAlbum);
         if (sorts.Count > 0)
           query.SetSortInformation(sorts);
         query.Offset = (uint)skip;
@@ -4647,8 +4653,16 @@ namespace MediaPortal.Server.Api
     /// A shelf of seasons sorts by <c>SeasonAspect.ATTR_SEASON</c>, one column: the number is the whole of the
     /// order, and the title an importer wrote above it is a name, not a place in a series.
     /// </para>
+    /// <para>
+    /// A shelf of tunes asks the disc first and the place on that disc second, but only while standing inside the
+    /// album it came from - see <paramref name="insideOneAlbum"/> and the <c>track</c> case below.
+    /// </para>
     /// </remarks>
-    private static List<ISortInformation> BuildSorts(string sortBy, string order)
+    /// <param name="insideOneAlbum">
+    /// True when the shelf being sorted stands inside an album, which is the only place where a disc number means
+    /// anything. See the "track" case.
+    /// </param>
+    private static List<ISortInformation> BuildSorts(string sortBy, string order, bool insideOneAlbum = false)
     {
       SortDirection direction = IsDescending(order) ? SortDirection.Descending : SortDirection.Ascending;
       List<ISortInformation> sorts = new List<ISortInformation>();
@@ -4698,12 +4712,16 @@ namespace MediaPortal.Server.Api
           sorts.Add(new AttributeSortInformation(MediaAspect.ATTR_TITLE, direction));
           break;
         case "track":
-          // An album is listened to disc by disc, so the disc is asked first and the place on that disc second,
-          // which is what MP2's own reader asks for the same shelf (WifiRemote/Helper.cs:397-401). The place on a
-          // disc alone interleaves two discs' first tunes beside one another: measured on this household's
-          // "Born This Way (Special Edition)" it came back 1, 1, 2, 2, 3, 3. Both columns are Inline and reach the
-          // database fine (AudioAspect.cs:84-85 for the tune, :144-145 for the disc).
-          sorts.Add(new AttributeSortInformation(AudioAspect.ATTR_DISCID, direction));
+          // An album is listened to disc by disc, so inside one record the disc is asked first and the place on
+          // that disc second, which is what MP2's own reader asks for the same shelf
+          // (WifiRemote/Helper.cs:397-401). The place on a disc alone interleaves two discs' first tunes beside
+          // one another: measured on this household's "Born This Way (Special Edition)" it came back
+          // 1, 1, 2, 2, 3, 3. Both columns are Inline and reach the database fine (AudioAspect.cs:84-85 for the
+          // tune, :144-145 for the disc). Asked of a whole library shelf instead, the number of a disc inside its
+          // own record means nothing - every album's second tune would be gathered behind every album's first -
+          // so there the place on the disc stays the one question.
+          if (insideOneAlbum)
+            sorts.Add(new AttributeSortInformation(AudioAspect.ATTR_DISCID, direction));
           sorts.Add(new AttributeSortInformation(AudioAspect.ATTR_TRACK, direction));
           break;
       }

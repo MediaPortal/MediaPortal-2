@@ -3913,14 +3913,29 @@ namespace Tests.Server.Api
     [Test]
     public void AnAlbumNobodyTaggedSaysNothingRatherThanNothingKnown()
     {
-      List<MediaItemQuery> asked;
-      List<IFilter> counted;
-      IMediaLibrary library = ContainingLibrary(null,
-          new List<MediaItem> { CreateAlbumItem(ALBUM_ID, "Untitled", null, 0) }, 1, out asked, out counted);
+      MediaItem album = CreateAlbumItem(ALBUM_ID, "Untitled", null, 0);
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { AudioAspect.ASPECT_ID, AudioAspect.Metadata },
+              { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.Metadata }
+          });
+      // The shelf question asks for albums and gets the one album. The question "what tunes are inside it" asks
+      // for tunes, and an album is not a tune, so the honest answer here is nothing - a fake answering both
+      // questions with the album itself would have the record count itself as its single track.
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              query.NecessaryRequestedMIATypeIDs.Contains(AudioAspect.ASPECT_ID)
+                  ? new List<MediaItem>()
+                  : new List<MediaItem> { album });
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Returns(1);
 
       ActionResult<MediaController.TitlesResult> action;
       MediaController.TitlesResult result =
-          GetTitlesInside(library, "AlbumItem", null, null, Guid.Empty, out action);
+          GetTitlesInside(library.Object, "AlbumItem", null, null, Guid.Empty, out action);
 
       Assert.That(result.Titles[0].Artist, Is.Null);
       Assert.That(result.Titles[0].TrackCount, Is.Null,
@@ -3991,18 +4006,32 @@ namespace Tests.Server.Api
       MediaController.TitlesResult episodes =
           GetTitlesInside(series, "EpisodeItem", "episode", null, SERIES_ID, out action);
 
-      Assert.That(asked[1].SortInformation, Has.Count.EqualTo(1));
+      // A record is listened to disc by disc, so inside an album the disc comes first and the place on that disc
+      // second. Measured on this household's "Born This Way (Special Edition)" the place alone interleaved the two
+      // discs' tunes as 1, 1, 2, 2, 3, 3; with the disc in front they come back 1 through 17 and then 1 through 6.
+      Assert.That(asked[1].SortInformation, Has.Count.EqualTo(2),
+          "a record holding two discs is walked disc by disc, so the disc is a question of its own");
       Assert.That(((AttributeSortInformation) asked[1].SortInformation[0]).AttributeType,
+          Is.SameAs(AudioAspect.ATTR_DISCID));
+      Assert.That(((AttributeSortInformation) asked[1].SortInformation[1]).AttributeType,
           Is.SameAs(AudioAspect.ATTR_TRACK),
           "an album whose third track is listed under B is not the thing a listener sat down for");
       Assert.That(tracks.Sort, Is.EqualTo("track"));
 
+      // The season is a column the database can reach. The episode number is not - it is a collection, because a
+      // file holding two episodes is one item carrying two numbers (EpisodeAspect.cs:62-63), and the query engine
+      // drops collection sort keys without a word (MainQueryBuilder.cs:393-395). Asking for the number by name
+      // therefore sorted a shelf by season alone, which inside a season is no order at all. The number travels in
+      // the name the importer wrote - "<series> S<nn>E<nn> - <name>", padded to two digits
+      // (EpisodeInfo.EPISODE_FORMAT_STR:67, NfoSeriesEpisodeReader.cs:939-940) - so the name stands second.
       Assert.That(seasonAsked[1].SortInformation, Has.Count.EqualTo(2),
-          "one column would interleave a season two after a season one");
+          "one column would interleave a season two after a season one, and no column at all leaves a season in "
+          + "whatever order the database fancies - measured as 2, 12, 9, 13, 5, 8, 1, 3 on Prison Break season 3");
       Assert.That(((AttributeSortInformation) seasonAsked[1].SortInformation[0]).AttributeType,
           Is.SameAs(EpisodeAspect.ATTR_SEASON));
       Assert.That(((AttributeSortInformation) seasonAsked[1].SortInformation[1]).AttributeType,
-          Is.SameAs(EpisodeAspect.ATTR_EPISODE));
+          Is.SameAs(MediaAspect.ATTR_TITLE),
+          "the episode number cannot be a column, so the order is reached through the name that carries it");
       Assert.That(episodes.Sort, Is.EqualTo("episode"));
     }
 
@@ -4016,6 +4045,10 @@ namespace Tests.Server.Api
       ActionResult<MediaController.TitlesResult> action;
       GetTitlesInside(library, "AudioItem", "track", null, Guid.Empty, out action);
 
+      // The disc number means something only inside the record it belongs to. Asked of every tune in the library
+      // it would gather every album's second tune behind every album's first, which is not the order anyone
+      // holding the word "track" in mind meant.
+      Assert.That(asked[0].SortInformation, Has.Count.EqualTo(1));
       Assert.That(((AttributeSortInformation) asked[0].SortInformation[0]).AttributeType,
           Is.SameAs(AudioAspect.ATTR_TRACK),
           "a shelf of every track in the library by number is a strange order, but it is the one that was asked "
@@ -5402,13 +5435,20 @@ namespace Tests.Server.Api
       List<RelationalUserDataFilter> percentages =
           tree.OfType<RelationalUserDataFilter>()
               .Where(f => f.UserDataKey == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).ToList();
-      Assert.That(percentages, Has.Count.EqualTo(3),
-          "the shelf of started titles asks a series for its percentage from below and from above, and asks an "
-          + "episode from below");
+      // A series is asked only "not finished". The nought end is deliberately not asked of a container: a
+      // series' own figure is the mean of its children's whole per cent, so the one episode of eight that stands
+      // at two per cent leaves the series itself at nought, and barring the nought end threw out the very series
+      // its own episode had put on this shelf. What is left is the series' own "not finished" and the same
+      // question through its children - two percentage questions, one on the container and one below it.
+      Assert.That(percentages, Has.Count.EqualTo(2),
+          "the shelf of started titles asks a series whether it is finished and asks the same of its episodes; it "
+          + "does not ask a container whether it has started, because a container's figure is an average that "
+          + "rounds to nought");
       Assert.That(percentages.Any(f => f.Operator == RelationalOperator.LT && f.FilterValue == "100"),
           Is.True, "a series finished to the last episode still belongs to the watched shelf, not to this one");
-      Assert.That(percentages.Any(f => f.Operator == RelationalOperator.GT && f.FilterValue == "000"),
-          Is.True, "a series nobody has touched still belongs to the unplayed shelf, not to this one");
+      Assert.That(percentages.Any(f => f.Operator == RelationalOperator.GT), Is.False,
+          "a series whose only started episode sits at two per cent averages down to nought, and asking a "
+          + "container for more than nought threw that series off the shelf");
       Assert.That(tree.OfType<NotFilter>().Any(f => f.InnerFilter is EmptyUserDataFilter), Is.True,
           "a percentage without a play date is a mark, not a start, and the reference keeps marks out of this "
           + "shelf");
