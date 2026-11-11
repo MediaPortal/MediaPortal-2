@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -2202,17 +2202,25 @@ namespace FrontendProbe
 
       if (menuAsked && (window as ShellWindow)?.Screen is MediaBrowserView menuScreen)
       {
-        // The information key of a remote, which the reference bound to the media screen's own menu
-        // (master_mediamenu.xaml:400). Nothing is painted over the rows for it: the room slides two hundred points
-        // out of the way and the menu walks into the space that sliding makes, sideways beside a grid and upwards
-        // under a row of covers. The frames below are the proof that the key, the menu's rows and the room's shift
-        // hang together on a screen that is really being drawn, which is more than the pumped test queue can say.
+        // The rail is not opened by a key any more, it is walked into: the caret standing on the shelf's leading
+        // edge and pointing left past it (MediaBrowserView.axaml.cs:1030-1066; the reference hung it on the info
+        // key alone, master_mediamenu.xaml:400, but the front end answers the pointing hand as well). Nothing is
+        // painted over the rows for it: the room slides two hundred points out of the way and the menu walks into
+        // the space that sliding makes, sideways beside a grid and upwards under a row of covers. The frames below
+        // are the proof that the walk, the menu's rows and the room's shift hang together on a screen that is
+        // really being drawn, which is more than the pumped test queue can say.
         MediaBrowserViewModel list = (MediaBrowserViewModel) menuScreen.DataContext!;
+        ListBox? shelf = menuScreen.GetVisualDescendants().OfType<ListBox>()
+            .FirstOrDefault(list_box => list_box.Name == "titlesList");
+        shelf?.Focus();
+        if (shelf != null && shelf.Items.Count > 0)
+          shelf.SelectedIndex = 0;
+        Pump(TimeSpan.FromMilliseconds(250));
         menuScreen.RaiseEvent(new KeyEventArgs
         {
           RoutedEvent = InputElement.KeyDownEvent,
-          Key = Key.I,
-          Source = menuScreen
+          Key = Key.Left,
+          Source = (Control?) shelf ?? menuScreen
         });
 
         // Twenty seconds is not impatience but arithmetic: a transition is advanced by the frames of the render
@@ -2220,9 +2228,10 @@ namespace FrontendProbe
         // sliding take longer here than they do on a television that is drawing sixty of them a second.
         if (!PumpUntil(delegate { return Math.Abs(RoomSlide(menuScreen)) >= 200; }, TimeSpan.FromSeconds(30)))
         {
-          Console.WriteLine("FAILED:   the information key opened the menu but the room never slid the full two "
-              + "hundred points for it; it stands at " + Math.Round(RoomSlide(menuScreen), 1)
-              + ", menu visible: " + list.MediaMenuVisible + ".");
+          Console.WriteLine("FAILED:   the left press off the shelf's leading edge opened nothing; the room stands at "
+              + Math.Round(RoomSlide(menuScreen), 1) + ", menu visible: " + list.MediaMenuVisible
+              + ", the shelf holds the caret: " + (shelf != null && shelf.IsKeyboardFocusWithin)
+              + ", standing on row " + (shelf == null ? -1 : shelf.SelectedIndex) + ".");
           return 1;
         }
 
@@ -2256,6 +2265,120 @@ namespace FrontendProbe
             + " of the window's " + Math.Round(window.Bounds.Width, 0) + " points"
             + (lastAt != null && lastAt.Value.X + lastPlate!.Bounds.Width > window.Bounds.Width
                  ? " - PAST THE RIGHT EDGE." : "."));
+
+        // The rail's two ends, read the way its edge fade reads them.  How much of the menu stands above the rail's
+        // head and below its foot decides whether it wears a mask at all, and the mask's two end colours say what a
+        // viewer sees there - which is the whole question a viewer asked about this rail (2026-11-10: cut off hard
+        // at the head, nothing at the foot).  Asked twice: at rest, where a menu that fits its room should wear
+        // nothing, and with the rail walked down a plate, which is the state a caret that walked to the end leaves.
+        ScrollViewer? railScroller = rail.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        Console.WriteLine("rail:     " + RailEnds(railScroller));
+        if (railScroller != null)
+        {
+          List<ListBoxItem> plates = new List<ListBoxItem>(rail.GetVisualDescendants().OfType<ListBoxItem>());
+          Console.WriteLine("plates:   " + plates.Count + " row(s) "
+              + string.Join(", ", plates.ConvertAll(p => Math.Round(p.Bounds.Height, 0).ToString()))
+              + " points tall, the rail's ground is " + Math.Round(rail.Bounds.Height, 0) + " tall.");
+          Console.WriteLine("truth:    " + RailTruth(rail, railScroller));
+
+          // The commands page is walked first: a menu that fits its room has nothing to hide at either end, and
+          // saying so is the honest answer for THAT page.
+          Console.WriteLine("walk:     " + WalkRailTo(rail, railScroller, rail.Items.Count - 1));
+          Console.WriteLine("rail:     " + RailEnds(railScroller));
+
+          // The page the viewer's question was about is a longer one.  It is reached the way a viewer reaches it -
+          // the filter row of the commands page, then one category's row - because a rail that never overflows
+          // cannot be judged at its ends, and the values of a filter are the menu this screen grows longest.
+          PressRailRow(menuScreen, rail, "filter");
+          Pump(TimeSpan.FromMilliseconds(700));
+          PressRailRow(menuScreen, rail, "year");
+          PumpUntil(delegate
+          {
+            return list.MediaMenuHeading == "Years" && list.MediaMenu.Count > 0;
+          }, TimeSpan.FromSeconds(10));
+          // The rows the values page brings are measured on the pass after they arrive, so the rail is given a
+          // beat before its own reading of them is taken - otherwise the page is reported at the height the
+          // page before it had.
+          Pump(TimeSpan.FromMilliseconds(600));
+          Console.WriteLine("page:     '" + list.MediaMenuHeading + "' with " + list.MediaMenu.Count + " row(s) in a room of "
+              + Math.Round(railScroller.Viewport.Height, 0) + " points, the menu "
+              + Math.Round(railScroller.Extent.Height, 0) + " points tall"
+              + (railScroller.Extent.Height > railScroller.Viewport.Height ? ", so it OVERFLOWS."
+                 : ", so it fits - nothing to fade and nowhere for the band to travel."));
+
+          // A rail that fits its room cannot be judged at its ends, and which menu the library serves is not the
+          // probe's business - the demo's filter values are too few to fill a rail.  So the rows a bigger library
+          // would bring are stood on the menu by hand, which overflows the rail in the very room the window
+          // gives it: the one state the fade at head and foot, the band that holds the caret inside it, and the
+          // travel that carries the wall instead of jumping it are all there for.
+          if (railScroller.Extent.Height <= railScroller.Viewport.Height)
+          {
+            int grew_by = 0;
+            while (list.MediaMenu.Count < 20)
+            {
+              list.MediaMenu.Add(new MediaBrowserMenuEntry("Row " + (list.MediaMenu.Count + 1), "",
+                  new GrownRow(), false));
+              grew_by++;
+            }
+            Pump(TimeSpan.FromMilliseconds(800));
+            Console.WriteLine("grown:    " + grew_by + " row(s) added; " + list.MediaMenu.Count
+                + " in a room of " + Math.Round(railScroller.Viewport.Height, 0) + " points, the menu "
+                + Math.Round(railScroller.Extent.Height, 0) + " points tall - "
+                + (railScroller.Extent.Height > railScroller.Viewport.Height ? "it OVERFLOWS."
+                   : "it STILL fits, so the rail cannot scroll a long menu at all."));
+            Console.WriteLine("truth:    " + RailTruth(rail, railScroller));
+          }
+          if (railScroller.Extent.Height > railScroller.Viewport.Height)
+          {
+            Console.WriteLine("walk:     " + WalkRailTo(rail, railScroller, rail.Items.Count - 1));
+            Console.WriteLine("rail:     the caret at its last row - " + RailEnds(railScroller));
+
+            // Whether the dress itself answers on this scroller, asked apart from the caret: the wall is put
+            // back to its head and written a place of the probe's own, which is exactly the write the rail's
+            // margin makes.  The shelf's wall - the one dress everyone agrees travels - is written the same
+            // place in the same breath, because a frame loop that never ticks an animation answers "no
+            // travel" for both, and then nothing about the rail's dress can be judged from this run at all.
+            Console.WriteLine("clock:    " + AnimatesInThisLoop(rail));
+            Console.WriteLine("write:    the rail wears " + DescribeGlide(railScroller) + " - "
+                + TravelsOrJumps(railScroller));
+            ScrollViewer? wall = shelf?.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+            if (wall != null)
+            {
+              Console.WriteLine("shelf:    the wall wears " + DescribeGlide(wall) + " - " + TravelsOrJumps(wall));
+            }
+
+            // A row in the middle of the menu is the state both fades bite in, and the one the margin is there
+            // for: the stood row has to lie away from both ends, not flush against one.
+            Console.WriteLine("walk:     " + WalkRailTo(rail, railScroller, rail.Items.Count / 2));
+            int railsScrolled = 0;
+            railScroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { railsScrolled++; });
+            railScroller.Offset = new Vector(railScroller.Offset.X, railScroller.Offset.Y + 1);
+            Pump(TimeSpan.FromMilliseconds(150));
+            Console.WriteLine("scroll:   one point nudged fired the scroll answer " + railsScrolled
+                + " time(s); the mask now reads front "
+                + ((railScroller.OpacityMask as LinearGradientBrush)?.GradientStops[0].Color.ToString() ?? "none")
+                + " back "
+                + ((railScroller.OpacityMask as LinearGradientBrush)?.GradientStops[3].Color.ToString() ?? "none")
+                + " with the wall at " + Math.Round(railScroller.Offset.Y, 1)
+                + " of " + Math.Round(railScroller.Extent.Height - railScroller.Viewport.Height, 1));
+            // Where the wall is BOUND for, rather than where a frozen clock left it.  A dressed write stores its
+            // destination as the property's base value while the value a frame shows is still travelling, so the
+            // base value is the place a real frame rests at four hundred milliseconds after the caret arrives -
+            // the only way this loop, which never ticks a clock, can read the end of a travel.
+            Console.WriteLine("rests:    " + WhereTheRailRests(rail, railScroller, rail.Items.Count / 2));
+            Console.WriteLine("foot:     the line at the screen's foot speaks of '" + list.MediaMenuFootLine
+                + "', so " + (list.MediaMenuFootLine.Contains("Row", StringComparison.Ordinal)
+                   ? "the caret's arrival WAS heard on the list."
+                   : "the caret's arrival was NOT heard on the list."));
+            Console.WriteLine("rail:     the caret at row " + (rail.Items.Count / 2) + " - "
+                + RailEnds(railScroller));
+          }
+          rail.ClearValue(Layoutable.HeightProperty);
+          Pump(TimeSpan.FromMilliseconds(600));
+
+          menuScreen.InvalidateVisual();
+          Pump(TimeSpan.FromMilliseconds(1200));
+        }
       }
 
       Console.WriteLine("screen:   " + screenName);
@@ -3119,6 +3242,331 @@ namespace FrontendProbe
         return double.NaN;
 
       return Math.Abs(slide.X) >= Math.Abs(slide.Y) ? slide.X : slide.Y;
+    }
+
+    /// <summary>
+    /// What one rail's two ends are hiding and what they are therefore wearing: the room it shows, the length of
+    /// the menu, how far it stood down, and the mask's two end colours - opaque where a plate stands whole and
+    /// paler the further a plate has walked out of the picture.  A mask that is not there at all is said as such,
+    /// because a menu that fits its room is right to wear none.
+    /// </summary>
+    private static string RailEnds(ScrollViewer? rail)
+    {
+      if (rail == null)
+        return "no scroller under the rail";
+
+      string mask = rail.OpacityMask is LinearGradientBrush fade
+          ? "mask front " + fade.GradientStops[0].Color + " at "
+            + Math.Round(fade.StartPoint.Point.X, 2) + "," + Math.Round(fade.StartPoint.Point.Y, 2)
+            + " back " + fade.GradientStops[3].Color + " at "
+            + Math.Round(fade.EndPoint.Point.X, 2) + "," + Math.Round(fade.EndPoint.Point.Y, 2)
+          : "no mask";
+
+      return "room " + Math.Round(rail.Viewport.Height) + " tall, menu " + Math.Round(rail.Extent.Height)
+          + " tall, stood down " + Math.Round(rail.Offset.Y)
+          + ", ground at " + Math.Round(rail.Bounds.Y) + ".." + Math.Round(rail.Bounds.Bottom)
+          + "; " + mask;
+    }
+
+    /// <summary>
+    /// Everything the rail's scroller knows about itself, for the moments where its own reading of its extent is
+    /// the question: whether the scroller the probe holds is still the one hanging under the list, how tall it
+    /// thinks its menu is, how many of its rows are laid out at all, where the last of them reaches, and whether
+    /// it still wears the travel it was dressed in.
+    /// </summary>
+    private static string RailTruth(ListBox rail, ScrollViewer? held)
+    {
+      ScrollViewer? now = rail.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+      if (now == null)
+        return "no scroller under the rail";
+
+      List<ListBoxItem> plates = new List<ListBoxItem>(rail.GetVisualDescendants().OfType<ListBoxItem>());
+      Point? last_at = plates.Count == 0 ? null : plates[plates.Count - 1].TranslatePoint(new Point(0, 0), now);
+      Panel? wall = now.GetVisualDescendants().OfType<Panel>().FirstOrDefault();
+
+      // Every scroller under the rail, because which of them scrolls the menu and which of them was dressed for
+      // the travel is exactly what these readings disagree about.  The bars and the content-scroll are said
+      // alongside because a rail whose vertical bar is disabled never grows an extent past its own room, and
+      // then nothing worn on it - no fade, no band, no travel - has anything to bite on.
+      List<string> scrollers = new List<string>();
+      foreach (ScrollViewer scroller in rail.GetVisualDescendants().OfType<ScrollViewer>())
+      {
+        scrollers.Add(scroller.GetType().Name + "[" + Math.Round(scroller.Extent.Height) + "/"
+            + Math.Round(scroller.Viewport.Height) + "/" + Math.Round(scroller.Offset.Y)
+            + ", " + (scroller.Transitions == null ? "bare" : scroller.Transitions.Count + " dress")
+            + ", bars " + ScrollViewer.GetVerticalScrollBarVisibility(scroller)
+           
+            + ", " + (ReferenceEquals(scroller, held) ? "held" : "other")
+            + " under " + string.Join("<", scroller.GetVisualAncestors()
+                .Select(a => a.GetType().Name).Take(6)) + "]");
+      }
+      scrollers.Add("on the rail itself: bars " + ScrollViewer.GetVerticalScrollBarVisibility(rail));
+
+      return "scrollers " + string.Join("  ", scrollers) + ".  "
+          + "scroller " + (ReferenceEquals(held, now) ? "the same one" : "A NEW ONE")
+          + ", " + Math.Round(now.Extent.Height) + " of " + Math.Round(now.Viewport.Height) + " points of menu"
+          + ", stood down " + Math.Round(now.Offset.Y)
+          + ", " + plates.Count + " row(s) laid out, the last reaching "
+          + (last_at == null ? "nowhere" : Math.Round(last_at.Value.Y + plates[plates.Count - 1].Bounds.Height, 0)
+                                             + " points down")
+          + ", the wall of them is " + (wall == null ? "no panel" : Math.Round(wall.Bounds.Height, 0)
+                                            + " tall and desires " + Math.Round(wall.DesiredSize.Height, 0))
+          + ", wears " + (now.Transitions == null ? "no travel" : now.Transitions.Count + " travel dress(es)");
+    }
+
+    /// <summary>
+    /// Walks the rail's caret to one of its rows row by row and reads the wall of rows three times over its LAST
+    /// travel.  A wall that glides is found at three different places on the way and arrives at the last of them;
+    /// a wall that jumps has already stood there when the first sample is taken, which is the roughness the viewer
+    /// called a hard jump (2026-11-10).
+    /// </summary>
+    /// <param name="to">Which row to walk the caret to; the rows are walked one after another, not jumped to.</param>
+    private static string WalkRailTo(ListBox rail, ScrollViewer rail_scroller, int to)
+    {
+      List<ListBoxItem> plates = new List<ListBoxItem>(rail.GetVisualDescendants().OfType<ListBoxItem>());
+      if (plates.Count == 0)
+        return "the rail laid no rows out, so there is no caret to walk.";
+
+      // The caret is walked by standing it on the next row, which is exactly what this front end's own arrow walk
+      // does with a key: the screen hands the caret from plate to plate by moving the focus (see StoodOnRow), and
+      // a key raised at the row is not that walk.
+      int target = Math.Clamp(to, 0, plates.Count - 1);
+      plates[0].Focus();
+      Pump(TimeSpan.FromMilliseconds(250));
+      for (int step = 1; step < target; step++)
+      {
+        plates[step].Focus();
+        Pump(TimeSpan.FromMilliseconds(30));
+      }
+
+      double head = rail_scroller.Offset.Y;
+      if (target > 0)
+        plates[target].Focus();
+      Pump(TimeSpan.FromMilliseconds(40));
+      double first = rail_scroller.Offset.Y;
+      Pump(TimeSpan.FromMilliseconds(80));
+      double second = rail_scroller.Offset.Y;
+      Pump(TimeSpan.FromMilliseconds(400));
+      double third = rail_scroller.Offset.Y;
+
+      // Where the stood row really lies in the room once everything has settled, because "brought into sight" by
+      // the list's own rule means its top stands on the room's last line - technically in sight, and inside the
+      // fade that is worn there.
+      ListBoxItem stood = plates[Math.Max(0, plates.FindIndex(p => p.IsFocused))];
+      Point? stood_at = stood.TranslatePoint(new Point(0, 0), rail_scroller);
+      double room = rail_scroller.Viewport.Height;
+      string lies = stood_at == null ? "the stood row lies nowhere"
+          : "the stood row runs from " + Math.Round(stood_at.Value.Y, 0) + " to "
+            + Math.Round(stood_at.Value.Y + stood.Bounds.Height, 0) + " of a room " + Math.Round(room, 0)
+            + " tall, whose last " + Math.Round(room * 0.12, 0) + " points the fade holds";
+
+      // What the rail's own rule asks for, worked out here from the same numbers, so that "the wall stands
+      // somewhere else" can be told apart from "the wall stands where the rule put it".
+      string wants = "the margin asks for nothing";
+      if (stood_at != null)
+      {
+        double row_top = stood_at.Value.Y;
+        double row_foot = row_top + stood.Bounds.Height;
+        double margin = Math.Max(0.0, Math.Min(190.0, (room - stood.Bounds.Height) / 2.0));
+        double asked = third;
+        if (row_top < margin)
+          asked -= margin - row_top;
+        else if (row_foot > room - margin)
+          asked += row_foot - (room - margin);
+        asked = Math.Clamp(asked, 0.0, Math.Max(0.0, rail_scroller.Extent.Height - room));
+        wants = "the margin of " + Math.Round(margin, 0) + " points wants the wall at "
+            + Math.Round(asked, 1) + ", where it stands is " + Math.Round(third, 1);
+      }
+
+      return "the caret stands at row " + Math.Max(0, plates.FindIndex(p => p.IsFocused)) + " of " + plates.Count
+          + ", the wall came from " + Math.Round(head, 1) + " and stands at " + Math.Round(third, 1) + " of "
+          + Math.Round(Math.Max(0.0, rail_scroller.Extent.Height - rail_scroller.Viewport.Height), 1)
+          + " points; over the travel it read " + Math.Round(first, 1) + " after 40 ms and "
+          + Math.Round(second, 1) + " after 120 ms; " + lies + "; " + wants + " - "
+          + (Math.Abs(third - head) < 0.5 ? "the wall never moved."
+             : Math.Abs(first - third) < 0.5 && Math.Abs(second - third) < 0.5
+                 ? "the place stands at once - it jumped, or this loop never ticks a travel (the shelf line says which)."
+                 : "the rail travels.");
+    }
+
+    /// <summary>
+    /// Where the rail's wall is BOUND for, which is not where it stands while a travel runs: the destination of a
+    /// dressed write is kept as the property's base value, so it can be read here in a loop that never ticks a
+    /// clock.  This is the place a real frame rests at, and therefore the only place this front end's margin can
+    /// be judged by.
+    /// </summary>
+    private static string WhereTheRailRests(ListBox rail, ScrollViewer rail_scroller, int to)
+    {
+      string walked = WalkRailTo(rail, rail_scroller, to);
+      List<ListBoxItem> plates = new List<ListBoxItem>(rail.GetVisualDescendants().OfType<ListBoxItem>());
+      if (plates.Count == 0)
+        return walked;
+
+      ListBoxItem stood = plates[Math.Max(0, plates.FindIndex(p => p.IsFocused))];
+      Point? stood_at = stood.TranslatePoint(new Point(0, 0), rail_scroller);
+      if (stood_at == null)
+        return "the stood row lies nowhere, so its resting place cannot be read.";
+
+      Avalonia.Data.Optional<Vector> bound = rail_scroller.GetBaseValue(ScrollViewer.OffsetProperty);
+      if (!bound.HasValue)
+        return "the wall was never told where to go, so it has no destination to read.";
+      Vector bound_for = bound.Value;
+      double travelling = bound_for.Y - rail_scroller.Offset.Y;
+      double room = rail_scroller.Viewport.Height;
+      double row_top = stood_at.Value.Y - rail_scroller.Padding.Top - travelling;
+      double row_foot = row_top + stood.Bounds.Height;
+      double margin = Math.Max(0.0, Math.Min(190.0, (room - stood.Bounds.Height) / 2.0));
+      bool clear = row_top >= margin - 1.0 && row_foot <= room - margin + 1.0;
+
+      return "the caret stands at row " + Math.Max(0, plates.FindIndex(p => p.IsFocused)) + ", the wall stands at "
+          + Math.Round(rail_scroller.Offset.Y, 1) + " while it is bound for " + Math.Round(bound_for.Y, 1)
+          + " of " + Math.Round(Math.Max(0.0, rail_scroller.Extent.Height - room), 1) + " points (so "
+          + Math.Round(Math.Abs(travelling), 1) + " points of travel are still owed to it); once the travel"
+          + " is paid, the stood row runs from " + Math.Round(row_top, 1) + " to " + Math.Round(row_foot, 1)
+          + " of a room " + Math.Round(room, 1) + " tall, so "
+          + (clear ? "it rests a whole margin (" + Math.Round(margin, 0) + " points) clear of both ends."
+             : "it does NOT rest clear of an end (it lies " + Math.Round(row_top, 1) + " from the head, "
+               + Math.Round(room - row_foot, 1) + " from the foot, and the margin asks "
+               + Math.Round(margin, 1) + " from either).");
+    }
+
+    /// <summary>
+    /// The rail's own tree, type and bounds down a few levels, for the moments where the readings of its scroller
+    /// and the picture disagree: which control the rows really stand under, and how tall that control thinks it is.
+    /// </summary>
+    private static void DumpRailTree(ListBox rail, int depth)
+    {
+      void Walk(Visual at, string indent, int level)
+      {
+        if (level > depth)
+          return;
+
+        Console.WriteLine("tree:     " + indent + at.GetType().Name
+            + " y " + Math.Round(at.Bounds.Y) + ".." + Math.Round(at.Bounds.Bottom)
+            + (at.Bounds.Height > 0 ? "" : " (no ground)")
+            + (at is ScrollViewer scroller ? "  << extent " + Math.Round(scroller.Extent.Height)
+                                                 + " viewport " + Math.Round(scroller.Viewport.Height)
+                                                 + " offset " + Math.Round(scroller.Offset.Y)
+                                                 + (scroller.OpacityMask == null ? "" : " MASKED") : "")
+            + (at is Avalonia.Controls.Presenters.ItemsPresenter ? "  << the rows come here" : ""));
+        foreach (Visual child in at.GetVisualChildren())
+          Walk(child, indent + "  ", level + 1);
+      }
+
+      Walk(rail, "", 1);
+    }
+
+    /// <summary>
+    /// Presses the rail's row that carries the given skin icon: the caret is stood on the row the way the screen's
+    /// own walk stands it, and the row's own command is answered - which is what a viewer's OK runs through this
+    /// screen's row handler, and the road a raised key cannot take here because the probe's synthetic key never
+    /// reaches that handler.
+    /// </summary>
+    /// <summary>A row the probe grew the menu with presses nothing; it is there to be walked to.</summary>
+    private sealed class GrownRow : System.Windows.Input.ICommand
+    {
+      public event EventHandler? CanExecuteChanged { add { } remove { } }
+      public bool CanExecute(object? parameter) { return true; }
+      public void Execute(object? parameter) { }
+    }
+
+    /// <summary>What a scroller's dress is, said plainly: which property it travels and over how long.  A
+    /// count alone cannot tell the rail's travel from a dress the theme happened to wear for something else.</summary>
+    private static string DescribeGlide(ScrollViewer scroller)
+    {
+      List<string> dresses = new List<string>();
+      foreach (Avalonia.Animation.TransitionBase dress in scroller.Transitions.OfType<Avalonia.Animation.TransitionBase>())
+      {
+        dresses.Add((dress.Property?.Name ?? "something") + " over " + dress.Duration);
+      }
+      return dresses.Count == 0 ? "nothing" : string.Join(" + ", dresses);
+    }
+
+    /// <summary>Writes the scroller a place three hundred points down its own road and reads it back while a
+    /// four hundred millisecond travel should still be on its way.  Asked of two scrollers in the same breath
+    /// it says whether a missing dress is the cause or whether this offscreen loop simply never ticks an
+    /// animation - in which case the travel has to be judged on the live screen, not here.</summary>
+    private static string TravelsOrJumps(ScrollViewer scroller)
+    {
+      bool sideways = scroller.Extent.Width > scroller.Viewport.Width;
+      if (!sideways && scroller.Extent.Height <= scroller.Viewport.Height)
+        return "nothing to scroll";
+      double over = sideways ? scroller.Extent.Width - scroller.Viewport.Width
+                             : scroller.Extent.Height - scroller.Viewport.Height;
+      double to = Math.Min(300, over);
+      double back = sideways ? scroller.Offset.X : scroller.Offset.Y;
+
+      scroller.Offset = sideways ? new Vector(0, scroller.Offset.Y) : new Vector(scroller.Offset.X, 0);
+      Pump(TimeSpan.FromMilliseconds(700));
+      scroller.Offset = sideways ? new Vector(to, scroller.Offset.Y) : new Vector(scroller.Offset.X, to);
+      Pump(TimeSpan.FromMilliseconds(40));
+      double first = sideways ? scroller.Offset.X : scroller.Offset.Y;
+      Pump(TimeSpan.FromMilliseconds(120));
+      double second = sideways ? scroller.Offset.X : scroller.Offset.Y;
+      Pump(TimeSpan.FromMilliseconds(500));
+      scroller.Offset = sideways ? new Vector(back, scroller.Offset.Y) : new Vector(scroller.Offset.X, back);
+      Pump(TimeSpan.FromMilliseconds(400));
+
+      return Math.Round(to, 0) + " points written read " + Math.Round(first, 1) + " at 40 ms and "
+          + Math.Round(second, 1) + " at 160 ms - "
+          + (Math.Abs(first - to) > 1.0 || Math.Abs(first - second) > 1.0 ? "IT TRAVELS."
+             : "the place stands at once, so nothing travelled in this loop.");
+    }
+
+    /// <summary>Asks whether this offscreen loop advances an animation at all: a bare border is dressed with a
+    /// two hundred millisecond opacity travel, stood in the tree, written a new opacity, and read back while the
+    /// travel should still be on its way.  Until that is answered, nothing about a scroller's glide can be judged
+    /// from this run - a travel that never ticked and a dress that was never worn read the same here.</summary>
+    private static string AnimatesInThisLoop(Control near)
+    {
+      Panel? host = near.Parent as Panel;
+      if (host == null)
+        return "no panel to stand the clock in";
+
+      Border dial = new Border { Width = 1, Height = 1, Opacity = 0.0 };
+      Avalonia.Animation.Transitions dresses = new Avalonia.Animation.Transitions();
+      dresses.Add(new Avalonia.Animation.DoubleTransition
+      {
+        Property = Visual.OpacityProperty,
+        Duration = TimeSpan.FromMilliseconds(200)
+      });
+      dial.Transitions = dresses;
+      host.Children.Add(dial);
+
+      dial.Opacity = 1.0;
+      Pump(TimeSpan.FromMilliseconds(40));
+      double first = dial.Opacity;
+      Pump(TimeSpan.FromMilliseconds(60));
+      double second = dial.Opacity;
+      Pump(TimeSpan.FromMilliseconds(300));
+      double rest = dial.Opacity;
+      host.Children.Remove(dial);
+
+      return "opacity written 1 read " + Math.Round(first, 2) + " at 40 ms, " + Math.Round(second, 2)
+          + " at 100 ms and " + Math.Round(rest, 2) + " at rest - "
+          + (first < 0.9 ? "an animation DOES advance in this loop."
+             : "this loop never advances an animation, so no travel can be seen here.");
+    }
+
+    private static bool PressRailRow(MediaBrowserView screen, ListBox rail, string icon)
+    {
+      foreach (ListBoxItem plate in rail.GetVisualDescendants().OfType<ListBoxItem>())
+      {
+        if (plate.DataContext is not MediaBrowserMenuEntry row || row.Icon != icon)
+          continue;
+
+        plate.Focus();
+        Pump(TimeSpan.FromMilliseconds(200));
+        Console.WriteLine("press:    '" + row.Label + "', the caret stands on "
+            + (plate.IsFocused ? "the row" : "SOMETHING ELSE")
+            + (plate.IsFocused ? "" : ": "
+                + ((TopLevel.GetTopLevel(rail)?.FocusManager.GetFocusedElement())?.GetType().Name ?? "nothing")));
+        row.Command.Execute(null);
+        Pump(TimeSpan.FromMilliseconds(250));
+        return true;
+      }
+
+      return false;
     }
 
     /// <summary>

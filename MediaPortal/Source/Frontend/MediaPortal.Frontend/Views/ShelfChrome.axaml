@@ -1,0 +1,248 @@
+﻿<!--
+  The chrome that more than one screen wears: the shapes this front end draws when the worn skin draws none
+  - a row of the shelf, a tile of its grid - and the two plates a viewer stands on to work a screen: the row
+  of the menu rail and the card of a person.
+
+  They live here because a second screen is coming that lays people rather than titles, and it lays them in
+  the same grid, in the same card, under the same rail. Markup copied into that screen would drift from this
+  one within a month, and the drift would read as two screens of one program looking like two programs.
+
+  What stays in the shelf is what only the shelf asks for: the covers and their three readings, the facts
+  beside a title, and the films of a collection - which answer to a handler of the shelf's own code.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:lg="using:LiquidGlassAvaloniaUI"
+        xmlns:sys="using:System">
+
+  <!-- One row of the shelf, the way this screen is written: picture, mark, name, state. The reference
+       laid a turquoise ground and a light bar under the row it stood on (ButtonListViewControlStyle in
+       Buttons.xaml); this face stopped wearing it - the viewer named it - and the row takes the same
+       white sheet every selected row wears, its words in the screen's own black. Nothing under the row
+       here decides any colour. -->
+  <DataTemplate x:Key="BuiltinRowsTemplate" x:DataType="vm:TitleViewModel">
+    <Panel>
+      <Grid ColumnDefinitions="Auto,Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700" Margin="30,8">
+      <!--
+        The title's picture, in the column MP2's own shelves put it: first, so that the eye runs down a
+        column of pictures rather than past the names to find out what a row is. The box behind the image
+        is what a viewer sees when the library has no picture for a title, which is most of them; it is
+        drawn as a fixed square so that a shelf of titles with art and one without line up identically,
+        and the image is laid over it rather than swapped for it because a poster that arrives a moment
+        after the row should not move the row.
+      -->
+      <Panel Width="64" Height="64">
+        <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" />
+        <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=tile}"
+               Stretch="Uniform"
+               Width="64"
+               Height="64" />
+      </Panel>
+      <!--
+        The tick in front of a title the library was told was watched. It is a column of its own rather
+        than a character glued to the name so that the names of marked and unmarked rows start at the same
+        x, which is what lets a viewer scan a shelf by eye; the reserved width says nothing about a row,
+        only the mark does.
+      -->
+      <TextBlock Grid.Column="1"
+                 Text="{Binding SeenMark}"
+                 MinWidth="34"
+                 Opacity="0.55" />
+      <TextBlock Grid.Column="2" Text="{Binding Line}" TextTrimming="CharacterEllipsis" />
+      <TextBlock Grid.Column="3"
+                 Text="{Binding Detail}"
+                 HorizontalAlignment="Right"
+                 Opacity="0.65"
+                 TextTrimming="CharacterEllipsis" />
+      </Grid>
+    </Panel>
+  </DataTemplate>
+
+  <!--
+    A tile for a skin that draws none: the poster standing in its frame with the name under it, the watched
+    corner obeying the layout's flag like the skin tiles do. Narrow enough that a full-hd shelf lays four
+    across, which is what the reference's grid laid.
+  -->
+  <DataTemplate x:Key="BuiltinTilesTemplate" x:DataType="vm:TitleViewModel">
+    <Border Width="232"
+            Background="{DynamicResource PanelBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
+            BorderThickness="1"
+            Padding="10"
+            Margin="8">
+      <StackPanel Spacing="7">
+        <Panel Width="208" Height="300">
+          <Border Background="{DynamicResource ScreenBackgroundBrush}" />
+          <Image Source="{Binding Artwork, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=tile}" Stretch="Uniform" />
+        </Panel>
+        <TextBlock Text="{Binding SeenMark}"
+                   IsVisible="{Binding WatchFlagsShown}"
+                   HorizontalAlignment="Center"
+                   Opacity="0.8" />
+        <TextBlock Text="{Binding Line}"
+                   FontSize="18"
+                   TextAlignment="Center"
+                   TextTrimming="CharacterEllipsis"
+                   TextWrapping="Wrap"
+                   MaxHeight="48" />
+      </StackPanel>
+    </Border>
+  </DataTemplate>
+
+  <!--
+    A row of the screen's own menu. It wears the shortcut tile's GLASS: the same liquid surface the home
+    shortcuts lens the wall through, the same veil over it, the same ring over the seam, and the name on the
+    glass with a shadow instead of a plate - because the rail's rows and the shortcut's squares answer the
+    same question ("which way now?"), and a menu that dresses differently from the wall it slides out of
+    reads as a second program. Every number on the surface is the shortcut's own, written where the shortcut
+    writes it (HomeView); the glass bends the ground and the fanart standing behind this screen, which is
+    what it does to the wallpaper on the home.
+
+    Two deviations from the shortcut tile remain on purpose. The picture is no PNG: a command's icon is a
+    shape out of the skin's vector catalog, painted in the text's own colour, dressed the way the rail's
+    icons were asked for - four tenths at rest, full white and the corner button's glow under a viewer. And
+    the white bar at the tile's left edge - the very bar the main menu gives its selected tile - marks the
+    row that is the screen's answer already.
+  -->
+  <DataTemplate x:Key="MediaMenuTile" x:DataType="vm:MediaBrowserMenuEntry">
+    <Border Classes="home-tile-shadow"
+            Margin="6"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            lg:LiquidGlassBackdrop.IsExcludedFromCapture="True">
+      <Panel>
+        <!-- Transparent ground under the glass, which is what the shortcut tile's Button carries too: a
+             plate painted under a lens is a plate a viewer sees, not a glass - the class is kept here for
+             its corner, and the plate it paints from the skin styles is laid aside. -->
+        <Border Classes="nereus-menu-tile" Background="Transparent" ClipToBounds="True" Width="145" Height="145">
+          <Panel>
+            <!-- One glass, and it is liquid glass: the shortcut's lens, at the shortcut's numbers. Clipped
+                 by hand for the shortcut's own reason - the library turns clipping off in the surface's
+                 statics, and a rail of ten unclipped lenses came out as one plate. -->
+            <lg:LiquidGlassSurface ClipToBounds="True"
+                                   CornerRadius="10"
+                                   BlurRadius="10"
+                                   Vibrancy="1.15"
+                                   SurfaceColor="#33030810"
+                                   RefractionHeight="20"
+                                   RefractionAmount="45"
+                                   DepthEffect="True"
+                                   ChromaticAberration="True"
+                                   HighlightWidth="0.5"
+                                   HighlightOpacity="0.2"
+                                   ShadowEnabled="False"/>
+            <!-- The veil of the glass, above the lens it veils. -->
+            <Border Classes="home-shortcut-tint"/>
+            <!-- The command's shape, asked of the worn skin's vectors the way a shortcut asks for its
+                 picture, at the size the rail was asked to carry - thirty-two hundredths of the tile,
+                 lifted off the name the way the shortcut lifts its glyph. -->
+            <Path Classes="media-menu-icon"
+                  Data="{Binding Icon, Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                 ConverterParameter='MediaMenu/{0}'}"
+                  Fill="{DynamicResource TextBrush}"
+                  Width="46"
+                  Height="46"
+                  Stretch="Uniform"
+                  Margin="0,0,0,19"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"/>
+            <!-- The name, on the glass and not on a band of its own - the shortcut's own answer: a shadow
+                 instead of a plate, so it reads over the frost without covering any of it. -->
+            <TextBlock Classes="home-shortcut-caption"
+                       Text="{Binding Label}"
+                       TextTrimming="CharacterEllipsis"/>
+            <!-- The bar of the row that is what the screen answers already - the grid in a list of
+                 layouts, the year in a list of orders - worn as the main menu wears it on its selected
+                 tile.  Which edge it wears it on is said in the styles below rather than here, because the
+                 same tile is laid in two rails: down the left edge in the rail at the screen's side, along
+                 the bottom edge in the row that lies under the covers. -->
+            <Rectangle Classes="media-menu-mark"
+                       Fill="White"
+                       IsVisible="{Binding IsCurrent}"/>
+          </Panel>
+        </Border>
+        <!-- The resting ghost ring, exactly as the shortcut tiles and the wall's covers wear it. -->
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+      </Panel>
+    </Border>
+  </DataTemplate>
+
+  <!-- A person of the title, as both people bands draw it.  The face fills the whole tile the way a cover's
+    poster fills its place on the wall, and the name stands in front of the black veil at the picture's foot:
+    the same veil the home screen's news pictures wear (HomeView.axaml:627-633), whose one job is to keep the
+    words readable on whatever the photograph behind them happens to be.
+
+    The photograph is cut by a second, inner face and not by the card itself, because a shadow cannot live on a
+    clipped edge - the outer border casts the tile's shadow, which has to fall OUTSIDE its own edges, while the
+    inner face is what stops the picture spilling over the rounded corner.  The wall's tiles are built in
+    exactly these two surfaces for exactly this reason (HomeView.axaml:753-756, with the face at
+    styles.xaml:505).  Where the library holds no portrait, the skin's own person figure - the vector its media
+    menu wears for an actor - stands in the MIDDLE of the face, at the size a glyph of this front end is written
+    and at the menu glyph's quietness, and not blown over the whole face the way the skin's standing bitmap used
+    to be: a card without a picture says that it has no picture, which is a different thing from saying it louder
+    than the name it carries.  The name keeps its veil either way, so a card is never a wordless rectangle.
+
+    The veil lies OUTSIDE that clipped face, over it, and not among the pictures inside it.  A face is one
+    hundred and fifty-four design lines tall, which at this screen's scale ends between two device pixels, so a
+    veil cut by the face was painted on its last line only by a third - the picture shone through that line as a
+    bright hairline across the foot of every card (measured on 2026-11-09: one row of #515151 between the veil's
+    #272727 above and the plate's #222222 below).  Lying outside the clip, the veil reaches the plate instead of
+    the clip, and a hairline of its own darkening over a dark plate asks for nothing.  It therefore has to carry
+    the face's corner itself - a veil that lies outside a clip is cut by nothing, so the rounding it shows is the
+    rounding it asks for, and a square one here darkened the two corners the face had left in the open. -->
+  <DataTemplate x:Key="PersonCardTile" x:DataType="vm:PersonCard">
+    <Border Classes="trackcard person-card home-tile-shadow"
+            Focusable="True"
+            Width="150"
+            Height="160"
+            Margin="0,0,8,0">
+      <Panel>
+        <Border Classes="person-face" ClipToBounds="True">
+          <Panel>
+            <!--  The face is asked for at the SMALL size, not the tile size: the card is a hundred and fifty
+                  points across, so a tile decode hands it eight times the pixels it can ever paint, and every
+                  one of those pixels stands in the one budget the covers of the shelf share.  Measured on a
+                  films shelf: eleven faces a step of the caret at the tile width filled nine of the sixteen
+                  megapixels, and the covers that were pushed out of it are the covers that arrive late. -->
+            <Image Classes="home-tile-art"
+                   Source="{Binding Portrait,
+                                    Converter={x:Static views:ArtworkConverter.Instance},
+                                    ConverterParameter=small}"
+                   Stretch="UniformToFill"
+                   IsVisible="{Binding ShowsPortrait}"
+                   IsHitTestVisible="False"/>
+            <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter='MediaMenu/actor'}"
+                  Fill="{DynamicResource TextBrush}"
+                  Opacity="0.4"
+                  Width="64"
+                  Height="64"
+                  Stretch="Uniform"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  IsVisible="{Binding !ShowsPortrait}"
+                  IsHitTestVisible="False"/>
+          </Panel>
+        </Border>
+        <Border Classes="person-veil" IsHitTestVisible="False"/>
+        <TextBlock Text="{Binding Name}"
+                   FontSize="15"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   MaxLines="2"
+                   TextTrimming="CharacterEllipsis"
+                   Margin="8,0,8,8"
+                   VerticalAlignment="Bottom"
+                   Foreground="{DynamicResource TextBrush}"/>
+        <!-- The edge, laid over the face and not round it, drawn last so the face's clip cannot saw off its
+             outer half - the wall's covers and the rail's shortcuts are built this same way (HomeView.axaml:834-
+             841).  At rest it is the skin's ghost of a ring; under a caret it comes up to full light by the rule
+             written on these two cards below. -->
+        <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
+      </Panel>
+    </Border>
+  </DataTemplate>
+</ResourceDictionary>

@@ -1,0 +1,229 @@
+﻿<!--
+  The dressing of the chrome in ShelfChrome.axaml: the rail of the screen's own menu, the card of a person, the
+  film of a collection, and the row a track or a person wears in a list. Written once here for the same reason
+  the shapes are written once there - the shelf and the people screens stand on the same plates, and two copies
+  of these rules would drift into two looks.
+-->
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+        xmlns:views="using:MediaPortal.Frontend.Views"
+        xmlns:lg="using:LiquidGlassAvaloniaUI"
+        xmlns:sys="using:System">
+
+  <Style Selector="ListBox.media-menu">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+  </Style>
+  <Style Selector="ListBox.media-menu ListBoxItem">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    <Setter Property="ClipToBounds" Value="False"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="mediaMenuPresenter"
+                          Content="{TemplateBinding Content}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Padding="{TemplateBinding Padding}"
+                          Background="Transparent"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <!-- The command's shape, dressed the way the face dresses its corner lights: four-tenths while the tile
+       waits, and on the row a viewer stands on it comes to full white with the top bar's glow - the same
+       white DropShadow the four corner buttons light their glyphs with (styles.xaml's nereus-corner-button),
+       and it fits here because the glyph sits a good deal farther from the tile's edge than the blur spreads.
+       The pointer lights the mark only when a hand is really on it, which is the corner buttons' guard too. -->
+  <!-- The rail took a sixth off its tiles, and the name on the glass comes along: thirteen points where the
+       shortcut's own caption keeps fifteen, so the word stays in proportion with the forty-six-point mark
+       above it. Only here; the home's shortcuts wear their own size untouched. -->
+  <Style Selector="ListBox.media-menu TextBlock.home-shortcut-caption">
+    <Setter Property="FontSize" Value="13"/>
+  </Style>
+  <!-- THE BAR THAT MARKS the row the screen answers with, which the two rails wear on two different edges:
+       down the tile's left edge in the rail at the screen's side, exactly as the home's main menu runs it
+       down its tiles, and along the tile's BOTTOM edge in the row that lies under the covers - the cover,
+       stacked and three dimensional views lay their menu sideways, where a left edge points at nothing.
+       It is said in styles rather than on the tile because both rails dress the very same tile. -->
+  <Style Selector="ListBox.media-menu Rectangle.media-menu-mark">
+    <Setter Property="Width" Value="4"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+    <Setter Property="VerticalAlignment" Value="Stretch"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+  </Style>
+  <Style Selector="ListBox.media-menu#mediaMenuListBottom Rectangle.media-menu-mark">
+    <!-- NaN is the width a layout element leaves to the space it is given, which frees the bar from the
+         four points the rail at the screen's side gives it. -->
+    <Setter Property="Width" Value="{x:Static sys:Double.NaN}"/>
+    <Setter Property="Height" Value="4"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="VerticalAlignment" Value="Bottom"/>
+  </Style>
+  <Style Selector="ListBox.media-menu ListBoxItem Path.media-menu-icon">
+    <Setter Property="Opacity" Value="0.4"/>
+    <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+    <Setter Property="RenderTransform" Value="scale(1)"/>
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" Easing="CubicEaseOut"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.media-menu ListBoxItem:selected Path.media-menu-icon,
+                  ListBox.media-menu ListBoxItem:focus Path.media-menu-icon,
+                  Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover Path.media-menu-icon">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Effect">
+      <DropShadowEffect BlurRadius="16" Color="#FFFFFFFF" OffsetX="0" OffsetY="0" Opacity="1"/>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.media-menu ListBoxItem:selected:focus Path.media-menu-icon,
+                  ListBox.media-menu ListBoxItem:selected:pointerover Path.media-menu-icon">
+    <Setter Property="RenderTransform" Value="scale(1.06)"/>
+  </Style>
+  <!-- What standing on the rail's glass does - the shortcut's own answer, at the shortcut's numbers: the
+       veil lightens, the ring comes up to full light, and the name stands at whole white. The rail wears
+       the skin's shortcut classes, but the shortcut's state rules are written against the shortcut's
+       Button, and these tiles stand in a list; the same four stops are therefore said here for the rail. -->
+  <Style Selector="ListBox.media-menu ListBoxItem:selected Border.home-shortcut-tint,
+                  ListBox.media-menu ListBoxItem:focus Border.home-shortcut-tint,
+                  Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover Border.home-shortcut-tint">
+    <Setter Property="Opacity" Value="1"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#66FFFFFF"/>
+        <GradientStop Offset="0.3" Color="#40FFFFFF"/>
+        <GradientStop Offset="0.7" Color="#33141C26"/>
+        <GradientStop Offset="1" Color="#4D0C1218"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.media-menu ListBoxItem:selected Border.home-tile-edge,
+                  ListBox.media-menu ListBoxItem:focus Border.home-tile-edge,
+                  Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover Border.home-tile-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.media-menu ListBoxItem:selected TextBlock.home-shortcut-caption,
+                  ListBox.media-menu ListBoxItem:focus TextBlock.home-shortcut-caption,
+                  Window:not(.pointer-resting) ListBox.media-menu ListBoxItem:pointerover TextBlock.home-shortcut-caption">
+    <Setter Property="Opacity" Value="1"/>
+  </Style>
+
+  <!-- The cards of the two track bands, and the ring one of them wears once the caret stands on it.  A track
+       card is looked at rather than chosen - nothing is ever "played" by standing on it - but the caret still
+       belongs on the card itself and not on the band around it: the question a viewer asks is " WHICH track",
+       and a ring around five cards answers nothing.  The ring is the white the viewer asked the focus to wear
+       everywhere (2026-11-02); the arrows walk from card to card and the band slides along by itself. -->
+  <Style Selector="Border.trackcard">
+    <Setter Property="BorderThickness" Value="3"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+  </Style>
+  <Style Selector="Border.trackcard:focus">
+    <Setter Property="BorderBrush" Value="#FFFFFFFF"/>
+  </Style>
+
+  <!-- A person's card, dressed as a cover of the wall is dressed: the plate, the face that carries the
+       picture to the tile's own edge, and the ring laid OVER that edge.  The plate is the dark ground a cover
+       without a picture stands on at the wall (#222222, HomeView.axaml:781-785 - the worn skin's own plate,
+       frosted by nothing), and it is only ever seen where a photograph is missing.
+
+       The picture is cut by the tile's OWN corner and by nothing else.  A card of words may wear its ring as a
+       border of its own, because a border of words is a margin; a border round a photograph is a second edge
+       drawn a few points outside the first, and where the two corners disagree a viewer sees a dark step -
+       which is exactly what these cards showed until 2026-11-03, a rim of the plate standing between every
+       photograph and the tile it stood on.  The wall has never had that step, because its covers clip their
+       face at the tile's own ten (HomeView.axaml:768, styles.xaml:505-508) and answer a viewer with a ring laid
+       over the finished edge (Border.home-tile-edge, styles.xaml:727-759) rather than with a border that pushes
+       the picture inward.  These cards do the same now, and the ring of Border.trackcard is laid aside for them
+       by the rule below.
+
+       The veil is the home screen's news veil (HomeView.axaml:627-633) with its darkening pulled down to the
+       foot of a much smaller tile: over a hundred and sixty lines a veil that starts darkening at a third of
+       the height would grey the whole face, so it starts below the middle.  It carries the tile's corner too,
+       which is the corner the picture is cut to. -->
+  <Style Selector="Border.person-card">
+    <Setter Property="Background" Value="#222222"/>
+  </Style>
+  <Style Selector="Border.person-face">
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="Background" Value="#222222"/>
+  </Style>
+  <Style Selector="Border.person-veil">
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0.45" Color="#00000000"/>
+        <GradientStop Offset="0.72" Color="#8C000000"/>
+        <GradientStop Offset="1.00" Color="#D9000000"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <!-- A film of the collection the reading names, standing as its poster in the collection's band.  It wears the
+       person card's dress and not the track card's, because it is the picture of a title rather than a line of
+       words: the same dark plate a cover without a picture stands on at the wall, the same shadow, the picture
+       cut to the tile's own corner, and the same ring laid over that corner.
+
+       No veil and no name: a film's poster already says which film it is, and a line of words laid over a
+       hundred and fifty five lines of picture would cover the face the viewer came to recognise.  The name is not
+       lost either - it stands in the tip a hovering pointer reads. -->
+  <Style Selector="Border.collection-film-card">
+    <Setter Property="Background" Value="#222222"/>
+  </Style>
+  <Style Selector="Border.collection-film-face">
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="Background" Value="#222222"/>
+  </Style>
+
+  <!-- The two picture bands lay the word card's ring aside.  Border.trackcard above asks for three points of
+       border so that a card of words can answer the caret with an edge of its own, and on those cards the border
+       is a margin the words stand inside; on a picture the same three points are a gap between the photograph
+       and the tile, and the gap is painted with the tile's own dark plate.  What these two cards answer a caret
+       with is the edge the wall's covers wear, laid OVER the face by their own templates, so their picture runs
+       to the tile's edge and the ring sits on top of it: one edge, one corner, nothing between them.  Two class
+       names deep, so that the ring Border.trackcard:focus lights cannot push the picture back in. -->
+  <Style Selector="Border.person-card, Border.collection-film-card">
+    <Setter Property="BorderThickness" Value="0"/>
+  </Style>
+  <!-- The ring, coming up to full light under a caret: the same four stops down the same line that the wall's
+       covers and the shortcuts brighten with (styles.xaml:903-922), so a card of this reading answers being
+       stood on in the one voice every other tile of this front end uses.  No fade, for the wall's own reason -
+       a ring that has to fade up is a ring that is not there while it fades, and the arrows walk further than a
+       fade. -->
+  <Style Selector="Border.person-card:focus Border.home-tile-edge,
+                  Border.collection-film-card:focus Border.home-tile-edge">
+    <Setter Property="BorderBrush">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
+        <GradientStop Offset="0.35" Color="#B3FFFFFF"/>
+        <GradientStop Offset="0.72" Color="#66FFFFFF"/>
+        <GradientStop Offset="1" Color="#CCFFFFFF"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <!-- And the picture steps a tenth nearer, as a cover of the wall does (styles.xaml:524-530).  The resting
+       scale and the half second of sine are the skin's own, carried by the Image.home-tile-art class the two
+       templates wear; what is written here is only the answer to a viewer standing on the card, which the skin's
+       rule cannot see because it is written for the wall's buttons and list items.  The face clips the growth,
+       so nothing spills past the tile's edge, and the name in its veil stays where it was. -->
+  <Style Selector="Border.person-card:focus Image.home-tile-art,
+                  Border.collection-film-card:focus Image.home-tile-art">
+    <Setter Property="RenderTransform" Value="scale(1.1)"/>
+  </Style>
+</Styles>

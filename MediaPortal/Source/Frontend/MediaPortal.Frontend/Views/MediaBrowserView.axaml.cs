@@ -42,8 +42,12 @@ namespace MediaPortal.Frontend.Views
   /// <summary>
   /// The titles of one part of the library, and the way out of them into the player.
   /// </summary>
-  public partial class MediaBrowserView : UserControl, IWorkflowScreen
+  public partial class MediaBrowserView : UserControl, IWorkflowScreen, IShelfRailHost
   {
+    /// <summary>The rail of commands that runs down beside the shelf, and the row of them that lies under covers.</summary>
+    private ShelfRail? _sideRail;
+    private ShelfRail? _bottomRail;
+
     private readonly WorkflowManager? _workflow;
     private readonly Func<WorkflowFrame>? _nowPlayingScreen;
     private readonly Func<TitleViewModel, Task<WorkflowFrame?>>? _insideScreen;
@@ -432,22 +436,24 @@ namespace MediaPortal.Frontend.Views
           // Down a page, the caret belongs on its first row, which is what the menu's own opening does.  Back up
           // to the commands, the caret goes to the row the viewer climbed down from - the way back is only half
           // an answer if the viewer stands on nothing at its end.
-          bool up_to_the_commands = browser.MediaMenuHeading == COMMANDS_HEADING;
+          bool up_to_the_commands = browser.MediaMenuHeading == ShelfRail.COMMANDS_HEADING;
           int wanted = up_to_the_commands && _menuSteppedFrom >= 0 ? _menuSteppedFrom : 0;
           if (up_to_the_commands)
             _menuSteppedFrom = -1;
 
           // Asked after this pass, because the heading is set between the clearing and the adding: asked in the
           // breath of the heading, the caret would select a row of an empty rail and stand on nothing again.
-          ListBox rail = browser.IsCoverLayout ? mediaMenuListBottom : mediaMenuList;
-          Dispatcher.UIThread.Post(delegate { StandCaretOnRailRow(rail, wanted); });
+          ShelfRail rail = (browser.IsCoverLayout ? _bottomRail : _sideRail)!;
+          Dispatcher.UIThread.Post(delegate { rail.StandOnRow(wanted); });
         }
       };
       // The menu's Search row and the Find key both ask for the caret to be in a field that is only on the screen
       // while somebody is searching, so the field is put on the screen and the caret moved in one motion.
       browser.SearchFocusRequested += delegate { RevealSearch(); };
-      WireMenuList(mediaMenuList);
-      WireMenuList(mediaMenuListBottom);
+      _sideRail = new ShelfRail(mediaMenuList, sideMenu, false, this);
+      _bottomRail = new ShelfRail(mediaMenuListBottom, bottomMenu, true, this);
+      _sideRail.Wire();
+      _bottomRail.Wire();
 
       // The room is divided between the shelf and the details column by proportion rather than by fixed points, so
       // the division is redone whenever the details column comes or goes (see ApplyColumns for why a thousand fixed
@@ -1438,7 +1444,7 @@ namespace MediaPortal.Frontend.Views
       // the slide already has to say whether anything stands above its head.  Its travel is fitted there too, for
       // the same reason - the scroller the dress goes on only exists once the panel has been stood up.
       if (!covers)
-        DressTheRail();
+        _sideRail?.Dress();
     }
 
     /// <summary>
@@ -1507,201 +1513,12 @@ namespace MediaPortal.Frontend.Views
       });
     }
 
-    /// <summary>The heading the menu wears while its commands page stands up (see the view model's BuildMediaMenu).</summary>
-    private const string COMMANDS_HEADING = "Menu";
-
     /// <summary>
     /// The row of the commands page that the viewer climbed down from into a subpage, or -1 while nobody is
     /// standing below.  The way back is only half an answer if the viewer comes back standing on nothing, and
     /// the row is the one thing the rebuilt page cannot remember by itself - the rows are new by then.
     /// </summary>
     private int _menuSteppedFrom = -1;
-
-    /// <summary>
-    /// Stands the caret on one row of a rail whose rows were just replaced underneath it - the same caret the
-    /// menu's opening stands, asked of a rail that is on the screen already and only changed its rows.
-    /// </summary>
-    private void StandCaretOnRailRow(ListBox rail, int row)
-    {
-      StandCaret(rail, delegate
-      {
-        if (rail.Items.Count == 0)
-          return;
-        rail.SelectedIndex = row < rail.Items.Count ? row : rail.Items.Count - 1;
-      });
-    }
-
-    /// <summary>
-    /// Makes a menu list answer the two ways the reference's menu rows were answered: the button of the remote
-    /// while the focus stands on a row, and a pointer landing on one. Every row carries its own command, and the
-    /// reference handed that command to its item template with a <c>CommandBridge</c> rather than keeping a table
-    /// of row numbers in the screen.
-    /// </summary>
-    private void WireMenuList(ListBox list)
-    {
-      // The line at the screen's foot speaks of the plate the caret stands on, so it is told whenever the caret
-      // walks: by the list's own selection, and by the focus arriving in a row - the screen's arrows hand the caret
-      // from plate to plate by moving the focus, which leaves the list's selection where it was.
-      list.SelectionChanged += delegate { TellFootLineAbout(list); };
-      list.AddHandler(GotFocusEvent, delegate { TellFootLineAbout(list); }, RoutingStrategies.Bubble);
-
-      list.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
-      {
-        // The button every input device has: the enter key on a keyboard, the space bar where a remote has no
-        // letters, and the remote's own OK where it arrives as its own key - which keys those are is the
-        // table's business (KeyAction.Select). A rail of commands that cannot be pressed with any of them is a
-        // rail for the mouse only.  Heard though the list handled the key, because the list DOES handle it: a
-        // list walks its own caret with the arrows and answers the button itself by ending whatever it was
-        // doing, and a handler that only listens to keys nobody used never presses a row.
-        if (!Settings.KeyBindings.Current.Is(Settings.KeyAction.Select, args))
-          return;
-
-        // The row the caret stands on, and the list's own answer only where that says nothing: the arrows that
-        // walk this rail are answered by the screen's own walk, which moves the caret without asking the list to
-        // select, so a list left with its first row selected would press its first command from whichever row the
-        // viewer had walked to.
-        if (StoodOnRow(list) is MediaBrowserMenuEntry row)
-        {
-          list.SelectedItem = row;
-          RunMenuRow(list, row);
-          args.Handled = true;
-        }
-      }, RoutingStrategies.Bubble, true);
-
-      list.AddHandler(PointerPressedEvent, delegate (object? sender, PointerPressedEventArgs args)
-      {
-        // The press lands somewhere inside the row rather than on the row itself, so the row is asked for by
-        // walking up from whatever was touched. A press on the list's own ground between two rows is no command.
-        if (args.Source is Visual source)
-        {
-          ListBoxItem? item = source.GetVisualAncestors().OfType<ListBoxItem>().FirstOrDefault();
-          if (item?.DataContext is MediaBrowserMenuEntry row)
-          {
-            list.SelectedItem = row;
-            RunMenuRow(list, row);
-            args.Handled = true;
-          }
-        }
-      }, RoutingStrategies.Tunnel);
-
-      // A row of the rail that comes by the caret is kept away from the rail's two ends, as the reference's rail
-      // keeps its stood row a margin from both (see KeepRailRowInSight).  Only the rail that runs down answers:
-      // the row of plates under covers has its own question to answer at its ends, and the viewer asked about the
-      // side rail.
-      if (!ReferenceEquals(list, mediaMenuListBottom))
-      {
-        list.AddHandler(GotFocusEvent, delegate (object? sender, RoutedEventArgs args)
-        {
-          // The caret sometimes lands on something inside the row rather than on the row itself, so the row is
-          // asked for from whatever came into focus.
-          ListBoxItem? row = args.Source as ListBoxItem
-              ?? (args.Source as Visual)?.GetVisualAncestors().OfType<ListBoxItem>().FirstOrDefault();
-          if (row != null)
-            KeepRailRowInSight(row);
-        }, RoutingStrategies.Bubble);
-      }
-
-      // The wall a viewer pointed at answers with a nod. Three kinds of key point at one: the key that leads
-      // away from the shelf - the left on a rail standing beside the shelf, the DOWN on the rail under covers,
-      // whose other side is the floor the menu slides out of - and the two keys that lead past an end of the
-      // rail, which are walls only while the caret stands on that end. Every other key is the list's own arrow
-      // walking and is left to it. The whole rail nods, ground and glow with it, because a row of plates sliding
-      // on their ground is a row that fell off it.
-      //
-      // Heard on the rail's ground rather than on the list: a tunnel handler on the control a key arrives at is
-      // never heard there (the control itself is only served on the way back up), and the caret sometimes
-      // stands on the list and not on one of its rows - the ground is between the room and every key the rail
-      // ever receives, whichever of them wears the caret, and it hears them before the list walks its caret,
-      // which is the only moment where "this end is a wall" can still be answered.
-      bool sideways_rail = ReferenceEquals(list, mediaMenuListBottom);
-      Control rail_ground = sideways_rail ? bottomMenu : sideMenu;
-      rail_ground.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
-      {
-        if (args.Handled || list.Items.Count == 0)
-          return;
-
-        // Under covers the shelf is reached from above (Up) and the wall lies BELOW the row of plates, so the
-        // nod there dives downward into the floor the menu came out of.
-        Key away_from_the_shelf = sideways_rail ? Key.Down : Key.Left;
-        Key past_the_head = sideways_rail ? Key.Left : Key.Up;
-        Key past_the_foot = sideways_rail ? Key.Right : Key.Down;
-        object? stood = StoodOnRow(list);
-        int standing = stood == null ? -1 : list.Items.IndexOf(stood);
-
-        if (args.Key == away_from_the_shelf)
-          BounceRail(rail_ground, sideways_rail ? 0 : -RAIL_BOUNCE_DIVE, sideways_rail ? RAIL_BOUNCE_DIVE : 0);
-        else if (args.Key == past_the_head && standing <= 0)
-          BounceRail(rail_ground, sideways_rail ? -RAIL_BOUNCE_DIVE : 0, sideways_rail ? 0 : -RAIL_BOUNCE_DIVE);
-        else if (args.Key == past_the_foot && standing == list.Items.Count - 1)
-          BounceRail(rail_ground, sideways_rail ? RAIL_BOUNCE_DIVE : 0, sideways_rail ? 0 : RAIL_BOUNCE_DIVE);
-        else
-          return;
-
-        args.Handled = true;
-      }, RoutingStrategies.Tunnel);
-    }
-
-    /// <summary>
-    /// Presses the command a menu row carries, when it has one that can be pressed - and remembers the row when
-    /// the press was a climb down from the commands into a subpage, which the back key asks for by name.
-    /// </summary>
-    private void RunMenuRow(ListBox list, MediaBrowserMenuEntry row)
-    {
-      if (!row.Command.CanExecute(null))
-        return;
-
-      if ((DataContext as MediaBrowserViewModel)?.MediaMenuHeading == COMMANDS_HEADING)
-        _menuSteppedFrom = list.Items.IndexOf(row);
-
-      row.Command.Execute(null);
-
-      // Climbing down a page replaced every row the rail wore, caret included; by this moment the page stands
-      // complete, so its first row is asked for at once.  A command that builds its page later - a filter still
-      // counting its values - is answered by the heading handler instead, which wakes when the page really comes.
-      if (DataContext is MediaBrowserViewModel owner
-          && owner.MediaMenuVisible && owner.MediaMenuHeading != COMMANDS_HEADING)
-        StandCaretOnRailRow(list, 0);
-    }
-
-    /// <summary>
-    /// Tells the screen's foot which plate of a rail the caret stands on.  The plate is asked for the same way every
-    /// other answer on this rail asks for it - the row the focus is in, falling back to the list's own selection -
-    /// because the screen's arrows move the caret without asking the list to select.
-    /// </summary>
-    private void TellFootLineAbout(ListBox list)
-    {
-      if (DataContext is not MediaBrowserViewModel owner)
-        return;
-
-      MediaBrowserMenuEntry? plate = StoodOnRow(list) as MediaBrowserMenuEntry;
-      owner.MenuTileStood(plate?.Label, plate?.Detail);
-    }
-
-    /// <summary>
-    /// The row of a list that the caret stands on, or the list's own selected row when the caret is on the list
-    /// itself rather than inside one of its rows.
-    /// </summary>
-    /// <remarks>
-    /// Asked of the focused control and walked up, because on this screen the arrow keys are answered by the
-    /// skin's own walk (see <see cref="Input.SkinFocusWalk"/>) rather than by the list, and a list whose selection
-    /// the walk never touched keeps answering with the row it was opened on.  A rail the viewer walked to a command
-    /// on and then pressed a button for must press THAT command.
-    /// </remarks>
-    private object? StoodOnRow(ListBox list)
-    {
-      if ((TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() is Visual stood)
-      {
-        // The caret can be on the row itself or on anything painted inside it, so the row is asked for by walking
-        // up from the focused control - itself included.
-        for (Visual? at = stood; at != null; at = at.GetVisualParent())
-        {
-          if (at is ListBoxItem container && container.DataContext != null)
-            return container.DataContext;
-        }
-      }
-
-      return list.SelectedItem;
-    }
 
     /// <summary>
     /// Gives the caret to the tile or row the screen is about.  The reference kept the caret on its media list by
@@ -2153,7 +1970,7 @@ namespace MediaPortal.Frontend.Views
     private const int CARET_TRIES = 12;
 
     /// <summary>
-    /// How many titles must stand unread behind the caret before the screen asks the server for the next part
+    /// How many titles must stand BandEndFade.UNREAD behind the caret before the screen asks the server for the next part
     /// of the shelf.
     /// </summary>
     /// <remarks>
@@ -2234,7 +2051,7 @@ namespace MediaPortal.Frontend.Views
     }
 
     /// <summary>How far a rail nods toward the wall a viewer pointed at, in points.</summary>
-    private const double RAIL_BOUNCE_DIVE = 22;
+    private const double RAIL_BOUNCE_DIVE = ShelfRail.RAIL_BOUNCE_DIVE;
 
     /// <summary>The lean toward the wall and the spring back, both in milliseconds.</summary>
     private const int RAIL_BOUNCE_DIVE_MS = 90;
@@ -4125,7 +3942,7 @@ namespace MediaPortal.Frontend.Views
       if (sideways != _fadeRunsSideways)
       {
         _fadeRunsSideways = sideways;
-        _fadeBefore = _fadeAfter = UNREAD;
+        _fadeBefore = _fadeAfter = BandEndFade.UNREAD;
       }
 
       // The scroller lives inside the list's template and only exists once the list has been measured, so the
@@ -4146,7 +3963,7 @@ namespace MediaPortal.Frontend.Views
           // scroll that came without the screen starting a travel - the viewer's own wheel - and lets a travel
           // the screen started settle by its own means (see WearShelfGlide).
           _fadedScroller = scroller;
-          _fadeBefore = _fadeAfter = UNREAD;
+          _fadeBefore = _fadeAfter = BandEndFade.UNREAD;
           scroller.AddHandler(ScrollViewer.ScrollChangedEvent, delegate
           {
             // Every frame that moves the wall feeds the rest watcher (see AwaitScrollRest).  A travel the screen
@@ -4192,10 +4009,10 @@ namespace MediaPortal.Frontend.Views
       // the notes on the layers.
       if (RowFadesItsOwnCovers)
       {
-        if (scroller.OpacityMask != null || _fadeBefore != UNREAD)
+        if (scroller.OpacityMask != null || _fadeBefore != BandEndFade.UNREAD)
         {
           scroller.OpacityMask = null;
-          _fadeBefore = _fadeAfter = UNREAD;
+          _fadeBefore = _fadeAfter = BandEndFade.UNREAD;
         }
         return;
       }
@@ -4216,9 +4033,9 @@ namespace MediaPortal.Frontend.Views
       // What stands outside the picture at either end.  A wall shorter than its window stands outside neither of
       // them and is faded at neither.  A wall that is travelling is read at where it will stand, not at where it
       // is, and what the reading asks for is put on before its first frame - see WearShelfTravel.
-      double zone = EDGE_FADE * view;
-      double before = FadeDepth(_shelfTravelling ? _shelfGlide : offset, zone);
-      double after = FadeDepth(extent - view - (_shelfTravelling ? _shelfGlide : offset), zone);
+      double zone = BandEndFade.EDGE_FADE * view;
+      double before = BandEndFade.FadeDepth(_shelfTravelling ? _shelfGlide : offset, zone);
+      double after = BandEndFade.FadeDepth(extent - view - (_shelfTravelling ? _shelfGlide : offset), zone);
       if (before == _fadeBefore && after == _fadeAfter)
         return;
 
@@ -4238,7 +4055,7 @@ namespace MediaPortal.Frontend.Views
         return;
       }
 
-      LinearGradientBrush fade = _shelfFade ??= NewEdgeFade();
+      LinearGradientBrush fade = _shelfFade ??= BandEndFade.NewEdgeFade();
       fade.StartPoint = new RelativePoint(_fadeRunsSideways ? 0.0 : 0.5,
           _fadeRunsSideways ? 0.5 : 0.0, RelativeUnit.Relative);
       fade.EndPoint = new RelativePoint(_fadeRunsSideways ? 1.0 : 0.5,
@@ -4246,39 +4063,11 @@ namespace MediaPortal.Frontend.Views
 
       // A mask hides by its own transparency, so an end that is hiding nothing is written opaque and an end that
       // has walked a whole fade zone of wall out of the picture is written clear.
-      fade.GradientStops[0].Color = FadeColour(_fadeBefore);
-      fade.GradientStops[3].Color = FadeColour(_fadeAfter);
+      fade.GradientStops[0].Color = BandEndFade.FadeColour(_fadeBefore);
+      fade.GradientStops[3].Color = BandEndFade.FadeColour(_fadeAfter);
       scroller.OpacityMask = fade;
     }
 
-    /// </summary>
-    private static double FadeDepth(double hidden, double zone)
-    {
-      if (hidden <= 0 || zone <= 0)
-        return 0;
-
-      double gone = Math.Min(1.0, hidden / zone);
-      return Math.Round(gone * FADE_STEPS) / FADE_STEPS;
-    }
-
-    /// <summary>The mask's colour for an end fading to the given depth.</summary>
-    private static Color FadeColour(double depth)
-      => Color.FromArgb((byte)Math.Round((1.0 - depth) * 255.0), 0xFF, 0xFF, 0xFF);
-
-    /// <summary>The edge mask with both ends standing opaque; the depths are written on it afterwards.</summary>
-    private static LinearGradientBrush NewEdgeFade()
-    {
-      LinearGradientBrush fade = new LinearGradientBrush
-      {
-        StartPoint = new RelativePoint(0.5, 0, RelativeUnit.Relative),
-        EndPoint = new RelativePoint(0.5, 1, RelativeUnit.Relative)
-      };
-      fade.GradientStops.Add(new GradientStop(Colors.White, 0));
-      fade.GradientStops.Add(new GradientStop(Colors.White, EDGE_FADE));
-      fade.GradientStops.Add(new GradientStop(Colors.White, 1.0 - EDGE_FADE));
-      fade.GradientStops.Add(new GradientStop(Colors.White, 1));
-      return fade;
-    }
 
     /// <summary>
     /// Puts the media lists' edge fade on one band of cards: the same dress <see cref="ApplyShelfFade"/> lays over
@@ -4304,312 +4093,11 @@ namespace MediaPortal.Frontend.Views
       Dispatcher.UIThread.Post(fade.Update, DispatcherPriority.Loaded);
     }
 
-    /// <summary>
-    /// The rail's own scroller, looked for on the tree every time it is asked for: the panel the rail hangs in is
-    /// taken out of the tree while the menu is shut (see <see cref="LayTheMenuPanelsDown"/>) and a list that was
-    /// retemplated - which is what putting a skin on does - brings a new one with it.
-    /// </summary>
-    private ScrollViewer? RailScroller()
-      => mediaMenuList.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
-
-    /// <summary>
-    /// Dresses the menu's rail for the two things a viewer noticed it was missing: the edge fade over its head and
-    /// its foot, and the glide its rows travel on.  Without the first a row the caret walked above the rail's head
-    /// is cut off there by a straight edge and a menu longer than the room says nothing at its foot (viewer,
-    /// 2026-11-10); without the second every step of the caret lands the wall of rows on its new place in one
-    /// frame, which the same viewer called a hard jump (2026-11-10).
-    /// </summary>
-    /// <remarks>
-    /// Asked every time the rail stands, and not once for the view's life, because the panel is laid down between
-    /// two openings and only the dress that is written on the scroller that stands there now can be seen.  The
-    /// glide goes on permanently, as the shelf's does (see <see cref="InstallShelfGlide"/>): the reference lerps
-    /// every offset change of this very list through its storyboards, a caret step and a wheel notch alike
-    /// (<c>OtherControlsOverrides.xaml:1019-1027</c>).
-    /// </remarks>
-    private void DressTheRail(int tries = 12)
-    {
-      Dispatcher.UIThread.Post(delegate
-      {
-        ScrollViewer? rail = RailScroller();
-        if (rail == null)
-        {
-          // The panel was stood up but its list has not been put together yet - which is what happens when a menu
-          // is opened on a screen that has never measured it.  Asked again on the next pass, for as long as the
-          // panel stands; a rail that never brings a scroller with it is a rail without rows anyway.
-          if (tries > 0 && sideMenu.IsVisible)
-            DressTheRail(tries - 1);
-          return;
-        }
-
-        FitRailGlide(rail);
-
-        // The reading is only asked again for a scroller it does not already watch; one that stands again keeps
-        // the scroller its template made the first time, and its reading with it.
-        if (ReferenceEquals(_railFade?.Band, rail))
-          return;
-
-        _railFade = new BandEndFade(rail, sideways: false);
-        _bandFades.Add(_railFade);
-
-        // A row's own height is not known until the list has laid it out, so the last row of a page that arrived
-        // a moment ago is measured at less than it will be: the margin was kept against a rail shorter than the
-        // one that stood after.  Told when the measure moves, the margin is put on again.
-        rail.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { ReaskTheRailMargin(rail); });
-        AnswerTheRailFollow(rail);
-
-        _railFade.Update();
-        _railStoodRow = null;
-      }, DispatcherPriority.Loaded);
-    }
-
-    /// <summary>
-    /// Makes sure the rail that stands right now is dressed, and dresses it if it is not.  Asked of every caret
-    /// that arrives in the rail, because it is cheap - one walk over a rail of a few rows - and because the one
-    /// moment the dress is asked for (the panel standing up) can meet a list that has not been put together yet.
-    /// </summary>
-    private void EnsureRailDressed(ScrollViewer rail)
-    {
-      FitRailGlide(rail);
-
-      if (ReferenceEquals(_railFade?.Band, rail))
-        return;
-
-      _railFade = new BandEndFade(rail, sideways: false);
-      _bandFades.Add(_railFade);
-
-      // As in DressTheRail: the measure of a page that is still arriving is not the measure it ends at, and the
-      // margin has to be put on against the one that stands.
-      rail.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { ReaskTheRailMargin(rail); });
-      AnswerTheRailFollow(rail);
-
-      _railFade.Update();
-    }
-
-    /// <summary>
-    /// Answers the rail's "bring this into view" itself, so that a row the caret walked to arrives inside the
-    /// reference's margin instead of flush against an end of the rail.
-    /// </summary>
-    /// <remarks>
-    /// A list follows its caret by asking its scroller to bring the row into view, and the scroller's answer is the
-    /// least it can do: the row's edge lands on the room's edge, which is inside the fade worn there - the very row
-    /// the viewer stands on would dissolve (2026-11-10, the complaint about the rail).  The reference keeps a
-    /// hundred and ninety points between the stood row and either end of this same rail
-    /// (<c>OtherControlsOverrides.xaml:1019</c>), and asks for it while bringing the row into view - which is the
-    /// moment answered here, because a scroller knows nothing of the fade it wears.  Heard with the handled asked
-    /// for as well: the scroller's own answer is written by a handler of its class, which is served before this
-    /// one, so stepping on it is what leaves the margin standing.
-    /// </remarks>
-    private void AnswerTheRailFollow(ScrollViewer rail)
-    {
-      if (ReferenceEquals(_railFollowAnswered, rail))
-        return;
-
-      _railFollowAnswered = rail;
-      rail.AddHandler(Control.RequestBringIntoViewEvent,
-          delegate(object? sender, RequestBringIntoViewEventArgs e)
-      {
-        // The ask often comes from something inside the row rather than from the row, and what a viewer reads as
-        // stood is the whole row.
-        Visual? asker = e.Source as Visual;
-        ListBoxItem? row = asker as ListBoxItem
-            ?? asker?.GetVisualAncestors().OfType<ListBoxItem>().FirstOrDefault();
-        if (row == null)
-          return;
-
-        KeepRailRowInSight(row);
-        e.Handled = true;
-      }, RoutingStrategies.Bubble, true);
-    }
-
-    /// <summary>
-    /// Asks for the rail's margin to be put on again on the next pass rather than from inside the report of a
-    /// scroll.  Written while the scroller is still telling everyone where it moved, an offset is swallowed - and
-    /// that is exactly the moment the list's own answer to the caret arriving lands the stood row into the fade,
-    /// so the answer has to come a pass later.
-    /// </summary>
-    private void ReaskTheRailMargin(ScrollViewer rail)
-    {
-      Dispatcher.UIThread.Post(delegate
-      {
-        Control? stood = _railStoodRow;
-        if (stood != null && ReferenceEquals(RailScroller(), rail))
-          GlideRailOntoRow(rail, stood);
-      }, DispatcherPriority.Background);
-    }
-
-    /// <summary>Puts the reference's travel on the rail, at the length its own scroll animation runs.</summary>
-    private void FitRailGlide(ScrollViewer rail)
-    {
-      // Asked whether a dress is worn rather than whether both sides are empty: a scroller that wears nothing and
-      // a memory of nothing are not the same thing, and reading them as one leaves the rail bare forever.
-      if (_wornRailGlide != null && ReferenceEquals(rail.Transitions, _wornRailGlide))
-        return;
-
-      Transitions glide = new Transitions();
-      glide.Add(new VectorTransition
-      {
-        Property = ScrollViewer.OffsetProperty,
-        Duration = RAIL_GLIDE,
-        // The easing the skin's own vertical menu scroller wears
-        // (Skins/Nereus/themes/default/styles.xaml:349, the reference's VerticalMediaScrollViewerStyle), which
-        // is also what makes the home menu's column feel as though it is set down rather than fired.
-        Easing = new Avalonia.Animation.Easings.CubicEaseOut()
-      });
-      _wornRailGlide = glide;
-      rail.Transitions = glide;
-    }
-
-    /// <summary>
-    /// Keeps the row the caret stands on away from the rail's two ends, with the reference's margin between the row
-    /// and either of them.  A scroller left to itself does bring a row into sight, but the minimum: the row lands
-    /// flush against the end it came in at - inside the edge fade that is worn there, which would dissolve the very
-    /// row the viewer is standing on.  The reference's rail holds its stood row a hundred and ninety points from
-    /// both ends (<c>OtherControlsOverrides.xaml:1019</c>), which is also more than the ninety-odd points the fade
-    /// zone of a rail of this height takes.
-    /// </summary>
-    private void KeepRailRowInSight(Control row)
-    {
-      ScrollViewer? rail = RailScroller();
-      if (rail == null)
-        return;
-
-      // The dress is asked for here as well as when the panel stands up: a menu opened on a screen that has never
-      // measured its rail meets a list that has not been put together yet, and the caret arriving is the first
-      // moment the scroller it was dressed in certainly stands there.
-      EnsureRailDressed(rail);
-      _railStoodRow = row;
-
-      // The list's own answer to a caret arriving is the bare minimum - it lands the row flush against the end it
-      // came in at, which is inside the fade worn there.  That answer is not fought here (it arrives later than any
-      // pass made now, and it arrives through the rail's own ask, which the view answers with the margin - see
-      // AnswerTheRailFollow); this pass is what carries the caret the moment it arrives, and the two answers read
-      // as one travel because the glide retargets a running travel rather than restarting it.
-      GlideRailOntoRow(rail, row);
-
-      // Asked once more after the layout has had its say: the list's own answer to the caret arriving lands the row
-      // flush against an end during that pass, and the glide retargets the running travel rather than restarting
-      // it, so the two answers read as one travel (see KeepCardInSight).
-      Dispatcher.UIThread.Post(delegate { GlideRailOntoRow(rail, row); }, DispatcherPriority.Loaded);
-
-      // And once more after that answer has been painted towards: the list brings a row in by its own rule, which
-      // stands the row's top at the very last line of the room - the row is then technically in sight and wholly
-      // inside the fade - and it does so on the pass the layout is closed, below the one above.  Asking at a
-      // priority under the layout's own leaves the margin standing.
-      Dispatcher.UIThread.Post(delegate { GlideRailOntoRow(rail, row); }, DispatcherPriority.Background);
-    }
-
-    /// <summary>One pass of the rail's margin: writes the rail's offset if the row does not already lie inside it.</summary>
-    private static void GlideRailOntoRow(ScrollViewer rail, Control row)
-    {
-      Point? at = row.TranslatePoint(new Point(0, 0), rail);
-      if (at == null || rail.Viewport.Height <= 0.0)
-        return;
-
-      double viewport = rail.Viewport.Height;
-      double top = at.Value.Y - rail.Padding.Top;
-      double foot = top + row.Bounds.Height;
-
-      // A rail shorter than a row and two margins cannot hold the margin at both ends, so it is asked for and given
-      // up towards the middle, which leaves the row standing centred - the reference's own answer.
-      double margin = Math.Max(0.0, Math.Min(RAIL_SCROLL_MARGIN, (viewport - row.Bounds.Height) / 2.0));
-      double offset = rail.Offset.Y;
-
-      if (top < margin)
-        offset -= margin - top;
-      else if (foot > viewport - margin)
-        offset += foot - (viewport - margin);
-
-      offset = Math.Clamp(offset, 0.0, Math.Max(0.0, rail.Extent.Height - viewport));
-      if (Math.Abs(offset - rail.Offset.Y) > 0.5)
-        rail.Offset = new Vector(rail.Offset.X, offset);
-    }
-
-    /// <summary>
-    /// The reference's margin between a stood menu row and either end of its rail
-    /// (<c>OtherControlsOverrides.xaml:1019</c>, the <c>ScrollMargin="190,190"</c> of the rail's items panel).
-    /// </summary>
-    private const double RAIL_SCROLL_MARGIN = 190.0;
-
-    /// <summary>
-    /// The length of the reference's rail travel: its <c>ScrollAnimation</c> storyboard runs four hundred
-    /// milliseconds over every scroll of the list (<c>OtherControlsOverrides.xaml:1023</c>).
-    /// </summary>
-    private static readonly TimeSpan RAIL_GLIDE = TimeSpan.FromMilliseconds(400);
-
-    /// <summary>
-    /// One band's edge fade: the mask it wears and the depths its two ends were last read at.  The first card of a
-    /// band that stands at its left edge has walked out of nothing and stands whole; a card the caret walked past
-    /// an edge dissolves into that edge, and a band that still holds cards beyond an edge says so by dissolving the
-    /// card it shows there - which is what the shelf's wall does at its own ends.
-    /// </summary>
-    private sealed class BandEndFade
-    {
-      private readonly ScrollViewer _band;
-
-      /// <summary>Whether the list runs sideways (a row of cards) or down (the menu's rail).</summary>
-      private readonly bool _sideways;
-
-      private LinearGradientBrush? _mask;
-
-      private double _before = UNREAD;
-
-      private double _after = UNREAD;
-
-      internal BandEndFade(ScrollViewer band, bool sideways = true)
-      {
-        _band = band;
-        _sideways = sideways;
-        band.AddHandler(ScrollViewer.ScrollChangedEvent, delegate
-        {
-          Update();
-        });
-      }
-
-      /// <summary>The list this reading watches, so that a caller can ask whether it already holds the answer.</summary>
-      internal ScrollViewer Band => _band;
-
-      /// <summary>Says what each end of the band is hiding and, if the mask says otherwise, writes it on.</summary>
-      internal void Update()
-      {
-        double view = _sideways ? _band.Viewport.Width : _band.Viewport.Height;
-        if (view <= 0)
-          return;
-
-        double offset = _sideways ? _band.Offset.X : _band.Offset.Y;
-        double extent = _sideways ? _band.Extent.Width : _band.Extent.Height;
-
-        double zone = EDGE_FADE * view;
-        double before = FadeDepth(offset, zone);
-        double after = FadeDepth(extent - view - offset, zone);
-        if (before == _before && after == _after)
-          return;
-
-        _before = before;
-        _after = after;
-
-        // Neither end has anything standing out of the picture - the whole band fits its window - so it wears no
-        // mask at all, exactly as a wall shorter than its window wears none.
-        if (before <= 0 && after <= 0)
-        {
-          _band.OpacityMask = null;
-          return;
-        }
-
-        LinearGradientBrush mask = _mask ??= NewEdgeFade();
-        mask.StartPoint = new RelativePoint(_sideways ? 0.0 : 0.5, _sideways ? 0.5 : 0.0, RelativeUnit.Relative);
-        mask.EndPoint = new RelativePoint(_sideways ? 1.0 : 0.5, _sideways ? 0.5 : 1.0, RelativeUnit.Relative);
-        mask.GradientStops[0].Color = FadeColour(before);
-        mask.GradientStops[3].Color = FadeColour(after);
-        _band.OpacityMask = mask;
-      }
-    }
-
-    /// <summary>
-    /// How far in from an end of a list its rows dissolve once a whole fade zone of it has gone out of the
-    /// picture: the twelve percent this front end's menu column wears.
-    /// </summary>
-    private const double EDGE_FADE = 0.12;
-
+    //
+    // The reading a band of cards makes about its own two ends is a file of its own now, BandEndFade.cs,
+    // because the wall, the bands beside it and the menu rail all ask for the same dress, and the people
+    // screens are going to ask for it on the rail they hang beside their wall.
+    //
     /// <summary>
     /// How long after the last started travel the wall is read once more even when its transition never
     /// answered.  A glide runs 300 to 400 ms; this settles a travel that went unanswered a beat after the
@@ -4627,19 +4115,15 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private const int TRAVEL_REST_QUIET_BEATS = 3;
 
-    /// <summary>How finely the depth an end fades is read off the wall: eight steps between none and all.</summary>
-    private const double FADE_STEPS = 8;
 
-    /// <summary>A depth no end has been asked about yet, so that the first reading is always written.</summary>
-    private const double UNREAD = -1;
 
     private LinearGradientBrush? _shelfFade;
 
     private ScrollViewer? _fadedScroller;
 
-    private double _fadeBefore = UNREAD;
+    private double _fadeBefore = BandEndFade.UNREAD;
 
-    private double _fadeAfter = UNREAD;
+    private double _fadeAfter = BandEndFade.UNREAD;
 
     private bool _fadeRunsSideways;
 
@@ -4648,31 +4132,6 @@ namespace MediaPortal.Frontend.Views
     /// for is a mask that is never renewed - each one watches its own band and remembers its own two ends.
     /// </summary>
     private readonly List<BandEndFade> _bandFades = new List<BandEndFade>();
-
-    /// <summary>
-    /// The menu rail's own reading, kept beside the others because it is the same dress read on the other axis -
-    /// and because it is thrown away and asked again whenever the rail is stood up on a new scroller.
-    /// </summary>
-    private BandEndFade? _railFade;
-
-    /// <summary>
-    /// The travel the rail's scroller was last dressed in, kept so that a rail standing again is not dressed twice
-    /// - a transition that is replaced restarts nothing, but it throws away the one it is running.
-    /// </summary>
-    private Transitions? _wornRailGlide;
-
-    /// <summary>
-    /// The row the caret last stood on in the rail.  Kept because the rail's measure can move after the caret
-    /// arrived - a page whose rows were only just laid out is measured taller a pass later - and the margin has to
-    /// be put on against the measure that ends up standing.
-    /// </summary>
-    private Control? _railStoodRow;
-
-    /// <summary>
-    /// The rail whose "bring this into view" was answered for, so that a rail standing again is not asked twice -
-    /// a second answer would scroll the same row a second time in the same frame.
-    /// </summary>
-    private ScrollViewer? _railFollowAnswered;
 
     /// <summary>True while the wall is on a travel and the fade is worn for its destination.</summary>
     private bool _shelfTravelling;
@@ -6124,244 +5583,11 @@ namespace MediaPortal.Frontend.Views
     /// <summary>How many more looks the watch of one step takes before it leaves the wall alone.</summary>
     private int _glide_check_left;
 
-    /// <summary>The frame this file draws for a shape the worn skin does not answer.</summary>
-    /// <summary>
-    /// The frame the wall wears: the skin's tile frame for the titles, and a divider for the plates a grouping
-    /// stands in the row.  A dispatcher rather than a third template, because the wall owns exactly one
-    /// <c>ItemTemplate</c> and the grouping's plates share that wall with the titles - and because the titles'
-    /// answer must stay the worn skin's business, untouched, whether or not anything is grouped.
-    /// </summary>
-    /// <remarks>
-    /// The plate says its word in white and opacity, like everything else the shelf lights: it is not a title,
-    /// takes no caret and wears no selection, so it has no second state and nothing to say in colour. Each shape
-    /// of the wall gets the divider that shape can carry: a headline over a strip of rows, a standing card in a
-    /// wall of tiles, and a book's spine among covers - three readings of the same one sentence, "here a group
-    /// of the shelf begins".
-    /// </remarks>
-    private sealed class ShelfFrameTemplate : Avalonia.Controls.Templates.IRecyclingDataTemplate
-    {
-      private readonly Avalonia.Controls.Templates.IDataTemplate _titles;
-      private readonly BrowserLayout _layout;
-
-      // The gap a tile leaves around its face, read from the FIRST tile the worn frame ever builds. A plate may
-      // not change the spacing of a wall it is dropped into, and every wall in this front end lays its tiles
-      // uniformly - so the tiles themselves say what their gap is, and the plate wears exactly that. It is read
-      // once, the first time the frame answers a title, and it then belongs to this frame: the dispatcher is
-      // rebuilt whenever the frame or the picture changes, and a fresh dispatcher asks the fresh frame afresh.
-      private Thickness? _tile_margin;
-      private bool _margin_learned;
-
-      public ShelfFrameTemplate(Avalonia.Controls.Templates.IDataTemplate titles, BrowserLayout layout)
-      {
-        _titles = titles;
-        _layout = layout;
-      }
-
-      public bool Match(object? data)
-      {
-        // The wall lays both kinds of item through this one door; Build answers the difference.
-        return data is GroupHeaderRow || _titles.Match(data);
-      }
-
-      public Control Build(object? data)
-      {
-        if (data is GroupHeaderRow plate)
-          return BuildPlate(plate);
-        Control tile = _titles.Build(data);
-        LearnMargin(tile);
-        return tile;
-      }
-
-      // What the worn frame could do with a recycled shell it can still do: the titles pass straight through to
-      // it, unchanged. A plate answers for itself only - the card that says "Action" cannot be told to say
-      // "Drama" in its sleep - so a plate always arrives as its own fresh card. Saying nothing of recycling at
-      // all would have taken the frame's own recycling away from every tile on the wall.
-      public Control? Build(object? data, Control? existing)
-      {
-        if (data is GroupHeaderRow plate)
-          return BuildPlate(plate);
-
-        Control? tile = _titles is Avalonia.Controls.Templates.IRecyclingDataTemplate recycling
-            ? recycling.Build(data, existing)
-            : _titles.Build(data);
-        if (tile != null)
-          LearnMargin(tile);
-        return tile;
-      }
-
-      private Control BuildPlate(GroupHeaderRow plate)
-      {
-        if (_layout == BrowserLayout.List)
-          return RowPlate(plate);
-        if (_layout is BrowserLayout.Cover or BrowserLayout.Stacked or BrowserLayout.Carousel)
-          return SpinePlate(plate);
-        return CardPlate(plate);
-      }
-
-      /// <summary>
-      /// The first thing the worn frame builds for a title carries the gap every tile of this wall leaves around
-      /// its face - the templates hang that gap on their root (a poster breathes 8,8,8,14, a banner 8,6,8,10, the
-      /// built-in frame 8 on all sides), and every wall lays its tiles uniformly. Once learned, the gap belongs to
-      /// the wall, and every plate wears it, so the spacing between media cannot change when a grouping stands in
-      /// it. Plates built before the first tile (a group's headline always leads its tiles) are remembered and
-      /// dressed as soon as the answer arrives.
-      /// </summary>
-      private readonly List<WeakReference<Border>> _plates_awaiting_margin = new List<WeakReference<Border>>();
-
-      private void LearnMargin(Control tile)
-      {
-        if (_margin_learned)
-          return;
-
-        _margin_learned = true;
-        _tile_margin = tile.Margin;
-
-        foreach (WeakReference<Border> held in _plates_awaiting_margin)
-        {
-          if (held.TryGetTarget(out Border? awaiting))
-            awaiting.Margin = _tile_margin.Value;
-        }
-        _plates_awaiting_margin.Clear();
-      }
-
-      /// <summary>A headline: the word, its count beside it, and a hairline under the line.</summary>
-      private static Control RowPlate(GroupHeaderRow plate)
-      {
-        StackPanel line = new StackPanel
-        {
-          Orientation = Orientation.Horizontal,
-          Margin = new Thickness(2, 16, 2, 4)
-        };
-
-        line.Children.Add(new TextBlock
-        {
-          Text = plate.Label,
-          FontSize = 24,
-          FontWeight = FontWeight.SemiBold,
-          Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
-          VerticalAlignment = VerticalAlignment.Center
-        });
-
-        if (plate.CountWord.Length > 0)
-        {
-          line.Children.Add(new TextBlock
-          {
-            Text = plate.CountWord,
-            FontSize = 18,
-            Opacity = 0.55,
-            Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
-            Margin = new Thickness(10, 3, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center
-          });
-        }
-
-        return new StackPanel
-        {
-          Children =
-          {
-            line,
-            new Border { Height = 1, Background = new SolidColorBrush(Color.Parse("#26FFFFFF")) }
-          }
-        };
-      }
-
-      /// <summary>
-      /// A card the measure of the tile beside it - whatever that is this time, poster, thumbnail or banner - with
-      /// its word standing in the middle. The card names no size of its own: the wall measures it with the cell its
-      /// tiles just made and arranges it into that cell, so a headline is as big as a tile and no bigger. What it
-      /// does copy from the tiles is their margin, so the gaps of the wall stay exactly what they were, and their
-      /// face - the same shadow and plate the media tiles wear.
-      /// </summary>
-      private Control CardPlate(GroupHeaderRow plate)
-      {
-        StackPanel inside = new StackPanel
-        {
-          HorizontalAlignment = HorizontalAlignment.Center,
-          VerticalAlignment = VerticalAlignment.Center,
-          Margin = new Thickness(12)
-        };
-
-        inside.Children.Add(new TextBlock
-        {
-          Text = plate.Label,
-          FontSize = 22,
-          FontWeight = FontWeight.SemiBold,
-          TextAlignment = TextAlignment.Center,
-          TextWrapping = TextWrapping.Wrap,
-          Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF"))
-        });
-
-        if (plate.CountWord.Length > 0)
-        {
-          inside.Children.Add(new TextBlock
-          {
-            Text = plate.CountWord,
-            FontSize = 16,
-            Opacity = 0.55,
-            Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
-            HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 6, 0, 0)
-          });
-        }
-
-        Border face = new Border
-        {
-          Classes = { "home-tile-face" },
-          Background = new SolidColorBrush(Color.Parse("#222222")),
-          ClipToBounds = true,
-          Child = inside
-        };
-
-        Border outer = new Border
-        {
-          Classes = { "home-tile-shadow" },
-          // Until the wall's first tile has answered its gap, breathe like the wall most walls are.
-          Margin = _tile_margin ?? new Thickness(8),
-          Child = face
-        };
-
-        if (!_margin_learned)
-          _plates_awaiting_margin.Add(new WeakReference<Border>(outer));
-
-        return outer;
-      }
-
-      /// <summary>
-      /// A book's spine among covers: the word read from top to bottom, one letter standing on the next, in a
-      /// card the width and height of a cover - which is exactly how a divider between albums says which shelf
-      /// a run of books belongs to. The letters are stacked by hand rather than wrapped, because a long value
-      /// must not climb out of the cover's height - the word's size gives way instead, down to what a viewer
-      /// can still read from the sofa.
-      /// </summary>
-      private static Control SpinePlate(GroupHeaderRow plate)
-      {
-        string stacked = string.Join("\n", plate.Label.Select(letter => letter.ToString()));
-        int lines = plate.Label.Length;
-        double size = lines <= 1 ? 30.0 : Math.Clamp(320.0 / lines, 15.0, 28.0);
-
-        TextBlock word = new TextBlock
-        {
-          Text = stacked,
-          FontSize = size,
-          FontWeight = FontWeight.SemiBold,
-          TextAlignment = TextAlignment.Center,
-          Foreground = new SolidColorBrush(Color.Parse("#F0FFFFFF")),
-          HorizontalAlignment = HorizontalAlignment.Center,
-          VerticalAlignment = VerticalAlignment.Center
-        };
-
-        return new Border
-        {
-          Width = 260,
-          Height = 410,
-          Background = new SolidColorBrush(Color.Parse("#0DFFFFFF")),
-          BorderBrush = new SolidColorBrush(Color.Parse("#26FFFFFF")),
-          BorderThickness = new Thickness(1),
-          CornerRadius = new CornerRadius(10),
-          Child = word
-        };
-      }
-    }
+    //
+    // The frame the wall wears - the skin's tiles, and the grouping's plates beside them - is a file of its
+    // own now, ShelfFrameTemplate.cs.  A shelf of people wears the same frame, and a frame that two screens
+    // wear cannot live in one of them.
+    //
 
     private IDataTemplate BuiltinTemplate(BrowserLayout layout)
     {
@@ -6409,6 +5635,19 @@ namespace MediaPortal.Frontend.Views
 
       _workflow.Push(frame);
     }
+
+
+    /// <inheritdoc />
+    MediaBrowserViewModel? IShelfRailHost.RailOwner => DataContext as MediaBrowserViewModel;
+
+    /// <inheritdoc />
+    void IShelfRailHost.RailCaret(Control target, Action? whenStood) => StandCaret(target, whenStood);
+
+    /// <inheritdoc />
+    void IShelfRailHost.RailNod(Control ground, double diveX, double diveY) => BounceRail(ground, diveX, diveY);
+
+    /// <inheritdoc />
+    void IShelfRailHost.RailClimbedDown(int row) => _menuSteppedFrom = row;
 
     /// <summary>
     /// A row that holds other titles was pressed: the titles inside it are pushed over this one in the
