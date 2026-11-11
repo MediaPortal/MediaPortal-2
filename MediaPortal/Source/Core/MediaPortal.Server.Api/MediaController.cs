@@ -463,9 +463,9 @@ namespace MediaPortal.Server.Api
       public Guid? Inside { get; set; }
 
       /// <summary>
-      /// The category the answer was narrowed to - <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c>,
-      /// <c>writers</c> or <c>collection</c> - or null when it was not narrowed by one. Echoed because a genre list
-      /// that came back empty has to be able to say which genre it was asked for.
+      /// The category the answer was narrowed to - <c>genre</c>, <c>year</c>, <c>age</c>, <c>actors</c>,
+      /// <c>directors</c>, <c>writers</c> or <c>collection</c> - or null when it was not narrowed by one. Echoed
+      /// because a genre list that came back empty has to be able to say which genre it was asked for.
       /// </summary>
       public string By { get; set; }
 
@@ -514,11 +514,13 @@ namespace MediaPortal.Server.Api
     /// Null or empty means the whole shelf, which is what it has always meant.
     /// </param>
     /// <param name="by">
-    /// One of the categories of <c>GET api/media/groups</c> - <c>genre</c>, <c>year</c>, <c>actors</c>,
+    /// One of the categories of <c>GET api/media/groups</c> - <c>genre</c>, <c>year</c>, <c>age</c>, <c>actors</c>,
     /// <c>directors</c>, <c>writers</c>, <c>collection</c> - to keep only the titles carrying
     /// <paramref name="value"/> under it.  Together with the value it answers the second half of browsing: the
     /// groups say which genres there are, this says which films are in one of them.  <c>by=collection</c> is how a
-    /// screen asks which films a collection holds.
+    /// screen asks which films a collection holds.  <c>by=age</c> asks for the years a rating asks for - the same
+    /// numbers the details' <c>Age</c> row shows, not the marks the library keeps - on the shelves that carry
+    /// ratings, films and series; <c>value=16</c> holds every title whose mark asks for sixteen years.
     /// </param>
     /// <param name="value">
     /// The value to match: a genre, an actor's name as the importer wrote it, or - under <c>by=year</c> - a year,
@@ -910,22 +912,26 @@ namespace MediaPortal.Server.Api
         {
           string known;
           MediaItemAspectMetadata.AttributeSpecification spec;
-          if (!TryCategory(category, out known, out spec))
+          if (!TryCategory(category, aspectId, out known, out spec))
             return BadRequest(new TitlesResult
             {
               By = category,
-              Error = "this endpoint can pick titles out by genre, year, actors, directors, writers and "
+              Error = "this endpoint can pick titles out by genre, year, age, actors, directors, writers and "
                   + "collections; '" +
                   category + "' is not one of them - see GET api/media/groups"
+            });
+          if (spec == null)
+            // The word names a real category, but not one this shelf carries - 'age' on an album, say. Refused
+            // like an unknown word: the titles that came back would be the whole shelf under an age heading.
+            return BadRequest(new TitlesResult
+            {
+              By = known,
+              Error = AgeNotOnShelf(known, match.Value.Name)
             });
           askedBy = known;
           askedValue = picked;
 
-          if (!known.Equals("year", StringComparison.OrdinalIgnoreCase))
-          {
-            groupFilter = new RelationalFilter(spec, RelationalOperator.EQ, picked);
-          }
-          else
+          if (known.Equals("year", StringComparison.OrdinalIgnoreCase))
           {
             // A year is not a value that stands in the database - what stands there is a date and time - so the
             // year is asked for as the twelve months it covers. Equality against a made-up midnight of the first
@@ -948,6 +954,29 @@ namespace MediaPortal.Server.Api
                 : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, since,
                     new RelationalFilter(MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT,
                         new DateTime(year + 1, 1, 1)));
+          }
+          else if (known.Equals("age", StringComparison.OrdinalIgnoreCase))
+          {
+            // The value that comes back is the years the count sent out, not a mark, so the years go back into
+            // the marks that ask for exactly them - the same reading the rows were counted under. A number no
+            // mark of this shelf asks for is refused; titles nobody rated belong to no row and no shelf.
+            int years;
+            List<string> marks = int.TryParse(picked, NumberStyles.None, CultureInfo.InvariantCulture, out years)
+                ? AgeMarkIds(spec, years)
+                : new List<string>();
+            if (marks.Count == 0)
+              return BadRequest(new TitlesResult
+              {
+                By = known,
+                Value = picked,
+                Error = "'" + picked + "' is no age this library can hold; the years a shelf answers with come "
+                    + "from GET api/media/groups?by=age"
+              });
+            groupFilter = new InFilter(spec, marks);
+          }
+          else
+          {
+            groupFilter = new RelationalFilter(spec, RelationalOperator.EQ, picked);
           }
 
           asking = asking == null
@@ -1269,8 +1298,10 @@ namespace MediaPortal.Server.Api
     /// not counted, so <c>aspect=MovieItem</c> counts genres as films have them and leaves the albums' out.
     /// </param>
     /// <param name="by">
-    /// <c>genre</c>, <c>year</c>, <c>actors</c>, <c>directors</c>, <c>writers</c> or <c>collection</c> - the
-    /// categories a shelf is grouped by. An unknown word is refused rather than guessed at: a browse screen that
+    /// <c>genre</c>, <c>year</c>, <c>age</c>, <c>actors</c>, <c>directors</c>, <c>writers</c> or <c>collection</c> -
+    /// the categories a shelf is grouped by. <c>age</c> counts the years the rating asks for - the marks a shelf
+    /// holds are read into numbers the same way the details' <c>Age</c> row reads them, and the titles of equal
+    /// years come back as one row, smallest year first. An unknown word is refused rather than guessed at: a browse screen that
     /// silently counted the wrong thing would sort the library into categories nobody asked for, and the list of
     /// what does work is in the refusal.
     /// </param>
@@ -1304,12 +1335,12 @@ namespace MediaPortal.Server.Api
       string known;
       MediaItemAspectMetadata.AttributeSpecification spec;
       ProjectionFunction projection;
-      if (!TryCategory(by, out known, out spec, out projection))
+      if (!TryCategory(by, Guid.Empty, out known, out spec, out projection))
         return BadRequest(new GroupsResult
         {
           By = by,
-          Error = "the library can be counted by genre, year, actors, directors, writers and collections; '" + by +
-              "' is not one of them"
+          Error = "the library can be counted by genre, year, age, actors, directors, writers and collections; '" +
+              by + "' is not one of them"
         });
 
       try
@@ -1331,6 +1362,19 @@ namespace MediaPortal.Server.Api
 
         Guid aspectId = match.Key;
 
+        // 'age' arrives here with no attribute because the rating is not one column but two - one on films, one
+        // on series - and only the shelf says which of them is being counted.
+        if (spec == null)
+          spec = AgeCertification(aspectId);
+        if (spec == null)
+          return BadRequest(new GroupsResult
+          {
+            By = known,
+            Aspect = match.Value.Name,
+            AspectId = aspectId,
+            Error = AgeNotOnShelf(known, match.Value.Name)
+          });
+
         // The aspect holding the values has to take part in the query or its column is not there to group on,
         // and the shelf aspect has to take part too or the count would run over every title that carries the
         // attribute - every film, episode and recording at once, under whichever heading was asked for.
@@ -1351,25 +1395,66 @@ namespace MediaPortal.Server.Api
           return StatusCode(StatusCodes.Status503ServiceUnavailable);
 
         List<GroupResult> groups = new List<GroupResult>();
-        foreach (KeyValuePair<object, object> entry in counted)
+        if (string.Equals(known, "age", StringComparison.OrdinalIgnoreCase))
         {
-          // The database counts "nothing written here" as a group of its own; it is not a category a viewer
-          // came to the screen to browse, and it arrives here under HomogenousMap's own marker for the absent.
-          if (entry.Key == null || entry.Key.Equals(HomogenousMap.NULL) || entry.Value == null)
-            continue;
-          string named = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
-          if (string.IsNullOrWhiteSpace(named))
-            continue;
-          groups.Add(new GroupResult
+          // The rows a viewer reads are the years, not the marks: "DE_FSK16" in a menu is a code, and the same
+          // sixteen years stand behind it as behind "US_R" next door. The database counted marks - one column
+          // holds one country's word per title - so the marks are read into years here, the same translation the
+          // details of a title answer their "Age" row from, and the titles of equal years merge into one row. A
+          // mark the table does not know has no number to stand under and is left out, exactly as a title
+          // without a year is left out of the years.
+          string country = HouseholdCertificationCountry(spec);
+          SortedList<int, int> countedByAge = new SortedList<int, int>();
+          foreach (KeyValuePair<object, object> entry in counted)
           {
-            Value = named,
-            Count = Convert.ToInt32(entry.Value, CultureInfo.InvariantCulture)
-          });
+            if (entry.Key == null || entry.Key.Equals(HomogenousMap.NULL) || entry.Value == null)
+              continue;
+            string mark = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
+            // The absent arrives under the map's own marker, and the marker's words - "-2147483648" for a
+            // string map - can begin with a notation the forgiving table knows ("18+"); it is not a mark.
+            if (string.IsNullOrWhiteSpace(mark) || mark == Convert.ToString(HomogenousMap.NULL, CultureInfo.InvariantCulture))
+              continue;
+            int? years = AgeShownAs(spec, mark, country);
+            if (!years.HasValue)
+              continue;
+            int count = Convert.ToInt32(entry.Value, CultureInfo.InvariantCulture);
+            if (countedByAge.ContainsKey(years.Value))
+              countedByAge[years.Value] += count;
+            else
+              countedByAge[years.Value] = count;
+          }
+          foreach (KeyValuePair<int, int> years in countedByAge)
+            groups.Add(new GroupResult
+            {
+              Value = years.Key.ToString(CultureInfo.InvariantCulture),
+              Count = years.Value
+            });
+        }
+        else
+        {
+          foreach (KeyValuePair<object, object> entry in counted)
+          {
+            // The database counts "nothing written here" as a group of its own; it is not a category a viewer
+            // came to the screen to browse, and it arrives here under HomogenousMap's own marker for the absent.
+            if (entry.Key == null || entry.Key.Equals(HomogenousMap.NULL) || entry.Value == null)
+              continue;
+            string named = Convert.ToString(entry.Key, CultureInfo.InvariantCulture);
+            if (string.IsNullOrWhiteSpace(named))
+              continue;
+            groups.Add(new GroupResult
+            {
+              Value = named,
+              Count = Convert.ToInt32(entry.Value, CultureInfo.InvariantCulture)
+            });
+          }
         }
 
-        groups.Sort((a, b) => b.Count != a.Count
-            ? b.Count.CompareTo(a.Count)
-            : string.Compare(a.Value, b.Value, StringComparison.OrdinalIgnoreCase));
+        // The years walk their number line rather than the alphabet - "6" belongs before "12" - and they stand
+        // in that order already, from the sorted counting above; everything else keeps its name order.
+        if (!string.Equals(known, "age", StringComparison.OrdinalIgnoreCase))
+          groups.Sort((a, b) => b.Count != a.Count
+              ? b.Count.CompareTo(a.Count)
+              : string.Compare(a.Value, b.Value, StringComparison.OrdinalIgnoreCase));
 
         return new GroupsResult
         {
@@ -1407,8 +1492,8 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
-    /// The six categories a screen can group a shelf by: the five MP2's own browse tree was built from, in the
-    /// order a browse screen lists them, and the collection a film names.
+    /// The seven categories a screen can group a shelf by: the five MP2's own browse tree was built from, in the
+    /// order a browse screen lists them, the collection a film names, and the age rating a film or series carries.
     /// </summary>
     /// <remarks>
     /// These are the attributes the importer writes <i>on the title itself</i> - genre rows on the
@@ -1427,11 +1512,29 @@ namespace MediaPortal.Server.Api
     /// holds as a title, while the film-to-collection relationship rows those two would be joined by number zero.
     /// A shelf that is not films simply answers nothing, exactly as <c>by=actors</c> does for a shelf of music.
     /// </para>
+    /// <para>
+    /// An age rating is the seventh word and the one that needed the shelf to say which column it means: MP2 does
+    /// not keep a certification once but twice, <c>MovieAspect</c>'s for films and <c>SeriesAspect</c>'s for
+    /// series, because that is where each importer wrote it. The word therefore carries no attribute of its own -
+    /// <see cref="AgeCertification"/> reads it off the shelf being counted - and a shelf that is neither films nor
+    /// series is refused rather than answered empty, because "no title here carries an age" would read as a hole
+    /// in the library rather than as a shelf that never has one. Episodes keep to the series' rating through the
+    /// relationship between them, which is a walk this endpoint has never taken for a category and does not start
+    /// here.
+    /// </para>
+    /// <para>
+    /// The rows the word answers with are years, not marks: <c>DE_FSK16</c> and <c>US_R</c> are codes a viewer
+    /// was never there to read, and the sixteen years behind them are one category, so the counting reads every
+    /// mark through the same table the details' <c>Age</c> row reads it through - the household's translation
+    /// included - and merges the years. A picked row comes back as its number and is turned back into the marks
+    /// asking for exactly that many years, so a row's titles are exactly the titles that were counted into it.
+    /// </para>
     /// </remarks>
     private static readonly Category[] CATEGORIES =
     {
         new Category("genre", GenreAspect.ATTR_GENRE, ProjectionFunction.None),
         new Category("year", MediaAspect.ATTR_RECORDINGTIME, ProjectionFunction.DateToYear),
+        new Category("age", null, ProjectionFunction.None),
         new Category("actors", VideoAspect.ATTR_ACTORS, ProjectionFunction.None),
         new Category("directors", VideoAspect.ATTR_DIRECTORS, ProjectionFunction.None),
         new Category("writers", VideoAspect.ATTR_WRITERS, ProjectionFunction.None),
@@ -1439,30 +1542,163 @@ namespace MediaPortal.Server.Api
     };
 
     /// <summary>
-    /// Reads a category word into the attribute it names and how the database has to treat it. Null for a word
-    /// this endpoint does not know, which both endpoints turn into the same refusal.
+    /// The shelves that carry an age rating and the column each of them carries it on, in the order a refusal
+    /// should name them.
     /// </summary>
-    private static bool TryCategory(string by, out string word,
+    private static readonly KeyValuePair<string, MediaItemAspectMetadata.AttributeSpecification>[] AGE_CATEGORIES =
+    {
+        new KeyValuePair<string, MediaItemAspectMetadata.AttributeSpecification>("MovieItem",
+            MovieAspect.ATTR_CERTIFICATION),
+        new KeyValuePair<string, MediaItemAspectMetadata.AttributeSpecification>("SeriesItem",
+            SeriesAspect.ATTR_CERTIFICATION)
+    };
+
+    /// <summary>
+    /// The certification column of the shelf being counted, or null for a shelf that holds no age rating at all.
+    /// Only <c>age</c> asks this question; every other category carries its attribute with it.
+    /// </summary>
+    private static MediaItemAspectMetadata.AttributeSpecification AgeCertification(Guid shelfId)
+    {
+      if (shelfId == MovieAspect.ASPECT_ID)
+        return MovieAspect.ATTR_CERTIFICATION;
+      if (shelfId == SeriesAspect.ASPECT_ID)
+        return SeriesAspect.ATTR_CERTIFICATION;
+      return null;
+    }
+
+    /// <summary>The words a shelf carries the rating on, for the refusal that names them.</summary>
+    private static string AgeCategories()
+    {
+      return string.Join(", ", AGE_CATEGORIES.Select(entry => entry.Key));
+    }
+
+    /// <summary>
+    /// The refusal for counting or filtering a shelf by a category the shelf itself does not carry, naming the
+    /// shelves that do.
+    /// </summary>
+    private static string AgeNotOnShelf(string word, string shelfName)
+    {
+      return "'" + word + "' counts the age rating, which is written on " + AgeCategories() + "; '" + shelfName +
+          "' titles carry no rating of their own";
+    }
+
+    /// <summary>
+    /// Whether the certification column being counted is the films' one; the series' column is the only other
+    /// one the age category reads, so one question tells the two apart.
+    /// </summary>
+    private static bool AgesFilms(MediaItemAspectMetadata.AttributeSpecification spec)
+    {
+      return spec.ParentMIAM != null && spec.ParentMIAM.AspectId == MovieAspect.ASPECT_ID;
+    }
+
+    /// <summary>
+    /// The country whose marks the household is shown for this column, or nothing when the marks are left as
+    /// they were imported - the same setting and the same reading as the details' <c>Age</c> row.
+    /// </summary>
+    private static string HouseholdCertificationCountry(MediaItemAspectMetadata.AttributeSpecification spec)
+    {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>(false);
+      if (settingsManager == null)
+        return "";
+      MediaCertificationSettings settings = settingsManager.Load<MediaCertificationSettings>();
+      if (settings == null)
+        return "";
+      return AgesFilms(spec)
+          ? settings.DisplayMovieCertificationCountry
+          : settings.DisplaySeriesCertificationCountry;
+    }
+
+    /// <summary>
+    /// The years the viewer standing in this household reads from a stored mark, or null when no number stands
+    /// behind it. The mark is read the way <see cref="ShownAge"/> reads a title's: translated to the household's
+    /// country first when the household asked for a translation, because the number has to go with the mark the
+    /// screen is showing - and a mark whose number the table does not know answers null rather than a guess.
+    /// </summary>
+    private static int? AgeShownAs(MediaItemAspectMetadata.AttributeSpecification spec, string mark,
+        string country)
+    {
+      if (string.IsNullOrEmpty(mark))
+        return null;
+
+      bool films = AgesFilms(spec);
+      CertificationMapping stored;
+      if (!(films ? CertificationMapper.TryFindMovieCertification(mark, out stored)
+          : CertificationMapper.TryFindSeriesCertification(mark, out stored)))
+        return null;
+
+      CertificationMapping shown = stored;
+      if (!string.IsNullOrEmpty(country)
+          && !string.Equals(stored.CountryCode, country, StringComparison.OrdinalIgnoreCase))
+      {
+        // A translation that has nothing to answer with hands back the stored words, and then the stored row's
+        // number stands - which is the details' own behaviour, refusal to invent being the one rule.
+        CertificationMapping wished = films
+            ? CertificationMapper.FindMatchingMovieCertification(country, stored.CertificationId)
+            : CertificationMapper.FindMatchingSeriesCertification(country, stored.CertificationId);
+        if (wished != null)
+          shown = wished;
+      }
+      return shown.AllowedAge;
+    }
+
+    /// <summary>
+    /// The marks a shelf's column holds that ask for exactly this many years - the reading of
+    /// <see cref="AgeShownAs"/> turned around, so that the titles answering a row of the age list are exactly
+    /// the titles that were counted into it. Marks of the household's own country are asked for by name; with
+    /// no translation in the house the marks stand as imported and the whole table answers. Each mark is asked
+    /// for by its identifier and by the notations the importer may have written instead, the same forgiving
+    /// reading the table itself gives a stored word. A number no mark asks for answers empty, which the
+    /// endpoints refuse rather than answer as a zero.
+    /// </summary>
+    private static List<string> AgeMarkIds(MediaItemAspectMetadata.AttributeSpecification spec, int years)
+    {
+      string country = HouseholdCertificationCountry(spec);
+      IEnumerable<CertificationMapping> ofThisAge = (AgesFilms(spec)
+          ? CertificationMapper.GetMovieCertificationsForAge(years, false)
+          : CertificationMapper.GetSeriesCertificationsForAge(years, false))
+          .Where(mapping => mapping.AllowedAge == years);
+      List<string> marks = new List<string>();
+      foreach (CertificationMapping mapping in ofThisAge)
+      {
+        if (!string.IsNullOrEmpty(country)
+            && !string.Equals(mapping.CountryCode, country, StringComparison.OrdinalIgnoreCase))
+          continue;
+        if (!marks.Contains(mapping.CertificationId))
+          marks.Add(mapping.CertificationId);
+        foreach (string notation in mapping.Notations)
+          if (!string.IsNullOrWhiteSpace(notation) && !marks.Contains(notation))
+            marks.Add(notation);
+      }
+      return marks;
+    }
+
+    /// <summary>
+    /// Reads a category word into the attribute it names and how the database has to treat it. Null for a word
+    /// this endpoint does not know, which both endpoints turn into the same refusal. A known word can still come
+    /// back without an attribute - <c>age</c> belongs to the shelf, so <paramref name="shelfId"/> says whose
+    /// rating is meant, and a shelf that holds none is refused by the caller.
+    /// </summary>
+    private static bool TryCategory(string by, Guid shelfId, out string word,
         out MediaItemAspectMetadata.AttributeSpecification attribute, out ProjectionFunction projection)
     {
       Category found = CATEGORIES.FirstOrDefault(entry =>
           string.Equals(entry.Word, by, StringComparison.OrdinalIgnoreCase));
       word = found != null ? found.Word : null;
-      attribute = found != null ? found.Attribute : null;
+      attribute = found == null ? null : found.Attribute ?? (found.Word == "age" ? AgeCertification(shelfId) : null);
       projection = found != null ? found.Projection : ProjectionFunction.None;
       return found != null;
     }
 
     /// <summary>
-    /// The two-answer form of <see cref="TryCategory(string, out string, out MediaItemAspectMetadata.AttributeSpecification, out ProjectionFunction)"/>,
+    /// The two-answer form of <see cref="TryCategory(string, Guid, out string, out MediaItemAspectMetadata.AttributeSpecification, out ProjectionFunction)"/>,
     /// for <see cref="GetTitles"/>, which asks the database for a filter rather than a projection and so has no
     /// use for the third answer.
     /// </summary>
-    private static bool TryCategory(string by, out string word,
+    private static bool TryCategory(string by, Guid shelfId, out string word,
         out MediaItemAspectMetadata.AttributeSpecification attribute)
     {
       ProjectionFunction unused;
-      return TryCategory(by, out word, out attribute, out unused);
+      return TryCategory(by, shelfId, out word, out attribute, out unused);
     }
 
     /// <summary>

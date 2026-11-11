@@ -54,7 +54,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
           {
             new NereusHomeShortcut("Genre", "MediaMenu/genre", "genre"),
             new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
-            new NereusHomeShortcut("Age", "MediaMenu/age"),
+            new NereusHomeShortcut("Age", "MediaMenu/age", "age"),
             new NereusHomeShortcut("Actor", "MediaMenu/actor", "actors"),
             new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },
@@ -62,7 +62,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
           {
             new NereusHomeShortcut("Genre", "MediaMenu/genre", "genre"),
             new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
-            new NereusHomeShortcut("Age", "MediaMenu/age"),
+            new NereusHomeShortcut("Age", "MediaMenu/age", "age"),
             new NereusHomeShortcut("Actor", "MediaMenu/actor", "actors"),
             new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },

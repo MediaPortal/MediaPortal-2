@@ -81,10 +81,11 @@ namespace MediaPortal.Frontend.ViewModels
   /// query each; this screen is that, and nothing else.
   /// </para>
   /// <para>
-  /// <b>The five groupings are the server's list, not a discovery.</b> Genre, year, actors, directors, writers -
-  /// what <c>GET api/media/groups</c> answers for, and the same five the old filter dialogs offered. A shelf
-  /// whose titles carry none of them (pictures have no genre, music has no director) answers with no groups, and
-  /// the status line says so plainly instead of leaving an empty column to be read as a broken screen.
+  /// <b>The six groupings are the server's list, not a discovery.</b> Genre, year, age, actors, directors,
+  /// writers - what <c>GET api/media/groups</c> answers for, and the same the old filter dialogs offered (with
+  /// the collections the reading screen asks by). A shelf whose titles carry none of them (pictures have no
+  /// genre, music has no director, an album no age rating) answers with no groups, and the status line says so
+  /// plainly instead of leaving an empty column to be read as a broken screen.
   /// </para>
   /// <para>
   /// <b>The counts are the server's.</b> A shelf of four thousand films is not fetched sixty pages deep to count
@@ -100,7 +101,7 @@ namespace MediaPortal.Frontend.ViewModels
   public partial class BrowseViewModel : ObservableObject
   {
     /// <summary>
-    /// The five groupings, in the order the server lists them when it refuses an unknown one. Kept here in the
+    /// The six groupings, in the order the server lists them when it refuses an unknown one. Kept here in the
     /// open because the screen shows exactly these and no others: a grouping discovered from the schema would
     /// offer things like "recording time" that a viewer would never press.
     /// </summary>
@@ -108,6 +109,7 @@ namespace MediaPortal.Frontend.ViewModels
     {
         new BrowseCategory("genre", "By genre"),
         new BrowseCategory("year", "By year"),
+        new BrowseCategory("age", "By age"),
         new BrowseCategory("actors", "By actor"),
         new BrowseCategory("directors", "By director"),
         new BrowseCategory("writers", "By writer")
@@ -169,7 +171,7 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The shelves on offer: what the home screen had tiles for.</summary>
     public ObservableCollection<HomeSection> Shelves { get; } = new ObservableCollection<HomeSection>();
 
-    /// <summary>The five groupings, always all five; a shelf that cannot answer one says so in the third column.</summary>
+    /// <summary>The groupings, always all six; a shelf that cannot answer one says so in the third column.</summary>
     public ObservableCollection<BrowseCategory> Categories { get; } = new ObservableCollection<BrowseCategory>();
 
     /// <summary>

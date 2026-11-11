@@ -4498,6 +4498,137 @@ namespace Tests.Server.Api
     }
 
     [Test]
+    public void TheAgeRatingIsCountedOnTheShelfThatCarriesIt()
+    {
+      HomogenousMap counted = new HomogenousMap(typeof(string), typeof(int));
+      counted.Add("DE_FSK16", 12);
+      NobodyWishesAnything();
+      IMediaLibrary library = CreateAgeCountingLibrary(counted, out List<MediaItemAspectMetadata.AttributeSpecification> groupedBy,
+          out _, out List<IEnumerable<Guid>> necessary);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "age", out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(groupedBy[0], Is.SameAs(MovieAspect.ATTR_CERTIFICATION),
+          "a film's age rating is the certification the importer wrote on the film itself, the same figure the "
+          + "reading of a title names");
+      Assert.That(necessary[0], Is.EquivalentTo(new[] { MovieAspect.ASPECT_ID }),
+          "the rating stands on the shelf's own aspect, so unlike a genre the count needs no second aspect and no "
+          + "relationship walk");
+      Assert.That(result.Groups[0].Value, Is.EqualTo("16"));
+
+      // The same word on a series counts the series' own column, because that is where a series' rating stands.
+      ActionResult<MediaController.GroupsResult> seriesAction;
+      GetGroups(library, "SeriesItem", "age", out seriesAction);
+      Assert.That(Status(seriesAction), Is.Null);
+      Assert.That(groupedBy[1], Is.SameAs(SeriesAspect.ATTR_CERTIFICATION));
+    }
+
+    [Test]
+    public void TheAgeRowsAreYearsAndTheMarksAskingForTheSameYearsMergeIntoOneRow()
+    {
+      NobodyWishesAnything();
+      // The database counts the marks it holds, one country's word per title. What the viewer reads - and what
+      // the details' "Age" row already says - is the number behind the mark, so FSK-16, the French 16 and the
+      // Russian 16+ are one row of twenty-eight, the unrated titles are no row at all, and a mark the table does
+      // not know has no number to stand under. The rows walk the number line, not the alphabet.
+      HomogenousMap counted = new HomogenousMap(typeof(string), typeof(int));
+      counted.Add("DE_FSK16", 12);
+      counted.Add("FR_16", 5);
+      counted.Add("RU_16", 11);
+      counted.Add("DE_FSK0", 5);
+      counted.Add(null, 40);
+      counted.Add("!!!-not-a-mark-anywhere", 3);
+      IMediaLibrary library = CreateCountingLibrary(counted, out _, out _, out _);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "age", out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(result.Groups.Select(group => group.Value), Is.EqualTo(new[] { "0", "16" }));
+      Assert.That(result.Groups[1].Count, Is.EqualTo(28),
+          "the sixteen years of the German, the French and the Russian mark are one category the viewer can "
+          + "press, counted together");
+    }
+
+    /// <summary>
+    /// A counting library that also holds the series aspect, because the age rating is the one category the
+    /// shelf chooses - a test that wants both shelves needs both to exist.
+    /// </summary>
+    private static IMediaLibrary CreateAgeCountingLibrary(HomogenousMap counted,
+        out List<MediaItemAspectMetadata.AttributeSpecification> groupedBy,
+        out List<ProjectionFunction> projections, out List<IEnumerable<Guid>> necessary)
+    {
+      IMediaLibrary library = CreateCountingLibrary(counted, out groupedBy, out projections, out necessary);
+      Mock.Get(library).Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(
+          new Dictionary<Guid, MediaItemAspectMetadata>
+          {
+              { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+              { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
+              { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+              { GenreAspect.ASPECT_ID, GenreAspect.Metadata },
+              { VideoAspect.ASPECT_ID, VideoAspect.Metadata }
+          });
+      return library;
+    }
+
+    [Test]
+    public void TheTitlesOfOneAgeRowAreAskedForByEveryMarkThatAsksForThoseYears()
+    {
+      NobodyWishesAnything();
+      List<MediaItemQuery> queries;
+      List<IFilter> countedThrough;
+      IMediaLibrary library = CreateFilteredShelfLibrary(out queries, out countedThrough);
+
+      ActionResult<MediaController.TitlesResult> action;
+      GetTitlesInGroup(library, "MovieItem", "age", "16", out action);
+
+      Assert.That(Status(action), Is.Null);
+      InFilter condition = (InFilter) queries[0].Filter;
+      Assert.That(condition.AttributeType, Is.SameAs(MovieAspect.ATTR_CERTIFICATION),
+          "the same certification the count grouped on, so the titles that arrive match the row they arrived under");
+      Assert.That(condition.Values, Has.Member("DE_FSK16").And.Member("FSK 16"),
+          "the row reads '16', not 'DE_FSK16'; the database is asked for the mark behind the number and for the "
+          + "way the importer may have written it, the same forgiving reading every other age question gets");
+      Assert.That(condition.Values, Has.None.EqualTo("DE_FSK12").And.None.EqualTo("FSK 12").And.None.EqualTo("DE_FSK18"),
+          "only the marks asking for exactly sixteen years - twelve is a different row and eighteen is another");
+    }
+
+    [Test]
+    public void AnAgeNobodyHasToIsRefusedRatherThanAnsweredAsNothing()
+    {
+      NobodyWishesAnything();
+      List<MediaItemQuery> queries;
+      List<IFilter> countedThrough;
+      IMediaLibrary library = CreateFilteredShelfLibrary(out queries, out countedThrough);
+
+      ActionResult<MediaController.TitlesResult> action;
+      MediaController.TitlesResult result = GetTitlesInGroup(library, "MovieItem", "age", "99", out action);
+
+      Assert.That(Status(action), Is.EqualTo(400));
+      Assert.That(result.Error, Does.Contain("99"),
+          "a number no mark asks for is a mistake to name, not a shelf to answer empty");
+    }
+
+    [Test]
+    public void AnAgeRatingIsRefusedOnAShelfThatCarriesNone()
+    {
+      // The word names a real category, but a plain video holds no rating of its own; answering "no groups" would
+      // read as an untagged shelf rather than as a shelf that never has one.
+      IMediaLibrary library = CreateCountingLibrary(new HomogenousMap(typeof(string), typeof(int)),
+          out _, out _, out _);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "VideoItem", "age", out action);
+
+      Assert.That(Status(action), Is.EqualTo(400));
+      Assert.That(result.Error, Does.Contain("MovieItem").And.Contain("SeriesItem"),
+          "the refusal names the shelves that do carry a rating, which is the difference between a mistake that "
+          + "teaches and one that just fails");
+    }
+
+    [Test]
     public void ACategoryNobodyHasIsRefusedRatherThanGuessedAt()
     {
       IMediaLibrary library = CreateCountingLibrary(new HomogenousMap(typeof(string), typeof(int)),
