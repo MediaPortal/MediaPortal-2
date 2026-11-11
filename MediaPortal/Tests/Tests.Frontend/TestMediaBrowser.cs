@@ -78,6 +78,33 @@ namespace Tests.Frontend
   {
     #region Fixtures
 
+    private string _previousScreensFile = "";
+
+    /// <summary>
+    /// Every shelf of this fixture starts with nobody having remembered anything. A screen now keeps the order
+    /// it was read in, the plates it stood under and the value it was cut to, and a test that pressed a sort row
+    /// would otherwise hand its answer to the hundred tests after it - which is a different screen, not the
+    /// same question asked again.
+    /// </summary>
+    [SetUp]
+    public void NobodyHasRememberedAnythingYet()
+    {
+      _previousScreensFile = Environment.GetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE") ?? "";
+      Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE", Path.Combine(Path.GetTempPath(),
+          "mp2-browser-" + Guid.NewGuid().ToString("N") + "-screens.json"));
+    }
+
+    [TearDown]
+    public void TheScreensMemoryOfThisTestIsSweptAway()
+    {
+      string own = Environment.GetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE") ?? "";
+      Environment.SetEnvironmentVariable("MP2_SCREEN_VIEWS_FILE",
+          _previousScreensFile.Length == 0 ? null : _previousScreensFile);
+
+      if (own.Length > 0 && own != _previousScreensFile && File.Exists(own))
+        File.Delete(own);
+    }
+
     private static readonly Guid RESOURCE_SYSTEM_ID = new Guid("44444444-4444-4444-4444-444444444444");
 
     /// <summary>
@@ -1550,7 +1577,7 @@ namespace Tests.Frontend
       Assert.That(browser.MediaMenu.First(row => row.Label == "None").IsCurrent, Is.True,
           "no grouping is the grouping now, and the page says so on its None row");
       Assert.That(browser.MediaMenu.Count(row => row.Label.StartsWith("By ", StringComparison.Ordinal)),
-          Is.EqualTo(5), "all five categories stand on the page, the same five the filter page offers");
+          Is.EqualTo(6), "all six categories stand on the page, the same six the filter page offers");
 
       Assert.That(browser.IsGrouped, Is.False, "and nothing has been grouped until a row is pressed");
     }

@@ -1893,8 +1893,18 @@ namespace MediaPortal.Frontend.ViewModels
     /// </remarks>
     private Guid _detailsReadUnderway;
 
-    /// <summary>The shapes the viewer picked for each screen; the constructor loads them.</summary>
+    /// <summary>What the viewer picked for each screen - shapes, orders, groupings and cuts; the constructor loads it.</summary>
     private readonly ScreenViewSettings _screens;
+
+    /// <summary>
+    /// Whether the cut this screen opened with came out of the memory rather than from a press. Only such a cut
+    /// is ever taken back off when the library stops answering it; a cut the viewer made in front of the screen
+    /// stands until they take it off themselves, even when it holds nothing.
+    /// </summary>
+    private bool _memoryCut;
+
+    /// <summary>The same for a grouping that came from the memory.</summary>
+    private bool _memoryGrouping;
 
     /// <summary>
     /// The pictures of the titles on this screen: asked for once per title, remembered across pages and searches,
@@ -2042,6 +2052,13 @@ namespace MediaPortal.Frontend.ViewModels
       // the View button, where tiles exist, puts that list one press away.
       _skinSettings = WornSkinSettings();
       _screens = ScreenViewSettings.Load(null, out _);
+      // The four the reference kept beside the shape - the order the shelf is read in, which end it starts at,
+      // what it stands under, and which value of which category it was cut to - come back the same way the shape
+      // does, from this screen's own entry and nobody else's. The cut is adopted first because the screen a
+      // viewer lands on is decided by it: the reference wrote the two halves into two tables for exactly that
+      // reason, one saying which screen to open and the other what that screen looks like.
+      AdoptRememberedLanding();
+      RestoreRememberedReading();
       // The picture a tile wears opens with this screen's own remembered answer first and the worn skin's
       // setting behind it - the Media button puts the question on the screen itself, next to the View
       // button, and a screen keeps the answer its viewer gave it there. An episode shelf is the one shelf
@@ -2190,8 +2207,8 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private BrowserLayout? RememberedLayout()
     {
-      return _screens.Layouts.TryGetValue(AspectName, out string? word)
-          && Enum.TryParse<BrowserLayout>(word, true, out BrowserLayout shape)
+      return TryRemembered(out ScreenViewSettings.ScreenAnswer answer)
+          && Enum.TryParse<BrowserLayout>(answer.Layout, true, out BrowserLayout shape)
           ? shape
           : null;
     }
@@ -2199,10 +2216,165 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The tile picture this screen's viewer last picked, or <c>null> when they never did.</summary>
     private GridViewType? RememberedMedia()
     {
-      return _screens.Media.TryGetValue(AspectName, out string? word)
-          && Enum.TryParse<GridViewType>(word, true, out GridViewType kind)
+      return TryRemembered(out ScreenViewSettings.ScreenAnswer answer)
+          && Enum.TryParse<GridViewType>(answer.Media, true, out GridViewType kind)
           ? kind
           : null;
+    }
+
+    /// <summary>
+    /// Whether this screen holds answers of its own. A screen is the media kind seen through the filter it
+    /// stands on, which is why the films under a genre and the films entire are two memories: the reference
+    /// wrote one entry per screen for exactly that reason, and a viewer who reads their thrillers by year and
+    /// their whole shelf by name should not have to change it back every evening.
+    /// </summary>
+    private bool TryRemembered(out ScreenViewSettings.ScreenAnswer answer)
+    {
+      return _screens.TryAnswer(AspectName, GroupBy, out answer);
+    }
+
+    /// <summary>
+    /// Writes what this screen's viewer answered just now and puts it on the disk, in the moment of the press.
+    /// A shelf that is left the moment its shape was changed has to remember that shape, which is worth the two
+    /// milliseconds the write costs.
+    /// </summary>
+    private void Remember(Action<ScreenViewSettings.ScreenAnswer> answer)
+    {
+      answer(_screens.AnswerFor(AspectName, GroupBy));
+      _screens.Save(null, out _);
+    }
+
+    /// <summary>
+    /// Opens the shelf on the filter its viewer last stood on, which is the reference's screen hierarchy: the
+    /// hierarchy said which screen to open rather than what it looked like. Only for a shelf walked into from
+    /// the home with no filter of its own - a browse tile that says "the horror films" has an answer to give
+    /// and is not to be overruled by an older one - and only with the value it was standing on, because a
+    /// category on its own is a question the server refuses to answer.
+    /// </summary>
+    private void AdoptRememberedLanding()
+    {
+      if (Parent != null || !string.IsNullOrEmpty(GroupBy))
+        return;
+
+      ScreenViewSettings.ScreenLanding? last = _screens.LandingFor(AspectName);
+      if (last == null || !IsFilterCategory(last.By))
+        return;
+
+      GroupBy = last.By;
+      GroupValue = last.Value;
+      _memoryCut = true;
+    }
+
+    /// <summary>
+    /// Reads the shelf in the order, at the end and under the plates this screen's viewer left it in, and wears
+    /// its remembered shape. An order the server would not answer for this kind of shelf is no order - a
+    /// season's number remembered on a shelf of films would come back silently sorted by name - so the
+    /// remembered word has to be one this screen offers, the same test the reference applied before it trusted
+    /// a stored sorting. A screen nobody ever answered is left exactly as it was written.
+    /// </summary>
+    private void RestoreRememberedReading()
+    {
+      if (!TryRemembered(out ScreenViewSettings.ScreenAnswer answer))
+        return;
+
+      foreach ((string Word, string Key) choice in SortChoices())
+      {
+        if (!string.Equals(choice.Key, answer.Sort, StringComparison.OrdinalIgnoreCase))
+          continue;
+        SortOrder = choice.Key;
+        SortDescending = answer.Descending;
+        OnPropertyChanged(nameof(SortLabel));
+        break;
+      }
+
+      if (IsFilterCategory(answer.Grouping))
+      {
+        Grouping = answer.Grouping;
+        _memoryGrouping = true;
+        OnPropertyChanged(nameof(IsGrouped));
+        OnPropertyChanged(nameof(GroupLabel));
+      }
+    }
+
+    /// <summary>
+    /// Puts the remembered shape and picture back on the shelf. The screen's constructor takes them straight
+    /// out of the memory; this is the same answer for the moment a viewer walks from one filter class into
+    /// another, which the reference treated as walking onto another screen.
+    /// </summary>
+    private void WearRememberedShape()
+    {
+      BrowserLayout? shape = RememberedLayout();
+      if (shape.HasValue && Layout != shape.Value)
+        Layout = shape.Value;
+
+      if (MediaCatalog.IsEpisode(AspectName))
+        return;
+
+      GridViewType? picture = RememberedMedia();
+      if (!picture.HasValue || picture.Value == _tileKind)
+        return;
+
+      _tileKind = picture.Value;
+      OnPropertyChanged(nameof(MediaLabel));
+      OnPropertyChanged(nameof(MediaKind));
+      OnPropertyChanged(nameof(GridTemplateKey));
+      PictureSourceChanged();
+    }
+
+    /// <summary>Writes the order, its end and the grouping this screen now reads by.</summary>
+    private void RememberReading()
+    {
+      Remember(answers =>
+      {
+        answers.Sort = SortOrder;
+        answers.Descending = SortDescending;
+        answers.Grouping = Grouping;
+      });
+    }
+
+    /// <summary>The words a shelf can be cut or stood under, which are the six the counting answers.</summary>
+    private static bool IsFilterCategory(string? by)
+    {
+      foreach (BrowseCategory category in BrowseViewModel.CATEGORIES)
+      {
+        if (string.Equals(category.Word, by, StringComparison.OrdinalIgnoreCase))
+          return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Takes a remembered cut off the shelf because the library has nothing to answer it with - the genre was
+    /// retagged, the age nobody asks for any more - and says nothing while doing it. A viewer who is told
+    /// "this server has no films under Western" blames the library; what they meant to see was the shelf.
+    /// </summary>
+    private bool DropRememberedCut()
+    {
+      if (!_memoryCut)
+        return false;
+
+      _memoryCut = false;
+      GroupBy = null;
+      GroupValue = null;
+      _screens.RememberLanding(AspectName, null, null);
+      _screens.Save(null, out _);
+      OnPropertyChanged(nameof(HasShelfFilter));
+      OnPropertyChanged(nameof(FilterLabel));
+      return true;
+    }
+
+    /// <summary>The same for a remembered grouping that carries nothing: the shelf is read as one shelf.</summary>
+    private bool DropRememberedGrouping()
+    {
+      if (!_memoryGrouping)
+        return false;
+
+      _memoryGrouping = false;
+      Grouping = null;
+      Remember(answers => answers.Grouping = null);
+      OnPropertyChanged(nameof(IsGrouped));
+      OnPropertyChanged(nameof(GroupLabel));
+      return true;
     }
 
     /// <summary>The tile shape this shelf's media takes in this skin's grid.</summary>
@@ -2850,8 +3022,7 @@ namespace MediaPortal.Frontend.ViewModels
         _ => BrowserLayout.List
       };
 
-      _screens.Layouts[AspectName] = Layout.ToString();
-      _screens.Save(null, out _);
+      Remember(answers => answers.Layout = Layout.ToString());
     }
 
     /// <summary>
@@ -2891,8 +3062,7 @@ namespace MediaPortal.Frontend.ViewModels
         _ => GridViewType.Poster
       };
 
-      _screens.Media[AspectName] = _tileKind.ToString();
-      _screens.Save(null, out _);
+      Remember(answers => answers.Media = _tileKind.ToString());
 
       OnPropertyChanged(nameof(MediaLabel));
       OnPropertyChanged(nameof(MediaKind));
@@ -3059,9 +3229,11 @@ namespace MediaPortal.Frontend.ViewModels
       }
 
       Grouping = goes.Length == 0 ? null : goes;
+      _memoryGrouping = false;
       OnPropertyChanged(nameof(IsGrouped));
       OnPropertyChanged(nameof(GroupLabel));
       HideMediaMenu();
+      RememberReading();
       await ReaskAsync();
     }
 
@@ -4384,6 +4556,7 @@ namespace MediaPortal.Frontend.ViewModels
 
       OnPropertyChanged(nameof(SortLabel));
       HideMediaMenu();
+      RememberReading();
       await ReaskAsync();
     }
 
@@ -4451,11 +4624,32 @@ namespace MediaPortal.Frontend.ViewModels
     {
       bool same = string.Equals(GroupBy ?? "", by ?? "", StringComparison.OrdinalIgnoreCase)
           && string.Equals(GroupValue ?? "", value ?? "", StringComparison.OrdinalIgnoreCase);
+      string class_before = GroupBy ?? "";
       GroupBy = by;
       GroupValue = value;
+      _memoryCut = false;
       OnPropertyChanged(nameof(HasShelfFilter));
       OnPropertyChanged(nameof(FilterLabel));
       HideMediaMenu();
+
+      // Which filter a shelf opens on is remembered with the shelf, and only for the shelves a viewer walks
+      // into from the home: inside one title the value belongs to that title, and what was remembered about one
+      // series' episodes would otherwise quietly filter another series' ones.
+      if (Parent == null)
+      {
+        _screens.RememberLanding(AspectName, by, value);
+        _screens.Save(null, out _);
+      }
+
+      // Walking into another filter class is walking onto another screen, which is what the reference meant by
+      // keeping an order and a shape per screen: the new class reads in its own remembered order, under its own
+      // remembered plates. A class nobody ever answered wears what the viewer is already wearing.
+      if (!string.Equals(class_before, GroupBy ?? "", StringComparison.OrdinalIgnoreCase))
+      {
+        RestoreRememberedReading();
+        WearRememberedShape();
+      }
+
       if (!same)
         await ReaskAsync();
     }
@@ -4540,6 +4734,8 @@ namespace MediaPortal.Frontend.ViewModels
       {
         case "year":
           return "year";
+        case "age":
+          return "age";
         case "actors":
         case "directors":
         case "writers":
@@ -4556,6 +4752,8 @@ namespace MediaPortal.Frontend.ViewModels
       {
         case "year":
           return "year";
+        case "age":
+          return "age";
         case "actors":
           return "actor";
         case "directors":
@@ -6254,6 +6452,16 @@ namespace MediaPortal.Frontend.ViewModels
             string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, SeasonFilter,
             cancellation.Token);
 
+        if (offset == 0 && answer.Total == 0 && string.IsNullOrEmpty(ActiveSearch)
+            && string.IsNullOrEmpty(ActiveSeen) && DropRememberedCut())
+        {
+          // The value this screen opened on is gone out of the library. Asking the shelf again whole is the
+          // answer, and asking it without a word, because the sentence the read would otherwise say is about a
+          // library the viewer was not asking about.
+          await ReadAsync(0);
+          return;
+        }
+
         if (offset == 0)
         {
           Titles.Clear();
@@ -6366,6 +6574,13 @@ namespace MediaPortal.Frontend.ViewModels
         }
         else if (ex.NotReady)
           Status = "The server is not ready yet: " + ex.Message;
+        else if (DropRememberedCut())
+        {
+          // A shelf the server refuses outright is a shelf this screen was not entitled to ask for: the cut it
+          // opened with names something the library stopped carrying. Said nothing, asked again whole.
+          await ReadAsync(0);
+          return;
+        }
         else
           Status = ex.Message;
       }
@@ -6464,8 +6679,15 @@ namespace MediaPortal.Frontend.ViewModels
 
           if (_shelfGroups.Count == 0)
           {
-            // Nothing carries any value of the category at all: the plates that would have stood are none,
-            // and the honest sentence is the one the values page has always said about such a counting.
+            // Nothing carries any value of the category at all. When the grouping came out of the memory rather
+            // than from a press, that is the memory being stale - the last title under it left the library - and
+            // the shelf is read as one shelf instead of being reported as an empty one.
+            if (DropRememberedGrouping() || DropRememberedCut())
+            {
+              await ReadAsync(0);
+              return;
+            }
+
             HasMore = false;
             TotalNumber = 0;
             if (string.IsNullOrEmpty(counted.Error))
@@ -6542,6 +6764,13 @@ namespace MediaPortal.Frontend.ViewModels
           Status = Heading + " is only for signed-in users on this server. Sign in on the server screen.";
         else if (ex.NotReady)
           Status = "The server is not ready yet: " + ex.Message;
+        else if (DropRememberedGrouping() || DropRememberedCut())
+        {
+          // A grouping the server will not count for this shelf - an age on a shelf that carries no ratings,
+          // say - is a memory the library outgrew. The shelf is read as one shelf, without a word about it.
+          await ReadAsync(0);
+          return;
+        }
         else
           Status = ex.Message;
       }

@@ -36,40 +36,62 @@ namespace Tests.Frontend
   public sealed class IsolatedMachineSettings
   {
     private const string CLIENT_FILE = "MP2_CLIENT_FILE";
+    private const string SCREENS_FILE = "MP2_SCREEN_VIEWS_FILE";
 
     private string _previous = "";
+    private string _previous_screens = "";
     private string? _own;
+    private string? _own_screens;
 
     [OneTimeSetUp]
     public void TheClientSettingsOfTheMachineAreSteppedAround()
     {
       _previous = Environment.GetEnvironmentVariable(CLIENT_FILE) ?? "";
-      if (_previous.Length > 0)
-        return;
+      if (_previous.Length == 0)
+      {
+        _own = Path.Combine(Path.GetTempPath(),
+            "mp2-frontend-tests-client-" + Guid.NewGuid().ToString("N") + ".json");
+        Environment.SetEnvironmentVariable(CLIENT_FILE, _own);
+      }
 
-      _own = Path.Combine(Path.GetTempPath(),
-          "mp2-frontend-tests-client-" + Guid.NewGuid().ToString("N") + ".json");
-      Environment.SetEnvironmentVariable(CLIENT_FILE, _own);
+      // The screens' memories are the other file every shelf reads and writes without being asked: a shelf
+      // remembers the order it was read in, the plates it stood under and the value it was cut to, and a
+      // fixture that names no file of its own would otherwise leave those answers in what a real viewer on
+      // this machine picked - and open its next shelf filtered by the test before it.
+      _previous_screens = Environment.GetEnvironmentVariable(SCREENS_FILE) ?? "";
+      if (_previous_screens.Length == 0)
+      {
+        _own_screens = Path.Combine(Path.GetTempPath(),
+            "mp2-frontend-tests-screens-" + Guid.NewGuid().ToString("N") + ".json");
+        Environment.SetEnvironmentVariable(SCREENS_FILE, _own_screens);
+      }
     }
 
     [OneTimeTearDown]
     public void TheClientSettingsOfTheMachineAreHandedBack()
     {
       Environment.SetEnvironmentVariable(CLIENT_FILE, _previous.Length > 0 ? _previous : null);
+      Environment.SetEnvironmentVariable(SCREENS_FILE, _previous_screens.Length > 0 ? _previous_screens : null);
 
-      if (_own == null)
+      Delete(_own);
+      Delete(_own_screens);
+      _own = null;
+      _own_screens = null;
+    }
+
+    private static void Delete(string? file)
+    {
+      if (file == null)
         return;
 
       try
       {
-        File.Delete(_own);
+        File.Delete(file);
       }
       catch (IOException)
       {
         // A scratch file the system will collect anyway is not worth a complaint.
       }
-
-      _own = null;
     }
   }
 }

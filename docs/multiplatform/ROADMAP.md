@@ -6363,3 +6363,59 @@ elements** (the menu rail and its buttons, nothing beside them) to **54**, carry
 order - the wall is standing before the screen is built - and asks whether that wall is in the light and its squares
 stood on; switch the constructor's call off and both of its tests fail, switch it on and they pass. **1249 frontend
 tests green.**
+
+### dm. The shelf remembers the order it was read in
+
+**"Wir sollten uns merken: Sortierung, Sortierrichtung, Gruppierung, Filter-Kategorie."** The shelf had grown a filter,
+a grouping and a choice of order, and lost all three the moment it was walked away from - so every evening began with
+asking it again what it had been read as the evening before.
+
+The reference had never been that short-sighted. `NavigationData.SaveLayoutSettings` wrote one entry per screen -
+Sorting, Grouping, LayoutType, LayoutSize, AdditionalProperties - from every setter that could change one, and
+`ViewSettings.ScreenHierarchy` remembered which screen a media kind was last standing on. Two tables rather than one,
+and the reason for two is the reason this front end has two as well: one says what a screen looks like, the other says
+*which* screen to open. (Grouping was switched off in the reference's own menu - the action was commented out over a
+"fix grouping in Stack/WrapPanels" - and a direction to sort in was never a thought there at all. This front end has
+both, so it has one more thing to remember than the reference had.)
+
+What this front end kept until now was three dictionaries keyed by the media kind alone: a layout, a tile picture, a
+details flag. Which meant that the films read by year under the genre "Thriller" and the films read by name entire
+were one and the same memory, and that neither of them held an order to start with.
+
+Two keys per person is what stands there now, in `ScreenViewSettings`:
+
+- **an answer per screen**, keyed by the media kind and the class of filter it stands on - `MovieItem#genre`,
+  `MovieItem#` for the shelf read whole - holding layout, tile picture, order, direction and grouping. Writing the
+  shelf through the View, Media, Sort or Group menus writes that answer in the moment of the press.
+- **a landing per media kind**, `by` and `value` together, which is the reference's hierarchy: walking into *Films*
+  from the home opens it again on Genre = Action, because a category is only half an answer - the server refuses a
+  `by` without its `value` - so the value has to be remembered with it or the screen cannot be reopened at all.
+
+The file follows the person standing in front of the machine, exactly as every skin file does: `screens-<viewer>.json`
+once they have answered anything, the shared `screens.json` for as long as they have not, so a household inherits what
+it was told and each viewer drifts away from it at their own pace. A file in the old three-dictionary shape is read
+into the new one and left where it is; the first save writes it the new way.
+
+Three rules came with it. Walking from one filter class into another is walking onto another screen, so that screen's
+own order, plates and shape are put on - and a class nobody ever answered keeps what the viewer is already wearing,
+which the next press then writes down as its answer. A remembered order is only trusted when this screen offers it
+(`SortChoices`), because a season's number remembered on a shelf of films would otherwise come back silently sorted
+by name - the reference applied the same test before it believed a stored sorting. And an answer the library cannot
+fill any more - a retagged genre, an age nobody asks for - says *nothing*: the shelf is read whole again, and a
+grouping that carries nothing collapses back into one shelf. A viewer who is told "this server has no films under
+Western" blames the library for what was only their own stale memory.
+
+Two things are deliberately not remembered. A shelf that opened inside a title - a season's episodes, an album's
+tracks - keeps the order, the end, the plates and the shape its viewer left there, but not a cut, because the value of
+a cut belongs to one parent title and remembering it would silently filter a different series' episodes. And the
+`details` flag is carried in the file and migrated from the old one without being read back: every shelf wears its
+details today, which `DetailsAlwaysShown` has said since the details column was found standing in the reference's own
+`SimpleShowItems.xaml`.
+
+`Tests.Frontend/TestScreenMemory.cs` asks all of it: the order and the end it comes back with, a grouping that holds
+(including a "None" that stays none), the landing with its value and the shelf's identity, order and shape per filter
+class, one file per person, the old flat file migrated, a value that has left the library dropped without a word, a
+grouping gone stale dropped, and nonsense in the file ignored. **Nine tests green**, and `TestMediaBrowser`'s own 186
+tests stand as steady as they stood: the same rows that fail with this change written fail without it too, in the same
+numbers, which is the test that was run to find out.
+
