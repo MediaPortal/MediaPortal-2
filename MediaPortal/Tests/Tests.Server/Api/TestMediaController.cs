@@ -4441,6 +4441,29 @@ namespace Tests.Server.Api
     }
 
     [Test]
+    public void ActorsAreCountedOnTheCreditsWrittenOnTheTitlesOfTheShelf()
+    {
+      HomogenousMap counted = new HomogenousMap(typeof(string), typeof(int));
+      counted.Add("Liam Neeson", 20);
+      IMediaLibrary library = CreateCountingLibrary(counted, out List<MediaItemAspectMetadata.AttributeSpecification> groupedBy,
+          out _, out List<IEnumerable<Guid>> necessary);
+
+      ActionResult<MediaController.GroupsResult> action;
+      MediaController.GroupsResult result = GetGroups(library, "MovieItem", "actors", out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(groupedBy[0], Is.SameAs(VideoAspect.ATTR_ACTORS),
+          "the names a shelf is counted by are the credits the importer wrote on the title, the same list the "
+          + "details screen shows - not the people records, which only some of these names have grown into");
+      Assert.That(necessary[0], Is.EquivalentTo(new[] { MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID }),
+          "the films of the shelf and the aspect carrying the credit list are both asked for, and they are two "
+          + "descriptions of two aspects - a count that named the credit aspect twice would join its table to "
+          + "itself and the database would refuse the whole question");
+      Assert.That(result.Groups[0].Value, Is.EqualTo("Liam Neeson"));
+      Assert.That(result.Groups[0].Count, Is.EqualTo(20));
+    }
+
+    [Test]
     public void TheGroupsComeBiggestFirstAndThenByName()
     {
       HomogenousMap counted = new HomogenousMap(typeof(string), typeof(int));
@@ -6096,12 +6119,30 @@ namespace Tests.Server.Api
     #region People of a title
 
     /// <summary>
-    /// A person the library knows, with the one aspect the answer reads.
+    /// A person the library knows, with the one aspect the answer reads - and with the life that stands on that
+    /// aspect, for as far as the importers were told about it.
     /// </summary>
-    private static MediaItem Person(Guid id, string name)
+    /// <remarks>
+    /// An attribute nobody filled stays out of the aspect instead of being set to an empty value, which is how the
+    /// database holds such a person: a column that was never written to. Writing the tests the way the storage
+    /// really looks is what makes them notice an answer that invents a birthday.
+    /// </remarks>
+    private static MediaItem Person(Guid id, string name, string occupation = "ACTOR", string biography = null,
+        string origin = null, DateTime born = default(DateTime), DateTime died = default(DateTime))
     {
       SingleMediaItemAspect person = new SingleMediaItemAspect(PersonAspect.Metadata);
       person.SetAttribute(PersonAspect.ATTR_PERSON_NAME, name);
+      person.SetAttribute(PersonAspect.ATTR_OCCUPATION, occupation);
+
+      if (biography != null)
+        person.SetAttribute(PersonAspect.ATTR_BIOGRAPHY, biography);
+      if (origin != null)
+        person.SetAttribute(PersonAspect.ATTR_ORIGIN, origin);
+      if (born != default(DateTime))
+        person.SetAttribute(PersonAspect.ATTR_DATEOFBIRTH, born);
+      if (died != default(DateTime))
+        person.SetAttribute(PersonAspect.ATTR_DATEOFDEATH, died);
+
       return new TestItem(id, new Dictionary<Guid, IList<MediaItemAspect>>
       {
           { MediaAspect.ASPECT_ID, new List<MediaItemAspect> { CreateMediaAspect(name, name, DateTime.MinValue) } },
@@ -6307,6 +6348,614 @@ namespace Tests.Server.Api
       Assert.That(asked, Has.Count.EqualTo(1),
           "when the title is not there the parts are not asked about either - the library is asked one question "
           + "and gets one answer");
+    }
+
+    [Test]
+    public void WhatAScreenNeedsToOpenAPersonTravelsWithThem()
+    {
+      Guid titleId = Guid.NewGuid();
+      Guid artist = Guid.NewGuid();
+      Dictionary<Guid, List<MediaItem>> byRole = new Dictionary<Guid, List<MediaItem>>
+      {
+          { PersonAspect.ROLE_ALBUMARTIST, new List<MediaItem> { Person(artist, "Helene Fischer", "ARTIST",
+              "Helene Fischer is a German singer", "Krasnoyarsk", new DateTime(1984, 8, 5)) } }
+      };
+
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(
+          CreatePeopleLibrary(new TestItem(titleId, new Dictionary<Guid, IList<MediaItemAspect>>
+          {
+              { MediaAspect.ASPECT_ID,
+                  new List<MediaItemAspect> { CreateMediaAspect("Weihrauch & Weihrauch", "Weihrauch",
+                      new DateTime(2017, 11, 24)) } }
+          }, null), byRole, out asked), titleId, new List<string> { "albumartist" }, out action);
+
+      var person = result.Groups[0].Persons[0];
+      Assert.That(person.Occupation, Is.EqualTo("ARTIST"),
+          "the part a title names and the trade a person is filed under are two different things - a singer "
+          + "standing on an album as its album artist is still an ARTIST, and a wall of people tells two people of "
+          + "one name apart by exactly this");
+      Assert.That(person.Biography, Is.EqualTo("Helene Fischer is a German singer"),
+          "the reference's person screen had a whole text panel for the biography "
+          + "(screens/MediaItemListPersonDetails.inc), so the life of a person is part of the answer and not "
+          + "something a screen has to come back for");
+      Assert.That(person.Origin, Is.EqualTo("Krasnoyarsk"));
+      Assert.That(person.BornDate, Is.EqualTo(new DateTime(1984, 8, 5)));
+      Assert.That(person.DeathDate, Is.Null,
+          "a person the library never reported dead is not said to be dead, and \"no date\" is not the same "
+          + "figure as a date");
+    }
+
+    [Test]
+    public void ADateNobodyGaveIsAnsweredAsNoDateAndNotAsYearOne()
+    {
+      Guid titleId = Guid.NewGuid();
+      Guid actor = Guid.NewGuid();
+      Dictionary<Guid, List<MediaItem>> byRole = new Dictionary<Guid, List<MediaItem>>
+      {
+          { PersonAspect.ROLE_ACTOR, new List<MediaItem> { Person(actor, "Sigourney Weaver") } }
+      };
+
+      List<MediaItemQuery> asked;
+      ActionResult<MediaController.MediaPersonsResult> action;
+      MediaController.MediaPersonsResult result = GetPeople(
+          CreatePeopleLibrary(new TestItem(titleId, new Dictionary<Guid, IList<MediaItemAspect>>
+          {
+              { MediaAspect.ASPECT_ID,
+                  new List<MediaItemAspect> { CreateMediaAspect("Alien (1979)", "Alien",
+                      new DateTime(1979, 5, 25)) } }
+          }, null), byRole, out asked), titleId, new List<string> { "actor" }, out action);
+
+      var person = result.Groups[0].Persons[0];
+      Assert.That(person.Name, Is.EqualTo("Sigourney Weaver"),
+          "the name is there whether or not anything else is");
+      Assert.That(person.Biography, Is.Null);
+      Assert.That(person.Origin, Is.Null);
+      Assert.That(person.BornDate, Is.Null,
+          "a date the aspect was never given arrives as the first day of the calendar, which is a real value to "
+          + "the type and a lie on a screen - the reference printed a person's years only where the library had "
+          + "them (screens/MediaItemListPersonDetails.inc binds its date line to the date's own presence)");
+      Assert.That(person.DeathDate, Is.Null);
+    }
+
+    #endregion
+
+    #region A wall of people
+
+    /// <summary>
+    /// A library that knows people: a query asking for the person aspect is answered with the given people, every
+    /// other query with the given titles.
+    /// </summary>
+    /// <remarks>
+    /// Answering by the aspects a query asked for - rather than handing one list to every query - is what lets these
+    /// tests notice a wall that asked for the films it was derived from instead of for the people behind them, which
+    /// is the mistake that prints a wall of titles under a heading of names.
+    /// </remarks>
+    private static IMediaLibrary CreateWallLibrary(IList<MediaItem> people, IList<MediaItem> titles, int peopleTotal,
+        out List<MediaItemQuery> queries, out List<IEnumerable<Guid>> countedAspects,
+        out List<IFilter> countedThrough)
+    {
+      var library = new Mock<IMediaLibrary>(MockBehavior.Strict);
+      library.Setup(get => get.GetManagedMediaItemAspectMetadata()).Returns(new Dictionary<Guid, MediaItemAspectMetadata>
+      {
+          { MediaAspect.ASPECT_ID, MediaAspect.Metadata },
+          { MovieAspect.ASPECT_ID, MovieAspect.Metadata },
+          { SeriesAspect.ASPECT_ID, SeriesAspect.Metadata },
+          { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.Metadata },
+          { AudioAspect.ASPECT_ID, AudioAspect.Metadata },
+          { PersonAspect.ASPECT_ID, PersonAspect.Metadata }
+      });
+
+      List<MediaItemQuery> asked = new List<MediaItemQuery>();
+      library.Setup(get => get.Search(It.IsAny<MediaItemQuery>(), false, null, false))
+          .Callback<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) => asked.Add(query))
+          .Returns<MediaItemQuery, bool, Guid?, bool>((query, online, profile, virtualItems) =>
+              query.NecessaryRequestedMIATypeIDs.Contains(PersonAspect.ASPECT_ID)
+                  ? new List<MediaItem>(people)
+                  : new List<MediaItem>(titles));
+
+      List<IEnumerable<Guid>> aspects = new List<IEnumerable<Guid>>();
+      List<IFilter> counted = new List<IFilter>();
+      library.Setup(get => get.CountMediaItems(It.IsAny<IEnumerable<Guid>>(), It.IsAny<IFilter>(), false, false))
+          .Callback<IEnumerable<Guid>, IFilter, bool, bool>((necessary, filter, online, virtualItems) =>
+          {
+            aspects.Add(necessary);
+            counted.Add(filter);
+          })
+          .Returns(peopleTotal);
+
+      queries = asked;
+      countedAspects = aspects;
+      countedThrough = counted;
+      return library.Object;
+    }
+
+    /// <summary>
+    /// Asks the wall endpoint the way a browse screen does: a shelf, the parts its people played, and how much of
+    /// the wall is wanted.
+    /// </summary>
+    private static MediaController.PeopleResult GetWall(IMediaLibrary library, string aspect, IList<string> roles,
+        string letter, string search, string sort, string order,
+        out ActionResult<MediaController.PeopleResult> action)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      action = new MediaController().GetPeople(aspect, roles, letter, search, sort, order, 0, 0);
+      return Body(action);
+    }
+
+    /// <summary>
+    /// Asks one person for their own record.
+    /// </summary>
+    private static ActionResult<MediaController.PersonResult> GetOnePerson(IMediaLibrary library, Guid id)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      return new MediaController().GetPerson(id);
+    }
+
+    /// <summary>
+    /// Every relationship condition inside a filter, however deep a boolean combination hides it.
+    /// </summary>
+    private static List<RelationshipFilter> LinkingOf(IFilter filter)
+    {
+      List<RelationshipFilter> found = new List<RelationshipFilter>();
+
+      RelationshipFilter single = filter as RelationshipFilter;
+      if (single != null)
+      {
+        found.Add(single);
+        return found;
+      }
+
+      BooleanCombinationFilter combination = filter as BooleanCombinationFilter;
+      if (combination != null)
+        foreach (IFilter operand in combination.Operands)
+          found.AddRange(LinkingOf(operand));
+      return found;
+    }
+
+    /// <summary>
+    /// Every text condition inside a filter, for the tests that care about what a search box or an alphabet strip
+    /// asked the database for.
+    /// </summary>
+    private static List<LikeFilter> WordingsOf(IFilter filter)
+    {
+      List<LikeFilter> found = new List<LikeFilter>();
+
+      LikeFilter single = filter as LikeFilter;
+      if (single != null)
+      {
+        found.Add(single);
+        return found;
+      }
+
+      BooleanCombinationFilter combination = filter as BooleanCombinationFilter;
+      if (combination != null)
+        foreach (IFilter operand in combination.Operands)
+          found.AddRange(WordingsOf(operand));
+      return found;
+    }
+
+    [Test]
+    public void AWallIsAskedForWithThePersonsPartAndTheShelfsPartTogether()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      GetWall(CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+          out counted), "MovieItem", new List<string> { "actor" }, null, null, null, null, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(asked, Has.Count.EqualTo(1), "a wall is one question, not a question per title");
+
+      RelationshipFilter linking = LinkingOf(asked[0].Filter).Single();
+      Assert.That(linking.Role, Is.EqualTo(PersonAspect.ROLE_ACTOR),
+          "the part the people played is what names them");
+      Assert.That(linking.LinkedRole, Is.EqualTo(MovieAspect.ROLE_MOVIE),
+          "and so is the part the shelf plays: the library keeps one row per link naming both sides, so asking with "
+          + "the person's part alone would gather the people of every shelf into the films' wall, while asking with "
+          + "both keeps a series actor out of it");
+      Assert.That(linking.LinkedMediaItemId, Is.EqualTo(Guid.Empty),
+          "no single title is asked about here; the whole shelf is");
+
+      Assert.That(asked[0].NecessaryRequestedMIATypeIDs, Is.EquivalentTo(new[] { PersonAspect.ASPECT_ID }),
+          "the rows of a wall are people, not the films that led to them");
+    }
+
+    [Test]
+    public void TheCountOfAWallRunsThroughTheSameQuestionAsTheWall()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 4242, out asked, out countedAspects,
+              out counted), "MovieItem", new List<string> { "actor" }, "K", null, null, null, out action);
+
+      Assert.That(counted, Has.Count.EqualTo(1));
+      Assert.That(counted[0], Is.SameAs(asked[0].Filter),
+          "\"how many people are there\" is counted through the very question the wall was read through, or the "
+          + "bottom of a wall keeps offering more of a wall that has no more in it");
+      Assert.That(countedAspects[0], Is.EquivalentTo(new[] { PersonAspect.ASPECT_ID }));
+      Assert.That(result.Total, Is.EqualTo(4242),
+          "and the figure is the one the database counted, not the rows that came back");
+      Assert.That(result.Letter, Is.EqualTo("K"),
+          "the narrowed letter is echoed, because a wall of one name has to say whether it is a short alphabet or a "
+          + "picked letter");
+    }
+
+    [Test]
+    public void AWallIsPutInOrderByTheNamesOwnColumn()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      GetWall(CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+          out counted), "MovieItem", new List<string> { "actor" }, null, null, null, null, out action);
+
+      Assert.That(asked[0].SortInformation, Has.Count.EqualTo(1));
+      AttributeSortInformation sort = (AttributeSortInformation)asked[0].SortInformation[0];
+      Assert.That(sort.AttributeType, Is.SameAs(PersonAspect.ATTR_PERSON_NAME),
+          "a wall is walked by name, so the database is asked to put the name column in order - not the title "
+          + "column of a shelf nobody is listing");
+      Assert.That(sort.Direction, Is.EqualTo(SortDirection.Ascending));
+    }
+
+    [Test]
+    public void AWallAskedForBirthYearsSortsByThemBackwards()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "MovieItem", new List<string> { "artist" }, null, null, "born", "desc", out action);
+
+      AttributeSortInformation sort = (AttributeSortInformation)asked[0].SortInformation[0];
+      Assert.That(sort.AttributeType, Is.SameAs(PersonAspect.ATTR_DATEOFBIRTH),
+          "the year a person was born is a column of their own aspect, which is where the screen reads it from");
+      Assert.That(sort.Direction, Is.EqualTo(SortDirection.Descending));
+      Assert.That(result.Sort, Is.EqualTo("born descending"),
+          "and the answer says which of the two orders it was read in");
+    }
+
+    [Test]
+    public void ALetterNarrowsTheWallToTheNamesStartingWithIt()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      GetWall(CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+          out counted), "MovieItem", new List<string> { "actor" }, "A", null, null, null, out action);
+
+      List<LikeFilter> wordings = WordingsOf(asked[0].Filter);
+      Assert.That(wordings, Has.Count.EqualTo(1));
+      Assert.That(wordings[0].AttributeType, Is.SameAs(PersonAspect.ATTR_PERSON_NAME));
+      Assert.That(wordings[0].Expression, Is.EqualTo("A%"),
+          "an alphabet strip asks for the names starting with a letter, which is how the reference's people "
+          + "screens walked a wall nobody scrolls to the end of");
+      Assert.That(wordings[0].CaseSensitive, Is.False,
+          "a remote control has no shift key, and a wall of names sorted under a lowercase letter nobody typed is "
+          + "a wall with holes in it");
+    }
+
+    [Test]
+    public void AWallSearchesNamesAndNotLives()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "MovieItem", new List<string> { "actor" }, null, "weaver", null, null, out action);
+
+      List<LikeFilter> wordings = WordingsOf(asked[0].Filter);
+      Assert.That(wordings, Has.Count.EqualTo(1),
+          "the words go to the name alone: a wall is chosen by name, and only the artists of a library have a "
+          + "biography to hit at all (measured on a real one: 30 of 36 album artists, 2 of 7757 actors), so a hit "
+          + "on a life story would be a surprise rather than an answer");
+      Assert.That(wordings[0].AttributeType, Is.SameAs(PersonAspect.ATTR_PERSON_NAME));
+      Assert.That(wordings[0].Expression, Is.EqualTo("%weaver%"));
+      Assert.That(result.Search, Is.EqualTo("weaver"));
+    }
+
+    [Test]
+    public void AWallOfPeopleIsAskedOfAShelf()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), null, new List<string> { "actor" }, null, null, null, null, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest));
+      Assert.That(asked, Is.Empty, "nothing was asked of the library, because nothing could be");
+      Assert.That(result.Error, Does.Contain("aspect"));
+    }
+
+    [Test]
+    public void AShelfNobodyStandsBehindIsRefusedAndNamesTheShelvesThatHavePeople()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "MediaItem", new List<string> { "actor" }, null, null, null, null, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest));
+      Assert.That(asked, Is.Empty);
+      Assert.That(result.Error, Does.Contain("MediaItem").And.Contain("AudioItem"),
+          "the refusal says which shelves have people behind them, because \"no such shelf\" about a shelf that "
+          + "exists is the sort of answer that sends a caller looking in the wrong place");
+    }
+
+    [Test]
+    public void AShelfThisServerDoesNotHaveIsAnsweredWithTheShelvesItHas()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "KaraokeItem", new List<string> { "actor" }, null, null, null, null, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status404NotFound));
+      Assert.That(result.Error, Does.Contain("KaraokeItem"));
+    }
+
+    [Test]
+    public void AWallWantsToKnowWhichPartItIsLookingAt()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "MovieItem", new List<string>(), null, null, null, null, out action);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest));
+      Assert.That(asked, Is.Empty);
+      Assert.That(result.Error, Does.Contain("part"),
+          "a wall of nobody in particular is a bug in whoever asked, and \"name a part\" is the way to say so - the "
+          + "same refusal the people of a title answer with");
+    }
+
+    [Test]
+    public void TwoPartsOfAShelfAreAnsweredAsOneWall()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "MovieItem", new List<string> { "actor", "director" }, null, null, null, null,
+          out action);
+
+      Assert.That(asked, Has.Count.EqualTo(1),
+          "a screen that shows actors and directors together wants one wall of everybody, not two lists it has to "
+          + "merge by hand");
+      List<RelationshipFilter> linkings = LinkingOf(asked[0].Filter);
+      Assert.That(linkings.Select(linking => linking.Role),
+          Is.EquivalentTo(new[] { PersonAspect.ROLE_ACTOR, PersonAspect.ROLE_DIRECTOR }));
+      Assert.That(linkings.Select(linking => linking.LinkedRole).Distinct(),
+          Is.EquivalentTo(new[] { MovieAspect.ROLE_MOVIE }),
+          "both parts are asked against the same shelf, which is what keeps the answer a films' wall");
+      Assert.That(result.Roles, Is.EqualTo(new[] { "actor", "director" }),
+          "the answer is worded back in the words it was asked with, like the people of a title are");
+    }
+
+    [Test]
+    public void AWallRowCarriesAPersonByIdAndLeavesTheLifeAtHome()
+    {
+      Guid id = Guid.NewGuid();
+      List<MediaItem> people = new List<MediaItem>
+      {
+          Person(id, "Chris Stapleton", "ARTIST", "Christopher Alvin Stapleton is an American singer",
+              "Stafford, Texas", new DateTime(1978, 1, 1))
+      };
+
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(people, new List<MediaItem>(), 1, out asked, out countedAspects, out counted),
+          "AlbumItem", new List<string> { "albumartist" }, null, null, null, null, out action);
+
+      Assert.That(result.People, Has.Count.EqualTo(1));
+      Assert.That(result.People[0].Id, Is.EqualTo(id),
+          "the id is the whole point of a wall: it is what the record, the portrait and that person's own titles "
+          + "are all filed under, and it is the only way two people of one name are told apart");
+      Assert.That(result.People[0].Name, Is.EqualTo("Chris Stapleton"));
+      Assert.That(result.People[0].Occupation, Is.EqualTo("ARTIST"));
+      Assert.That(result.People[0].BornDate, Is.EqualTo(new DateTime(1978, 1, 1)));
+
+      Assert.That(typeof(MediaController.PersonBriefResult).GetProperty("Biography"), Is.Null,
+          "a wall row carries no biography, on purpose: measured on this household that is 7757 rows of up to ten "
+          + "thousand characters each, which is an answer nobody reads and everybody waits for");
+    }
+
+    [Test]
+    public void OnePersonCarriesTheirWholeLife()
+    {
+      Guid id = Guid.NewGuid();
+      IMediaLibrary library = CreateWallLibrary(
+          new List<MediaItem>
+          {
+              Person(id, "Chris Stapleton", "ARTIST", "Christopher Alvin Stapleton is an American singer",
+                  "Stafford, Texas", new DateTime(1978, 1, 1))
+          },
+          new List<MediaItem>(), 1, out _, out _, out _);
+
+      ActionResult<MediaController.PersonResult> action = GetOnePerson(library, id);
+
+      Assert.That(Status(action), Is.Null);
+      MediaController.PersonInfo person = Body(action).Person;
+      Assert.That(person, Is.Not.Null);
+      Assert.That(person.Name, Is.EqualTo("Chris Stapleton"));
+      Assert.That(person.Biography, Is.EqualTo("Christopher Alvin Stapleton is an American singer"),
+          "the biography travels here, where a screen has a panel of its own for it - the reference's person screen "
+          + "had one (screens/MediaItemListPersonDetails.inc)");
+      Assert.That(person.Origin, Is.EqualTo("Stafford, Texas"));
+      Assert.That(person.BornDate, Is.EqualTo(new DateTime(1978, 1, 1)));
+    }
+
+    [Test]
+    public void APersonThisServerDoesNotHoldIsAnsweredAsNobody()
+    {
+      IMediaLibrary library = CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out _, out _, out _);
+
+      ActionResult<MediaController.PersonResult> action = GetOnePerson(library, Guid.NewGuid());
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status404NotFound));
+      Assert.That(Body(action).Error, Does.Contain("nobody"),
+          "\"nobody under that id\" is the truth, and it is a different truth from \"a person who never made "
+          + "anything\"");
+    }
+
+    /// <summary>
+    /// Asks a shelf for the works of one person.
+    /// </summary>
+    private static ActionResult<MediaController.TitlesResult> GetWorksOf(IMediaLibrary library, string aspect,
+        Guid who, IList<string> roles)
+    {
+      ServiceRegistration.Set<IMediaLibrary>(library);
+      return new MediaController().GetTitles(aspect, null, null, 0, 0, null, null, default(Guid), null, null, null,
+          who, roles);
+    }
+
+    [Test]
+    public void TheWorksOfAPersonAreAskedWithTheShelfOnOneSideOfTheLinkAndThePersonOnTheOther()
+    {
+      Guid actor = Guid.NewGuid();
+      Guid filmId = Guid.NewGuid();
+      IMediaLibrary library = CreateWallLibrary(
+          new List<MediaItem> { Person(actor, "Sigourney Weaver") },
+          new List<MediaItem>
+          {
+              new TestItem(filmId, new Dictionary<Guid, IList<MediaItemAspect>>
+              {
+                  { MediaAspect.ASPECT_ID,
+                      new List<MediaItemAspect> { CreateMediaAspect("Alien (1979)", "Alien",
+                          new DateTime(1979, 5, 25)) } }
+              }, null)
+          },
+          1, out List<MediaItemQuery> asked, out _, out _);
+
+      ActionResult<MediaController.TitlesResult> action = GetWorksOf(library, "MovieItem", actor, null);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(Body(action).Titles, Has.Count.EqualTo(1));
+
+      MediaItemQuery shelf = asked.Last();
+      RelationshipFilter linking = LinkingOf(shelf.Filter).Single();
+      Assert.That(linking.LinkedMediaItemId, Is.EqualTo(actor),
+          "the question is asked of one person's own id, not of the name an importer typed - two people share a "
+          + "name, and a name is also what 29756 of a real library's film roles have with no person behind them");
+      Assert.That(linking.Role, Is.EqualTo(MovieAspect.ROLE_MOVIE),
+          "asked from this side the row is named the other way round to how the people of a title are asked: the "
+          + "library keeps one row per link naming both parts, so the shelf's part has to come first here or the "
+          + "answer is no films at all, silently");
+      Assert.That(linking.LinkedRole, Is.EqualTo(PersonAspect.ROLE_ACTOR));
+
+      Assert.That(Body(action).Who, Is.EqualTo(actor));
+      Assert.That(Body(action).Whose, Is.EqualTo("actor"),
+          "the part is echoed although nobody named it, because the shelf's own part is what was meant and a screen "
+          + "showing \"the films of X\" has to know which of X's it is looking at");
+    }
+
+    [Test]
+    public void TheWorksOfAPersonInAnotherPartAreAskedForThatPart()
+    {
+      Guid director = Guid.NewGuid();
+      IMediaLibrary library = CreateWallLibrary(
+          new List<MediaItem> { Person(director, "Ridley Scott", "DIRECTOR") }, new List<MediaItem>(), 1,
+          out List<MediaItemQuery> asked, out _, out _);
+
+      ActionResult<MediaController.TitlesResult> action = GetWorksOf(library, "MovieItem", director,
+          new List<string> { "director" });
+
+      RelationshipFilter linking = LinkingOf(asked.Last().Filter).Single();
+      Assert.That(linking.LinkedRole, Is.EqualTo(PersonAspect.ROLE_DIRECTOR),
+          "which films one person directed is a different shelf of films than which they acted in, and the same "
+          + "person can stand on both");
+      Assert.That(Body(action).Whose, Is.EqualTo("director"));
+    }
+
+    [Test]
+    public void TheRecordsOfAnArtistAreAskedBehindTheAlbums()
+    {
+      Guid artist = Guid.NewGuid();
+      IMediaLibrary library = CreateWallLibrary(
+          new List<MediaItem> { Person(artist, "Chris Stapleton", "ARTIST") }, new List<MediaItem>(), 1,
+          out List<MediaItemQuery> asked, out _, out _);
+
+      ActionResult<MediaController.TitlesResult> action = GetWorksOf(library, "AlbumItem", artist, null);
+
+      RelationshipFilter linking = LinkingOf(asked.Last().Filter).Single();
+      Assert.That(linking.Role, Is.EqualTo(AudioAlbumAspect.ROLE_ALBUM));
+      Assert.That(linking.LinkedRole, Is.EqualTo(PersonAspect.ROLE_ALBUMARTIST),
+          "behind a record the person stands as its album artist, which is the part the importers write "
+          + "(AudioAlbumRelationshipExtractor) and the part an artist's screen has to ask - asking ROLE_ARTIST here "
+          + "answers the tunes they sang instead of the records they made");
+      Assert.That(Body(action).Whose, Is.EqualTo("albumartist"));
+    }
+
+    [Test]
+    public void TheWorksOfAPersonThisServerDoesNotHoldAreRefusedBeforeTheShelfIsRead()
+    {
+      IMediaLibrary library = CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0,
+          out List<MediaItemQuery> asked, out _, out _);
+
+      ActionResult<MediaController.TitlesResult> action = GetWorksOf(library, "MovieItem", Guid.NewGuid(), null);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status404NotFound));
+      Assert.That(asked, Has.Count.EqualTo(1),
+          "only the person was looked up; the films of nobody were never asked for");
+      Assert.That(Body(action).Error, Does.Contain("nobody"));
+    }
+
+    [Test]
+    public void APartWithoutAPersonIsRefused()
+    {
+      IMediaLibrary library = CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0,
+          out List<MediaItemQuery> asked, out _, out _);
+
+      ActionResult<MediaController.TitlesResult> action = GetWorksOf(library, "MovieItem", Guid.Empty,
+          new List<string> { "director" });
+
+      Assert.That(Body(action).Error, Does.Contain("who"),
+          "\"which films are directors\" is not a question, and handing back the whole shelf under a heading naming "
+          + "a part is an answer that looks right and is wrong");
+      Assert.That(asked, Is.Empty);
+    }
+
+    [Test]
+    public void AShelfNobodyStandsBehindHasNoWorksOfAnyone()
+    {
+      Guid actor = Guid.NewGuid();
+      IMediaLibrary library = CreateWallLibrary(new List<MediaItem> { Person(actor, "Sigourney Weaver") },
+          new List<MediaItem>(), 1, out List<MediaItemQuery> asked, out _, out _);
+
+      ActionResult<MediaController.TitlesResult> action = GetWorksOf(library, "MediaItem", actor, null);
+
+      Assert.That(Status(action), Is.EqualTo(StatusCodes.Status400BadRequest));
+      Assert.That(Body(action).Error, Does.Contain("MediaItem").And.Contain("AudioItem"),
+          "the refusal names the shelves a person's works can be asked of, and does not read the shelf at all");
+      Assert.That(asked, Is.Empty);
     }
 
     #endregion

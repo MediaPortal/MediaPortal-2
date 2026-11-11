@@ -475,6 +475,19 @@ namespace MediaPortal.Server.Api
       /// </summary>
       public string Value { get; set; }
 
+      /// <summary>
+      /// The person the shelf was read through - the actor whose films these are - or null when it was not read
+      /// through a person. Echoed for the same reason as <see cref="Value"/>: a shelf of two films has to be able to
+      /// say that it is two films of one particular person.
+      /// </summary>
+      public Guid? Who { get; set; }
+
+      /// <summary>
+      /// The part <see cref="Who"/> played in these titles, in the word it was asked with or, when none was asked
+      /// for, in the word the shelf's own part is called.
+      /// </summary>
+      public string Whose { get; set; }
+
       public List<TitleResult> Titles { get; set; }
 
       /// <summary>
@@ -534,11 +547,26 @@ namespace MediaPortal.Server.Api
     /// seasons is counted off those episodes instead and this parameter is how one of those counted seasons is
     /// opened. It is only taken on a shelf of episodes asked for inside a series.
     /// </param>
+    /// <param name="who">
+    /// The id of a person, to keep only the titles that person stands behind:
+    /// <c>?aspect=MovieItem&amp;who=&lt;person id&gt;</c> answers the films of one actor, which is what happens when a
+    /// wall of people is opened. Asked by id and not by name on purpose - two people share a name, and the id is what
+    /// the wall, the record and the portrait all agree on. The person has to be somebody this server holds; naming an
+    /// id of nobody is refused rather than answered with an empty shelf.
+    /// </param>
+    /// <param name="roles">
+    /// Under <paramref name="who"/>, the part that person played, in the words of
+    /// <c>GET api/media/items/{id}/persons</c>: <c>roles=director</c> asks which films one person directed. Left out,
+    /// the shelf's own part is meant - <c>actor</c> behind films, series and episodes, <c>albumartist</c> behind
+    /// albums and <c>artist</c> behind tunes, which is what a person's screen shows. Asked without
+    /// <paramref name="who"/> it is refused, because without a person no part is a question.
+    /// </param>
     [HttpGet("titles")]
     public ActionResult<TitlesResult> GetTitles([FromQuery] string aspect, [FromQuery] string sort,
         [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset, [FromQuery] string search,
         [FromQuery] string seen, [FromQuery] Guid inside = default(Guid),
-        [FromQuery] string by = null, [FromQuery] string value = null, [FromQuery] int? season = null)
+        [FromQuery] string by = null, [FromQuery] string value = null, [FromQuery] int? season = null,
+        [FromQuery] Guid who = default(Guid), [FromQuery] IList<string> roles = null)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -885,12 +913,78 @@ namespace MediaPortal.Server.Api
           }
         }
 
+        // A part named without a person to ask it of is no question. "Which films are directors" has no answer, and
+        // handing back the unfiltered shelf under a heading that names a part is an answer that looks right and is
+        // wrong, so it is refused the way an unknown category is.
+        if (who == Guid.Empty && roles != null && roles.Any(word => !string.IsNullOrWhiteSpace(word)))
+          return BadRequest(new TitlesResult
+          {
+            Error = "'roles' names the part a person played and has to come with 'who', the person it was played by"
+          });
+
+        // The works of one person: the films an actor played in, the albums one artist recorded. A wall of people ends
+        // at a name; opening one is exactly this question. It is answered over the relationship rows rather than over
+        // the cast column a title carries, and that difference is the reason a person's screen is its own screen: the
+        // column holds a name an importer typed - a string two people can share, and one that 29756 of this
+        // household's film names have without any person behind it - while a row links to one person's own record,
+        // which is where the portrait, the biography and the birth date live.
+        IFilter whoseFilter = null;
+        List<string> playedParts = null;
+        if (who != Guid.Empty)
+        {
+          Guid shelfRole;
+          if (!SHELF_ROLES.TryGetValue(aspectId, out shelfRole))
+            return BadRequest(new TitlesResult
+            {
+              Aspect = match.Value.Name,
+              Who = who,
+              Error = "'" + match.Value.Name + "' titles are nobody's work this server can name; the works of a person "
+                  + "are asked of " + PEOPLE_SHELVES
+            });
+
+          // Somebody the library does not hold is refused instead of answered with an empty shelf. "This person never
+          // made a film" and "this id names nobody here" are two different truths, and only the first one is something
+          // the caller can do nothing about.
+          if (FindPersonRecord(mediaLibrary, who) == null)
+            return NotFound(new TitlesResult
+            {
+              Aspect = match.Value.Name,
+              Who = who,
+              Error = "this server holds nobody under the id '" + who.ToString("D") + "'"
+            });
+
+          string partRefusal;
+          if (roles == null || roles.All(word => string.IsNullOrWhiteSpace(word)))
+            // No part was asked for, so the shelf's own part is meant: the screen of an actor shows the films of an
+            // actor, not the one tune they once sang.
+            playedParts = new List<string> { DefaultPersonPart(aspectId) };
+          else if (!TryReadRoles(roles, out playedParts, out partRefusal))
+            return BadRequest(new TitlesResult
+            {
+              Aspect = match.Value.Name,
+              Who = who,
+              Error = partRefusal
+            });
+
+          // The shelf's part first and the person's second, which is the very row <see cref="FindPeople"/> reads the
+          // other way round: the library keeps one row per link naming both parts, and which of them a question names
+          // depends on the side it is asked from (see SHELF_ROLES). Asking this question with the person's part alone
+          // answers no titles at all, and says nothing about why.
+          whoseFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+              playedParts.Select(part => new RelationshipFilter(shelfRole, PersonRoles[part], who)));
+        }
+
         // Both questions at once if both were asked: the tracks of this album that nobody has finished, say.
         IFilter asking = seenFilter == null
             ? withinFilter
             : withinFilter == null
                 ? seenFilter
                 : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, seenFilter, withinFilter);
+
+        if (whoseFilter != null)
+          asking = asking == null
+              ? whoseFilter
+              : BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking, whoseFilter);
 
         // The browse screen's half of the bargain: <c>GET api/media/groups</c> says which genres, years and names a
         // shelf holds, and a picked one of those comes back here as <c>by</c> plus <c>value</c> - "the films whose
@@ -1243,6 +1337,8 @@ namespace MediaPortal.Server.Api
           Inside = inside == Guid.Empty ? (Guid?)null : inside,
           By = askedBy,
           Value = askedValue,
+          Who = who == Guid.Empty ? (Guid?)null : who,
+          Whose = playedParts == null ? null : string.Join(", ", playedParts),
           Titles = titles
         };
       }
@@ -4089,6 +4185,36 @@ namespace MediaPortal.Server.Api
 
       /// <summary>The name the person's own aspect carries.</summary>
       public string Name { get; set; }
+
+      /// <summary>
+      /// What the person does, in the library's own word: <c>ACTOR</c>, <c>DIRECTOR</c>, <c>ARTIST</c>, ...
+      /// </summary>
+      /// <remarks>
+      /// Carried although the caller asked for a part, because the two are not always the same: a singer linked to
+      /// an album as <c>albumartist</c> is filed with the occupation <c>ARTIST</c>, and two people of the same name
+      /// are only told apart by what they do.
+      /// </remarks>
+      public string Occupation { get; set; }
+
+      /// <summary>
+      /// The life the importers were told about, or null when nobody ever was. Up to ten thousand characters, so a
+      /// screen reads it in a panel of its own rather than under a tile.
+      /// </summary>
+      public string Biography { get; set; }
+
+      /// <summary>Where the person comes from, or null when the library was never told.</summary>
+      public string Origin { get; set; }
+
+      /// <summary>When the person was born, or null when the library was never told.</summary>
+      /// <remarks>
+      /// The library keeps a date it was not given as the very first day of its calendar, which is no birth date
+      /// but an empty column. Such a date leaves this answer as null, because a screen printing "1" as a birth year
+      /// is worse than a screen printing nothing.
+      /// </remarks>
+      public DateTime? BornDate { get; set; }
+
+      /// <summary>When the person died, or null while the library knows no death - which is how it should stay.</summary>
+      public DateTime? DeathDate { get; set; }
     }
 
     /// <summary>
@@ -4123,6 +4249,89 @@ namespace MediaPortal.Server.Api
       public string Error { get; set; }
 
       public List<PersonGroupInfo> Groups { get; set; } = new List<PersonGroupInfo>();
+    }
+
+    /// <summary>
+    /// One row of <c>GET api/media/persons</c>: a person, and no more of them than a wall needs to draw a tile.
+    /// </summary>
+    /// <remarks>
+    /// No biography and no portrait travel here, both on purpose. A wall is read by the thousandth row - measured on
+    /// this household's films that is 7757 names - and a ten thousand character life story with every one of them is
+    /// an answer nobody reads and everybody waits for. A screen that wants the life asks for that one person by id
+    /// (<c>GET api/media/persons/{id}</c>), and the portrait is filed under the same id
+    /// (<c>GET api/media/items/{id}/fanart/Thumbnail</c>).
+    /// </remarks>
+    public class PersonBriefResult
+    {
+      /// <summary>
+      /// The person's own media item id - what the record, the portrait and that person's own titles are filed
+      /// under.
+      /// </summary>
+      public Guid Id { get; set; }
+
+      /// <summary>The name the person's own aspect carries.</summary>
+      public string Name { get; set; }
+
+      /// <summary>What the person does, in the library's own word: <c>ACTOR</c>, <c>ARTIST</c>, ...</summary>
+      public string Occupation { get; set; }
+
+      /// <summary>When the person was born, or null when the library was never told.</summary>
+      public DateTime? BornDate { get; set; }
+
+      /// <summary>When the person died, or null while the library knows no death.</summary>
+      public DateTime? DeathDate { get; set; }
+    }
+
+    /// <summary>
+    /// The answer of <c>GET api/media/persons</c>: the people a shelf was made by.
+    /// </summary>
+    public class PeopleResult
+    {
+      /// <summary>The shelf the people were asked from, echoed like <see cref="TitlesResult.Aspect"/>.</summary>
+      public string On { get; set; }
+
+      public Guid? OnAspectId { get; set; }
+
+      /// <summary>The parts the answer holds people for, in the words they were asked with.</summary>
+      public List<string> Roles { get; set; } = new List<string>();
+
+      /// <summary>The letters the names were narrowed to, or null when every name was wanted.</summary>
+      public string Letter { get; set; }
+
+      /// <summary>The words the names were searched for, or null when nobody was searching.</summary>
+      public string Search { get; set; }
+
+      /// <summary>What the answer is sorted by, echoed back for the same reason <see cref="TitlesResult.Sort"/> is.</summary>
+      public string Sort { get; set; }
+
+      /// <summary>How many people the shelf holds in total, not just this page.</summary>
+      public int Total { get; set; }
+
+      public int Offset { get; set; }
+
+      public int Limit { get; set; }
+
+      public int Returned { get; set; }
+
+      /// <summary>Empty rather than null when the shelf holds nobody answering the question.</summary>
+      public List<PersonBriefResult> People { get; set; } = new List<PersonBriefResult>();
+
+      /// <summary>Set when the question itself was refused.</summary>
+      public string Error { get; set; }
+    }
+
+    /// <summary>
+    /// The answer of <c>GET api/media/persons/{id}</c>: one person and everything the library was told about them.
+    /// </summary>
+    public class PersonResult
+    {
+      public Guid Id { get; set; }
+
+      /// <summary>Set when the question was refused or the id names nobody, and the only way such an answer explains itself.</summary>
+      public string Error { get; set; }
+
+      /// <summary>The person, or null when this server holds nobody under the asked id.</summary>
+      public PersonInfo Person { get; set; }
     }
 
     /// <summary>
@@ -4417,6 +4626,41 @@ namespace MediaPortal.Server.Api
     }
 
     /// <summary>
+    /// Reads one text of a person's own aspect, and answers "the library does not hold that" with <c>null</c>
+    /// instead of throwing.
+    /// </summary>
+    /// <remarks>
+    /// Same reason as <see cref="ReadKnownText"/>: a person written by an importer that never heard of the
+    /// biography has nothing there, and the whole band of actors should not go missing because one of them has no
+    /// life story.
+    /// </remarks>
+    private static string ReadPersonText(SingleMediaItemAspect person, MediaItemAspectMetadata.SingleAttributeSpecification attribute)
+    {
+      return person.Metadata.AttributeSpecifications.ContainsKey(attribute.AttributeName)
+          ? person.GetAttributeValue<string>(attribute)
+          : null;
+    }
+
+    /// <summary>
+    /// Reads one date of a person's own aspect, and turns the date the library uses for "nobody told me" back into
+    /// <c>null</c>.
+    /// </summary>
+    /// <remarks>
+    /// A date the aspect was never given arrives as the first day of the calendar, which is a real value to the type
+    /// and a lie on a screen - a person born in year 1 is a figure nobody asked about. The reference printed a
+    /// person's years only when the library had them (screens/MediaItemListPersonDetails.inc, whose date line is
+    /// bound to the date's own presence), so an empty date leaves nothing behind here either.
+    /// </remarks>
+    private static DateTime? ReadPersonDate(SingleMediaItemAspect person, MediaItemAspectMetadata.SingleAttributeSpecification attribute)
+    {
+      if (!person.Metadata.AttributeSpecifications.ContainsKey(attribute.AttributeName))
+        return null;
+
+      DateTime date = person.GetAttributeValue<DateTime>(attribute);
+      return date == default(DateTime) ? (DateTime?)null : date;
+    }
+
+    /// <summary>
     /// The people a title names, one group per part that was asked for.
     /// </summary>
     /// <param name="id">The media item id of the title, as <see cref="GetTitles"/> reported it.</param>
@@ -4442,6 +4686,13 @@ namespace MediaPortal.Server.Api
     /// person data (UiComponents/Media/General/Consts.cs:754-759). Two of those three are what this answer reads, so
     /// two are asked for; the provider resource is left out because nothing in the answer comes from it, and asking
     /// for an aspect has a cost in the database that a caller should not pay for a figure nobody reads.
+    /// </para>
+    /// <para>
+    /// <b>What a person brings along.</b> The reference's person screen showed a name, the years the person lived,
+    /// where they came from and their biography, all of it standing on the person's own aspect
+    /// (screens/MediaItemListPersonDetails.inc). So this answer carries those too: a screen that opens a person -
+    /// which is what a wall of people does the moment one of its tiles is picked - tells the whole of that from this
+    /// one answer and does not have to come back for each person it just listed.
     /// </para>
     /// <para>
     /// <b>The order.</b> No sort is asked for, exactly as the reference asked for none
@@ -4471,15 +4722,9 @@ namespace MediaPortal.Server.Api
         PersonGroupInfo group = new PersonGroupInfo { Role = role };
         foreach (MediaItem person in FindPeople(mediaLibrary, id, PersonRoles[role], CallerProfile))
         {
-          SingleMediaItemAspect personAspect;
-          if (!MediaItemAspect.TryGetAspect(person.Aspects, PersonAspect.Metadata, out personAspect))
-            continue;
-
-          group.Persons.Add(new PersonInfo
-          {
-            Id = person.MediaItemId,
-            Name = personAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME)
-          });
+          PersonInfo record = PersonRecordOf(person);
+          if (record != null)
+            group.Persons.Add(record);
         }
         answer.Groups.Add(group);
       }
@@ -4573,6 +4818,314 @@ namespace MediaPortal.Server.Api
 
       IList<MediaItem> items = mediaLibrary.Search(query, false, profile, VirtualTitles.LetsVirtualTitlesIn);
       return items ?? new List<MediaItem>();
+    }
+
+    /// <summary>
+    /// The person standing behind one found media item, or null when the item carries no person aspect to read.
+    /// </summary>
+    private static PersonInfo PersonRecordOf(MediaItem person)
+    {
+      SingleMediaItemAspect personAspect;
+      if (!MediaItemAspect.TryGetAspect(person.Aspects, PersonAspect.Metadata, out personAspect))
+        return null;
+
+      return new PersonInfo
+      {
+        Id = person.MediaItemId,
+        Name = personAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME),
+        Occupation = ReadPersonText(personAspect, PersonAspect.ATTR_OCCUPATION),
+        Biography = ReadPersonText(personAspect, PersonAspect.ATTR_BIOGRAPHY),
+        Origin = ReadPersonText(personAspect, PersonAspect.ATTR_ORIGIN),
+        BornDate = ReadPersonDate(personAspect, PersonAspect.ATTR_DATEOFBIRTH),
+        DeathDate = ReadPersonDate(personAspect, PersonAspect.ATTR_DATEOFDEATH)
+      };
+    }
+
+    /// <summary>
+    /// The shelves people stand behind, and the part a title of that shelf plays in the link.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A relationship row names both sides of its link: the column <c>Role</c> holds the part the <i>title</i> plays
+    /// and <c>LinkedRole</c> the part the <i>person</i> plays, which is what the importers write
+    /// (MovieRelationshipExtractor.cs:57-62 registers "Movie-&gt;Actor" as <c>MovieAspect.ROLE_MOVIE</c> against
+    /// <c>PersonAspect.ROLE_ACTOR</c>). Measured on this household's store: all 15445 rows leading to a person carry
+    /// the shelf's part in <c>Role</c> and the person's part in <c>LinkedRole</c>.
+    /// </para>
+    /// <para>
+    /// Which part a question has to name therefore depends on the side it is asked from, and naming the wrong one is
+    /// the mistake that answers "nobody" instead of throwing: asking a title for its people asks with the person's
+    /// part alone (see <see cref="FindPeople"/>, where the row is found by its linked id), while asking a shelf for
+    /// the people behind it needs both parts together - the person's part to say who is meant and the shelf's part to
+    /// keep the people of a series out of the films' wall.
+    /// </para>
+    /// </remarks>
+    private static readonly Dictionary<Guid, Guid> SHELF_ROLES = new Dictionary<Guid, Guid>
+    {
+        { MovieAspect.ASPECT_ID, MovieAspect.ROLE_MOVIE },
+        { SeriesAspect.ASPECT_ID, SeriesAspect.ROLE_SERIES },
+        { EpisodeAspect.ASPECT_ID, EpisodeAspect.ROLE_EPISODE },
+        { AudioAlbumAspect.ASPECT_ID, AudioAlbumAspect.ROLE_ALBUM },
+        { AudioAspect.ASPECT_ID, AudioAspect.ROLE_TRACK }
+    };
+
+    /// <summary>The shelves people stand behind, for the refusal that names them.</summary>
+    private const string PEOPLE_SHELVES = "MovieItem, SeriesItem, EpisodeItem, AlbumItem or AudioItem";
+
+    /// <summary>
+    /// The part a person is asked about by default behind each shelf: an actor's screen shows films, series and
+    /// episodes, an artist's screen shows records and tunes.
+    /// </summary>
+    /// <remarks>
+    /// Only called for a shelf <see cref="SHELF_ROLES"/> already accepted, which is exactly the five shelves named
+    /// here; the two lists have to stay in step, or a shelf arrives that defaults to no part at all.
+    /// </remarks>
+    private static string DefaultPersonPart(Guid shelfId)
+    {
+      if (shelfId == AudioAlbumAspect.ASPECT_ID)
+        return "albumartist";
+      if (shelfId == AudioAspect.ASPECT_ID)
+        return "artist";
+      return "actor";
+    }
+
+    /// <summary>
+    /// The people a shelf was made by: every person the library links to a title of that shelf.
+    /// </summary>
+    /// <param name="aspect">
+    /// The shelf the <i>works</i> stand on, named as every other endpoint of this server names a shelf -
+    /// <c>MovieItem</c>, <c>SeriesItem</c>, <c>EpisodeItem</c>, <c>AlbumItem</c> or <c>AudioItem</c>. The rows are
+    /// never titles of that shelf; they are the people behind them, which is why the word asks for a shelf and the
+    /// answer is a wall.
+    /// </param>
+    /// <param name="roles">
+    /// The part those people played, in the same words <c>GET api/media/items/{id}/persons</c> answers
+    /// (<c>actor</c>, <c>director</c>, <c>writer</c>, <c>artist</c>, <c>albumartist</c>, <c>composer</c>,
+    /// <c>conductor</c>). At least one has to be named; several are answered as one wall of everybody who played any
+    /// of them, because a screen that shows actors and directors together wants one list, not two.
+    /// </param>
+    /// <param name="letter">
+    /// Only people whose name starts with these letters. An alphabet strip on a screen passes one of them; a search
+    /// box that narrows as it is typed can pass more. It is a prefix of the name and nothing else - the reference's
+    /// people screens walked their wall the same way, one letter at a time.
+    /// </param>
+    /// <param name="search">
+    /// Only people whose name contains these words, case-insensitively. The biography is deliberately not searched:
+    /// a wall is chosen by name, and only the artists of this library have a biography to search through at all
+    /// (measured: 30 of 36 album artists, 2 of 7757 actors), so a text hit on a life story would be a surprise.
+    /// </param>
+    /// <param name="sort">
+    /// <c>name</c>, which is the default and what a wall is walked by, or <c>born</c> for the year a person was
+    /// born. Nothing else is on offer because nothing else is on the person's own aspect to sort by.
+    /// </param>
+    /// <param name="order"><c>desc</c> or <c>descending</c> to reverse the sort.</param>
+    /// <param name="limit">How many rows to hand over, at most 2000; 500 when nothing was asked for.</param>
+    /// <param name="offset">How many rows to leave out in front.</param>
+    /// <remarks>
+    /// <para>
+    /// A person is in this answer because the library <i>links</i> them to a title of the asked shelf, not because
+    /// their occupation says so. The two mostly agree and are not the same thing: the occupation is one column
+    /// written once per person, while the link is what says this person stands in front of a film. Asking the link
+    /// means a wall has nobody in it who never appeared in anything, which is the difference this screen is for -
+    /// and it means a person who is an <c>ARTIST</c> by occupation but linked to an album as its album artist is
+    /// found by asking for <c>albumartist</c>.
+    /// </para>
+    /// <para>
+    /// Only names, not counts. "How many films has this person in this library" is a question a wall of 7757 people
+    /// cannot afford - it is one count per row - and the reference's people screens do not answer it either; a
+    /// screen that wants the works asks for them (<c>GET api/media/titles?who=...</c>).
+    /// </para>
+    /// <para>
+    /// The caller's age restriction is not asked here, unlike on a shelf of titles: what it says is which
+    /// <i>titles</i> a child may see, which is a mark on a title's certification column that no person carries.
+    /// Applying it to people would answer an empty wall. The works a person appears in are still restricted, because
+    /// they are listed through the titles endpoint.
+    /// </para>
+    /// </remarks>
+    [HttpGet("persons")]
+    public ActionResult<PeopleResult> GetPeople([FromQuery] string aspect, [FromQuery] IList<string> roles,
+        [FromQuery] string letter, [FromQuery] string search, [FromQuery] string sort, [FromQuery] string order,
+        [FromQuery] int limit, [FromQuery] int offset)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      if (string.IsNullOrEmpty(aspect))
+        return BadRequest(new PeopleResult { Error = "a shelf has to be named, e.g. ?aspect=MovieItem" });
+
+      int take = limit <= 0 ? DEFAULT_LIMIT : Math.Min(limit, MAX_LIMIT);
+      int skip = Math.Max(offset, 0);
+
+      try
+      {
+        IDictionary<Guid, MediaItemAspectMetadata> metadata = mediaLibrary.GetManagedMediaItemAspectMetadata();
+        KeyValuePair<Guid, MediaItemAspectMetadata> match = metadata.FirstOrDefault(entry =>
+            entry.Value != null && string.Equals(entry.Value.Name, aspect, StringComparison.OrdinalIgnoreCase));
+        if (match.Value == null)
+          return NotFound(new PeopleResult
+          {
+            Error = "this server has no aspect called '" + aspect + "'; a wall of people is asked of the shelf its "
+                + "works stand on, which is " + PEOPLE_SHELVES + " - see GET api/library/aspects"
+          });
+
+        Guid shelfId = match.Key;
+        Guid shelfRole;
+        if (!SHELF_ROLES.TryGetValue(shelfId, out shelfRole))
+          return BadRequest(new PeopleResult
+          {
+            On = match.Value.Name,
+            Error = "'" + match.Value.Name + "' titles are nobody's work this server can name; people stand behind "
+                + PEOPLE_SHELVES
+          });
+
+        List<string> asked;
+        string refusal;
+        if (!TryReadRoles(roles, out asked, out refusal))
+          return BadRequest(new PeopleResult { On = match.Value.Name, Error = refusal });
+
+        // Which people stand behind this shelf. Every one of them is reached by one row that names the person's part
+        // and the shelf's part, and the parts are asked in the order the library keeps them (see SHELF_ROLES) - read
+        // the other way round this answers an empty wall for a library full of casts.
+        IFilter linking = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+            asked.Select(word => new RelationshipFilter(PersonRoles[word], shelfRole, Guid.Empty)));
+
+        IFilter asking = linking;
+
+        string finding = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
+        if (finding != null)
+        {
+          string pattern = "%" + SqlUtils.LikeEscape(finding, SEARCH_ESCAPE) + "%";
+          asking = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking,
+              new LikeFilter(PersonAspect.ATTR_PERSON_NAME, pattern, SEARCH_ESCAPE, false));
+        }
+
+        string initial = string.IsNullOrWhiteSpace(letter) ? null : letter.Trim();
+        if (initial != null)
+        {
+          string prefix = SqlUtils.LikeEscape(initial, SEARCH_ESCAPE) + "%";
+          asking = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking,
+              new LikeFilter(PersonAspect.ATTR_PERSON_NAME, prefix, SEARCH_ESCAPE, false));
+        }
+
+        string sortBy = ReadPersonSort(sort);
+        bool backwards = IsDescending(order);
+
+        MediaItemQuery query = new MediaItemQuery(
+            new List<Guid> { PersonAspect.ASPECT_ID }, null, asking);
+        query.SetSortInformation(new List<ISortInformation>
+        {
+            new AttributeSortInformation(
+                sortBy == "born" ? PersonAspect.ATTR_DATEOFBIRTH : PersonAspect.ATTR_PERSON_NAME,
+                backwards ? SortDirection.Descending : SortDirection.Ascending)
+        });
+        query.Offset = (uint)skip;
+        query.Limit = (uint)take;
+
+        // The second argument is includeVirtual, and it stays false: the titles a household lets its library invent
+        // are duplicate entries for series that were never finished, which no person ever appeared in. Inventing
+        // them here would only ask the database twice about rows that cannot be anybody's work.
+        IList<MediaItem> items = mediaLibrary.Search(query, false, null, false);
+
+        List<PersonBriefResult> people = new List<PersonBriefResult>();
+        foreach (MediaItem item in items)
+        {
+          PersonInfo record = PersonRecordOf(item);
+          if (record == null)
+            continue;
+          people.Add(new PersonBriefResult
+          {
+            Id = record.Id,
+            Name = record.Name,
+            Occupation = record.Occupation,
+            BornDate = record.BornDate,
+            DeathDate = record.DeathDate
+          });
+        }
+
+        int total = mediaLibrary.CountMediaItems(new[] { PersonAspect.ASPECT_ID }, asking, false, false);
+
+        return new PeopleResult
+        {
+          On = match.Value.Name,
+          OnAspectId = shelfId,
+          Roles = asked,
+          Letter = initial,
+          Search = finding,
+          Sort = sortBy + (backwards ? " descending" : ""),
+          Total = total,
+          Offset = skip,
+          Limit = take,
+          Returned = people.Count,
+          People = people
+        };
+      }
+      catch (IllegalCallException ex)
+      {
+        return BadRequest(new PeopleResult { Error = ex.Message });
+      }
+    }
+
+    /// <summary>
+    /// Everything this library was told about one person, by their own id.
+    /// </summary>
+    /// <remarks>
+    /// The biography is up to ten thousand characters, which is why it is asked for here instead of travelling with
+    /// a wall. The id on the address is the person's own media item id - the same id the portrait is filed under, and
+    /// the same one <c>GET api/media/titles?who=...</c> takes.
+    /// </remarks>
+    [HttpGet("persons/{id}")]
+    public ActionResult<PersonResult> GetPerson(Guid id)
+    {
+      IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
+      if (mediaLibrary == null)
+        return StatusCode(StatusCodes.Status503ServiceUnavailable);
+
+      try
+      {
+        PersonInfo person = FindPersonRecord(mediaLibrary, id);
+        if (person == null)
+          return NotFound(new PersonResult
+          {
+            Id = id,
+            Error = "this server holds nobody under the id '" + id.ToString("D") + "'"
+          });
+
+        return new PersonResult { Id = id, Person = person };
+      }
+      catch (IllegalCallException ex)
+      {
+        return BadRequest(new PersonResult { Id = id, Error = ex.Message });
+      }
+    }
+
+    /// <summary>
+    /// The person an id names, with everything their own aspect carries, or null when it names nobody.
+    /// </summary>
+    private static PersonInfo FindPersonRecord(IMediaLibrary mediaLibrary, Guid id)
+    {
+      MediaItemQuery query = new MediaItemQuery(
+          new List<Guid> { PersonAspect.ASPECT_ID }, null, new MediaItemIdFilter(id));
+
+      foreach (MediaItem item in mediaLibrary.Search(query, false, null, false))
+      {
+        PersonInfo record = PersonRecordOf(item);
+        if (record != null)
+          return record;
+      }
+      return null;
+    }
+
+    /// <summary>
+    /// What a wall of people is put in order by, as the words this endpoint answers with.
+    /// </summary>
+    /// <remarks>
+    /// Anything unknown sorts by name, which is the order a wall is walked in; a screen that asked for something
+    /// else still gets a wall it can read rather than an error it has to explain.
+    /// </remarks>
+    private static string ReadPersonSort(string sort)
+    {
+      return string.Equals(sort, "born", StringComparison.OrdinalIgnoreCase) ? "born" : "name";
     }
 
     /// <summary>
