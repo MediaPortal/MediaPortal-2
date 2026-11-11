@@ -850,5 +850,46 @@ namespace Tests.Server.Backend
                       "V_EPISODEITEM_EPISODE T1 ON T0.VALUE_ID = T1.VALUE_ID WHERE T0.MEDIA_ITEM_ID IN " +
                       "(@V0, @V1) ORDER BY T0.VALUE_ORDER", statementStr);
     }
+
+    [Test]
+    public void Should_NotJoinTheTableOfTheGroupedAttributeAgain_When_TheSameAspectIsRequestedAsAnotherInstanceOfIt()
+    {
+      // The library keeps its aspect descriptions in storage and hands out copies of them, so the description of
+      // the aspect which holds a grouped attribute and the description of that same aspect in the list of
+      // necessary aspects are two objects talking about one aspect. Counting films by their actors asks for
+      // exactly that, and joining on the object instead of on the aspect made the statement start from the table
+      // of the aspect and join that very table to itself under the same name, which no database answers.
+      MultipleTestMIA mia = new MultipleTestMIA { ASPECT_ID = Guid.NewGuid() };
+
+      IList<MediaItemAspectMetadata.MultipleAttributeSpecification> attributes = new List<MediaItemAspectMetadata.MultipleAttributeSpecification>();
+      attributes.Add(mia.ATTR_ID = MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("ACTORS", 10, Cardinality.ManyToMany, true));
+      attributes.Add(mia.ATTR_STRING = MediaItemAspectMetadata.CreateMultipleStringAttributeSpecification("ACTORS", 10, Cardinality.ManyToMany, false));
+      mia.Metadata = new MultipleMediaItemAspectMetadata(mia.ASPECT_ID, "VideoItem", attributes.ToArray(), new[] { mia.ATTR_ID });
+      MockCore.AddMediaItemAspectStorage(mia.Metadata);
+
+      // One description read back from storage: another object, but the same aspect.
+      MediaItemAspectMetadata storedMia = new MultipleMediaItemAspectMetadata(mia.ASPECT_ID, "VideoItem",
+          attributes.ToArray(), new[] { mia.ATTR_ID });
+      Assert.AreNotSame(mia.Metadata, storedMia, "Test setup: the description has to be another object");
+      Assert.AreEqual(mia.Metadata, storedMia, "Test setup: the description has to be of the same aspect");
+
+      SingleTestMIA shelf = TestCommonUtils.CreateSingleMIA("MovieItem", Cardinality.Inline, true, false);
+      MockCore.AddMediaItemAspectStorage(shelf.Metadata);
+
+      ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(MockCore.Management,
+          mia.Metadata.AttributeSpecifications.Values.First(), null,
+          new List<MediaItemAspectMetadata> { shelf.Metadata, storedMia }, null, null);
+
+      string valueAlias;
+      string groupSizeAlias;
+      string statementStr;
+      IList<BindVar> bindVars;
+      builder.GenerateSqlGroupByStatement(null, out valueAlias, out groupSizeAlias, out statementStr, out bindVars);
+
+      Assert.AreEqual("SELECT COUNT(V.ID) C, V.A0 FROM (SELECT DISTINCT T0.MEDIA_ITEM_ID ID, T1.VALUE A0 FROM " +
+                      "M_VIDEOITEM T0 INNER JOIN M_MOVIEITEM T2 ON T2.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT " +
+                      "OUTER JOIN NM_VIDEOITEM_ACTORS T3 ON T3.MEDIA_ITEM_ID = T0.MEDIA_ITEM_ID LEFT OUTER JOIN " +
+                      "V_VIDEOITEM_ACTORS T1 ON T3.VALUE_ID = T1.VALUE_ID ) V GROUP BY V.A0", statementStr);
+    }
   }
 }

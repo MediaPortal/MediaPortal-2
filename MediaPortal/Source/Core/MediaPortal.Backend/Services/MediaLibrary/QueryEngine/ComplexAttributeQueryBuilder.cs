@@ -124,7 +124,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         TableQueryData tqd;
         if (!tableQueries.TryGetValue(miaType, out tqd))
           tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
-        if (miaType != queryMIAM)
+        // The aspect of the grouped attribute is already the table the statement starts from, so it must not be
+        // joined again. Asking whether it is the same aspect - and not whether it is the same object - matters:
+        // the library hands out its aspect descriptions as copies, so the description of the aspect holding the
+        // attribute and the description of that same aspect in the requested list are two objects of one aspect.
+        // Comparing the objects made the statement join the table to itself under the name it already had, and
+        // the database then refused every grouping on an attribute of that kind with "ambiguous column name".
+        if (miaType.AspectId != queryMIAM.AspectId)
           tableJoins.Add(new TableJoin("INNER JOIN", tqd,
               new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
