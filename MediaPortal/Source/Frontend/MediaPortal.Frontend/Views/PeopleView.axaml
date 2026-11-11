@@ -1,0 +1,220 @@
+﻿<UserControl x:Class="MediaPortal.Frontend.Views.PeopleView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MediaPortal.Frontend.ViewModels"
+             xmlns:views="using:MediaPortal.Frontend.Views"
+             xmlns:sys="using:System"
+             x:DataType="vm:PeopleViewModel">
+  <!--
+    A wall of people: the names one shelf was made by, worn like a media screen wears its shelf.
+
+    Everything the room needs to look like the shelf - the rail's styles, the menu's plates, the plate that heads a
+    group - is the shelf's own chrome, included from the files it lives in now (ShelfChrome.axaml and
+    ShelfChromeStyles.axaml) rather than written out a second time.  What is written here is only the two things a
+    wall has that a shelf has not: the tile a person stands on, and the row a name reads in.
+
+    The room slides the same two hundred points the shelf slides, and for the same reason the reference had:
+    opening the screen's menu shows nothing, it moves the room out of the space the rail stands in, so the rail
+    never covers the wall it belongs to.
+  -->
+  <UserControl.Styles>
+    <StyleInclude Source="avares://MediaPortal.Frontend/Views/ShelfChromeStyles.axaml"/>
+  </UserControl.Styles>
+
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://MediaPortal.Frontend/Views/ShelfChrome.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+
+      <!--
+        One person as a tile: the square an artist's or an actor's portrait is drawn in, which is the measure the
+        audio shelf uses for its records - the same picture ground, the same shadow, the name across the bottom on
+        the veil the shelf's own person cards use.  Two hundred and five by one hundred and ninety-five, because a
+        wall is read from further off than a details band is, and a name has to be read from the sofa.
+
+        No number of works on the tile, which the viewer decided when the wall was planned: a thousand names with a
+        count each would be a screen of arithmetic, and the count is one question per row the server would rather
+        not answer.
+      -->
+      <DataTemplate x:Key="PersonWallTile" x:DataType="vm:PersonTile">
+        <Border Classes="trackcard person-card home-tile-shadow"
+                Focusable="True"
+                Width="205"
+                Height="195"
+                Margin="0,0,12,12">
+          <Panel>
+            <Border Classes="person-face" ClipToBounds="True">
+              <Panel>
+                <!--  The portrait will come from the fanart filed under the person's own id; until a household has
+                      imported one, every tile answers with the skin's picture of a person, which is what the
+                      shelf's person cards do when a face is missing.  -->
+                <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                      ConverterParameter='MediaMenu/actor'}"
+                      Fill="{DynamicResource TextBrush}"
+                      Opacity="0.35"
+                      Width="86"
+                      Height="86"
+                      Stretch="Uniform"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsHitTestVisible="False"/>
+              </Panel>
+            </Border>
+            <Border Classes="person-veil" IsHitTestVisible="False"/>
+            <TextBlock Text="{Binding Name}"
+                       FontSize="18"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       MaxLines="2"
+                       TextTrimming="CharacterEllipsis"
+                       VerticalAlignment="Bottom"
+                       Foreground="{DynamicResource TextBrush}"
+                       Margin="8,0,8,10"
+                       IsHitTestVisible="False"/>
+          </Panel>
+        </Border>
+      </DataTemplate>
+
+      <!--
+        One person as a row: the picture frame a title row gives its poster - the same fifty-eight by eighty-nine,
+        so a wall read as a list sits in the same measure as a shelf read as a list - the name beside it, and the
+        year the person was born in the dim second word the shelf's rows give their year.
+      -->
+      <DataTemplate x:Key="PersonWallRow" x:DataType="vm:PersonTile">
+        <Border Classes="home-tile-shadow"
+                Focusable="True"
+                Margin="0,0,0,6"
+                Padding="0">
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <Border Classes="person-face"
+                    Width="58"
+                    Height="89"
+                    ClipToBounds="True">
+              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                    ConverterParameter='MediaMenu/actor'}"
+                    Fill="{DynamicResource TextBrush}"
+                    Opacity="0.35"
+                    Width="30"
+                    Height="30"
+                    Stretch="Uniform"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsHitTestVisible="False"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center" Spacing="2">
+              <TextBlock Text="{Binding Name}"
+                         FontSize="24"
+                         Foreground="{DynamicResource TextBrush}"/>
+              <TextBlock Text="{Binding BornWord}"
+                         FontSize="17"
+                         Opacity="0.55"
+                         IsVisible="{Binding BornWord, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                         Foreground="{DynamicResource TextBrush}"/>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </DataTemplate>
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <Panel ClipToBounds="True">
+    <!--
+      THE ROOM, two hundred points of which stand off the left edge while the rail is shut.  The transform is what
+      travels, exactly as the shelf's does: a margin would have the layout ask what a moving room measures at every
+      one of the frames, and a reference that drove the same points with a TranslateTransform is not a reference to
+      argue with about which property is the cheap one.
+    -->
+    <Grid Name="room"
+          Margin="-200,0,0,0"
+          ColumnDefinitions="200,*"
+          ClipToBounds="False">
+      <Grid.RenderTransform>
+        <TranslateTransform X="0" Y="0">
+          <TranslateTransform.Transitions>
+            <Transitions>
+              <DoubleTransition Property="X" Duration="0:0:0.35"/>
+            </Transitions>
+          </TranslateTransform.Transitions>
+        </TranslateTransform>
+      </Grid.RenderTransform>
+
+      <!--
+        THE RAIL, standing in the two hundred points that are off the room's left edge.  Its ground, its plates and
+        the way it pales into its ends are the shelf's - the styles are included above and the behaviour is
+        ShelfRail - so a viewer who learned where "View" stands on a shelf of films finds it standing where they
+        left it.  Nothing about this panel is new but its rows, and its rows are the wall's three questions.
+      -->
+      <Panel Name="sideMenu"
+             Grid.Column="0"
+             Margin="0,90,0,0"
+             IsVisible="False"
+             ClipToBounds="False">
+        <DockPanel Margin="10,0,0,0">
+          <ListBox Name="mediaMenuList"
+                   Classes="media-menu"
+                   ItemsSource="{Binding MediaMenu}"
+                   ItemTemplate="{StaticResource MediaMenuTile}"
+                   Margin="0,14,0,200"
+                   Focusable="True"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                   ScrollViewer.VerticalScrollBarVisibility="Hidden">
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Vertical"/>
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+          </ListBox>
+        </DockPanel>
+      </Panel>
+
+      <DockPanel Grid.Column="1" ClipToBounds="False">
+        <!--
+          THE HEAD, a hundred points of it like the shelf's: the wall's own word, how many names it holds, and the
+          server's word when a question came back that the wall cannot draw.  The head is the only place a wall can
+          say WHICH people these are, so it says it at the top rather than in a menu the viewer has to open.
+        -->
+        <Border DockPanel.Dock="Top" Height="90" Padding="34,0,34,0" VerticalAlignment="Stretch">
+          <StackPanel VerticalAlignment="Center" Spacing="2">
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <TextBlock Text="{Binding Headline}"
+                         FontSize="30"
+                         FontWeight="SemiBold"
+                         VerticalAlignment="Center"
+                         Foreground="{DynamicResource TextBrush}"/>
+              <TextBlock Text="{Binding Notice}"
+                         FontSize="18"
+                         Opacity="0.75"
+                         VerticalAlignment="Center"
+                         IsVisible="{Binding Notice, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                         Foreground="{DynamicResource TextBrush}"/>
+            </StackPanel>
+            <TextBlock Text="{Binding MediaMenuFootLine}"
+                       FontSize="17"
+                       Opacity="0.55"
+                       IsVisible="{Binding MediaMenuVisible}"
+                       Foreground="{DynamicResource TextBrush}"/>
+          </StackPanel>
+        </Border>
+
+        <!--
+          THE WALL.  A list like the shelf's, because everything a wall has to be - walked by a caret, virtualized
+          by a thousand names, dressed by the plate template the shelf's grouping uses - is what that control
+          already is.  Its item template and its panel are put on by the code behind, which is the only place that
+          knows which of the two shapes the wall wears.
+        -->
+        <ListBox Name="peopleList"
+                 Focusable="True"
+                 ItemsSource="{Binding Rows}"
+                 SelectedItem="{Binding Selected, Mode=TwoWay}"
+                 ItemTemplate="{StaticResource PersonWallTile}"
+                 FontSize="24"
+                 Margin="26,0,0,20"
+                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ClipToBounds="False"/>
+      </DockPanel>
+    </Grid>
+  </Panel>
+</UserControl>

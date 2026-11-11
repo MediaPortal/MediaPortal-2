@@ -5638,7 +5638,8 @@ namespace MediaPortal.Frontend.Views
 
 
     /// <inheritdoc />
-    MediaBrowserViewModel? IShelfRailHost.RailOwner => DataContext as MediaBrowserViewModel;
+    /// <inheritdoc />
+    IMenuRailOwner? IShelfRailHost.RailOwner => DataContext as MediaBrowserViewModel;
 
     /// <inheritdoc />
     void IShelfRailHost.RailCaret(Control target, Action? whenStood) => StandCaret(target, whenStood);

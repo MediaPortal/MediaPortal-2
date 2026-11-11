@@ -66,7 +66,7 @@ namespace FrontendProbe
   public static class RenderProbe
   {
     private const string USAGE =
-        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|keyboard|keybutton|seen|folders|pictures|browse|news|weather|party|settings|trailer|trailerwait>] [--server <url>] [--aspect <name>] [--layout <list|grid|cover|stacked|carousel>] [--theme <name>] [--width <n>] [--height <n>]\n" +
+        "Frontend.RenderProbe --out <file.png> [--screen <home|continue|nowplaying|connect|browser|cover|menu|covermenu|details|search|keyboard|keybutton|seen|people|peoplemenu|folders|pictures|browse|news|weather|party|settings|trailer|trailerwait>] [--server <url>] [--aspect <name>] [--layout <list|grid|cover|stacked|carousel>] [--theme <name>] [--width <n>] [--height <n>]\n" +
         "  --out <file>     where to write the rendered frame (PNG); its directory is created\n" +
         "  --crop x,y,w,h[,scale]  also write a cut-out of the frame beside it, magnified (default 4 times) and\n" +
         "                   named <out>-crop.png. Cut by the probe's own pixels: a picture program asked to crop\n" +
@@ -302,7 +302,9 @@ namespace FrontendProbe
             && !screenName.Equals("search", StringComparison.Ordinal)
             && !screenName.Equals("keyboard", StringComparison.Ordinal)
             && !screenName.Equals("keybutton", StringComparison.Ordinal)
-            && !screenName.Equals("seen", StringComparison.Ordinal))
+            && !screenName.Equals("seen", StringComparison.Ordinal)
+            && !screenName.Equals("people", StringComparison.Ordinal)
+            && !screenName.Equals("peoplemenu", StringComparison.Ordinal))
           return Usage("--layout belongs to the library screens; the others have no shapes to wear.");
       }
       if (audio && !screenName.Equals("nowplaying", StringComparison.Ordinal))
@@ -1194,6 +1196,44 @@ namespace FrontendProbe
         menuAsked = screenName.Equals("menu", StringComparison.Ordinal)
             || screenName.Equals("covermenu", StringComparison.Ordinal);
         window = new ShellWindow(new MediaBrowserView(browser));
+      }
+      else if (screenName.Equals("people", StringComparison.Ordinal)
+          || screenName.Equals("peoplemenu", StringComparison.Ordinal))
+      {
+        // A wall of names has nothing to script.  What makes this screen worth a frame is that it is read out of a
+        // library that is really standing somewhere - 7543 names in one household's films - and a frame of it is
+        // the only way to see whether a thousand tiles lay themselves out in a grid the viewer can still read.
+        if (!online)
+        {
+          Console.WriteLine("FAILED:   the wall of people is read from a running server; pass --server.");
+          return 4;
+        }
+
+        ServerApiClient client = new ServerApiClient(new Uri(url!));
+        PeopleShelf shelfKind = PeopleViewModel.ShelfForAspect(aspectName);
+        PeopleViewModel wall = new PeopleViewModel(client, shelfKind);
+        if (layoutWanted == BrowserLayout.List)
+          wall.Layout = PeopleViewModel.LAYOUT_LIST;
+        Console.WriteLine("content:  the wall of " + wall.WallLabel + " that " + url + " answers with"
+            + " (--aspect chooses which of the three)");
+        _ = wall.ReadAsync(true);
+        if (!PumpUntil(delegate { return !wall.Busy; }, TimeSpan.FromSeconds(60)))
+        {
+          Console.WriteLine("FAILED:   '" + url + "' was still reading the wall after a minute.");
+          return 4;
+        }
+        Pump(TimeSpan.FromMilliseconds(400));
+
+        Console.WriteLine("content:  " + wall.Rows.Count + " row(s) of " + wall.Total
+            + " names, headline \"" + wall.Headline + "\""
+            + (string.IsNullOrEmpty(wall.Notice) ? "" : ", notice: " + wall.Notice));
+        if (wall.Rows.Count == 0)
+        {
+          Console.WriteLine("FAILED:   the wall came up empty, so the frame would show an empty screen and prove nothing.");
+          return 1;
+        }
+
+        window = new ShellWindow(new PeopleView(wall, new WorkflowManager(), null));
       }
       else if (screenName.Equals("folders", StringComparison.Ordinal))
       {
@@ -2198,6 +2238,36 @@ namespace FrontendProbe
           Console.WriteLine("FAILED:   the view key never brought the shelf to covers, so the frame would be the grid again.");
           return 1;
         }
+      }
+
+      if (screenName.Equals("peoplemenu", StringComparison.Ordinal)
+          && (window as ShellWindow)?.Screen is PeopleView wallScreen)
+      {
+        // The same walk the shelf answers: the caret on the wall's leading edge pointing left brings the room's
+        // two hundred points out of the way and the rail walks into the space that sliding makes.  Said here
+        // rather than proved by the model, because what the frame has to show is that the extracted rail and the
+        // extracted room slide still answer on a screen that was never a shelf.
+        ListBox? wall = wallScreen.GetVisualDescendants().OfType<ListBox>()
+            .FirstOrDefault(list_box => list_box.Name == "peopleList");
+        wall?.Focus();
+        if (wall != null && wall.Items.Count > 0)
+          wall.SelectedIndex = 0;
+        Pump(TimeSpan.FromMilliseconds(250));
+        wallScreen.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Left,
+          Source = (Control?) wall ?? wallScreen
+        });
+        if (!PumpUntil(delegate { return Math.Abs(RoomSlide(wallScreen)) >= 200; }, TimeSpan.FromSeconds(30)))
+        {
+          Console.WriteLine("FAILED:   the left press off the wall's leading edge opened nothing; the room stands at "
+              + Math.Round(RoomSlide(wallScreen), 1));
+          return 1;
+        }
+        Pump(TimeSpan.FromMilliseconds(250));
+        Console.WriteLine("slide:    the room stands " + Math.Round(RoomSlide(wallScreen), 1)
+            + " points out of the rail's way");
       }
 
       if (menuAsked && (window as ShellWindow)?.Screen is MediaBrowserView menuScreen)
@@ -3235,8 +3305,10 @@ namespace FrontendProbe
     /// </summary>
     private static double RoomSlide(Control screen)
     {
-      Grid? room = screen.GetVisualDescendants().OfType<Grid>()
-          .FirstOrDefault(grid => grid.Name == "room");
+      // Any room will do: the shelf's is a grid and the wall of people's is a plain panel, and what matters is the
+      // transform the room wears rather than what the room is laid out of.
+      Panel? room = screen.GetVisualDescendants().OfType<Panel>()
+          .FirstOrDefault(panel => panel.Name == "room");
       TranslateTransform? slide = room?.RenderTransform as TranslateTransform;
       if (slide == null)
         return double.NaN;

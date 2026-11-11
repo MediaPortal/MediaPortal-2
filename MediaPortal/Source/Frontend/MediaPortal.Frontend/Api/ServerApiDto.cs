@@ -251,7 +251,9 @@ namespace MediaPortal.Frontend.Api
       [property: JsonPropertyName("seen")] string? Seen = null,
       [property: JsonPropertyName("inside")] Guid? Inside = null,
       [property: JsonPropertyName("by")] string? By = null,
-      [property: JsonPropertyName("value")] string? Value = null)
+      [property: JsonPropertyName("value")] string? Value = null,
+      [property: JsonPropertyName("who")] Guid? Who = null,
+      [property: JsonPropertyName("whose")] string? Whose = null)
   {
     /// <summary>
     /// Titles the server has for this aspect beyond the page that arrived.
@@ -285,6 +287,59 @@ namespace MediaPortal.Frontend.Api
     public IReadOnlyList<MediaGroup> Values
     {
       get { return Groups == null ? new List<MediaGroup>() : Groups.Where(group => !string.IsNullOrWhiteSpace(group.Value)).ToList(); }
+    }
+  }
+
+  /// <summary>
+  /// One person as <c>GET api/media/persons</c> answers them: a name, what they do, and the two dates the library
+  /// was told about them.
+  /// </summary>
+  /// <remarks>
+  /// No biography and no portrait travel on a row of the wall, which is the server's choice and a good one: a wall
+  /// is read by its thousandth row, and a life story of ten thousand characters per name is an answer nobody reads
+  /// and everybody waits for.  The screen that wants the life asks for that one person by id, and the portrait is
+  /// filed under the same id.
+  /// </remarks>
+  public record MediaPerson(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("name")] string? Name,
+      [property: JsonPropertyName("occupation")] string? Occupation,
+      [property: JsonPropertyName("bornDate")] DateTime? BornDate,
+      [property: JsonPropertyName("deathDate")] DateTime? DeathDate);
+
+  /// <summary>
+  /// The answer of <c>GET api/media/persons</c>: one page of the people a shelf was made by, plus what is left
+  /// behind the page.
+  /// </summary>
+  /// <remarks>
+  /// Only people standing in the shelf at least once are answered, because the server walks the relationships
+  /// rather than the person records - a name nobody ever cast is not a wall.  <paramref name="On"/> is the shelf's
+  /// own name echoed back, the way <see cref="MediaTitles.Aspect"/> is, so a screen can say whose people it shows.
+  /// </remarks>
+  public record MediaPeople(
+      [property: JsonPropertyName("on")] string? On,
+      [property: JsonPropertyName("onAspectId")] Guid? OnAspectId,
+      [property: JsonPropertyName("roles")] IReadOnlyList<string>? Roles,
+      [property: JsonPropertyName("letter")] string? Letter,
+      [property: JsonPropertyName("search")] string? Search,
+      [property: JsonPropertyName("sort")] string? Sort,
+      [property: JsonPropertyName("total")] int Total,
+      [property: JsonPropertyName("offset")] int Offset,
+      [property: JsonPropertyName("limit")] int Limit,
+      [property: JsonPropertyName("returned")] int Returned,
+      [property: JsonPropertyName("people")] IReadOnlyList<MediaPerson>? People,
+      [property: JsonPropertyName("error")] string? Error)
+  {
+    /// <summary>People the server has on this wall beyond the page that arrived.</summary>
+    public int Remaining
+    {
+      get { return Math.Max(Total - Offset - Returned, 0); }
+    }
+
+    /// <summary>The rows without the holes: a person needs a name to be a tile on a wall.</summary>
+    public IReadOnlyList<MediaPerson> Rows
+    {
+      get { return People == null ? new List<MediaPerson>() : People.Where(person => !string.IsNullOrWhiteSpace(person.Name)).ToList(); }
     }
   }
 

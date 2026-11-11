@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -2057,6 +2057,17 @@ namespace MediaPortal.Frontend.Views
           _workflow.Push(new WorkflowFrame("browse", "Browse " + shortcut.Label, browse));
           return;
         }
+      }
+
+      // The shortcuts that ask for people rather than for titles. Which wall they open depends on where the
+      // viewer was standing when they pressed: the skin carries one "Actor" tile, and the people who play in the
+      // films are not the people who play in the series.
+      if (PeopleViewModel.IsWallShortcut(shortcut.ScreenKey, _home.SelectedEntry?.Section, out PeopleShelf wall)
+          && _home.Client != null)
+      {
+        PeopleViewModel people = new PeopleViewModel(_home.Client, wall);
+        _workflow.Push(new WorkflowFrame("people", people.WallLabel, people));
+        return;
       }
 
       if (shortcut.ScreenKey != null && OPENABLE_SHORTCUT_SCREENS.Contains(shortcut.ScreenKey))

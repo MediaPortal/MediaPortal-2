@@ -355,10 +355,19 @@ namespace MediaPortal.Frontend.Api
     /// series to ask and whose <see cref="MediaTitle.Season"/> says which number to ask it with, and this is where
     /// the number goes. Null for every shelf that is not one season of a series.
     /// </param>
+    /// <param name="who">
+    /// The id of one person - an actor, an artist - to cut the shelf to their works, which is what pressing a tile
+    /// on a wall of people means. Null for the shelf whole. The server answers nothing rather than everything when
+    /// it cannot find the person, and says so in <see cref="MediaTitles.Error"/>.
+    /// </param>
+    /// <param name="roles">
+    /// The part <paramref name="who"/> played, in the server's words, for a library where one person is both an
+    /// artist of tracks and an album artist of records. Left out, the shelf answers its own usual part.
+    /// </param>
     public async Task<MediaTitles> GetTitlesAsync(string aspect, string? sort = null, bool descending = false,
         int limit = 0, int offset = 0, string? search = null, string? seen = null, Guid? inside = null,
-        string? by = null, string? value = null, int? season = null,
-        CancellationToken cancellation = default)
+        string? by = null, string? value = null, int? season = null, Guid? who = null,
+        IEnumerable<string>? roles = null, CancellationToken cancellation = default)
     {
       if (string.IsNullOrWhiteSpace(aspect))
         throw new ArgumentException("Titles of which aspect?", nameof(aspect));
@@ -400,6 +409,21 @@ namespace MediaPortal.Frontend.Api
       {
         url += "&season=" + season.Value.ToString(CultureInfo.InvariantCulture);
       }
+      if (who.HasValue && who.Value != Guid.Empty)
+      {
+        // Cut to one person: the films of one actor, the records of one artist.  Asked by id rather than by name,
+        // because a name is the thing two people share and an id is the thing the wall handed out.  The parts are
+        // optional - left out, the shelf answers its own usual part - and the server refuses parts without a
+        // person, so they only ever travel together with this one.
+        url += "&who=" + who.Value.ToString("D");
+        if (roles != null)
+        {
+          string asked = string.Join(",", roles.Where(word => !string.IsNullOrWhiteSpace(word))
+              .Select(word => Uri.EscapeDataString(word.Trim())));
+          if (asked.Length > 0)
+            url += "&roles=" + asked;
+        }
+      }
 
       return await GetJsonAsync<MediaTitles>(url, cancellation).ConfigureAwait(false);
     }
@@ -425,6 +449,60 @@ namespace MediaPortal.Frontend.Api
       string url = "api/media/groups?aspect=" + Uri.EscapeDataString(aspect.Trim())
           + "&by=" + Uri.EscapeDataString(by.Trim());
       return await GetJsonAsync<MediaGroups>(url, cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// <c>GET api/media/persons</c> - one page of the people a shelf was made by: the wall a viewer walks when
+    /// they want to know who played in the films they have.
+    /// </summary>
+    /// <param name="aspect">The shelf to ask, by its server name: <c>MovieItem</c>, <c>SeriesItem</c>, <c>AlbumItem</c>.</param>
+    /// <param name="roles">
+    /// The parts to look for, in the server's words (<c>actor</c>, <c>albumartist</c>, ...). Left out, the shelf
+    /// answers its own usual part - films their actors, records their album artists - which is what a wall wants
+    /// until a viewer asks for something narrower.
+    /// </param>
+    /// <param name="letter">
+    /// One letter to keep, for the alphabet a people screen walks. The server matches it against the name as the
+    /// name is stored, so a wall of 7543 names arrives as fourteen pages instead of one.
+    /// </param>
+    /// <param name="search">Words to look for in the names, or null when nobody is searching.</param>
+    /// <param name="sort">What to order the wall by: <c>name</c>, or <c>born</c> for the year a person was born.</param>
+    /// <param name="limit">How many rows to ask for, or 0 for the server's own page.</param>
+    /// <param name="offset">How many rows to leave out in front, which is how a wall is read on past its first page.</param>
+    /// <remarks>
+    /// The answer holds no biographies and no portraits on purpose (see <see cref="MediaPerson"/>), so the whole of
+    /// a big wall is affordable: measured on this household's films, its 7543 actors arrive in well under a second.
+    /// A person pressed for their works is asked for through <see cref="GetTitlesAsync"/>'s <c>who</c>, not here.
+    /// </remarks>
+    public async Task<MediaPeople> GetPeopleAsync(string aspect, IEnumerable<string>? roles = null,
+        string? letter = null, string? search = null, string? sort = null, bool descending = false, int limit = 0,
+        int offset = 0, CancellationToken cancellation = default)
+    {
+      if (string.IsNullOrWhiteSpace(aspect))
+        throw new ArgumentException("People of which shelf?", nameof(aspect));
+
+      string url = "api/media/persons?aspect=" + Uri.EscapeDataString(aspect.Trim());
+      if (roles != null)
+      {
+        string asked = string.Join(",", roles.Where(word => !string.IsNullOrWhiteSpace(word))
+            .Select(word => Uri.EscapeDataString(word.Trim())));
+        if (asked.Length > 0)
+          url += "&roles=" + asked;
+      }
+      if (!string.IsNullOrWhiteSpace(letter))
+        url += "&letter=" + Uri.EscapeDataString(letter.Trim());
+      if (!string.IsNullOrWhiteSpace(search))
+        url += "&search=" + Uri.EscapeDataString(search.Trim());
+      if (!string.IsNullOrWhiteSpace(sort))
+        url += "&sort=" + Uri.EscapeDataString(sort.Trim());
+      if (descending)
+        url += "&order=desc";
+      if (limit > 0)
+        url += "&limit=" + limit.ToString(CultureInfo.InvariantCulture);
+      if (offset > 0)
+        url += "&offset=" + offset.ToString(CultureInfo.InvariantCulture);
+
+      return await GetJsonAsync<MediaPeople>(url, cancellation).ConfigureAwait(false);
     }
 
     /// <summary>

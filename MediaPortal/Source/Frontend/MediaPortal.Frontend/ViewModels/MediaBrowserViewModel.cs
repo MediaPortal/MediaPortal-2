@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -1137,7 +1137,7 @@ namespace MediaPortal.Frontend.ViewModels
   /// a server that is really answering.
   /// </para>
   /// </remarks>
-  public partial class MediaBrowserViewModel : ObservableObject
+  public partial class MediaBrowserViewModel : ObservableObject, Views.IMenuRailOwner
   {
     /// <summary>
     /// Titles the opening question brings.
@@ -2980,6 +2980,33 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     private Artwork? _coverArtwork;
+
+    /// <summary>
+    /// Puts the shelf under one person: only the titles that person was in are read, and only the part they are
+    /// asked to have played counts.
+    /// </summary>
+    /// <remarks>
+    /// A wall of people answers a press with that one person's works, which is the same shelf cut to one value -
+    /// the question the API already answers with <c>who</c> and <c>roles</c> beside <c>by</c> and <c>value</c>.
+    /// It is said once, while the screen is being built, and never taken back: a shelf that forgot its person on
+    /// the second page would widen under the viewer's feet halfway through the walk and go on heading itself with
+    /// a name its rows no longer mention. The id is not nullable because "nobody" is not a question - the shelf
+    /// that shows every title is simply built without this word ever being said.
+    /// </remarks>
+    public void WearsPerson(Guid person, IEnumerable<string> roles)
+    {
+      _person = person;
+      // Copied rather than kept as handed over: the words are read on every page of a long walk, and a shelf that
+      // re-walked a caller's list between questions could change its own filter under the viewer's feet.
+      string[] words = roles as string[] ?? new List<string>(roles).ToArray();
+      _personRoles = words;
+    }
+
+    /// <summary>The person the titles are cut to, or nothing while the shelf is read whole.</summary>
+    private Guid? _person;
+
+    /// <summary>The part that person is asked to have played, in the server's words.</summary>
+    private string[]? _personRoles;
 
     /// <summary>
     /// The music shelves' pictures, made once on first asking and kept after that: the cover, asked of the
@@ -6450,7 +6477,7 @@ namespace MediaPortal.Frontend.ViewModels
             offset == 0 ? OPENING_PAGE : REST_IN_ONE_ASK, offset,
             string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
             string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside, GroupBy, GroupValue, SeasonFilter,
-            cancellation.Token);
+            who: _person, roles: _personRoles, cancellation: cancellation.Token);
 
         if (offset == 0 && answer.Total == 0 && string.IsNullOrEmpty(ActiveSearch)
             && string.IsNullOrEmpty(ActiveSeen) && DropRememberedCut())
@@ -6818,7 +6845,7 @@ namespace MediaPortal.Frontend.ViewModels
           limit, run.Offset,
           string.IsNullOrEmpty(ActiveSearch) ? null : ActiveSearch,
           string.IsNullOrEmpty(ActiveSeen) ? null : ActiveSeen, Inside,
-          Grouping, run.Value, SeasonFilter, cancellation);
+          Grouping, run.Value, SeasonFilter, who: _person, roles: _personRoles, cancellation: cancellation);
 
       int insert_at = run.RowsEnd;
       foreach (MediaTitle title in answer.Titles ?? Array.Empty<MediaTitle>())

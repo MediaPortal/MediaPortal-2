@@ -1,4 +1,4 @@
-/*
+﻿/*
     This file is part of MediaPortal 2
 
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -1661,6 +1661,16 @@ namespace MediaPortal.Frontend
             _nowPlaying == null ? null : new Func<Workflow.WorkflowFrame>(NowPlayingFrame), inside);
       }
 
+      if (state == "people")
+      {
+        PeopleViewModel wall = (PeopleViewModel)frame.ViewModel;
+
+        // Pressing a name opens that person's works, which is a shelf of the same kind the wall was read from -
+        // so it is built here, where the shelf is built for every other road and where the player's hand is.
+        return new PeopleView(wall, _workflow,
+            delegate (PersonTile person) { return PersonWorksAsync(wall, person); });
+      }
+
       // A frame naming a screen nobody builds is a mismatch between the workflow and this method, which is a bug
       // in the front end rather than something the viewer can do anything about.
       throw new InvalidOperationException(
@@ -1688,6 +1698,37 @@ namespace MediaPortal.Frontend
       browser.TrailerRequested += OnTrailerChosen;
       _lastBrowser = browser;
       return new Workflow.WorkflowFrame("titles", label, browser);
+    }
+
+    /// <summary>
+    /// The shelf of one person's works: the titles of the same kind the wall was read from, cut to the one person
+    /// the viewer pressed and to the part they are credited with there.
+    /// </summary>
+    /// <remarks>
+    /// A person's works are an ordinary shelf wearing a filter, which is why the frame it travels in is the same
+    /// <c>"titles"</c> frame every other shelf travels in: the viewer who walks back out of Robert De Niro's films
+    /// comes back to the wall they pressed him on, and the shelf they were on behaves like a shelf - it remembers
+    /// its view, it pages, it opens the title they press. The wall and the shelf differ in what they ask the server
+    /// for, not in what they are.
+    /// </remarks>
+    private Task<Workflow.WorkflowFrame?> PersonWorksAsync(PeopleViewModel wall, PersonTile person)
+    {
+      HomeSection? section = null;
+      foreach (HomeSection candidate in _home.Sections)
+      {
+        if (string.Equals(candidate.Aspect?.Name, wall.AspectName, StringComparison.OrdinalIgnoreCase))
+        {
+          section = candidate;
+          break;
+        }
+      }
+
+      if (section == null || _home.Client == null)
+        return Task.FromResult<Workflow.WorkflowFrame?>(null);
+
+      MediaBrowserViewModel works = new MediaBrowserViewModel(_home.Client, section, null, _home.Pictures);
+      works.WearsPerson(person.Id, wall.Roles);
+      return Task.FromResult<Workflow.WorkflowFrame?>(TitlesFrame(works, person.Name));
     }
 
     /// <summary>

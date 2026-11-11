@@ -31,6 +31,24 @@ using System.Linq;
 namespace MediaPortal.Frontend.Views
 {
   /// <summary>
+  /// What a screen has to answer for its menu rows to be runnable by a rail: whether its menu is up, which page
+  /// of the menu the rows are, and which plate of the rail the caret stands on.  Said as an interface rather than
+  /// as the shelf's own view model, because the shelf is not the only screen wearing a rail - a wall of people
+  /// wears the same one and answers the same three questions.
+  /// </summary>
+  internal interface IMenuRailOwner
+  {
+    /// <summary>Whether the screen is wearing its menu right now.</summary>
+    bool MediaMenuVisible { get; }
+
+    /// <summary>Which page of the menu the rows are: the commands, a page of layouts, a page of orders.</summary>
+    string MediaMenuHeading { get; }
+
+    /// <summary>Tells the screen's foot line what the stood row says and what it adds to that.</summary>
+    void MenuTileStood(string? label, string? detail);
+  }
+
+  /// <summary>
   /// What a rail asks of the screen it hangs in, and nothing else: whose menu it is, where the caret is
   /// asked for, how its ground nods at a wall, and which row of the commands the viewer climbed down from.
   /// A screen that answers those four questions owns a working menu rail, which is why the shelf and the
@@ -39,7 +57,7 @@ namespace MediaPortal.Frontend.Views
   internal interface IShelfRailHost
   {
     /// <summary>The screen whose menu the rows are, or nothing while the screen has no words to speak yet.</summary>
-    MediaBrowserViewModel? RailOwner { get; }
+    IMenuRailOwner? RailOwner { get; }
 
     /// <summary>Puts the caret on a control of the screen and keeps asking for it until it is there.</summary>
     void RailCaret(Control target, Action? whenStood);
@@ -222,7 +240,7 @@ namespace MediaPortal.Frontend.Views
       // Climbing down a page replaced every row the rail wore, caret included; by this moment the page stands
       // complete, so its first row is asked for at once.  A command that builds its page later - a filter still
       // counting its values - is answered by the heading handler instead, which wakes when the page really comes.
-      if (_host.RailOwner is MediaBrowserViewModel owner
+      if (_host.RailOwner is IMenuRailOwner owner
           && owner.MediaMenuVisible && owner.MediaMenuHeading != COMMANDS_HEADING)
         StandOnRow(0);
     }
@@ -236,7 +254,7 @@ namespace MediaPortal.Frontend.Views
     internal void TellFootLine()
     {
       ListBox list = _list;
-      if (_host.RailOwner is not MediaBrowserViewModel owner)
+      if (_host.RailOwner is not IMenuRailOwner owner)
         return;
 
       MediaBrowserMenuEntry? plate = StoodOnRow() as MediaBrowserMenuEntry;
