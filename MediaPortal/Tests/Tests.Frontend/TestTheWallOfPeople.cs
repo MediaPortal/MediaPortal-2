@@ -1105,6 +1105,136 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The wall and a shelf of titles divide ONE room by ONE measure: the same window hands both screens the same
+    /// number of points to the words at its right hand, and the wall of names begins where the shelf of titles
+    /// begins.  This is the plan's last open question about the grid ("Personen-Raster"), and it is asked of the two
+    /// screens standing side by side rather than of a number, because a number copied from one screen into a test
+    /// is exactly how two screens drift apart.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallAndAShelfDivideOneRoomByOneMeasure()
+    {
+      WallServer server = new WallServer(60);
+      Application? app = Application.Current;
+      Assert.That(app, Is.Not.Null, "a laid-out screen needs the application to know what skin it wears");
+      FrontendTheme.Apply(app!, FrontendTheme.DEFAULT_NAME, out _);
+
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      ShellWindow wall_window = new ShellWindow(new PeopleView(wall, null, null));
+      wall_window.Width = 1920;
+      wall_window.Height = 1080;
+      wall_window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+      ListBox names = wall_window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+
+      MediaBrowserViewModel shelf = new MediaBrowserViewModel(
+          new ServerApiClient(SERVER_URL, new HttpClient(server)),
+          new HomeSection("Movies", new AspectViewModel(new MediaAspect(Guid.Empty, "MovieItem", false, false,
+              null, Array.Empty<AspectAttribute>()))));
+      ShellWindow shelf_window = new ShellWindow(new MediaBrowserView(shelf));
+      shelf_window.Width = 1920;
+      shelf_window.Height = 1080;
+      shelf_window.Show();
+      WaitUntil("the shelf to fill", delegate { return shelf.Titles.Count == 2; });
+
+      Border wall_words = wall_window.GetVisualDescendants().OfType<Border>().First(b => b.Name == "detailsPanel");
+      Border shelf_words = shelf_window.GetVisualDescendants().OfType<Border>().First(b => b.Name == "detailsPanel");
+      ListBox titles = shelf_window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "titlesList");
+      WaitUntil("the words to stand up in both screens", delegate
+      {
+        return wall_words.IsEffectivelyVisible && shelf_words.IsEffectivelyVisible;
+      });
+      // Both screens slide their room into place as they open, so the numbers below are read once that slide is over
+      // rather than in its middle - the same reason the render probe puts the transitions away before a plate.
+      LetTheRoomComeToRest();
+      LetThePlateComeToRest(wall_words, shelf_words, names, titles);
+
+      Assert.That(wall_words.Bounds.Width, Is.EqualTo(shelf_words.Bounds.Width).Within(1.0),
+          "the column of words is the same breadth beside a wall of names as beside a wall of titles");
+      Assert.That(wall_words.Bounds.X, Is.EqualTo(shelf_words.Bounds.X).Within(1.0),
+          "and it stands at the same hand's breadth from the left edge in both screens");
+      Assert.That(names.Bounds.X, Is.EqualTo(titles.Bounds.X).Within(1.0),
+          "the wall begins where the shelf begins, so a walk from one screen to the other does not step sideways");
+      Assert.That(names.Bounds.Width, Is.EqualTo(titles.Bounds.Width).Within(1.0),
+          "and the wall has the same room to stand its names in as the shelf has for its covers");
+
+      // With the words turned away the room is the wall's alone - the shelf's own answer when a viewer switches its
+      // details off, and the reason the line at the foot takes over the telling then.
+      wall.ShowDetails = false;
+      shelf.ToggleDetails();
+      WaitUntil("both screens to put the words away", delegate
+      {
+        return !wall_words.IsEffectivelyVisible && !shelf_words.IsEffectivelyVisible;
+      });
+      LetTheRoomComeToRest();
+
+      Assert.That(wall_words.IsEffectivelyVisible, Is.False, "the wall's words went away with the switch");
+      Assert.That(shelf_words.IsEffectivelyVisible, Is.False, "and the shelf's with theirs");
+      Assert.That(names.Bounds.Width, Is.EqualTo(titles.Bounds.Width).Within(1.0),
+          "both screens then give the whole room to their wall, and give it the same way");
+
+      wall_window.Close();
+      shelf_window.Close();
+    }
+
+    /// <summary>
+    /// The column beside the wall for a person whose record holds no life: the name and the years the row already
+    /// carries stay, everything the library never told the screen goes away WHOLE, and no empty heading, no dash
+    /// and no word "null" is left standing in its place.  Measured against a server that answers the person's own
+    /// record (<c>api/media/persons/{id}</c>), because that is the record the column is made of - and it is the
+    /// ordinary case of this household, where the wall of 7543 film actors answers its first name with neither a
+    /// life nor a year.
+    /// </summary>
+    [AvaloniaTest]
+    public void AColumnBesideAPersonWithoutALifeSaysNameAndYearsAndNothingElse()
+    {
+      WallServer server = new WallServer(6);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      ShellWindow window = new ShellWindow(new PeopleView(wall, null, null));
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 3; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+      ScrollViewer life_field = window.GetVisualDescendants().OfType<ScrollViewer>()
+          .First(field => field.Name == "biographyScroller");
+
+      // The caret on the first name, which is where a wall that opens stands it by itself.
+      (names.ContainerFromIndex(0) as Control)?.Focus();
+      Pump();
+      PersonTile stood_on = wall.Rows.OfType<PersonTile>().First();
+      WaitUntil("the column to name the stood-on person", delegate { return wall.DetailsName == stood_on.Name; });
+
+      Assert.That(wall.DetailsYears, Does.Contain("1900"),
+          "the years the row carries are on the column too");
+      Assert.That(wall.DetailsBiography, Is.Empty, "a record with no biography leaves no words behind");
+      Assert.That(wall.ShowsBiography, Is.False, "and the column does not announce that it has nothing to say");
+      Assert.That(life_field.IsEffectivelyVisible, Is.False, "so the life's field is not on the screen at all");
+      Assert.That(wall.DetailsOrigin, Is.Empty, "a place the library never told is empty rather than guessed");
+      Assert.That(wall.ShowsOrigin, Is.False, "and its line is not standing there with nothing on it");
+
+      Border column = window.GetVisualDescendants().OfType<Border>().First(b => b.Name == "detailsPanel");
+      Assert.That(column.GetVisualDescendants().OfType<TextBlock>()
+              .Any(word => (word.Text ?? "").IndexOf("null", StringComparison.OrdinalIgnoreCase) >= 0),
+          Is.False, "and nowhere in the column did the word null reach the screen");
+
+      // And the same column beside a person whose record DOES hold a life: the field comes up, the life stands in
+      // it from its first word, and nothing else about the column changed.
+      server.LivesHeld = -1;
+      PersonTile second = wall.Rows.OfType<PersonTile>().Skip(1).First();
+      wall.Selected = second;
+      WaitUntil("the life to arrive", delegate { return wall.Selected == second && wall.ShowsBiography; });
+
+      Assert.That(life_field.IsEffectivelyVisible, Is.True, "a life that exists is shown");
+      Assert.That(window.GetVisualDescendants().OfType<TextBlock>()
+              .Any(word => (word.Text ?? "").Contains("Buenos Aires", StringComparison.Ordinal)),
+          Is.True, "and the place the record told is told on the column");
+
+      window.Close();
+    }
+
+    /// <summary>
     /// The length of a wall's travel belongs to the shape it wears, not to the moment its scroller was first laid:
     /// the reference glides a grid four hundred points and a list three hundred (<c>MediaStyles.xaml</c>), and the
     /// shelf writes its transition again on every layout change.  Worn once for the life of the scroller, the wall
@@ -1310,24 +1440,66 @@ namespace Tests.Frontend
     }
 
     /// <summary>
-    /// Pumps until the controls handed in stop changing size.  A plate that grows into the screen is a plate whose
-    /// bounds are a story rather than a fact for a few frames, and a case that asks it for its height in that window
-    /// measures the animation instead of the rule.
+    /// Pumps until the controls handed in stop changing - in size AND in ground.  A plate that grows into the screen
+    /// is a plate whose bounds are a story rather than a fact for a few frames, and its glass is being laid over that
+    /// same animation, so a case that asks either question in that window measures the animation instead of the rule:
+    /// one such case read #38 of white where the shelf wears #33.  Rest is held for three rounds of pumping, so a
+    /// value that only stands for one frame of a slide does not count as an answer.
     /// </summary>
     private static void LetThePlateComeToRest(params Control[] laid)
     {
       DateTimeOffset until = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(3);
-      Rect[] before = laid.Select(control => control.Bounds).ToArray();
+      (Rect Frame, Color Glass)[] before = WhereTheyStand(laid);
+      int steady = 0;
 
       while (DateTimeOffset.UtcNow < until)
       {
         Pump();
-        Rect[] now = laid.Select(control => control.Bounds).ToArray();
+        (Rect Frame, Color Glass)[] now = WhereTheyStand(laid);
         if (now.SequenceEqual(before))
-          return;
+        {
+          steady++;
+          if (steady >= 3)
+            return;
+        }
+        else
+        {
+          steady = 0;
+        }
 
         before = now;
       }
+    }
+
+    /// <summary>
+    /// Pumps a screen through one animation's length.  The chrome slides and grows on curves of roundly four hundred
+    /// milliseconds, so a case that reads numbers inside that time is reading the curve; this is the pause before the
+    /// reading, and <see cref="LetThePlateComeToRest"/> is the proof afterwards that nothing is still moving.
+    /// </summary>
+    private static void LetTheRoomComeToRest()
+    {
+      DateTimeOffset settle = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(900);
+      while (DateTimeOffset.UtcNow < settle)
+      {
+        Pump();
+      }
+    }
+
+    /// <summary>Where each control stands and what colour it is wearing at this moment.</summary>
+    private static (Rect Frame, Color Glass)[] WhereTheyStand(Control[] laid)
+    {
+      return laid.Select(control => (control.Bounds, TheGlass(control))).ToArray();
+    }
+
+    /// <summary>The ground a control lays under itself, or nothing where it lays none.</summary>
+    private static Color TheGlass(Control control)
+    {
+      return control switch
+      {
+        Border plate when plate.Background is ISolidColorBrush laid => laid.Color,
+        Button key when key.Background is ISolidColorBrush worn => worn.Color,
+        _ => Colors.Transparent
+      };
     }
 
     private static void Pump()
@@ -1403,6 +1575,14 @@ namespace Tests.Frontend
       /// </summary>
       internal int FacesHeld = -1;
 
+      /// <summary>
+      /// How many names this household was ever told a life for, or -1 for a library that answers every name.  Zero
+      /// is the ordinary state of this one's film actors, whose records hold neither a life nor, more often than
+      /// not, a year at all - so a column that cannot survive a name without a biography is broken on the very first
+      /// name a viewer stands on.
+      /// </summary>
+      internal int LivesHeld = 0;
+
       /// <summary>How often a face was asked for, which is what a wall must not spend on names out of sight.</summary>
       internal int PortraitAsks
       {
@@ -1436,6 +1616,45 @@ namespace Tests.Frontend
         string path = request.RequestUri!.AbsolutePath;
         string query = request.RequestUri.Query.TrimStart('?');
         Asked.Add(query);
+
+        if (path.Contains("/persons/", StringComparison.OrdinalIgnoreCase))
+        {
+          // GET api/media/persons/{id}: what the library knows about ONE name beyond its row.  How many names were
+          // ever told a life is the test's hand on this library's ordinary case - see LivesHeld.
+          string asked_id = path.Substring(path.LastIndexOf('/') + 1);
+          string? named = null;
+          foreach (string name in _names)
+          {
+            if (string.Equals(IdOf(name), asked_id, StringComparison.OrdinalIgnoreCase))
+            {
+              named = name;
+              break;
+            }
+          }
+
+          string record;
+          if (named == null)
+          {
+            record = "{\"id\":\"" + asked_id + "\",\"error\":\"no person by that id\"}";
+          }
+          else
+          {
+            bool told_a_life = LivesHeld < 0 || _names.Take(LivesHeld).Contains(named);
+            record = "{\"id\":\"" + asked_id + "\",\"person\":{\"id\":\"" + asked_id +
+                "\",\"name\":\"" + named + "\",\"occupation\":\"ACTOR\"" +
+                ",\"bornDate\":\"" + _born[named] + "-01-01T00:00:00\",\"deathDate\":null" +
+                ",\"origin\":" + (told_a_life ? "\"Buenos Aires\"" : "null") +
+                ",\"biography\":" + (told_a_life
+                    ? "\"She was discovered in a market in Buenos Aires and never left the stage.\""
+                    : "null") + "}}";
+          }
+
+          return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+          {
+            RequestMessage = request,
+            Content = new StringContent(record, Encoding.UTF8, "application/json")
+          });
+        }
 
         if (path.EndsWith("/fanart/FanArt", StringComparison.OrdinalIgnoreCase))
         {

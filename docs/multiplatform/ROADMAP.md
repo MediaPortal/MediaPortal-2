@@ -6419,3 +6419,79 @@ grouping gone stale dropped, and nonsense in the file ignored. **Nine tests gree
 tests stand as steady as they stood: the same rows that fail with this change written fail without it too, in the same
 numbers, which is the test that was run to find out.
 
+### dn. Three walls of people, wearing the shelf's chrome and the shelf's laws
+
+**"the actor medianwand at in the views nicht die gleichen bounce effekte wie die anderen mendien screens! Mache
+jetzt ein gap analyse über die unterschiede ... Meine Aufforderung war klar, halte dich an das Design und layout."**
+Three screens had been built - film actors, series actors, artists - and each one looked, to whoever walked it, like
+a screen that had been *inspired* by the shelf rather than built out of it. Asked for a gap analysis instead of
+another guess, the wall was laid against `MediaBrowserView` branch by branch. What came out was not a list of
+styling opinions but a list of laws the shelf lives by and the wall had never heard of: the nod a rail gives when it
+is reached, the one measure that divides a room into wall and column of words, the room's picture worn by the name
+the caret stands on, pictures arriving in the order the caret walks, a search field with its plate, and - the last
+one found, and the worst - the field's claim on the caret while a hand is typing in it.
+
+The walls themselves had been standing for a while, and honestly measured: one `PeopleViewModel` for three walls
+(`MovieItem`/`actor` - 7543 names on this household's films, `SeriesItem`/`actor` - 110, `AlbumItem`/`albumartist` -
+36, and album artists rather than the 376 song artists, because a wall of 376 names out of 36 records is not a wall),
+read through the server's own `GET api/media/persons`, paged, cut by letter and by word, grouped by initial letter,
+remembered per wall under the shelf's own keys (`MovieItem#actors`, `SeriesItem#actors`, `AlbumItem#artists`), and a
+pressed name opens a shelf of titles cut with `who`/`roles` - a person is not an open folder, it is a shelf cut to
+one person. What follows is what had to be ported so that a viewer cannot tell the two families apart.
+
+**The chrome was not styleable, it was private.** Tiles, plates, the `person-card` skin, the rail and the code-built
+group head all lived inside one view, which a second view cannot inherit; so the shelf's chrome moved out into
+`ShelfFrameTemplate.cs`, `ShelfChrome.axaml`, `ShelfChromeStyles.axaml`, `BandEndFade.cs` and `ShelfRail.cs`, and the
+shelf merely binds to them. That was checked the only way worth anything: the render probe run over the same library
+before and after, `menu`, `grid`, `details`, `menu --theme nereus`, `menu --theme wmc` - **byte-identical frames**,
+with the rail still reporting its slide on the wire.
+
+**The room is divided by one measure, not by two opinions.** `ShelfDetailsColumn.WidthFor(room, shown)` is the shelf's
+own division and now the wall's. Measured on two frames of the same 1920x1080 room: the shelf's `titlesList` stands at
+x 10 with 902 points to lay its covers in and its `detailsPanel` at x 957 with 963; the wall's `peopleList` stands at
+**x 10, w 902, h 960** and its `detailsPanel` at **x 957, w 963** - point for point, because both screens asked the
+same helper rather than being told a number. `Tests.Frontend/TestTheWallOfPeople.cs` lays both screens out at the same
+size and asserts their column and their wall agree, so a future change to one screen's division cannot quietly move
+the other.
+
+**A field that grows is one plate, not a plate per screen.** The search plate - ground `#4dffffff`, white border
+`3,3,3,3`, glow `0 0 22 4 #73ffffff`, padding `9,0,1,0`, **430x43** with a **58x43** keyboard key beside it - was
+found in the shelf's styles, was invisible to the wall because it was a style of a control the wall did not wear, and
+is now in `ShelfChromeStyles.axaml` where both read it. Measured off both rendered frames: same plate, same key, same
+spot in the head band.
+
+**The caret belongs to the hand that typed it.** The wall re-read itself under every letter, handed `Selected` back to
+the name the cut still held, and its `SelectionChanged` answered by standing the caret on a tile - so the first letter
+of "De Niro" threw the caret into the wall, exactly the bug the shelf had been cured of. The shelf's cure is a claim:
+`_caretBelongsToTheField`, raised when the field is asked for, released only when the viewer deliberately walks onto
+the shelf, and every asker of the caret passing `NeedsCaretOnTheShelf()`, which answers *no* while the claim holds. The
+wall wears the same law (`_caret_belongs_to_the_field`, `NeedsCaretOnTheWall()`, `TheKeysHoldTheCaret()`, the claim
+dropped by `PutTheCaretOnTheWall()` and by the rail), plus the three keys that were eating letters out of a name being
+spelled: `Details` (which is **D**) opening the column over the word "De", `Left` opening the rail in the middle of a
+word, and the wall's whole-view `ContextRequested` raising the rail over the field - all three now guarded by the
+field's focus, as the shelf guards them. The window's own focus net was bounded in the same pass: it only ever acts on
+a caret that has left the screen, and the wall answers it with `KeysStartAt()`, which names the field while the field
+owns the caret. Proven the way the shelf's own proof is made: with the fix stashed away, the wall's mirrored typing
+test fails on the very word "the wall answered the word without taking the caret out of the field".
+
+**Faces, fanart and the nod came over too.** The room's picture is handed to the shared `FanartBackdrop` as the name
+under the caret changes, faces are asked for through `Artwork` and arrive in the order the caret walks rather than
+popping in behind it, the rail nods with the shelf's single `ShelfNod` and cannot be closed by pressing further left
+inside it, and the wall's leading edge is the whole first column, as a shelf's is.
+
+What the walls show beside a name is the person's own record, `GET api/media/persons/{id}`: name, years, place, and a
+life when the library was ever told one - which for this household means **30 of 36 album artists** (the longest
+8635 characters, which is why the life stands in a field of its own that scrolls instead of a band that trims a life
+to its first words) and **2 of 7757 actor records**. So a column beside a person without a life is the ordinary case,
+not an edge case: the name and the years the row already carries stay, and everything the library never said goes away
+whole - no empty heading, no dash, no word `null` left on the screen. Measured on the artists wall against the living
+server: `"21 Savage" - 1992 - life 824 character(s) - face 12360 byte(s)`, and **35 faces standing on 36 names**.
+
+`Tests.Frontend/TestTheWallOfPeople.cs` asks all of it - the three walls and their aspects and roles, paging past the
+first 300, a letter asked of the server rather than cut out locally, the group plates, the wall's memory per wall, the
+shortcut's word, the works shelf cut to one person, the leading edge and its rail, faces arriving caret-first, the
+room wearing the stood name's picture, the plate and its key wearing the shelf's numbers, the room divided by one
+measure, a column without a life, and three cases mirrored word for word out of `TestMediaBrowser`'s own search tests
+so that a letter typed on the wall is answered under the same law as on the shelf. **27 tests green**, and one of them
+demonstrably fails with the caret law removed.
+
