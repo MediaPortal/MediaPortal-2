@@ -1290,8 +1290,8 @@ namespace Tests.Frontend
 
       ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
       WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
-      ScrollViewer life_field = window.GetVisualDescendants().OfType<ScrollViewer>()
-          .First(field => field.Name == "biographyScroller");
+      TextBlock life_field = window.GetVisualDescendants().OfType<TextBlock>()
+          .First(field => field.Name == "biographyWords");
 
       // The caret on the first name, which is where a wall that opens stands it by itself.
       (names.ContainerFromIndex(0) as Control)?.Focus();
@@ -1323,6 +1323,51 @@ namespace Tests.Frontend
       Assert.That(window.GetVisualDescendants().OfType<TextBlock>()
               .Any(word => (word.Text ?? "").Contains("Buenos Aires", StringComparison.Ordinal)),
           Is.True, "and the place the record told is told on the column");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// A life longer than the column is cut where a film's plot is cut, by the shelf's own numbers rather than by a
+    /// measure invented beside the wall: twenty-two points of lettering, thirty-one between the lines, eight lines,
+    /// turning at the column's breadth, and the ellipsis at the end of the eighth (<c>MediaBrowserView.axaml</c>, the
+    /// block that speaks <c>DetailsText</c>).  Asked against a life of nine thousand characters, because that is the
+    /// length a record of this library reaches: eight lines hold however long the life is, and the record behind the
+    /// screen keeps every character of it.
+    /// </summary>
+    [AvaloniaTest]
+    public void ALifeLongerThanTheColumnEndsWhereAFilmsPlotEnds()
+    {
+      WallServer server = new WallServer(6);
+      server.LivesHeld = -1;
+      server.LongLife = true;
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      ShellWindow window = new ShellWindow(new PeopleView(wall, null, null));
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 3; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+      (names.ContainerFromIndex(0) as Control)?.Focus();
+      PersonTile stood_on = wall.Rows.OfType<PersonTile>().First();
+      WaitUntil("the long life to arrive", delegate
+      {
+        return wall.DetailsName == stood_on.Name && wall.DetailsBiography.Length > 8000;
+      });
+
+      TextBlock life = window.GetVisualDescendants().OfType<TextBlock>().First(word => word.Name == "biographyWords");
+      LetTheRoomComeToRest();
+
+      Assert.That(life.FontSize, Is.EqualTo(22), "the life is lettered as a plot is lettered");
+      Assert.That(life.LineHeight, Is.EqualTo(31), "and its lines stand as far apart as a plot's stand");
+      Assert.That(life.MaxLines, Is.EqualTo(8), "eight lines, which is as much of a plot as a shelf shows");
+      Assert.That(life.TextWrapping, Is.EqualTo(TextWrapping.Wrap), "the words turn at the column's breadth");
+      Assert.That(life.TextTrimming, Is.EqualTo(TextTrimming.CharacterEllipsis),
+          "and what stands past the eighth line is said by three points rather than by a bar one has to work");
+      Assert.That(life.Bounds.Height, Is.LessThanOrEqualTo(8 * 31 + 1.0),
+          "so a nine thousand character life still covers eight lines on the screen and no more");
+      Assert.That(wall.DetailsBiography.Length, Is.GreaterThan(8000),
+          "while the record behind the screen keeps the life whole, the cut being a matter of the screen");
 
       window.Close();
     }
@@ -1677,6 +1722,21 @@ namespace Tests.Frontend
       internal int LivesHeld = 0;
 
       /// <summary>
+      /// A library that tells more of a life than a column can show.  The longest biography this household holds runs
+      /// eight thousand six hundred and thirty five characters, so a cut that is meant to be real has to be asked
+      /// against a life of that size rather than against a sentence.
+      /// </summary>
+      internal bool LongLife;
+
+      /// <summary>A sentence, and a life made of a hundred and thirty of them - longer than the longest biography
+      /// this household's records hold (eight thousand six hundred and thirty five characters), which is the length a
+      /// cut has to survive.</summary>
+      private const string ONE_SENTENCE =
+          "She was discovered in a market in Buenos Aires and never left the stage.";
+
+      private static readonly string LONG_LIFE = string.Concat(Enumerable.Repeat(ONE_SENTENCE, 130));
+
+      /// <summary>
       /// How many names this household was ever told a birth year for, or -1 for a library that answers every name.
       /// The films are the other case - two years in 7543 names - and that is the wall a grouping by decade has to
       /// survive, so the tests ask this fake to be as sparse as the library is.
@@ -1760,9 +1820,9 @@ namespace Tests.Frontend
                 ",\"bornDate\":" + (HoldsYear(named) ? "\"" + _born[named] + "-01-01T00:00:00\"" : "null") +
                 ",\"deathDate\":null" +
                 ",\"origin\":" + (told_a_life ? "\"Buenos Aires\"" : "null") +
-                ",\"biography\":" + (told_a_life
-                    ? "\"She was discovered in a market in Buenos Aires and never left the stage.\""
-                    : "null") + "}}";
+                ",\"biography\":" + (!told_a_life
+                    ? "null"
+                    : LongLife ? "\"" + LONG_LIFE + "\"" : "\"" + ONE_SENTENCE + "\"") + "}}";
           }
 
           return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)

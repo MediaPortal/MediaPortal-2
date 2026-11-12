@@ -378,25 +378,27 @@
               </StackPanel>
 
               <!--
-                The life, in the row that is given everything the head leaves.  It is read rather than cut, because
-                the longest biography this household holds runs eight thousand six hundred and thirty five
-                characters and a band that trimmed that to two lines would be showing the first words of a life and
-                calling it the life.  The keys stay with the wall, which is walked a name at a time, so this field
-                is moved by the wheel and by its own slider.
+                The life, cut the way a film's plot is cut.  The shelf says a title's body in its own measure -
+                twenty-two points, thirty-one between the lines, eight lines, wrapping, and the ellipsis at the end
+                of the eighth (MediaBrowserView.axaml, DetailsText) - and this column is the shelf's column with a
+                person's words in it, so it wears the same measure and the same ending.  Nothing of the wall's own
+                was invented for the longest life this household holds (eight thousand six hundred and thirty five
+                characters): the field is as high as eight lines, the words below the cut stay in the record, and
+                the three points say that a life continues past what the column shows.
               -->
-              <ScrollViewer Name="biographyScroller"
-                            Grid.Row="1"
-                            Margin="0,26,0,0"
-                            IsVisible="{Binding ShowsBiography}"
-                            VerticalScrollBarVisibility="Hidden"
-                            HorizontalScrollBarVisibility="Disabled">
-                <TextBlock Text="{Binding DetailsBiography}"
-                           FontSize="19"
-                           LineHeight="27"
-                           TextWrapping="Wrap"
-                           Opacity="0.85"
-                           Foreground="{DynamicResource TextBrush}"/>
-              </ScrollViewer>
+              <TextBlock Grid.Row="1"
+                         Name="biographyWords"
+                         Text="{Binding DetailsBiography}"
+                         Margin="0,26,0,0"
+                         FontSize="22"
+                         LineHeight="31"
+                         MaxLines="8"
+                         TextWrapping="Wrap"
+                         TextTrimming="CharacterEllipsis"
+                         VerticalAlignment="Top"
+                         Opacity="0.9"
+                         IsVisible="{Binding ShowsBiography}"
+                         Foreground="{DynamicResource TextBrush}"/>
             </Grid>
           </Border>
         </Grid>

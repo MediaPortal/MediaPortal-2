@@ -6481,8 +6481,8 @@ inside it, and the wall's leading edge is the whole first column, as a shelf's i
 
 What the walls show beside a name is the person's own record, `GET api/media/persons/{id}`: name, years, place, and a
 life when the library was ever told one - which for this household means **30 of 36 album artists** (the longest
-8635 characters, which is why the life stands in a field of its own that scrolls instead of a band that trims a life
-to its first words) and **2 of 7757 actor records**. So a column beside a person without a life is the ordinary case,
+8635 characters, which is why the life is ended where a film's plot is ended, see below) and **2 of 7757 actor
+records**. So a column beside a person without a life is the ordinary case,
 not an edge case: the name and the years the row already carries stay, and everything the library never said goes away
 whole - no empty heading, no dash, no word `null` left on the screen. Measured on the artists wall against the living
 server: `"21 Savage" - 1992 - life 824 character(s) - face 12360 byte(s)`, and **35 faces standing on 36 names**.
@@ -6492,8 +6492,8 @@ first 300, a letter asked of the server rather than cut out locally, the group p
 shortcut's word, the works shelf cut to one person, the leading edge and its rail, faces arriving caret-first, the
 room wearing the stood name's picture, the plate and its key wearing the shelf's numbers, the room divided by one
 measure, a column without a life, and three cases mirrored word for word out of `TestMediaBrowser`'s own search tests
-so that a letter typed on the wall is answered under the same law as on the shelf. **29 tests green**, and one of them
-demonstrably fails with the caret law removed.
+so that a letter typed on the wall is answered under the same law as on the shelf, and one of them demonstrably fails
+with the caret law removed.
 
 **The plates may also be decades.** The one product question the walls left open was whether a person screen groups by
 birth year, and it was measured before it was answered: the artists wall holds 36 names, 27 of them a birth year spread
@@ -6511,4 +6511,17 @@ given" plus the nine decades those 27 years fall in - and the film actors wall u
 can hold. A test holds the arithmetic: sixty names, a quarter of them carrying years 1900 to 1933, stand under five
 plates (48 + 4 + 3 + 3 + 2), and read from the other end the decade comes first with the yearless plate bringing up the
 rear.
+
+**Und das Leben wird abgeschnitten, wo ein Filmhandlung abgeschnitten wird.** The column first gave the life a scroller of
+its own, which was a thing invented beside the wall rather than taken from the shelf - the user's answer, when asked how a
+life of eight thousand characters should be presented, was „wie bei movies, unten mit definiertem gap abschneiden mit
+'...'. Nichts neu erfinden, halten an das was wir haben". The shelf says a title's body in one measure
+(`MediaBrowserView.axaml`, the block that speaks `DetailsText`): twenty-two points, thirty-one between the lines,
+eight lines, wrapping, `TextTrimming="CharacterEllipsis"`. The life now wears exactly that, and the scroller is gone.
+Measured against the living server with the longest life the wall reaches that a keyboard can type - „Joe Jackson", 5670
+characters - the block stands `913x248`, which is eight lines of thirty-one and no more, while the record behind the
+screen still holds all 5670 characters. A test holds the measure and the height, asked against a life of nine thousand
+characters rather than a sentence.
+
+`Tests.Frontend/TestTheWallOfPeople.cs` **30 tests green**.
 

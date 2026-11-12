@@ -725,11 +725,6 @@ namespace MediaPortal.Frontend.Views
             PutTheCaretOnTheWall();
           }
           break;
-        case nameof(PeopleViewModel.DetailsBiography):
-          // A life begins at its first word, so a new name is read from its beginning rather than from the line the
-          // previous name's life happened to be scrolled to.
-          biographyScroller.ScrollToHome();
-          break;
       }
     }
     /// <summary>
