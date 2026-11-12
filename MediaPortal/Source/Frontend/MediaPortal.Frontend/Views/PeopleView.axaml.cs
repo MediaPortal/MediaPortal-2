@@ -85,6 +85,10 @@ namespace MediaPortal.Frontend.Views
     private ScrollViewer? _wallScroller;
     private BandEndFade? _wallFade;
 
+    /// <summary>The length of travel the scroller's transition is currently worn with, so that a shape change can
+    /// be noticed and the other length written in its place.</summary>
+    private TimeSpan? _wornGlide;
+
     /// <summary>For the XAML loader: the wall a front end with nothing to read shows.</summary>
     public PeopleView()
         : this(new PeopleViewModel(null, PeopleShelf.FilmActors), null, null)
@@ -127,11 +131,30 @@ namespace MediaPortal.Frontend.Views
         _chromeShell?.SetChromeHeaderOverlay(true);
         _chromeShell?.SetChromeHeaderStowed(true);
         ApplyColumns();
+
+        if (_chromeShell != null)
+        {
+          // The search row stands in the band the head line would have taken, and the pointer's own marks at the
+          // window's corner - the way back, the way home, the menu's handle - are the window's furniture, laid
+          // before this screen's and unable to give way.  So the row is seated clear of them and seated again
+          // whenever they come up or go away, which is the measure the shelf reads too (SeatSearchStrip).
+          _chromeShell.CornerNavRightEdgeChanged -= OnCornerNavEdgeChanged;
+          _chromeShell.CornerNavRightEdgeChanged += OnCornerNavEdgeChanged;
+          SeatSearchStrip(_chromeShell.CornerNavRightEdge);
+
+          // And the mark beside the field wears which picture it wears from the window, because the keys it opens
+          // can be taken away from anywhere - by their own Done mark, by back, by walking on.
+          _chromeShell.KeyboardStateChanged -= OnKeyboardStateChanged;
+          _chromeShell.KeyboardStateChanged += OnKeyboardStateChanged;
+          UpdateKeyboardMark();
+        }
       };
       DetachedFromVisualTree += delegate
       {
         _chromeShell?.SetChromeHeaderOverlay(false);
         _chromeShell?.SetChromeHeaderStowed(false);
+        _chromeShell?.CornerNavRightEdgeChanged -= OnCornerNavEdgeChanged;
+        _chromeShell?.KeyboardStateChanged -= OnKeyboardStateChanged;
         _chromeShell = null;
       };
 
@@ -165,10 +188,131 @@ namespace MediaPortal.Frontend.Views
       peopleList.AddHandler(ScrollViewer.ScrollChangedEvent, delegate { ScheduleFacePainting(); });
 
       if (_wall != null)
+      {
         _wall.PropertyChanged += OnWallChanged;
+
+        // The field is this screen's control and three doors open it - the rail's "Search" row, the Find key and
+        // the arrow lifted off the head of the wall - so the asking for its caret is an appointment kept here
+        // rather than a caret the model reaches for itself.
+        _wall.SearchFocusRequested += RevealSearch;
+      }
 
       AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
       {
+        // THE FIELD, which is the newest thing on this screen while it stands and therefore answers its own keys.
+        // Its edges are nodding edges - the same plate law the shelf gives its own search row and the wall gives
+        // its tiles - its Down is the arrow back onto the wall, its Enter asks the wall for the words, and the mark
+        // beside it is a place the caret can stand on.  Everything here is answered before the keys below, because
+        // a letter the viewer is spelling must never reach "open this person's works".
+        if (searchBox.IsFocused && (args.Key == Key.Up
+                || args.Key == Key.Right && searchBox.CaretIndex >= (searchBox.Text?.Length ?? 0)))
+        {
+          // Off the end of the words the caret first steps onto the keyboard button, when one stands on the screen:
+          // it is the only keyboard button to the keys on the screen, and a button the caret cannot reach is no
+          // button at all for a remote.  Where it does not stand - and for Up always - the plate leans the way the
+          // wall leans at its own edges, and no word is lost by it.  A caret in the middle of a word is still
+          // editing that word, so Right keeps its ordinary job there.
+          if (args.Key == Key.Right && StepsToTheKeyboardButton())
+          {
+            args.Handled = true;
+            return;
+          }
+
+          _nods.Nod(searchField, args.Key == Key.Right ? ShelfRail.RAIL_BOUNCE_DIVE : 0,
+              args.Key == Key.Up ? -ShelfRail.RAIL_BOUNCE_DIVE : 0);
+          args.Handled = true;
+          return;
+        }
+
+        if (searchBox.IsFocused && args.Key == Key.Left && searchBox.CaretIndex <= 0
+            && searchBox.SelectionStart == searchBox.SelectionEnd)
+        {
+          // The other edge of the same plate: with the caret before the first letter there is nothing left to step
+          // to.  A selection is not an edge, so Left keeps its job of collapsing one.
+          _nods.Nod(searchField, -ShelfRail.RAIL_BOUNCE_DIVE, 0);
+          args.Handled = true;
+          return;
+        }
+
+        if (searchBox.IsFocused && args.Key == Key.Down)
+        {
+          // Down out of the field is down onto the wall, and it leaves whatever was searched for standing: a viewer
+          // who points down to look at the matches is not asking for them to be taken away.
+          args.Handled = true;
+          PutTheCaretOnTheWall();
+          return;
+        }
+
+        if (searchBox.IsFocused && (args.Key == Key.Enter || args.Key == Key.Return))
+        {
+          // Enter on the field asks a question, Enter on a tile opens a person; the field is asked first or typing
+          // a name would open somebody's works.  Asked alone, never as the OK action, because the space bar is a
+          // letter the viewer is still spelling with.
+          args.Handled = true;
+          _ = FindAndStandOnWallAsync();
+          return;
+        }
+
+        if (keyboardToggle.IsFocused)
+        {
+          if (args.Key == Key.Left || args.Key == Key.Down)
+          {
+            // Back the same way the caret came: the arrow that walked onto the mark takes it into the field the
+            // mark belongs to rather than leaving the screen behind.
+            searchBox.Focus();
+            args.Handled = true;
+            return;
+          }
+
+          if (args.Key == Key.Up || args.Key == Key.Right)
+          {
+            // The mark is the right end of this bench, so it nods the way the plate nods at its own edges.
+            _nods.Nod(keyboardToggle, args.Key == Key.Right ? ShelfRail.RAIL_BOUNCE_DIVE : 0,
+                args.Key == Key.Up ? -ShelfRail.RAIL_BOUNCE_DIVE : 0);
+            args.Handled = true;
+            return;
+          }
+
+          if (MediaPortal.Frontend.Settings.KeyBindings.Current.Is(
+                  MediaPortal.Frontend.Settings.KeyAction.Select, args)
+              || MediaPortal.Frontend.Settings.KeyBindings.Current.Is(
+                  MediaPortal.Frontend.Settings.KeyAction.PlayPause, args)
+              || args.Key == Key.Enter || args.Key == Key.Return || args.Key == Key.Space)
+          {
+            // OK on the mark belongs to the mark.  Answered in the tunnel so that one press is one toggle: the key
+            // never reaches the button's own handler on top of this one.
+            OnKeyboardToggleClicked(keyboardToggle, args);
+            args.Handled = true;
+            return;
+          }
+        }
+
+        if (MediaPortal.Frontend.Settings.KeyBindings.Current.Is(
+                MediaPortal.Frontend.Settings.KeyAction.Find, args)
+            && !searchBox.IsFocused)
+        {
+          // Finding is the one thing on this screen that needs the keyboard, so it is the one key that moves the
+          // caret out of the wall - and Down or back brings it straight back.  The field is only on the screen while
+          // somebody is searching, so this key both puts it there and hands it the caret.
+          args.Handled = true;
+          _wall?.OpenSearch();
+          return;
+        }
+
+        if (!_menuUp && (args.Key == Key.Escape
+                || MediaPortal.Frontend.Settings.KeyBindings.Current.Is(
+                    MediaPortal.Frontend.Settings.KeyAction.Back, args))
+            && _wall?.ShowsSearch == true)
+        {
+          // One press is the whole of the way out, wherever the caret happens to stand: away with the field, its
+          // words and the question they made.  It used to ask the field for the caret first, which made a viewer
+          // press the key twice without being able to tell which press the screen had answered (viewer note
+          // 2026-11-10, quoted by the shelf).  With the rail open the rail goes first, as it does on the shelf.
+          args.Handled = true;
+          _ = CloseSearchAndStandOnWallAsync();
+          return;
+        }
+
         if (args.Key == Key.Enter || args.Key == Key.Return)
         {
           if (peopleList.IsKeyboardFocusWithin && peopleList.SelectedItem is PersonTile person)
@@ -219,6 +363,79 @@ namespace MediaPortal.Frontend.Views
           args.Handled = true;
           ShowRail(false);
         }
+      }, RoutingStrategies.Tunnel);
+
+      // THE WALL NODS AT ITS OWN EDGES.  A shelf of titles has always answered an arrow that points past one of
+      // its walls by leaning the wall that way twenty-two points and springing it back (MediaBrowserView's tunnel
+      // handler on the wall's ground), and a wall of names that only nods its rail is a wall where the viewer
+      // cannot tell an edge from a broken key.  A wrap of squares is a wall in two dimensions: the right hand wall
+      // is its last column, its head is the first row and its floor the last one.  A wall laid as rows is one
+      // name wide, so there the right hand is a wall from every row and the head and the floor are the first and
+      // the last name - which is exactly how the shelf reads its list.
+      //
+      // Left is not one of these edges: at the leading edge it opens the rail (the handler above, which is heard
+      // first because it stands higher on the route the key travels), and anywhere else it means the tile beside
+      // the caret.  While the rail stands open the wall says nothing at all, because the caret is two hundred
+      // points away to the left and the rail answers its own edges.
+      //
+      // Heard on the wall's ground for the shelf's own reason: a tunnel handler put on the control a key arrives
+      // at is never heard there, and the ground lies between the room and every tile that wears the caret.
+      Control wall_ground = (Control?)peopleList.Parent ?? peopleList;
+      wall_ground.AddHandler(KeyDownEvent, delegate (object? sender, KeyEventArgs args)
+      {
+        if (args.Handled || _menuUp || _wall == null || peopleList.Items.Count == 0)
+          return;
+
+        if (!peopleList.IsKeyboardFocusWithin)
+          return;
+
+        int stood = peopleList.SelectedIndex;
+        if (stood < 0)
+          return;
+
+        int columns = Math.Max(1, StandsAsRows() ? 1 : WallColumns());
+        int names = peopleList.Items.Count;
+
+        double diveX = 0;
+        double diveY = 0;
+        bool at_a_wall;
+
+        switch (args.Key)
+        {
+          case Key.Right:
+            at_a_wall = columns == 1 || stood % columns == columns - 1 || stood == names - 1;
+            diveX = ShelfRail.RAIL_BOUNCE_DIVE;
+            break;
+          case Key.Up:
+            at_a_wall = stood < columns;
+            diveY = -ShelfRail.RAIL_BOUNCE_DIVE;
+            break;
+          case Key.Down:
+            at_a_wall = stood + columns >= names;
+            diveY = ShelfRail.RAIL_BOUNCE_DIVE;
+            break;
+          default:
+            return;
+        }
+
+        if (!at_a_wall)
+          return;
+
+        // At the HEAD of the wall, up is a way OUT while the field stands above the wall: the arrow steps into it
+        // instead of nodding.  While nobody has asked for the field the head keeps its nod - the viewer has nothing
+        // above the wall to reach for, and an arrow that quietly opened a search where the wall means "no further"
+        // is a surprise rather than a way in (the shelf's law and its viewer note 2026-11-10).
+        if (args.Key == Key.Up && _wall.ShowsSearch)
+        {
+          _wall.OpenSearch();
+          args.Handled = true;
+          return;
+        }
+
+        // The face the viewer sees is the wall itself: a shelf under the carousel shapes nods a row it paints
+        // itself, but a wall of names wears nothing beside its tiles.
+        _nods.Nod(peopleList, diveX, diveY);
+        args.Handled = true;
       }, RoutingStrategies.Tunnel);
 
       // The Menu key and a right press are the two roads to a screen's own menu on every screen of this front end.
@@ -389,6 +606,11 @@ namespace MediaPortal.Frontend.Views
             StandTheCaret();
           }
           break;
+        case nameof(PeopleViewModel.ShowsSearch):
+          // The field arrives through three doors, so the mark beside it is dressed again whenever the field comes
+          // up rather than once when the screen was built.
+          UpdateKeyboardMark();
+          break;
         case nameof(PeopleViewModel.DetailsBiography):
           // A life begins at its first word, so a new name is read from its beginning rather than from the line the
           // previous name's life happened to be scrolled to.
@@ -422,12 +644,24 @@ namespace MediaPortal.Frontend.Views
         {
           _wallScroller = scroller;
           _wallFade = new BandEndFade(scroller, false);
+        }
+
+        // The length of a travel belongs to the SHAPE and not to the scroller: rows are carried three hundred
+        // points of the reference's list and squares four hundred of its grid, so a wall that was laid as rows and
+        // is stood as squares has to be asked for the other glide again.  Worn once for the life of the scroller,
+        // the glide kept the length the wall happened to be born with after a walk from one shape into the other -
+        // which is why the shelf re-fits its transition on every layout change (FitShelfGlide) instead of trusting
+        // the first one it wrote.
+        TimeSpan worn = StandsAsRows() ? ROW_GLIDE : TILE_GLIDE;
+        if (_wornGlide != worn)
+        {
+          _wornGlide = worn;
           scroller.Transitions = new Transitions
           {
             new VectorTransition
             {
               Property = ScrollViewer.OffsetProperty,
-              Duration = StandsAsRows() ? ROW_GLIDE : TILE_GLIDE
+              Duration = worn
             }
           };
         }
@@ -786,6 +1020,120 @@ namespace MediaPortal.Frontend.Views
       PutTheCaretOnTheWall();
     }
 
+    /// <summary>
+    /// Puts the caret into the field once it is on the screen.  The field arrives through three doors and the model
+    /// only knows that it was asked for, so the caret is asked for after the layout has been told that the field
+    /// stands there - asked at once it goes to a control that is not visible yet, which answers with a failure and
+    /// nothing else.
+    /// </summary>
+    private void RevealSearch()
+    {
+      Dispatcher.UIThread.Post(delegate { searchBox.Focus(); }, DispatcherPriority.Loaded);
+    }
+
+    /// <summary>
+    /// Asks the wall for the words standing in the field and gives the caret to the first of its answers, because a
+    /// caret that gets no further than the list wears no frame and the viewer who just spelled a name wants to stand
+    /// on one.
+    /// </summary>
+    private async Task FindAndStandOnWallAsync()
+    {
+      PeopleViewModel? wall = _wall;
+      if (wall == null)
+        return;
+
+      await wall.FindTypedAsync();
+      PutTheCaretOnTheWall();
+    }
+
+    /// <summary>Takes the search away whole and gives the wall its caret back with it.</summary>
+    private async Task CloseSearchAndStandOnWallAsync()
+    {
+      PeopleViewModel? wall = _wall;
+      if (wall == null)
+        return;
+
+      await wall.CloseSearchAsync();
+      PutTheCaretOnTheWall();
+    }
+
+    /// <summary>The breath the search row keeps between itself and the pointer's marks at the window's corner.</summary>
+    private const double SEARCH_STRIP_BREATH = 14;
+
+    /// <summary>Where the search row stands while the pointer is put away and its marks with it.</summary>
+    private const double SEARCH_STRIP_REST = 10;
+
+    /// <summary>How far the search row hangs from the head of the screen and from its right edge.</summary>
+    private const double SEARCH_STRIP_TOP = 9, SEARCH_STRIP_RIGHT = 18;
+
+    private void OnCornerNavEdgeChanged(object? sender, EventArgs args)
+    {
+      SeatSearchStrip(_chromeShell?.CornerNavRightEdge ?? 0);
+    }
+
+    /// <summary>
+    /// Stands the search row clear of the pointer's marks: at the corner's own rest while the pointer is put away,
+    /// and immediately to the right of the marks while they are up.
+    /// </summary>
+    /// <param name="marks_right">
+    /// The line the marks end against, as the window measures it, or zero while they are not on the screen.
+    /// </param>
+    private void SeatSearchStrip(double marks_right)
+    {
+      searchStrip.Margin = new Thickness(marks_right > 0 ? marks_right + SEARCH_STRIP_BREATH : SEARCH_STRIP_REST,
+          SEARCH_STRIP_TOP, SEARCH_STRIP_RIGHT, 0);
+    }
+
+    /// <summary>
+    /// Steps the caret from the end of the field's words onto the keyboard button of the on-screen keys, and answers
+    /// whether it did.  It does not when no keyboard button stands on the screen - a window without a shell has
+    /// nowhere to hang the keys - and the field then keeps the nod its own edge always had.
+    /// </summary>
+    private bool StepsToTheKeyboardButton()
+    {
+      return keyboardToggle.IsEffectivelyVisible && _chromeShell != null && keyboardToggle.Focus();
+    }
+
+    /// <summary>
+    /// The mark beside the field that opens the keys on the screen, and closes them again.  Asked of the window,
+    /// because the window is what hosts them; the field is named here because the keys have to type into it.
+    /// </summary>
+    private void OnKeyboardToggleClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs args)
+    {
+      ShellWindow? shell = _chromeShell ?? this.GetVisualAncestors().OfType<ShellWindow>().FirstOrDefault();
+      if (shell == null)
+        return; // nowhere to hang the keys; the mark is not on the screen either, since no chrome means no shell
+
+      if (shell.KeyboardOpen)
+      {
+        shell.CloseVirtualKeyboard();
+        searchBox.Focus(); // the hand that put the keys away is still holding the field
+      }
+      else
+      {
+        shell.ShowVirtualKeyboard(searchBox);
+      }
+
+      UpdateKeyboardMark();
+      args.Handled = true;
+    }
+
+    private void OnKeyboardStateChanged(object? sender, EventArgs args)
+    {
+      UpdateKeyboardMark();
+    }
+
+    /// <summary>
+    /// One picture of a keyboard while the keys are away, and the picture of a keyboard with a bar through it while
+    /// they stand: the mark always shows what a press of it will do.
+    /// </summary>
+    private void UpdateKeyboardMark()
+    {
+      bool standing = _chromeShell?.KeyboardOpen == true;
+      keyboardMark.IsVisible = !standing;
+      keyboardOffMark.IsVisible = standing;
+    }
+
     /// <summary>Asks the application for one person's works and pushes the shelf it answers with.</summary>
     private async Task OpenWorksAsync(PersonTile person)
     {
@@ -805,19 +1153,29 @@ namespace MediaPortal.Frontend.Views
     /// <inheritdoc />
     void IShelfRailHost.RailCaret(Control target, Action? whenStood)
     {
-      // A row of the rail that was replaced a moment ago is not realised yet, so the caret is asked for again
-      // until the row is there - the same patience the shelf's own caret uses, for the same reason.
+      AskForTheCaretOn(target, whenStood, CARET_TRIES);
+    }
+
+    /// <summary>
+    /// Asks a control for the caret and keeps asking for it until it holds one, which is what the interface asks
+    /// of a screen and what the shelf's own caret does (<c>MediaBrowserView.StandCaret</c>, twelve frames of
+    /// patience for the same reason): a rail whose rows were replaced a moment ago has not built the row the caret
+    /// is wanted on yet, and a caret asked once of a control that is not ready simply is not there - which reads
+    /// to the viewer as a rail with no stood row at all.
+    /// </summary>
+    private void AskForTheCaretOn(Control target, Action? whenStood, int tries)
+    {
       if (target.IsFocused || target.Focus())
       {
         whenStood?.Invoke();
         return;
       }
 
-      Dispatcher.UIThread.Post(delegate
-      {
-        if (target.Focus())
-          whenStood?.Invoke();
-      }, DispatcherPriority.Loaded);
+      if (tries <= 0)
+        return;
+
+      Dispatcher.UIThread.Post(delegate { AskForTheCaretOn(target, whenStood, tries - 1); },
+          DispatcherPriority.Loaded);
     }
 
     /// <inheritdoc />

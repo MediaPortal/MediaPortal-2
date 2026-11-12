@@ -15,6 +15,7 @@
     along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 */
 
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
@@ -408,6 +409,25 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>The words a viewer typed to look for a name.</summary>
     [ObservableProperty]
     private string _search = "";
+
+    /// <summary>
+    /// The words standing in the field on the screen, which is not the same thing as <see cref="Search"/>: the field
+    /// holds whatever a hand has typed so far, while <c>Search</c> names the question the wall on screen was really
+    /// read with.  A wall that asked the server again with every letter would ask seven questions for a
+    /// seven-letter name and jump under the viewer's hand, so the asking waits for the pause at the end of typing.
+    /// </summary>
+    [ObservableProperty]
+    private string _searchText = "";
+
+    /// <summary>
+    /// Whether the viewer asked to type.  The field stands while this holds or while a search stands on the wall -
+    /// the shelf's law (MediaBrowserViewModel.ShowsSearch), and the reason the rail's "Search" row, the Find key and
+    /// the arrow off the head of the wall all reach for <see cref="OpenSearch"/> rather than for a caret: putting
+    /// the field on the screen and asking for its caret are one wish, and either half alone is the nothing-that-
+    /// happens a dead button says.
+    /// </summary>
+    [ObservableProperty]
+    private bool _searchOpen;
 
     /// <summary>The person the caret stands on, for the details area to speak of.</summary>
     [ObservableProperty]
@@ -816,11 +836,51 @@ namespace MediaPortal.Frontend.ViewModels
       get { return !string.IsNullOrEmpty(Letter) || !string.IsNullOrEmpty(Search); }
     }
 
+    /// <summary>Whether the wall on screen is being looked through, which is what the mark at the field's hand appears for.</summary>
+    public bool HasSearch
+    {
+      get { return !string.IsNullOrEmpty(Search); }
+    }
+
+    /// <summary>Whether the field stands on the screen: opened to type in, or still holding what was typed.</summary>
+    public bool ShowsSearch
+    {
+      get { return SearchOpen || HasSearch; }
+    }
+
+    partial void OnSearchOpenChanged(bool value)
+    {
+      OnPropertyChanged(nameof(ShowsSearch));
+    }
+
+    partial void OnSearchChanged(string value)
+    {
+      OnPropertyChanged(nameof(HasSearch));
+      OnPropertyChanged(nameof(ShowsSearch));
+      OnPropertyChanged(nameof(IsNarrowed));
+    }
+
     /// <summary>
-    /// Asked of the screen when the "Search" row is pressed, because the field is the screen's control and this
-    /// model has no business reaching for a caret.
+    /// Puts the field on the screen and asks for the caret to be moved into it - the rail's "Search" row, the Find
+    /// key, or the arrow lifted off the head of the wall while the field already stands there.
     /// </summary>
-    public event Action? SearchAsked;
+    /// <remarks>
+    /// Both halves belong together: the field is only on the screen while a search is open, so asking for its caret
+    /// without opening it hands the caret to a control that is not there - and opening it without asking leaves the
+    /// viewer looking at a field that nothing of theirs can type into.  The screen owns the field, which is why the
+    /// asking goes out as an event rather than this model reaching for a caret of its own.
+    /// </remarks>
+    public void OpenSearch()
+    {
+      SearchOpen = true;
+      SearchFocusRequested?.Invoke();
+    }
+
+    /// <summary>
+    /// Asked of the screen when the field has been opened and wants the caret, because the field is the screen's
+    /// control and this model has no business reaching for a caret.
+    /// </summary>
+    public event Action? SearchFocusRequested;
 
     /// <summary>
     /// Whether a walk over the wall has read every name it has.  A wall that answers zero for the rest of itself
@@ -1196,7 +1256,7 @@ namespace MediaPortal.Frontend.ViewModels
             // The field is the screen's, so the row asks the screen for it - and takes the rail out of the way
             // first, because a rail standing over a field a hand is about to type into is a rail in the way.
             HideMediaMenu();
-            SearchAsked?.Invoke();
+            OpenSearch();
           }));
           AddMenuRow("Letters", "filter", new RelayCommand(() => GoToPage(MenuPage.Letters)), false,
               Letter.Length == 0 ? "Every name" : Letter);
@@ -1281,6 +1341,43 @@ namespace MediaPortal.Frontend.ViewModels
       await ReadAsync(true);
     }
 
+    /// <summary>
+    /// How long a hand has to rest on the last letter before the wall is asked for the words so far.  The shelf's
+    /// number for the same question (MediaBrowserViewModel.TYPING_PAUSE_MILLISECONDS) and its reason: one question
+    /// per letter is seven questions for a seven-letter name, and every one of them lays a new wall under the
+    /// viewer's hand while they are still spelling.
+    /// </summary>
+    private const int TYPING_PAUSE_MILLISECONDS = 300;
+
+    /// <summary>The pause timer, made once and restarted with every letter.</summary>
+    private DispatcherTimer? _typing;
+
+    /// <summary>Whether the program is writing the box itself, which is never a viewer asking.</summary>
+    private bool _writingWords;
+
+    partial void OnSearchTextChanged(string value)
+    {
+      // Only a field that stands on the screen is somebody typing in it.
+      if (_writingWords || !SearchOpen)
+        return;
+
+      _typing ??= new DispatcherTimer(DispatcherPriority.Background)
+      {
+        Interval = TimeSpan.FromMilliseconds(TYPING_PAUSE_MILLISECONDS)
+      };
+
+      _typing.Stop();
+      _typing.Tick -= OnTypingPaused;
+      _typing.Tick += OnTypingPaused;
+      _typing.Start();
+    }
+
+    private async void OnTypingPaused(object? sender, EventArgs e)
+    {
+      _typing?.Stop();
+      await FindTypedAsync();
+    }
+
     /// <summary>Searches the names for the words a viewer typed.</summary>
     public async Task FindAsync(string words)
     {
@@ -1288,14 +1385,67 @@ namespace MediaPortal.Frontend.ViewModels
       await ReadAsync(true);
     }
 
-    /// <summary>Stops searching, which puts the whole wall back.</summary>
+    /// <summary>
+    /// Asks the wall for the words that stand in the field: Enter on the field and the end of the typing pause both
+    /// come here.  Empty words are the wish to see the whole wall again, which is the same answer the mark at the
+    /// field's hand gives.
+    /// </summary>
+    public async Task FindTypedAsync()
+    {
+      // Enter answers at once, so a question that was already waiting out the pause is not asked twice.
+      _typing?.Stop();
+
+      string words = (SearchText ?? "").Trim();
+      if (words.Length == 0)
+      {
+        await ClearSearchAsync();
+        return;
+      }
+
+      await FindAsync(words);
+    }
+
+    /// <summary>
+    /// Puts the whole wall back and leaves the field standing empty under the caret.  The mark at the field's hand
+    /// and an Enter on an empty field come here; back and Escape ask for more than this and go to
+    /// <see cref="CloseSearchAsync"/>.
+    /// </summary>
+    [RelayCommand]
     public async Task ClearSearchAsync()
     {
-      if (Search.Length == 0)
-        return;
+      // Taking the words away is one errand, not a viewer asking: the wall comes back here and now, and the box
+      // being emptied by the program must not send a second question thirty hundredths of a second later.
+      _typing?.Stop();
+      _writingWords = true;
+      try
+      {
+        SearchText = "";
+      }
+      finally
+      {
+        _writingWords = false;
+      }
 
-      Search = "";
+      if (HasSearch)
+        Search = "";
+
       await ReadAsync(true);
+    }
+
+    /// <summary>
+    /// Takes the search away whole: the field goes off the head band, its words and the question it made with it,
+    /// and the wall stands full again.  Back and Escape come here, from wherever the caret stands.
+    /// </summary>
+    /// <remarks>
+    /// Not <see cref="ClearSearchAsync"/> with the field hidden afterwards, and the difference is what a viewer can
+    /// reach: clearing leaves an empty field under the caret, so the same key has to be pressed twice to be rid of
+    /// it - which is the "there is no way out" a viewer with a remote reported about the shelf on 2026-11-10.
+    /// </remarks>
+    [RelayCommand]
+    public async Task CloseSearchAsync()
+    {
+      SearchOpen = false;
+      await ClearSearchAsync();
     }
 
     /// <summary>Takes the letter back off the wall, which is what "Every name" and the back key ask for.</summary>

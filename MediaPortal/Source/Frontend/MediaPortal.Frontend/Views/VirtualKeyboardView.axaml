@@ -16,7 +16,7 @@
     <!--
       The keys of this keyboard are the program's own plates, not the toolkit's: with a remote there is no cursor
       to follow, so the key the caret stands on has to light up by itself, and the plate has to say so the way the
-      search field does (Border.search-field, MediaBrowserView.axaml:560-569) - white glass of differing strength,
+      search field does (Border.search-field, ShelfChromeStyles.axaml) - white glass of differing strength,
       a ring of whole white three lines thick, and a quiet light standing round it.  EVERY strength here is white
       over grey: the skin's own panel is NereusColorDark_Turquoise #FF244043 (colors.xaml:21) and its focus ground
       #46658BAA is blue, and this face is grey, not turquoise - so the plate stands on the dialog's neutral ground

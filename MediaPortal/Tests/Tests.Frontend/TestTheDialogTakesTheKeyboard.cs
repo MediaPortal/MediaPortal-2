@@ -305,5 +305,90 @@ namespace Tests.Frontend
         Children.Add(new Button { Content = "an answer nobody pointed the keys at" });
       }
     }
+
+    /// <summary>
+    /// The net that keeps a screen from standing on nothing asks for the keys again when the window notices it
+    /// holds none.  Handing the keys to a control takes them away from whoever held them, so the window hears a
+    /// LostFocus of its own from the very act of asking - and a screen whose tile is rebuilt under the caret loses
+    /// the focus a moment later, which is the same news again.  Answering each of those with the NEXT ask is a
+    /// queue that never empties: the ask goes in at the priority a settled layout is waited at, so anything
+    /// pumping the layout waits forever on an ask that exists only because it pumped.  A viewer feels that as a
+    /// front end that never finished opening; a test bench feels it as a run that never ends.
+    /// </summary>
+    [AvaloniaTest]
+    public void AScreenWhoseTileIsRebuiltUnderTheKeysIsAskedAWhileAndNotForever()
+    {
+      Button ground = Ground(out WorkflowManager workflow);
+      ShellWindow window = new ShellWindow(workflow, null);
+      workflow.Push(new WorkflowFrame("ground", "Ground", ground) { View = ground });
+      window.Show();
+      Pump();
+
+      RebuiltScreen screen = new RebuiltScreen();
+      workflow.Push(new WorkflowFrame("rebuilt", "Rebuilt", screen) { View = screen });
+
+      // The pumping IS the test: it comes back as soon as the asking stops, and never comes back while the window
+      // keeps answering its own focus change with a fresh ask.
+      Pump();
+
+      Assert.That(screen.TimesStoodOn, Is.GreaterThan(0),
+          "the net really reached for the tile this screen named as the place its keys start");
+      Assert.That(screen.Asks, Is.LessThanOrEqualTo(12),
+          "a stop that cannot hold its keys is asked a bounded number of times (the window's own bound is eight), "
+          + "not once per focus change for as long as it stands");
+      window.Close();
+    }
+
+    /// <summary>A screen whose tile is laid out again - and so takes the focus with it - each time it is stood on.</summary>
+    public sealed class RebuiltScreen : Panel, IWorkflowScreen
+    {
+      /// <summary>How often the window came looking for this screen's keys.</summary>
+      internal int Asks
+      {
+        get;
+        private set;
+      }
+
+      /// <summary>How often the tile really took the keys before the rebuild took them away again.</summary>
+      internal int TimesStoodOn
+      {
+        get;
+        private set;
+      }
+
+      private readonly Button _tile = new Button { Content = "the row the reading rebuilt" };
+
+      public RebuiltScreen()
+      {
+        Panel row = new Panel();
+        row.Children.Add(_tile);
+        Children.Add(row);
+
+        _tile.GotFocus += delegate
+        {
+          TimesStoodOn++;
+          Panel? parent = _tile.Parent as Panel;
+          if (parent == null)
+            return;
+          // The reading of the server arriving: the row the caret stood on is laid out again, and the focus that
+          // stood on it goes with the old row.  Asked for after this handler, because a control cannot be pulled
+          // out from under the focus while it is being handed over.
+          Dispatcher.UIThread.Post(delegate
+          {
+            if (_tile.Parent is Panel still)
+            {
+              still.Children.Remove(_tile);
+              still.Children.Add(_tile);
+            }
+          }, DispatcherPriority.Input);
+        };
+      }
+
+      public Control? KeysStartAt()
+      {
+        Asks++;
+        return _tile;
+      }
+    }
   }
 }

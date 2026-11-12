@@ -1887,6 +1887,33 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private void HoldTheKeyboardForTheScreen(Control screenView)
     {
+      if (_asking_for_the_keyboard)
+      {
+        // The ask below is what raised this.  Handing the keys to a control takes them away from whoever held
+        // them, so the window hears its own LostFocus the moment an ask succeeds - and answering that with the
+        // next ask is a queue that never empties: the ask is posted at the priority the layout is waited at, so
+        // a pump waiting for the layout to settle waits on an ask that only exists because it pumped.  A focus
+        // the screen itself lost is a different thing and is still answered, which is what this net is for.
+        return;
+      }
+
+      if (!ReferenceEquals(_keys_asked_for, screenView))
+      {
+        _keys_asked_for = screenView;
+        _keys_asks_left = KEYS_ASKS_AT_A_STOP;
+      }
+      else if (_keys_asks_left <= 0)
+      {
+        // Asked as often as a stop is worth asking, and the keys did not come to rest here.  Whatever takes them
+        // away again at this speed is not something a further ask can settle, and a net that keeps casting asks
+        // at it holds the layout's own priority for as long as the screen stands.
+        return;
+      }
+      else
+      {
+        _keys_asks_left--;
+      }
+
       void Ask()
       {
         if (!ReferenceEquals(_workflow.Current?.View, screenView))
@@ -1896,7 +1923,10 @@ namespace MediaPortal.Frontend.Views
         if (this.FocusManager.GetFocusedElement() is Visual held)
         {
           if (StandsInside(held, screenView))
-            return; // The screen already answers for its own keys, which is all this was for.
+          {
+            _keys_asks_left = KEYS_ASKS_AT_A_STOP; // The screen holds its keys again, so the next loss is
+            return;                               // worth the whole patience, as it was at the first stop.
+          }
           if (StandsInAnotherStandingWindow(held))
             return; // Another STANDING window owns the keyboard - a second window of this very test bench,
                     // or a window the viewer turned to - and a window that is not the one looked at must not
@@ -1908,12 +1938,29 @@ namespace MediaPortal.Frontend.Views
         Control? first = (screenView as Workflow.IWorkflowScreen)?.KeysStartAt();
         if (first == null)
           first = FirstControlTakingFocus(screenView);
-        if (first != null)
+        if (first == null)
+          return;
+
+        _asking_for_the_keyboard = true;
+        try
+        {
           first.Focus();
+        }
+        finally
+        {
+          _asking_for_the_keyboard = false;
+        }
       }
 
       Avalonia.Threading.Dispatcher.UIThread.Post(Ask, Avalonia.Threading.DispatcherPriority.Loaded);
     }
+
+    /// <summary>How often one stop of the workflow is asked for its keys before the window leaves it be.</summary>
+    private const int KEYS_ASKS_AT_A_STOP = 8;
+
+    private Control? _keys_asked_for;
+    private int _keys_asks_left;
+    private bool _asking_for_the_keyboard;
 
     /// <summary>Whether <paramref name="element"/> is the dialog itself or stands somewhere inside it.</summary>
     private static bool StandsInside(Visual element, Control dialogView)

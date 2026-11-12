@@ -437,5 +437,94 @@
                  TextTrimming="CharacterEllipsis"
                  IsVisible="{Binding ShowsContentInfo}"/>
     </Grid>
+
+    <!--
+      THE SEARCH, standing in the head band exactly where a shelf of titles stands its own (MediaBrowserView.axaml,
+      searchStrip) - one plaque in the corner the details plaques wear, the magnifier at its left hand, the typed
+      words in the middle, the mark that takes the search away at its right, and the one keyboard button beside it.
+      Nothing else on this screen answers the question "which name?", and the rail has always had a row called
+      "Search" that was meant to bring this field up.
+
+      It is off the screen until somebody asks for it, and three doors ask: the rail's row, the Find key, and the
+      arrow lifted off the head of the wall while the field already stands there.  While no field waits above the
+      wall, the arrow at the wall's head keeps its nod (viewer note 2026-11-10, quoted by the shelf).  The code
+      behind pushes this row clear of the pointer's own marks at the window's corner, which are the window's
+      furniture and cannot give way to a screen's field.
+    -->
+    <StackPanel Name="searchStrip"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="10,9,18,0"
+                ClipToBounds="False">
+      <Border Name="searchField"
+              Classes="search-field"
+              IsVisible="{Binding ShowsSearch}"
+              VerticalAlignment="Top">
+        <DockPanel>
+          <Path DockPanel.Dock="Left"
+                Classes="search-mark"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                              ConverterParameter='MediaMenu/search'}"
+                Fill="{DynamicResource TextBrush}"
+                Width="24"
+                Height="24"
+                Margin="0,0,12,0"
+                Stretch="Uniform"
+                VerticalAlignment="Center"/>
+          <Button Name="clearSearchMark"
+                  DockPanel.Dock="Right"
+                  Classes="nereus-corner-button nereus-corner-small"
+                  Width="38"
+                  Height="38"
+                  CornerRadius="19"
+                  VerticalAlignment="Center"
+                  Command="{Binding CloseSearchCommand}"
+                  Focusable="False"
+                  ToolTip.Tip="Take the search away"
+                  IsVisible="{Binding ShowsSearch}">
+            <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                  ConverterParameter='PowerMenu/close'}"
+                  Fill="{DynamicResource TextBrush}"
+                  Width="18"
+                  Height="18"
+                  Stretch="Uniform"/>
+          </Button>
+          <TextBox Name="searchBox"
+                   Classes="search-box"
+                   views:VirtualKeyboardService.Trigger="Menu"
+                   Text="{Binding SearchText, Mode=TwoWay}"
+                   PlaceholderText="Find a name"
+                   Width="340"
+                   VerticalContentAlignment="Center"/>
+        </DockPanel>
+      </Border>
+      <!-- The one keyboard button to the on-screen keys that a hand without a keyboard can find, exactly as the
+           shelf wears it: focusable (unlike the mark that takes the search away, which is a way out and not a
+           place a caret can stand on), and it walks the caret onto itself from the end of the field's words. -->
+      <Button Name="keyboardToggle"
+              Classes="search-keyboard"
+              IsVisible="{Binding ShowsSearch}"
+              Click="OnKeyboardToggleClicked"
+              ToolTip.Tip="Type with the keys on the screen">
+        <Panel>
+          <Path Name="keyboardMark"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                              ConverterParameter='MediaMenu/keyboard'}"
+                Fill="{DynamicResource TextBrush}"
+                Width="26"
+                Height="26"
+                Stretch="Uniform"/>
+          <Path Name="keyboardOffMark"
+                Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                              ConverterParameter='MediaMenu/keyboard_off'}"
+                Fill="{DynamicResource TextBrush}"
+                Width="26"
+                Height="26"
+                Stretch="Uniform"
+                IsVisible="False"/>
+        </Panel>
+      </Button>
+    </StackPanel>
   </Panel>
 </UserControl>

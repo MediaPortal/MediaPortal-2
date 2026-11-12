@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless.NUnit;
@@ -522,6 +523,384 @@ namespace Tests.Frontend
       Assert.That(rail.SelectedIndex, Is.EqualTo(1), "a key with a row under it walks rather than nods");
 
       window.Close();
+    }
+
+    /// <summary>
+    /// THE WALL ITSELF NODS AT ITS OWN EDGES, the way a shelf of titles has always nodded at its walls: an arrow
+    /// that points past the last column, past the head or past the foot leans the wall twenty-two points that way
+    /// and springs it back, instead of walking the caret off the wall or handing the key to the shell.  A wall of
+    /// names that only nods its rail leaves the viewer no way to tell an edge from a broken key, which is what the
+    /// viewer pointed out on 2026-11-13: "the actor media wall has not the same bounce effects as the other media
+    /// screens - make a gap analysis of the differences".
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallOfNamesNodsAtItsOwnEdges()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+      int columns = TheWallColumns(names);
+
+      // Every answer the wall gives to an arrow belongs to the caret standing inside it, so a case first stands the
+      // caret on the tile it is about to ask about - on the container the wall recycled for that name, which is
+      // where a shelf stands its caret too.
+      void StandOn(int at)
+      {
+        names.SelectedIndex = at;
+        WaitUntil("the wall to lay the tile " + at, delegate { return names.ContainerFromIndex(at) != null; });
+        (names.ContainerFromIndex(at) as Control)!.Focus();
+        Pump();
+        Assert.That(names.IsKeyboardFocusWithin, Is.True, "the caret stands inside the wall");
+      }
+
+      // A key with a road under it is still ordinary walking and nods nothing.  This is checked first, while
+      // nothing has been nodded yet: a nod is remembered by the wall for the tests to read, and the memory outlives
+      // the spring.
+      Assert.That(view.LastNodX, Is.EqualTo(0.0), "nobody has pointed at a wall yet");
+      Assert.That(view.LastNodY, Is.EqualTo(0.0), "and nobody has pointed past its head or its foot either");
+      StandOn(0);
+      SendKey(names, Key.Down);
+      Assert.That(names.SelectedIndex, Is.EqualTo(columns), "a Down with a row under it walks to that row");
+      Assert.That(view.LastNodX, Is.EqualTo(0.0), "and a row under it is not a wall");
+      Assert.That(view.LastNodY, Is.EqualTo(0.0), "which the wall says by not leaning anywhere");
+
+      // The right hand wall: the last column of a row.
+      StandOn(columns - 1);
+      SendKey(names, Key.Right);
+      Assert.That(view.LastNodX, Is.GreaterThan(0.0), "past the last column the wall leans right");
+      Assert.That(names.SelectedIndex, Is.EqualTo(columns - 1), "and the caret stays on the tile it stood on");
+      Assert.That(wall.MediaMenuVisible, Is.False, "nor does the key put the rail out of the wall's way");
+
+      // The head: the first row of the wall.  Above it the wall keeps its nod - this wall wears no search field on
+      // its head line, so there is nothing above it for the arrow to walk into.
+      StandOn(0);
+      SendKey(names, Key.Up);
+      Assert.That(view.LastNodY, Is.LessThan(0.0), "above the head of the wall the wall leans up");
+      Assert.That(names.SelectedIndex, Is.Zero, "and the head of the wall keeps its caret");
+
+      // The foot: the last name of a wall that is read whole, which is the last row whatever the number of columns.
+      int last = names.Items.Count - 1;
+      StandOn(last);
+      SendKey(names, Key.Down);
+      Assert.That(view.LastNodY, Is.GreaterThan(0.0), "below the foot of the wall the wall leans down");
+      Assert.That(names.SelectedIndex, Is.EqualTo(last), "and the foot of the wall keeps its caret");
+
+      // And one row up from the foot the same key is a step, not a wall.
+      StandOn(last - columns);
+      int stepped_to = last - columns;
+      SendKey(names, Key.Down);
+      Assert.That(names.SelectedIndex, Is.EqualTo(stepped_to + columns),
+          "a Down with a row under it walks to that row");
+
+      // Behind the wall's leading edge the rail still waits: none of these walls took the Left away that brings it.
+      StandOn(0);
+      SendKey(names, Key.Left);
+      WaitUntil("the rail to stand open", delegate { return wall.MediaMenuVisible; });
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// A wall laid as rows is one name wide, so its right hand wall stands beside EVERY row - the shelf's law for
+    /// its list (MediaBrowserView, the list branch of the wall's key handler) - while its head and foot stay the
+    /// first and the last name.
+    /// </summary>
+    [AvaloniaTest]
+    public void AWallLaidAsRowsNodsAtItsRightHandFromEveryRow()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+
+      wall.Layout = PeopleViewModel.LAYOUT_LIST;
+      WaitUntil("the wall to stand as rows", delegate { return names.Classes.Contains("nereus-shelf-rows"); });
+
+      void StandOn(int at)
+      {
+        names.SelectedIndex = at;
+        WaitUntil("the wall to lay the row " + at, delegate { return names.ContainerFromIndex(at) != null; });
+        (names.ContainerFromIndex(at) as Control)!.Focus();
+        Pump();
+      }
+
+      // The middle of the wall, where a tile-shaped wall has nothing to its right: a row is one name long, so the
+      // right hand edge is reached from here too.
+      Assert.That(view.LastNodX, Is.EqualTo(0.0), "nobody has pointed at a wall yet");
+      StandOn(5);
+      SendKey(names, Key.Right);
+      Assert.That(view.LastNodX, Is.GreaterThan(0.0), "the right hand of a wall of rows is a wall from any row");
+      Assert.That(names.SelectedIndex, Is.EqualTo(5), "and the row keeps its caret");
+      Assert.That(wall.MediaMenuVisible, Is.False, "and the nod is not the rail jumping out");
+
+      StandOn(0);
+      SendKey(names, Key.Up);
+      Assert.That(view.LastNodY, Is.LessThan(0.0), "the first row is the head of a wall of rows");
+
+      int last = names.Items.Count - 1;
+      StandOn(last);
+      SendKey(names, Key.Down);
+      Assert.That(view.LastNodY, Is.GreaterThan(0.0), "and the last one is its foot");
+      Assert.That(names.SelectedIndex, Is.EqualTo(last), "with the caret left on the row it was on");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// THE RAIL'S "SEARCH" PLATE PUTS A FIELD ON THE HEAD BAND, hands it the caret, and the wall answers to the
+    /// words - the law a shelf of titles has always worn (MediaBrowserView's searchStrip, and its viewer note
+    /// 2026-11-10 that the head line wears no magnifier waiting to be clicked).  The plate stood on this rail and
+    /// did nothing at all when pressed, which is what the viewer found on 2026-11-12: a promise the screen does not
+    /// keep is worse than no promise.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallsSearchPlatePutsTheFieldOnTheScreenAndHandsItTheCaret()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      Border plate = window.GetVisualDescendants().OfType<Border>().First(field => field.Name == "searchField");
+      Button keys = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+
+      Assert.That(plate.IsEffectivelyVisible, Is.False,
+          "the head band carries no search while nobody has asked for one");
+      Assert.That(keys.IsEffectivelyVisible, Is.False, "and no keyboard button beside it either");
+
+      // The door the viewer walked up to: the first plate of the rail's commands.
+      (names.ContainerFromIndex(0) as Control)?.Focus();
+      SendKey(names, Key.Left);
+      WaitUntil("the rail to stand open", delegate { return wall.MediaMenuVisible; });
+      ListBox rail = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "mediaMenuList");
+      WaitUntil("the rail to be walked", delegate { return rail.IsKeyboardFocusWithin; });
+      Assert.That((rail.Items[0] as MediaBrowserMenuEntry)?.Label, Is.EqualTo("Search"),
+          "the commands page begins with the search");
+
+      SendKey(rail, Key.Enter);
+      WaitUntil("the field to stand on the head band", delegate { return plate.IsEffectivelyVisible; });
+      Assert.That(wall.ShowsSearch, Is.True, "the wall knows it is being looked through");
+      Assert.That(wall.MediaMenuVisible, Is.False, "and the rail stepped out of the way of the field");
+      WaitUntil("the caret to be handed to the field", delegate { return box.IsFocused; });
+      Assert.That(keys.IsEffectivelyVisible, Is.True,
+          "and the one keyboard button to the keys on the screen came up with the field");
+
+      // The plate's edges nod, exactly as the wall's do, and no letter is lost by them.
+      box.Text = "Actor";
+      box.CaretIndex = 0;
+      SendKey(box, Key.Left);
+      Assert.That(view.LastNodX, Is.LessThan(0.0), "the arrow before the first letter leans the plate left");
+      Assert.That(box.Text, Is.EqualTo("Actor"), "and the nod does not eat the word");
+      box.CaretIndex = box.Text.Length;
+      SendKey(box, Key.Up);
+      Assert.That(view.LastNodY, Is.LessThan(0.0), "and the arrow above the plate leans it up");
+      Assert.That(box.IsFocused, Is.True, "while the caret stays on the field");
+
+      // Off the end of the words the caret steps onto the keyboard button, and back the same way.
+      SendKey(box, Key.Right);
+      Assert.That(keys.IsFocused, Is.True, "the mark beside the plate is a place the caret can stand on");
+      SendKey(keys, Key.Left);
+      Assert.That(box.IsFocused, Is.True, "and the arrow back takes it into the field the mark belongs to");
+
+      // Down out of the field is down onto the wall, and it leaves the search standing.
+      SendKey(box, Key.Down);
+      WaitUntil("the caret to stand inside the wall", delegate { return names.IsKeyboardFocusWithin; });
+      Assert.That(wall.ShowsSearch, Is.True, "pointing down at the matches is not asking for them to go away");
+
+      // While the field stands, the arrow off the HEAD OF THE WALL steps into it - the shelf's law, whose other
+      // half (the head keeps its nod while no field waits above it) is proved by the case above it.
+      names.SelectedIndex = 0;
+      (names.ContainerFromIndex(0) as Control)?.Focus();
+      Pump();
+      SendKey(names, Key.Up);
+      WaitUntil("the caret to be back in the field", delegate { return box.IsFocused; });
+      Assert.That(wall.ShowsSearch, Is.True, "walking into the field is not opening a search nobody asked for");
+
+      // And one press of back is the whole way out: the field, its words and the question they made, with the
+      // caret coming back to a tile.
+      SendKey(box, Key.Escape);
+      WaitUntil("the field to be gone", delegate { return !plate.IsEffectivelyVisible; });
+      WaitUntil("the whole wall to stand again", delegate { return wall.Rows.Count > 30; });
+      WaitUntil("and the caret to stand on a name again", delegate { return names.IsKeyboardFocusWithin; });
+      Assert.That(wall.ShowsSearch, Is.False, "the field and its words left together");
+      Assert.That(server.LastWall, Does.Not.Contain("search="),
+          "and the wall was asked for again without the words standing on it");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The field and its keyboard button are one plate worn by two screens, so the wall has to wear the SHELF's
+    /// rules for them - the sizes, the glass, and the answers to the toolkit's own states.  A screen that carries
+    /// the classes but not the rules that go with them wears the toolkit's defaults and looks like a field someone
+    /// designed twice, which is the mistake this case stands watch over.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallsFieldAndKeyboardButtonWearTheShelfsOwnPlate()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      ShellWindow window = new ShellWindow(new PeopleView(wall, null, null));
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      wall.OpenSearch();
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+      Border plaque = window.GetVisualDescendants().OfType<Border>().First(field => field.Name == "searchField");
+      Button keys = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      WaitUntil("the row to be laid", delegate { return plaque.Bounds.Width > 0; });
+
+      // The numbers below are the shelf's: the plaque is the details row's plate asked to hold a question, so it
+      // is forty-eight less five and six of corner, and the keyboard button is the same plate fifty-eight wide.
+      Assert.That(plaque.Bounds.Height, Is.EqualTo(43),
+          "the wall's plaque is as tall as the shelf's, five under the details row's plaques");
+      Assert.That(plaque.CornerRadius.TopLeft, Is.EqualTo(6), "and it wears the same corner as that plate");
+      Assert.That(plaque.Background, Is.InstanceOf<ISolidColorBrush>(), "one ground, laid by one hand");
+      Assert.That(((ISolidColorBrush)plaque.Background!).Color, Is.EqualTo(Color.Parse("#33FFFFFF")),
+          "the wall's field is the shelf's third-of-white glass, not the toolkit's white slab");
+      Assert.That(keys.Bounds.Height, Is.EqualTo(43), "the keyboard button stands as tall as the plate beside it");
+      Assert.That(keys.Bounds.Width, Is.EqualTo(58), "and as wide as the shelf wears it");
+
+      // The toolkit dresses a text box for its own face: a white plate, an edge, and a word colour that on a light
+      // theme is near black.  Those three are written INSIDE the box's template, so they have to be answered there
+      // - and a screen that never got the answer shows a white slab in the middle of a dark wall the moment the
+      // caret stands in the field.
+      box.Focus();
+      Pump();
+      Border plate = box.GetVisualDescendants().OfType<Border>().First(part => part.Name == "PART_BorderElement");
+      Assert.That(((ISolidColorBrush)plate.Background!).Color.A, Is.EqualTo(0),
+          "the field's own ground stays away while the caret stands in it");
+      Assert.That(plate.BorderThickness.Top, Is.EqualTo(0),
+          "and no second box is drawn round the plate the wall is wearing");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The wall follows the field while it is being written in: a hand that rests on the last letter is asking a
+    /// question, Enter puts the caret onto a result, and the mark at the field's hand takes the words away and
+    /// leaves the field standing under the caret - the shelf's three answers to a hand on a keyboard, none of which
+    /// this wall had.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallAnswersToTheWordsInTheFieldWhileTheyAreBeingTyped()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+
+      wall.OpenSearch();
+      WaitUntil("the caret to be handed to the field", delegate { return box.IsFocused; });
+
+      // Letters with the rests a hand makes between them, and no Enter pressed anywhere: the wall answers once the
+      // hand has rested, which is what "live" means to a viewer - and answers once, not once per letter.  The words
+      // are one letter's dozen names here, because the cut has to be seen to be a cut.
+      wall.SearchText = "A.";
+      wall.SearchText = "A. Actor 00";
+      WaitUntil("the wall to be cut to the words", delegate { return wall.Rows.Count > 0 && wall.Rows.Count < 20; });
+      Assert.That(server.LastWall, Does.Contain("search=A.").And.Contain("Actor"),
+          "the whole word travelled to the server, spaces and all: " + server.LastWall);
+      Assert.That(wall.Rows.OfType<PersonTile>().All(tile => tile.Name.Contains("A. Actor 00")), Is.True,
+          "and every name the wall kept is a name the words reach");
+
+      // Enter asks at once and puts the caret onto a result, not merely into the list: a caret that gets no further
+      // than the list wears no frame.
+      box.Focus();
+      SendKey(box, Key.Enter);
+      WaitUntil("the caret to stand on a name", delegate
+      {
+        return names.SelectedIndex == 0 && (names.ContainerFromIndex(0) as Control)?.IsFocused == true;
+      });
+
+      // The mark at the field's hand is the shelf's own CloseSearchCommand: it takes the search away whole, so the
+      // field goes with its words and the wall stands full again.  (Emptying the box while it stands is clearing,
+      // which is what the next case asks of it.)
+      Button mark = window.GetVisualDescendants().OfType<Button>().First(button => button.Name == "clearSearchMark");
+      Assert.That(mark.Command.CanExecute(null), Is.True, "the mark that takes the search away can be pressed");
+      mark.Command.Execute(null);
+      WaitUntil("the whole wall to stand again", delegate { return wall.Rows.Count > 30; });
+      Assert.That(box.IsEffectivelyVisible, Is.False, "the mark takes the field off the screen with its words");
+      Assert.That(wall.ShowsSearch, Is.False, "and the search is gone, so nothing stands in the head band");
+      Assert.That(wall.SearchText, Is.Empty, "the box is empty too");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The length of a wall's travel belongs to the shape it wears, not to the moment its scroller was first laid:
+    /// the reference glides a grid four hundred points and a list three hundred (<c>MediaStyles.xaml</c>), and the
+    /// shelf writes its transition again on every layout change.  Worn once for the life of the scroller, the wall
+    /// kept gliding at the length it happened to be born with after a walk from squares into rows.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallTravelsAtTheLengthItsShapeIsWornWith()
+    {
+      WallServer server = new WallServer(300);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 120; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+      ScrollViewer floor = names.GetVisualDescendants().OfType<ScrollViewer>().First();
+
+      WaitUntil("the squares to wear the grid's glide",
+          delegate { return TheWallGlide(floor) == TimeSpan.FromMilliseconds(400); });
+
+      wall.Layout = PeopleViewModel.LAYOUT_LIST;
+      WaitUntil("the wall to stand as rows", delegate { return names.Classes.Contains("nereus-shelf-rows"); });
+      WaitUntil("the rows to be laid", delegate { return names.ContainerFromIndex(3) != null; });
+      WaitUntil("the rows to wear the list's glide",
+          delegate { return TheWallGlide(floor) == TimeSpan.FromMilliseconds(300); });
+
+      wall.Layout = PeopleViewModel.LAYOUT_GRID;
+      WaitUntil("the wall to stand as squares again", delegate { return names.Classes.Contains("nereus-shelf-tiles"); });
+      WaitUntil("the squares to be laid again", delegate { return names.ContainerFromIndex(3) != null; });
+      WaitUntil("and the squares to be asked for their glide back",
+          delegate { return TheWallGlide(floor) == TimeSpan.FromMilliseconds(400); });
+
+      window.Close();
+    }
+
+    /// <summary>The length the wall's scroller is currently worn with, or nothing while it wears no glide.</summary>
+    private static TimeSpan? TheWallGlide(ScrollViewer floor)
+    {
+      if (floor.Transitions == null)
+        return null;
+
+      foreach (ITransition transition in floor.Transitions)
+      {
+        if (transition is VectorTransition glide && glide.Property == ScrollViewer.OffsetProperty)
+          return glide.Duration;
+      }
+
+      return null;
     }
 
     /// <summary>

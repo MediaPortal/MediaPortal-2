@@ -1214,7 +1214,8 @@ namespace FrontendProbe
         window = new ShellWindow(new MediaBrowserView(browser));
       }
       else if (screenName.Equals("people", StringComparison.Ordinal)
-          || screenName.Equals("peoplemenu", StringComparison.Ordinal))
+          || screenName.Equals("peoplemenu", StringComparison.Ordinal)
+          || screenName.Equals("peoplesearch", StringComparison.Ordinal))
       {
         // A wall of names has nothing to script.  What makes this screen worth a frame is that it is read out of a
         // library that is really standing somewhere - 7543 names in one household's films - and a frame of it is
@@ -1760,6 +1761,50 @@ namespace FrontendProbe
         }
 
         MeasureThePanel(detailsScreen, window!);
+      }
+
+      if (screenName.Equals("peoplesearch", StringComparison.Ordinal)
+          && (window as ShellWindow)?.Screen is PeopleView wallFieldScreen)
+      {
+        // The wall is asked for its field the way the shelf is - with the Find key - and its plate is read off the
+        // controls in the same words the shelf's block below uses, so the two frames can be held line against line.
+        // One plate worn by two screens: if these numbers ever come out different, the rules behind them were
+        // written twice.
+        wallFieldScreen.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.F,
+          Source = wallFieldScreen
+        });
+        Pump(TimeSpan.FromMilliseconds(400));
+
+        Border? wallPlate = wallFieldScreen.GetVisualDescendants().OfType<Border>()
+            .FirstOrDefault(b => b.Name == "searchField");
+        if (wallPlate == null)
+        {
+          Console.WriteLine("FAILED:   the Find key left no search field on the wall.");
+          return 1;
+        }
+
+        wallPlate.Transitions = null; // A still frame must not be caught mid-fade; see the shelf's block below.
+        TextBox wallField = wallFieldScreen.GetVisualDescendants().OfType<TextBox>()
+            .First(box => box.Name == "searchBox");
+        wallField.Focus();
+        Pump(TimeSpan.FromMilliseconds(150));
+
+        Control? wallKeys = wallFieldScreen.GetVisualDescendants().OfType<Control>()
+            .FirstOrDefault(c => c.Name == "keyboardToggle");
+        Console.WriteLine("suchplatte: grund=" + wallPlate.Background + " rand=" + wallPlate.BorderBrush
+            + " dicke=" + wallPlate.BorderThickness + " schatten=" + wallPlate.BoxShadow
+            + " polster=" + wallPlate.Padding + " ort=<" + Math.Round(wallPlate.Bounds.X) + ","
+            + Math.Round(wallPlate.Bounds.Y) + " " + Math.Round(wallPlate.Bounds.Width) + "x"
+            + Math.Round(wallPlate.Bounds.Height) + ">");
+        Console.WriteLine("feld:     sichtbar=" + wallField.IsEffectivelyVisible + " caret=" + wallField.IsFocused
+            + " geschmack=" + wallPlate.Classes.Contains("search-field")
+            + " (wand, zum Halten gegen das Regal)");
+        Console.WriteLine("taste:    " + (wallKeys == null ? "NOT ON THE TREE"
+            : "sichtbar=" + wallKeys.IsEffectivelyVisible + " h=" + Math.Round(wallKeys.Bounds.Height)
+              + " w=" + Math.Round(wallKeys.Bounds.Width)));
       }
 
       if ((searchAsked || keyboardAsked || keyButtonAsked)
