@@ -2090,20 +2090,29 @@ namespace MediaPortal.Frontend.ViewModels
       // default skin did: no background model, no picture.  Asked at the screen's own width, not the frames':
       // this picture's frame is the whole screen, and a copy asked at the wall's size arrives three times too
       // small for it - the blur the viewer named.
-      FanartShown = _skinSettings?.EnableFanart ?? false;
-      FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
-      FanartBlurRadius = BlurOf(_skinSettings);
       // A setting the viewer flips on the skin-settings screen while this shelf lives takes its effect on
       // the television at once - the screen is a remote control, not an application form.
       SkinSettingsBase.Saved += delegate { ReapplySkinSettings(); };
       int backdrop = PictureWidths.PaintedScreenWidth();
-      _fanart = client == null
+      // The room's picture is the shared helper's business from here: the same standing-still half second, the
+      // same remembered picture that costs no second question, the same reading and blur away from the thread
+      // that draws.  It reads the skin's three dials itself and re-wears what it wears when one is turned, so
+      // this screen never touches them.
+      _backdrop = new FanartBackdrop(client == null
           ? null
           : PicturesOf(client, PictureWidths.Shelf("FanArt", backdrop), id =>
               {
                 (Guid asked, int? season) = AskOf(id);
                 return client.GetFanArtAsync(asked, "FanArt", season, backdrop);
-              });
+              }));
+      _backdrop.PropertyChanged += delegate
+      {
+        OnPropertyChanged(nameof(FanartShown));
+        OnPropertyChanged(nameof(FanartOverlay));
+        OnPropertyChanged(nameof(FanartBlurRadius));
+        OnPropertyChanged(nameof(BackgroundArtwork));
+        OnPropertyChanged(nameof(HasBackgroundArtwork));
+      };
       // What a tile wears is the picture of its own kind, and the reference asked for it kinded too: its banner
       // grid bound FanArtType="Banner", its thumbnail grid FanArtType="Thumbnail", and neither ever drew a
       // poster in the other's frame - without the kind's own picture they drew the skin's "no banner" layer.
@@ -2188,10 +2197,8 @@ namespace MediaPortal.Frontend.ViewModels
     private void ReapplySkinSettings()
     {
       _skinSettings = WornSkinSettings();
-      FanartShown = _skinSettings?.EnableFanart ?? false;
-      FanartOverlay = _skinSettings?.FanartOverlayOpacity ?? 0.85;
-      FanartBlurRadius = BlurOf(_skinSettings);
-      _ = WearFanartAsync(_backgroundRaw);
+      // The fanart and its three dials answer to the same Saved event on their own: the room's helper reads the
+      // new settings and re-wears the picture it holds without asking the server again.
       WatchFlagsShown = WatchFlagsFor(_layout);
       foreach (TitleViewModel row in Titles)
         row.WatchFlagsShown = WatchFlagsShown;
@@ -2659,13 +2666,13 @@ namespace MediaPortal.Frontend.ViewModels
     /// Whether the shelf wears the worn skin's fanart at all - the reference's <c>EnableFanart</c>. The view
     /// binds the whole background layer to this one answer, and the skin-settings screen rewrites it live.
     /// </summary>
-    public bool FanartShown { get; private set; }
+    public bool FanartShown { get { return _backdrop.FanartShown; } }
 
     /// <summary>
     /// How far the skin dims the fanart - the reference drew its dark backdrop over the picture with exactly
     /// this opacity, and the skin-settings screen writes exactly this number.
     /// </summary>
-    public double FanartOverlay { get; private set; }
+    public double FanartOverlay { get { return _backdrop.FanartOverlay; } }
 
     /// <summary>
     /// How far the fanart behind the shelf is thrown out of focus, in pixels. Nereus' own dial - the face
@@ -2673,47 +2680,22 @@ namespace MediaPortal.Frontend.ViewModels
     /// the picture as the library drew it. Nought while the screen wears a copy that was already thrown out
     /// of focus away from the drawing thread, since such a picture says so by itself.
     /// </summary>
-    public double FanartBlurRadius
-    {
-      get { return _backgroundBaked ? 0 : _fanartBlur; }
-      private set
-      {
-        _fanartBlur = value;
-        OnPropertyChanged(nameof(FanartBlurRadius));
-      }
-    }
+    public double FanartBlurRadius { get { return _backdrop.FanartBlurRadius; } }
 
-    private double _fanartBlur;
-
-    /// <summary>The worn settings' blur, or nought when the face worn speaks none.</summary>
-    private static double BlurOf(SkinSettingsBase? settings)
-    {
-      return settings is NereusSkinSettings nereus ? nereus.FanartBlurRadius : 0;
-    }
-
-    /// <summary>The fanart pictures of this shelf's titles, or null with no server to ask.</summary>
-    private readonly Artwork? _fanart;
+    /// <summary>
+    /// The room behind the shelf: the selected title's picture from the server's own fanart cache, worn by the
+    /// law the wall of people wears it by too - one helper, one set of dials, one feel on both screens.
+    /// </summary>
+    private readonly FanartBackdrop _backdrop;
 
     /// <summary>
     /// The bytes of the fanart behind the shelf: the selected title's picture from the server's own fanart
     /// cache, the way the reference's background model followed the selection.
     /// </summary>
-    [ObservableProperty]
-    private byte[]? _backgroundArtwork;
+    public byte[]? BackgroundArtwork { get { return _backdrop.BackgroundArtwork; } }
 
     /// <summary>Whether there is a fanart to draw - the layer asks this rather than testing the bytes.</summary>
-    public bool HasBackgroundArtwork
-    {
-      get { return BackgroundArtwork != null; }
-    }
-
-    /// <summary>The title the last fanart read was for, so a fast walk through rows cannot race.</summary>
-    private Guid _fanartFor;
-
-    partial void OnBackgroundArtworkChanged(byte[]? value)
-    {
-      OnPropertyChanged(nameof(HasBackgroundArtwork));
-    }
+    public bool HasBackgroundArtwork { get { return _backdrop.HasBackgroundArtwork; } }
 
     /// <summary>
     /// The fanart follows the selected row, which is the reference's rule to the letter: walking the shelf
@@ -2754,156 +2736,16 @@ namespace MediaPortal.Frontend.ViewModels
       else if (WantsDetails)
         _ = ShowDetailsForSelectedAsync();
 
-      Artwork? fanart = _fanart;
-      if (!FanartShown || fanart == null || value == null)
-      {
-        _fanartFor = Guid.Empty;
-        _ = WearFanartAsync(null);
-        return;
-      }
-
-      Guid id = value.Title.Id;
-      _fanartFor = id;
-      if (fanart.TryPeek(id, out byte[]? held))
-      {
-        //  Remembered, so wearing it costs nothing and the room may change its mood in this very breath.
-        _ = WearFanartAsync(held);
-        return;
-      }
-
-      //  Nothing is taken away and nothing is asked for yet. The reference makes a picture stand still half a
-      //  second before it is worn at all - <c>ImageSourceWrapper Delay="0.5" DelayInOut="true"</c> on its
-      //  background image (backgrounds/default-background.xaml:58-62), the same half second our own
-      //  <see cref="DissolveImage.DelaySeconds"/> mirrors - and a viewer walking a wall covers a hundred
-      //  titles in the time one backdrop takes to fetch, read and carry to the screen, of which at most the
-      //  last one is ever worn. What is worn while it stands is the previous title's picture, which is also
-      //  what the reference shows during those half a second rather than a blank room.
-      _ = ReadFanartWhenStillAsync(fanart, id);
-    }
-
-    /// <summary>
-    /// The reference's <c>Delay</c>: how long a title has to be stood on before its backdrop is fetched and
-    /// worn.
-    /// </summary>
-    internal static readonly TimeSpan FANART_SETTLING = TimeSpan.FromMilliseconds(500);
-
-    private int _fanartStillTurn;
-
-    /// <summary>
-    /// Asks the server for one title's backdrop once the viewer has stood on that title for
-    /// <see cref="FANART_SETTLING"/>, and asks for nothing at all when they walked on.
-    /// </summary>
-    private async Task ReadFanartWhenStillAsync(Artwork fanart, Guid id)
-    {
-      int turn = ++_fanartStillTurn;
-
-      //  Waited without ConfigureAwait(false) on purpose: what follows touches what the screen is bound to, and
-      //  that belongs to the thread that drew the first frame.
-      await Task.Delay(FANART_SETTLING);
-
-      //  Walked on - and the title behind this one already put its own question on the same counter.
-      if (turn != Volatile.Read(ref _fanartStillTurn) || _fanartFor != id)
-        return;
-
-      await ReadFanartAsync(fanart, id);
-    }
-
-    /// <summary>
-    /// One title's fanart, put behind the shelf when it arrives - unless the viewer has walked on, which the
-    /// remembered id says. A server without the picture, or without the fanart service at all, is answered
-    /// with no picture and no word: the plain screen behind is the right drawing for that.
-    /// </summary>
-    private async Task ReadFanartAsync(Artwork fanart, Guid id)
-    {
-      try
-      {
-        byte[]? picture = await fanart.LoadAsync(id);
-        if (_fanartFor == id)
-          _ = WearFanartAsync(picture);
-      }
-      catch (ServerApiException)
-      {
-        if (_fanartFor == id)
-          _ = WearFanartAsync(null);
-      }
-    }
-
-    private byte[]? _backgroundRaw;
-    private int _backgroundTurn;
-    private bool _backgroundBaked;
-
-    /// <summary>
-    /// Putting a fetched backdrop behind the shelf, thrown out of focus by however far the worn face asks
-    /// for. That arithmetic takes about a sixth of a second on a full-size picture, which is a fifth of a
-    /// step between rows, so it is done away from the thread that draws: the shelf keeps wearing what it
-    /// wore until the copy is ready.
-    /// </summary>
-    /// <remarks>
-    /// Walking on while a copy is being made is answered by the turn the picture was worn for, so the copy of
-    /// a backdrop the viewer has left behind never reaches the screen. A copy already in
-    /// <see cref="BackgroundBlur"/> answers at once, which is what makes the walk back over a shelf as quick
-    /// as the walk over it the first time.
-    /// </remarks>
-    private async Task WearFanartAsync(byte[]? raw)
-    {
-      int turn = ++_backgroundTurn;
-      _backgroundRaw = raw;
-
-      double radius = _fanartBlur;
-      if (raw == null || !FanartShown)
-      {
-        ShowBackground(raw, false);
-        return;
-      }
-
-      // A backdrop is the size of the television, and reading it costs about a tenth of a second. Asked of the
-      // binding, that tenth of a second is paid in front of the frame the viewer is waiting for, once for every
-      // step of a walk over the shelf - which is what a juddering wall is made of. So the bytes are read here,
-      // away from the thread that draws, and the screen is told about the picture afterwards; until then the
-      // shelf keeps wearing the backdrop it wore, which is a better answer than a blank moment.
-      byte[]? worn = raw;
-      if (radius > 0)
-      {
-        Stopwatch blurred = Stopwatch.StartNew();
-        worn = (await BackgroundBlur.BlurredAsync(raw, radius)) ?? raw;
-        blurred.Stop();
-        Services.HomeTrace.Log("fanartblur", "ms=" + (long)blurred.Elapsed.TotalMilliseconds + " bytes=" + raw.Length +
-                                   " radius=" + radius.ToString("0.#"));
-      }
-
-      // The viewer walked on, or the face - and with it the question - changed in the meantime.
-      if (turn != Volatile.Read(ref _backgroundTurn))
-        return;
-
-      byte[]? toWear = worn;
-
-      //  But only when it is not already lying there: a shelf walked back onto a title it has just worn has the
-      //  answer in hand, and the room is expected to wear it in this very breath - a picture that arrives one
-      //  turn later leaves a screen that is plainly, for one frame, wearing nothing.
-      if (!SkinFanartConverter.Instance.StandsReady(toWear, 0))
-      {
-        await Task.Run(() => SkinFanartConverter.Instance.Warm(toWear, 0));
-
-        if (turn != Volatile.Read(ref _backgroundTurn))
-          return;
-      }
-
-      ShowBackground(toWear, !ReferenceEquals(toWear, raw));
-    }
-
-    /// <summary>
-    /// What stands behind the shelf, said together with how far it still has to be thrown out of focus - the
-    /// two are one answer, since a copy that comes already blurred is worn at nought.
-    /// </summary>
-    private void ShowBackground(byte[]? bytes, bool baked)
-    {
-      _backgroundBaked = baked;
-      BackgroundArtwork = bytes;
-      OnPropertyChanged(nameof(FanartBlurRadius));
-
-      // A backdrop is the size of the television, so the frames this change costs are worth their line in the
-      // ledger: a wall that stutters half a second after every stopped cover is stuttering here, not on the shelf.
-      Services.HomeTrace.NextFrames("background", 3);
+      // The room's picture follows the caret one title at a time, and the whole law behind that - the reference's
+      // half second of standing still before a picture is asked for at all (ImageSourceWrapper Delay="0.5" on its
+      // background image, backgrounds/default-background.xaml:58-62), the remembered picture that costs no second
+      // question on the way back, the picture that is NOT taken away while the new one travels, and the reading
+      // and blur away from the thread that draws - stands once in FanartBackdrop, which the wall of people wears
+      // identically.  What is worn while a name travels is the picture the viewer came from, not a blank room.
+      if (value == null)
+        _backdrop.Quiet();
+      else
+        _backdrop.WearFor(value.Title.Id);
     }
 
     public string LayoutLabel

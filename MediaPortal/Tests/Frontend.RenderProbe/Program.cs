@@ -3226,18 +3226,35 @@ namespace FrontendProbe
         // A dialog over the wall is the same case for the same reason: the shell throws the home out of focus and
         // washes it dark for the length of the question (DialogWashBrush), so the corner belongs to the dialog's
         // ground and not to the theme's background. What the frame is here to show is the dialog's own shape.
-        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, false, out paletteReport);
+        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, CornerReading.CoveredByMedium,
+            out paletteReport);
       }
       else
       {
-        // A wall of people that wears its stood name's fanart covers the corner with the medium too, which is the
-        // same case the playback screen makes above: the corner there belongs to the picture, not to the ground,
-        // and no reading of the theme can be taken from it.  Names the library has no fanart for leave the ground
-        // free, and the question is asked again.
-        PeopleViewModel? room = (window as ShellWindow)?.Screen is PeopleView wearing
-            ? wearing.DataContext as PeopleViewModel : null;
-        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme,
-            !(room != null && room.HasBackgroundArtwork), out paletteReport);
+        // A wall that wears its stood title's fanart covers the corner with the medium too, which is the same case
+        // the playback screen makes above: the corner there belongs to the picture, not to the ground, and no
+        // reading of the theme can be taken from it.  The wall of people wears one, and so does the shelf - both
+        // through the same helper now - so both are asked the same way.  Titles the library has no fanart for leave
+        // the ground free, and the question is asked again.
+        object? worn_room = (window as ShellWindow)?.Screen is PeopleView wearing
+            ? wearing.DataContext as PeopleViewModel
+            : (window as ShellWindow)?.Screen is MediaBrowserView standing_on
+                ? standing_on.DataContext as MediaBrowserViewModel
+                : null;
+        bool wearsAPicture = worn_room switch
+        {
+          PeopleViewModel people_room => people_room.HasBackgroundArtwork,
+          MediaBrowserViewModel shelf_room => shelf_room.HasBackgroundArtwork,
+          _ => false
+        };
+        // A frame of the shelf is read differently again even when it wears no picture: the head of the wall paints
+        // the top-left corner near black (#020303 measured on shelf frames, with the keys standing as without
+        // them), so the corner says nothing about the theme there either.  The share of the frame still does, and
+        // is read - which is the half that catches a palette that never reached a single screen.
+        CornerReading reading = wearsAPicture
+            ? CornerReading.CoveredByMedium
+            : shelfScreen != null ? CornerReading.CoveredByTheWall : CornerReading.Free;
+        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, reading, out paletteReport);
       }
       Console.WriteLine("palette:  " + paletteReport);
       if (paletteWrong != null && (keyboardAsked || keyButtonAsked))
@@ -3354,6 +3371,22 @@ namespace FrontendProbe
 
       if (screenName == "browser" || screenName == "cover" || screenName == "details")
       {
+        // The room the shelf stands in.  Since the shelf borrows the shared helper for this picture, the line is
+        // what says the borrowing works: a shelf that wore a plain ground after the hand-over would print
+        // "drawn False" here while every tile still carried its poster.  The palette matters - a frame drawn with
+        // the plain 'default' palette wears no skin settings and so no fanart at all, which is the skin's answer
+        // rather than the screen's, so the shelf is asked for wearing the skin whose dials it reads.
+        MediaBrowserViewModel? roomOfShelf = shelfScreen ?? browserScreen;
+        if (roomOfShelf != null)
+        {
+          PumpUntil(delegate { return roomOfShelf.BackgroundArtwork != null; }, TimeSpan.FromSeconds(6));
+          Console.WriteLine("room:     " + (roomOfShelf.BackgroundArtwork?.Length ?? -1) + " byte(s), drawn "
+              + roomOfShelf.HasBackgroundArtwork + ", shown " + roomOfShelf.FanartShown
+              + ", overlay " + roomOfShelf.FanartOverlay.ToString("0.##")
+              + ", blur " + roomOfShelf.FanartBlurRadius.ToString("0.#")
+              + ", stood on '" + roomOfShelf.DetailsHeading + "'");
+        }
+
         // Only a cover of a colour this probe knows can be looked for in the pixels; a shelf of episode stills is
         // full of photographs, and the most the probe can say about those by itself is how many rows were given
         // bytes, which it printed before rendering. Whoever wants to see those pictures looks at the frame.
@@ -3489,6 +3522,28 @@ namespace FrontendProbe
     /// </para>
     /// </remarks>
     /// <summary>
+    /// How the corner of a frame is to be read: whether the window's own background stands there at all, or
+    /// whether the screen painted over it - and if so, whether with the medium or with its own chrome.
+    /// </summary>
+    private enum CornerReading
+    {
+      /// <summary>The corner is the window's own background, so both it and the share of the frame speak.</summary>
+      Free,
+      /// <summary>
+      /// The screen wears the medium there - a film's picture over its stage, a song's ground, or the fanart of
+      /// the title a shelf or a wall of people stands on. Neither the corner nor the share says anything about the
+      /// theme then; the frame is standing on the picture, and no palette can be read out of a photograph.
+      /// </summary>
+      CoveredByMedium,
+      /// <summary>
+      /// The screen's own chrome paints the corner near black - the head of the wall does this on every shelf
+      /// frame. The corner says nothing, but the share of the frame still does.
+      /// </summary>
+      CoveredByTheWall
+    }
+
+
+    /// <summary>
     /// Whether the frame was really painted with the palette it says it was.
     /// </summary>
     /// <remarks>
@@ -3497,14 +3552,9 @@ namespace FrontendProbe
     /// than a patch somewhere. A palette applied to the application but never asked for by a screen fails the
     /// second half, which is the failure a green build would otherwise hide.
     /// </remarks>
-    /// <param name="cornerIsFree">
-    /// Whether the corner of the frame is the window's own background rather than something the screen painted
-    /// over it. The playback screen answers <c>false</c>: a film lays its picture over the whole stage and a song
-    /// lays its ground, so the corner there belongs to the medium and no reading of the theme can be taken from it
-    /// - and neither can the share, which on those frames is a measurement of the poster rather than of the skin.
-    /// </param>
+    /// <param name="reading">How the corner is to be read; see <see cref="CornerReading"/>.</param>
     private static string? CheckBackgroundColour(WriteableBitmap frame, Window window, string theme,
-        bool cornerIsFree, out string report)
+        CornerReading reading, out string report)
     {
       // A theme that names a picture stands on that picture, not on a colour, and the honest check about it is
       // a different one: not "is the corner this colour" but "does the window paint with the skin's own file".
@@ -3548,20 +3598,24 @@ namespace FrontendProbe
       bool cornerPainted = IsColour(pixels, rowBytes, redOffset, blueOffset, 0, 0, rgb, 4);
 
       report = "'" + theme + "' draws " + Hex(wanted) + " behind the screen; "
-          + (cornerIsFree
-              ? "the corner is that colour and " + share + "% of the " + total + " pixels are"
-              : "the corner belongs to what is playing and is not read, nor is the share (" + share
-                  + "% of the " + total + " pixels), which on this frame measures the medium");
+          + (reading == CornerReading.Free
+              ? "the corner " + (cornerPainted ? "is" : "is NOT") + " that colour and " + share + "% of the "
+                + total + " pixels are"
+              : reading == CornerReading.CoveredByTheWall
+                  ? "the corner stands under the head of the wall and is not read, while " + share + "% of the "
+                    + total + " pixels are that colour"
+                  : "the corner belongs to what the screen wears and is not read, nor is the share (" + share
+                      + "% of the " + total + " pixels), which on this frame measures the medium");
 
-      if (cornerIsFree && !cornerPainted)
+      if (reading == CornerReading.Free && !cornerPainted)
         return "the top-left pixel is not " + Hex(wanted) + ", so the screen was not drawn with the theme '"
             + theme + "'";
 
       // A palette that coloured one corner and nothing else would satisfy the check above while never having
-      // reached a single screen, which is the thing this probe exists to notice. On the playback frame the
-      // question cannot be asked: the medium covers the stage, so a small share is the fanart being honest and
-      // not the palette missing.
-      if (cornerIsFree && percent < 2.0)
+      // reached a single screen, which is the thing this probe exists to notice. On a frame the medium covers the
+      // question cannot be asked: the picture owns the stage, so a small share is the fanart being honest and not
+      // the palette missing.
+      if (reading != CornerReading.CoveredByMedium && percent < 2.0)
         return "only " + share + "% of the frame carries the theme's background colour, so the palette did not "
             + "reach the screens";
 

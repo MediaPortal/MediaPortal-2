@@ -1609,7 +1609,7 @@
                     carries none), a film's and an episode's their ClearArt - both were read long since for the
                     information screen and never shown over the row, though that row is where a film is chosen.
                   -->
-                  <Image Source="{Binding CoverLettering, Converter={x:Static views:ArtworkConverter.Instance}}"
+                  <Image Source="{Binding CoverLettering, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=250}"
                          Height="120"
                          MaxWidth="250"
                          Stretch="Uniform"
@@ -2474,7 +2474,7 @@
                           BoxShadow="0 12 34 0 #A6000000"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Center">
-                    <Image Source="{Binding DetailsAlbumDisc, Converter={x:Static views:ArtworkConverter.Instance}}"
+                    <Image Source="{Binding DetailsAlbumDisc, Converter={x:Static views:ArtworkConverter.Instance}, ConverterParameter=361}"
                            Stretch="UniformToFill"/>
                   </Border>
                   <Border Name="coverOnDisc"
