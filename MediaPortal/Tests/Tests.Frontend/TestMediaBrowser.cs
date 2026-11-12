@@ -1583,6 +1583,40 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The people a shelf was made by are asked for where filtering is asked for, but they are not a value to cut the
+    /// shelf by: a thousand names do not read in a rail, and a name is known by its face rather than by its line.
+    /// So the row opens the wall of names, which asks the same question at the measure a person is recognised at,
+    /// and a name pressed there cuts a shelf to that person the way picking one value always did.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheFiltersPeoplesRowOpensTheWallOfNamesRatherThanACounting()
+    {
+      MediaBrowserViewModel browser = BrowserOn(new GroupedShelf());
+      browser.OpenCommand.Execute(null);
+      WaitUntil("the titles to arrive", delegate { return browser.Titles.Count == 130; });
+
+      PeopleViewModel? asked = null;
+      browser.PeopleWallRequested += delegate (object? sender, PeopleViewModel wall) { asked = wall; };
+
+      browser.ShowMediaMenu();
+      browser.MediaMenu.First(row => row.Icon == "filter").Command.Execute(null);
+      WaitUntil("the filter page", delegate { return browser.MediaMenu.Any(row => row.Label == "By genre"); });
+
+      Assert.That(browser.MediaMenu.Any(row => row.Label == "By actor"), Is.True,
+          "the people stand among the filters, where a viewer has always looked for them");
+      browser.MediaMenu.First(row => row.Label == "By actor").Command.Execute(null);
+
+      Assert.That(asked, Is.Not.Null, "the row asked the screen for a wall of people instead of a counting");
+      Assert.That(asked!.Shelf, Is.EqualTo(PeopleShelf.FilmActors),
+          "the people who play in these films, which is what a shelf of films was made by");
+      Assert.That(browser.MediaMenuVisible, Is.False, "and the rail slid away for the screen it opened");
+
+      // The counting is untouched everywhere else: only the people are a screen of their own.
+      Assert.That(browser.MediaMenu.Any(row => row.Label == "By genre"), Is.True,
+          "the genres are still asked as a counting of the shelf");
+    }
+
+    /// <summary>
     /// What pressing a category does to the shelf: every title stays - that is grouping's whole promise over
     /// filtering, which throws titles away - and each genre's run stands under its own headline, in the
     /// server's own order of how big each genre is.

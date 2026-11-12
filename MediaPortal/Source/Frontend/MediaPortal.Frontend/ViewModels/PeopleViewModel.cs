@@ -18,12 +18,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediaPortal.Frontend.Api;
+using MediaPortal.Frontend.Caching;
 using MediaPortal.Frontend.Settings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Frontend.ViewModels
@@ -47,9 +49,10 @@ namespace MediaPortal.Frontend.ViewModels
   /// </summary>
   /// <remarks>
   /// Deliberately small.  The wall is read by its thousandth row - this household's films alone answer 7543 names -
-  /// so the biography stays where it is until a viewer presses one person and asks for it by id.
+  /// so a life of up to ten thousand characters is not something every row carries: that is asked for by id, for the
+  /// one name the caret stands on.  A face is not waited for either; it arrives on a tile that already stands.
   /// </remarks>
-  public sealed class PersonTile
+  public sealed partial class PersonTile : ObservableObject
   {
     public PersonTile(MediaPerson person)
     {
@@ -93,6 +96,37 @@ namespace MediaPortal.Frontend.ViewModels
     public string BornWord
     {
       get { return BornDate == null ? "" : BornDate.Value.Year.ToString(CultureInfo.InvariantCulture); }
+    }
+
+    /// <summary>
+    /// The person's portrait, put on the tile after the tile was made - the same two states the shelf's people
+    /// cards have, because a face is not there when a wall of three hundred names is built and a tile that waited
+    /// for one would hold the wall up.
+    /// </summary>
+    /// <remarks>
+    /// Null does not mean "has no face": it means "no face has arrived for this tile", which covers a library that
+    /// keeps none, a question still on the way and a name nobody ever drew.  The tile draws the skin's standing
+    /// figure in all three, as the reference's <c>Person.png</c> fallback did.
+    /// </remarks>
+    [ObservableProperty]
+    private byte[]? _portrait;
+
+    /// <summary>Whether the tile is drawing a face rather than the standing figure.</summary>
+    public bool ShowsPortrait => Portrait != null;
+
+    partial void OnPortraitChanged(byte[]? value) => OnPropertyChanged(nameof(ShowsPortrait));
+
+    /// <summary>
+    /// The picture holder this tile's face was asked of, which is the shelf's mark for "this tile has been asked"
+    /// (<c>TitleViewModel.PaintedFrom</c>).  A library without a portrait is an ordinary library, and a wall whose
+    /// caret walks over two hundred names without one would otherwise ask two hundred questions on its way back; a
+    /// name that was asked and answered with nothing is not asked again.  Cleared when an errand goes wrong or
+    /// lands on a wall that has been replaced, so that the wall standing here now is never left without a face.
+    /// </summary>
+    internal Artwork? PaintedFrom
+    {
+      get;
+      set;
     }
   }
 
@@ -149,22 +183,69 @@ namespace MediaPortal.Frontend.ViewModels
     }
 
     private readonly ServerApiClient? _client;
+    private readonly PictureCache? _pictures;
     private readonly ScreenViewSettings _screens;
     private readonly Dictionary<string, int> _namesPerLetter = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The room behind the wall: the picture of whoever the caret stands on, worn by the same law the shelf of
+    /// titles wears it by, and speaking the very same answers to the markup.
+    /// </summary>
+    private readonly FanartBackdrop _backdrop;
 
     private MenuPage _menuPage;
     private long _reading;
     private int _offset;
     private bool _atEnd;
 
-    public PeopleViewModel(ServerApiClient? client, PeopleShelf shelf)
+    /// <summary>Counts the questions asked for the name the caret stands on, so a late answer is known as late.</summary>
+    private long _detailsAsked;
+
+    /// <summary>
+    /// Opens a wall of people.
+    /// </summary>
+    /// <param name="client">The server the names are asked of, or null for a screen with nothing to read.</param>
+    /// <param name="shelf">Which of the three walls this is.</param>
+    /// <param name="pictures">
+    /// This machine's shelf for the library's pictures, which the people's faces are asked through before the server
+    /// is asked at all.  Null is a run that keeps pictures in memory only - the same answer the shelf of titles
+    /// gives its own holders.
+    /// </param>
+    public PeopleViewModel(ServerApiClient? client, PeopleShelf shelf, PictureCache? pictures = null)
     {
       _client = client;
+      _pictures = pictures;
       Shelf = shelf;
       _screens = ScreenViewSettings.Load(null, out _);
+      _backdrop = new FanartBackdrop(PersonBackdrops());
+
+      // The room's picture changes with the names the markup is bound to, and those are the shelf's own names.
+      _backdrop.PropertyChanged += delegate
+      {
+        OnPropertyChanged(nameof(FanartOverlay));
+        OnPropertyChanged(nameof(FanartBlurRadius));
+        OnPropertyChanged(nameof(BackgroundArtwork));
+        OnPropertyChanged(nameof(HasBackgroundArtwork));
+      };
+
       RestoreRememberedReading();
       BuildMediaMenu();
     }
+
+    /// <summary>The room's picture and the skin's three dials, which is what the fanart layer is bound to.</summary>
+    public bool FanartShown { get { return _backdrop.FanartShown; } }
+
+    /// <summary>How far the worn skin dims the room's picture.</summary>
+    public double FanartOverlay { get { return _backdrop.FanartOverlay; } }
+
+    /// <summary>How far the room's picture is thrown out of focus.</summary>
+    public double FanartBlurRadius { get { return _backdrop.FanartBlurRadius; } }
+
+    /// <summary>The bytes of the stood name's picture, or null while the room wears its plain ground.</summary>
+    public byte[]? BackgroundArtwork { get { return _backdrop.BackgroundArtwork; } }
+
+    /// <summary>Whether there is a room-picture to draw.</summary>
+    public bool HasBackgroundArtwork { get { return _backdrop.HasBackgroundArtwork; } }
 
     /// <summary>Which of the three walls this screen shows.</summary>
     public PeopleShelf Shelf { get; }
@@ -332,6 +413,397 @@ namespace MediaPortal.Frontend.ViewModels
     [ObservableProperty]
     private PersonTile? _selected;
 
+    /// <summary>
+    /// Whether the column of words at the right hand end of the screen stands.  On from the first name, exactly as a
+    /// shelf of titles opens: what is known about the standing name belongs beside the wall rather than behind a
+    /// press, and only the viewer's own answer - the "Details" row on the screen's menu - takes it away, and for
+    /// that visit only.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showDetails = true;
+
+    /// <summary>What the rail's row says, in the shelf's own two words.</summary>
+    public string DetailsLabel
+    {
+      get { return ShowDetails ? "Details: on" : "Details: off"; }
+    }
+
+    /// <summary>Turns the column away or lets it back: what the rail's row presses.</summary>
+    [RelayCommand]
+    public void ToggleDetails()
+    {
+      ShowDetails = !ShowDetails;
+
+      // A row of this rail is written when its page is built and is not kept afterwards, so the row carrying the
+      // answer has to be written again - otherwise it goes on saying "on" to a column that just went away.
+      BuildMediaMenu();
+    }
+
+    /// <summary>Whether the column is up at all, which is the viewer's answer and nothing else.</summary>
+    public bool ShowsSideDetails
+    {
+      get { return ShowDetails; }
+    }
+
+    /// <summary>Whether the column has somebody to speak of, which is when its words may be painted.</summary>
+    public bool ShowsDetailsWords
+    {
+      get { return ShowDetails && DetailsName.Length > 0; }
+    }
+
+    /// <summary>The name the column speaks of - a word the wall's row carries before the server is ever asked.</summary>
+    [ObservableProperty]
+    private string _detailsName = "";
+
+    /// <summary>The years as the reference wrote them under a person's name: "1904 - 1966", "1962", or nothing.</summary>
+    [ObservableProperty]
+    private string _detailsYears = "";
+
+    /// <summary>Where the person comes from, when the library was ever told.  An offline one never was.</summary>
+    [ObservableProperty]
+    private string _detailsOrigin = "";
+
+    /// <summary>
+    /// The life as the library wrote it, whole.  Up to ten thousand characters, because that is how long the library
+    /// lets one be - this household's longest runs eight thousand six hundred and thirty five - so the column that
+    /// shows it is a column that reads, not a line that cuts.
+    /// </summary>
+    [ObservableProperty]
+    private string _detailsBiography = "";
+
+    /// <summary>The face of the standing name, asked under that person's own id.</summary>
+    [ObservableProperty]
+    private byte[]? _detailsPortrait;
+
+    /// <summary>Whether the years have anything to say.</summary>
+    public bool ShowsYears => DetailsYears.Length > 0;
+
+    /// <summary>Whether the library named a place, which is a section that stays away for every offline person.</summary>
+    public bool ShowsOrigin => DetailsOrigin.Length > 0;
+
+    /// <summary>Whether there is a life to read - two of this household's 7757 actors have one, all of them musicians.</summary>
+    public bool ShowsBiography => DetailsBiography.Length > 0;
+
+    /// <summary>Whether the column draws a face rather than the skin's standing figure.</summary>
+    public bool ShowsPortrait => DetailsPortrait != null;
+
+    partial void OnDetailsNameChanged(string value) => OnPropertyChanged(nameof(ShowsDetailsWords));
+    partial void OnDetailsYearsChanged(string value) => OnPropertyChanged(nameof(ShowsYears));
+    partial void OnDetailsOriginChanged(string value) => OnPropertyChanged(nameof(ShowsOrigin));
+    partial void OnDetailsBiographyChanged(string value) => OnPropertyChanged(nameof(ShowsBiography));
+    partial void OnDetailsPortraitChanged(byte[]? value) => OnPropertyChanged(nameof(ShowsPortrait));
+
+    /// <summary>
+    /// The caret stood on another name, which is the one moment the column changes its subject: nothing here is
+    /// opened, pressed or clicked - a media screen says what is stood on, all by itself.
+    /// </summary>
+    partial void OnSelectedChanged(PersonTile? value)
+    {
+      if (value == null)
+      {
+        ClearDetails();
+        _backdrop.Quiet();
+        OnPropertyChanged(nameof(ContentInfo));
+        OnPropertyChanged(nameof(ShowsContentInfo));
+        return;
+      }
+
+      // Two errands, none of them waited for: the words the column is made of, and the picture of the one name the
+      // caret actually stands on.  A wall is walked a name at a time, so both arrive after the name is painted
+      // rather than hold it back.  The faces of the names around the caret are NOT asked here: the screen asks for
+      // those per tile it draws, the way a shelf of titles does, because only the screen knows what the viewer can
+      // see.
+      _ = ShowDetailsForAsync(value);
+      _backdrop.WearFor(value.Id);
+
+      // And the line at the foot changes its subject with the caret, out of what the row already carries.
+      OnPropertyChanged(nameof(ContentInfo));
+      OnPropertyChanged(nameof(ShowsContentInfo));
+    }
+
+    partial void OnShowDetailsChanged(bool value)
+    {
+      // The screen divides its room by this answer, so the answer has to be heard and not only read.
+      OnPropertyChanged(nameof(ShowsSideDetails));
+
+      //  ...and the line at the foot takes over the telling when the column is turned away.
+      OnPropertyChanged(nameof(ShowsContentInfo));
+
+      if (!value)
+      {
+        ClearDetails();
+        return;
+      }
+
+      if (Selected != null)
+        _ = ShowDetailsForAsync(Selected);
+    }
+
+    /// <summary>
+    /// Which reading of the wall the face errands were sent for.  A wall that was re-read - another letter, another
+    /// order, another wall altogether - throws away the answers that are still on their way, because a face that
+    /// lands on a name the room no longer shows is a face nobody is looking at.  The shelf's own mark for the same
+    /// question (<c>MediaBrowserViewModel._paintGeneration</c>).
+    /// </summary>
+    private long _paintGeneration;
+
+    /// <summary>
+    /// Takes the column's words away: the caret walked off the wall, the wall was re-read, or the viewer turned the
+    /// column away.
+    /// </summary>
+    private void ClearDetails()
+    {
+      _detailsAsked++;
+      DetailsName = "";
+      DetailsYears = "";
+      DetailsOrigin = "";
+      DetailsBiography = "";
+      DetailsPortrait = null;
+    }
+
+    /// <summary>
+    /// Fills the column with what is known about one person: the name and the years the wall's row already carries,
+    /// then the life and the place it does not, then the face.
+    /// </summary>
+    /// <remarks>
+    /// The row's own words go up first on purpose.  A wall is walked faster than a server answers, and a column that
+    /// filled itself only once an answer arrived would spend a whole walk standing empty beside a name that is
+    /// plainly written three feet away from it.
+    /// </remarks>
+    private async Task ShowDetailsForAsync(PersonTile person)
+    {
+      long asked = ++_detailsAsked;
+      DetailsName = person.Name;
+      DetailsYears = YearsOf(person.BornDate, person.DeathDate);
+      DetailsOrigin = "";
+      DetailsBiography = "";
+      DetailsPortrait = null;
+
+      ServerApiClient? client = _client;
+      if (client == null || !ShowDetails)
+        return;
+
+      // The face travels beside the words and not behind them: a life of eight thousand characters is a long
+      // answer, a face is a short one, and a column that showed its face only once the life had arrived kept a
+      // nameless plate in front of a viewer who had already read the name next to it.
+      Task face_errand = ReadFaceAsync(person.Id, asked);
+
+      try
+      {
+        MediaPersonAnswer answer = await client.GetPersonAsync(person.Id).ConfigureAwait(true);
+
+        // The caret moved on while this was travelling, and the column speaks of another person now.
+        if (asked != _detailsAsked)
+          return;
+
+        MediaPersonDetail? life = answer.Person;
+        if (life == null)
+          return;
+
+        // The name and the two dates came over the wall already, and the record is believed for them anyway: a wall
+        // and a record are one table read two ways, and a difference between them is a library rebuilt underneath
+        // the screen - the record is the one that still exists.
+        DetailsName = string.IsNullOrWhiteSpace(life.Name) ? person.Name : life.Name;
+        DetailsYears = YearsOf(life.BornDate ?? person.BornDate, life.DeathDate ?? person.DeathDate);
+        DetailsOrigin = life.Place;
+        DetailsBiography = life.Life;
+      }
+      catch (Exception)
+      {
+        // A record that will not answer leaves the column with the row's own words on it.  The wall keeps walking;
+        // a server that cannot tell one life is no reason to stop naming people.
+      }
+      finally
+      {
+        // Waited for on every road out of here - including the two that returned early - so that the picture is
+        // never a task nobody owns.  It answers for itself either way; this only keeps the column's errands told.
+        await face_errand.ConfigureAwait(true);
+      }
+    }
+
+    /// <summary>Asks the one face the column is drawing, and only while the column still speaks of that person.</summary>
+    private async Task ReadFaceAsync(Guid person, long asked)
+    {
+      Artwork? portraits = PersonPortraits();
+      if (portraits == null)
+        return;
+
+      try
+      {
+        byte[]? face = await portraits.LoadAsync(person).ConfigureAwait(true);
+        if (face == null || asked != _detailsAsked)
+          return;
+
+        // Decoded away from the thread that draws, the way every other picture of this front end is: a face the
+        // binding has to decode first is a face the viewer sees arrive.
+        if (!Views.ArtworkConverter.Instance.Remembers(face, Views.ArtworkConverter.POSTER_PARAMETER))
+        {
+          await Task.Run(delegate
+          {
+            Views.ArtworkConverter.Instance.Warm(face, Views.ArtworkConverter.POSTER_PARAMETER);
+          }).ConfigureAwait(true);
+        }
+
+        if (asked == _detailsAsked)
+          DetailsPortrait = face;
+      }
+      catch (ServerApiException)
+      {
+        // Nothing filed under this name, which is what almost every film actor of this household has in common.
+      }
+      catch (Exception)
+      {
+        // The same answer for anything else: the column keeps the standing figure it was drawing.
+      }
+    }
+
+    /// <summary>
+    /// Tells the wall that a name standing within the viewer's reach wants its face.  Asking the server is the wall's
+    /// business, so the drawn tile is handed this instead of a client of its own; the answer arrives on the tile and
+    /// is decoded there, off the thread that draws.
+    /// </summary>
+    /// <remarks>
+    /// Asked for per tile by the screen rather than looped over by the wall, because only the screen knows which
+    /// tiles it drew: a wall of seven thousand film actors holds seven thousand names and shows a couple of dozen on
+    /// the television, and a face fetched for a tile nobody can see is a place in the picture queue taken from one
+    /// nobody can.  The queue is what makes the difference the viewer feels - asked one after the other by one walk,
+    /// a wall's faces arrive one per round trip and are seen arriving; asked by the tiles that stand in sight, the
+    /// four the fetcher keeps on the wire carry them in as a stream, which is how a shelf of titles fills and how a
+    /// wall of people is meant to fill.
+    /// </remarks>
+    public void PaintFace(PersonTile tile)
+    {
+      Artwork? portraits = PersonPortraits();
+      if (portraits == null || ReferenceEquals(tile.PaintedFrom, portraits))
+        return;
+
+      tile.PaintedFrom = portraits;
+      _ = PutFaceOnAsync(portraits, tile, Volatile.Read(ref _paintGeneration));
+    }
+
+    /// <summary>
+    /// One tile's face, put on the tile when it arrives - unless the wall it was asked for was replaced underneath
+    /// it, in which case this answer belongs to a wall nobody is looking at.
+    /// </summary>
+    private async Task PutFaceOnAsync(Artwork portraits, PersonTile tile, long generation)
+    {
+      byte[]? face;
+      try
+      {
+        face = await portraits.LoadAsync(tile.Id).ConfigureAwait(true);
+      }
+      catch (Exception)
+      {
+        // Nothing filed under this name, which is what almost every film actor of this household has in common.
+        // Left unmarked on purpose: one errand that came back empty is no reason to go without a face for the rest
+        // of the evening when the server was only having a bad minute.
+        tile.PaintedFrom = null;
+        return;
+      }
+
+      if (generation != Volatile.Read(ref _paintGeneration))
+      {
+        // The wall this errand was sent for is not the wall the room wears now.  What MUST not happen is leaving the
+        // tile stamped as though it had been painted: the stamp is what keeps a tile from being asked a second
+        // time, and the wall that stands here now would then keep wearing the standing figure for ever.
+        tile.PaintedFrom = null;
+        return;
+      }
+
+      if (face == null)
+        return;
+
+      // Decoded away from the thread that draws, the way every other picture of this front end is: a JPEG that is
+      // decoded between the frame the viewer waited for and the frame after it is experienced as a face popping
+      // into a tile that was already standing there.
+      byte[] toRead = face;
+      if (!Views.ArtworkConverter.Instance.Remembers(toRead, Views.ArtworkConverter.POSTER_PARAMETER))
+      {
+        await Task.Run(delegate
+        {
+          Views.ArtworkConverter.Instance.Warm(toRead, Views.ArtworkConverter.POSTER_PARAMETER);
+        }).ConfigureAwait(true);
+      }
+
+      if (generation == Volatile.Read(ref _paintGeneration))
+        tile.Portrait = face;
+    }
+
+
+    private Artwork? _personPortraits;
+    private bool _personPortraitsAsked;
+
+    /// <summary>
+    /// The holder of the people's faces, made once and kept apart from every other picture of this screen: these
+    /// are asked for under a PERSON's id, and a holder shared with titles would hand one person's face to a title
+    /// wearing the same number.
+    /// </summary>
+    /// <remarks>
+    /// The kind is the shelf's own word for a person's face at the shelf's own small width, so the people bands of a
+    /// title's details and this wall read the same machine's shelf: a face one of them fetched is not fetched twice
+    /// by the other.  Asked as fanart of the type <c>Thumbnail</c> rather than as the thumbnail blob, because a
+    /// person's picture is never the blob - it is the file the import wrote under the person's own id, which is
+    /// where the reference asked a face from too.
+    /// </remarks>
+    private Artwork? PersonPortraits()
+    {
+      if (_personPortraitsAsked)
+        return _personPortraits;
+
+      _personPortraitsAsked = true;
+      ServerApiClient? client = _client;
+      if (client == null)
+        return null;
+
+      return _personPortraits = PicturesOf(client,
+          PictureWidths.Shelf("PersonThumbnail", PictureWidths.SMALL),
+          id => client.GetFanArtAsync(id, "Thumbnail", null, PictureWidths.SMALL));
+    }
+
+    /// <summary>
+    /// The holder of the room's pictures: a person's fanart whole, across the width the screen is painted at.
+    /// </summary>
+    /// <remarks>
+    /// The kind is the person's own and never the <c>"FanArt"</c> a title's backdrop is kept under, for the same
+    /// reason the faces above are kept under <c>"PersonThumbnail"</c>: two libraries of pictures that happen to be
+    /// asked with the same numbers would otherwise be laid on top of each other in the shelf, and a name would be
+    /// answered with some film's wallpaper.  Behind a blur the width matters less than the asking - a household
+    /// that imported its pictures at postage-stamp size gets the postage stamp back, since the server's ladder of
+    /// sizes never grows a picture, only shrinks it.
+    /// </remarks>
+    private Artwork? PersonBackdrops()
+    {
+      ServerApiClient? client = _client;
+      if (client == null)
+        return null;
+
+      int whole = PictureWidths.PaintedScreenWidth();
+      return PicturesOf(client, PictureWidths.Shelf("PersonFanArt", whole),
+          id => client.GetFanArtAsync(id, "FanArt", null, whole));
+    }
+
+    /// <summary>One holder of one kind of picture, on this machine's shelf when the machine keeps one.</summary>
+    private Artwork PicturesOf(ServerApiClient client, string kind, Func<Guid, Task<byte[]?>> ask)
+    {
+      return _pictures == null ? new Artwork(ask) : _pictures.ArtworkFor(kind, client.BaseUrl, ask);
+    }
+
+    /// <summary>
+    /// The two dates as one word of years, as the reference wrote them under the name: both years when the library
+    /// knows both, one when it knows one, nothing when it knows neither.  Years rather than dates, because what an
+    /// import keeps of a birth is a year and the day was never told anybody.
+    /// </summary>
+    private static string YearsOf(DateTime? born, DateTime? died)
+    {
+      if (born == null)
+        return died == null ? "" : "died " + died.Value.Year.ToString(CultureInfo.InvariantCulture);
+
+      string first = born.Value.Year.ToString(CultureInfo.InvariantCulture);
+      return died == null
+          ? first
+          : first + " - " + died.Value.Year.ToString(CultureInfo.InvariantCulture);
+    }
+
     /// <summary>Whether the wall is one wall rather than a run of plates.</summary>
     public bool IsGrouped
     {
@@ -376,9 +848,21 @@ namespace MediaPortal.Frontend.ViewModels
       }
 
       long asked = ++_reading;
+
+      // Who the column was speaking of, asked of the caret BEFORE its tile is thrown away with the rows.  The id is
+      // remembered rather than the tile because a re-read builds every tile anew, and the caret has to go onto the
+      // tile that stands here now - the details column follows the caret, and a caret dropped on every re-read would
+      // blank the column over a person who is still plainly on the screen.
+      Guid stoodFor = Selected?.Id ?? Guid.Empty;
       if (fromTheStart)
       {
         Rows.Clear();
+
+        // Every tile of this wall is a new tile, so the faces still on their way belong to a wall that is gone: the
+        // mark goes up, those answers are thrown away when they land, and their tiles are left un-stamped so that
+        // the wall standing here now is asked for them again.
+        _paintGeneration++;
+
         _namesPerLetter.Clear();
         _offset = 0;
         _atEnd = false;
@@ -408,6 +892,8 @@ namespace MediaPortal.Frontend.ViewModels
         if (!string.IsNullOrWhiteSpace(answer.Error))
         {
           Notice = answer.Error!;
+          if (fromTheStart)
+            Selected = null;
           return;
         }
 
@@ -420,11 +906,30 @@ namespace MediaPortal.Frontend.ViewModels
         _offset += arrived;
         _atEnd = arrived == 0 || _offset >= answer.Total;
         OnPropertyChanged(nameof(Headline));
+
+        // The names that just came onto the wall are asked for their faces by the screen, tile by tile, as its panel
+        // stands them - which is where a wall knows what a viewer can see.  Nothing is asked for here.
+
+        if (fromTheStart)
+        {
+          // The caret goes back onto the same person when the wall still holds them - which is every re-read of a
+          // question that did not change the answer, and the sorting, grouping and letter of a wall that keeps its
+          // names.  Where they are gone (a letter, a word, or a filter that left them out) the caret and with it the
+          // column go quiet, because a column going on about a person who is not on the wall is a screen lying
+          // about what is stood on.
+          Selected = stoodFor == Guid.Empty
+              ? null
+              : Rows.OfType<PersonTile>().FirstOrDefault(row => row.Id == stoodFor);
+        }
       }
       catch (Exception e)
       {
         if (asked == _reading)
+        {
           Notice = "The server did not answer the wall: " + e.Message;
+          if (fromTheStart)
+            Selected = null;
+        }
       }
       finally
       {
@@ -513,6 +1018,74 @@ namespace MediaPortal.Frontend.ViewModels
       }
     }
 
+    /// <summary>
+    /// The one line this screen says at its foot about the name the caret stands on, in the shelf's own shape: the
+    /// name, the years, and what the library says this person is.  Read off the row alone and asked of nobody - a
+    /// foot line that had to ask the server would put one request behind every arrow key.
+    /// </summary>
+    /// <remarks>
+    /// A shelf of titles says the same kind of line here when its details column is turned away (the name, the year,
+    /// the kinds of thing it is), and for the same reason: the column went away, not the knowledge.  What the wall
+    /// does NOT say here is its own name and its number of names - no shelf of titles stands under a caption, and a
+    /// wall that needed one to know itself would be a screen explaining itself to a viewer who came to look at
+    /// names.  See <see cref="Headline"/>, which the traces still ask.
+    /// </remarks>
+    public string ContentInfo
+    {
+      get
+      {
+        //  A word the server sent that no face could draw outranks a name, since a wall that was not answered has
+        //  nothing to say about a name it never got.
+        if (Notice.Length > 0)
+          return Notice;
+
+        PersonTile? person = Selected;
+        if (person == null)
+          return string.Empty;
+
+        List<string> parts = new List<string> { person.Name };
+        string years = YearsOf(person.BornDate, person.DeathDate);
+        if (years.Length > 0)
+          parts.Add(years);
+
+        string trade = TradeWord(person.Occupation);
+        if (trade.Length > 0)
+          parts.Add(trade);
+
+        return string.Join("   ·   ", parts);
+      }
+    }
+
+    /// <summary>
+    /// Whether that line stands.  It is the answer for the one moment in which the screen has nothing else to say
+    /// about the stood-on name: the details column is turned away, and the rail's word is not speaking at this very
+    /// place at the foot of the room.
+    /// </summary>
+    public bool ShowsContentInfo
+    {
+      get { return (Selected != null || Notice.Length > 0) && !ShowDetails && !MediaMenuVisible; }
+    }
+
+    partial void OnNoticeChanged(string value)
+    {
+      OnPropertyChanged(nameof(ContentInfo));
+      OnPropertyChanged(nameof(ShowsContentInfo));
+    }
+
+    partial void OnMediaMenuVisibleChanged(bool value) => OnPropertyChanged(nameof(ShowsContentInfo));
+
+    /// <summary>
+    /// The library's word for what a person is - <c>ACTOR</c>, <c>ARTIST</c> - written as a word a screen can say
+    /// out loud rather than as a table's constant.
+    /// </summary>
+    private static string TradeWord(string? occupation)
+    {
+      if (string.IsNullOrEmpty(occupation))
+        return string.Empty;
+
+      return char.ToUpperInvariant(occupation![0]) + occupation.Substring(1).ToLowerInvariant();
+    }
+
     /// <inheritdoc />
     public void MenuTileStood(string? label, string? detail)
     {
@@ -581,8 +1154,8 @@ namespace MediaPortal.Frontend.ViewModels
           AddMenuRow("Grid", "grid_view", new AsyncRelayCommand(() => PickLayoutAsync(LAYOUT_GRID)),
               Layout == LAYOUT_GRID);
           // No Cover, no Stacked, no 3D Cover: those three are a shelf of covers put down three ways, and a person
-          // is not a cover.  No details row either, because this wall wears its details whenever its screen has
-          // room for them - see the people screen's own details area.
+          // is not a cover.
+          AddMenuRow(DetailsLabel, "details", new RelayCommand(ToggleDetails), ShowDetails);
           return;
 
         case MenuPage.Sort:

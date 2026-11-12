@@ -122,6 +122,7 @@ namespace MediaPortal.Frontend.Views
       _workflow = workflow;
       _nowPlayingScreen = nowPlayingScreen;
       _insideScreen = insideScreen;
+      browser.PeopleWallRequested += OnPeopleWallRequested;
       InitializeComponent();
 
       // Measuring switch: MP_NOGLASS=1 takes the command rail - the seven liquid-glass lenses - out of the screen.
@@ -2053,114 +2054,33 @@ namespace MediaPortal.Frontend.Views
     /// <summary>How far a rail nods toward the wall a viewer pointed at, in points.</summary>
     private const double RAIL_BOUNCE_DIVE = ShelfRail.RAIL_BOUNCE_DIVE;
 
-    /// <summary>The lean toward the wall and the spring back, both in milliseconds.</summary>
-    private const int RAIL_BOUNCE_DIVE_MS = 90;
-    private const int RAIL_BOUNCE_SPRING_MS = 430;
-
     /// <summary>
-    /// The lean of the last nod, which the nod's own transform cannot witness: the transform stays on the plate
-    /// after the spring and says nothing about which way the plate leaned.  A test that has to tell a nod left
-    /// from a nod right reads these instead.
+    /// The one nodder this screen's plates share: the side rail, the rail under covers, the bands and the search
+    /// field all answer a wall with it.  The numbers and the feel live in <see cref="ShelfNod"/>, which is the
+    /// same answer a wall of people gives with the very same rail.
     /// </summary>
-    internal double LastNodX { get; private set; }
+    private readonly ShelfNod _nods = new ShelfNod();
 
-    internal double LastNodY { get; private set; }
+    /// <inheritdoc cref="ShelfNod.LastNodX" />
+    internal double LastNodX => _nods.LastNodX;
 
-    private DispatcherTimer? _railBounceTimer;
-    private TranslateTransform? _railBounceTransform;
+    internal double LastNodY => _nods.LastNodY;
 
-    /// <summary>
-    /// Where the nodding rail currently stands. A test - and the render probe - read these to know that a wall
-    /// was pointed at: while no wall has been pointed at since the last nod came to rest, the rail stands at
-    /// nothing at all.
-    /// </summary>
-    internal double RailBounceX => _railBounceTransform?.X ?? 0;
+    /// <inheritdoc cref="ShelfNod.BounceX" />
+    internal double RailBounceX => _nods.BounceX;
 
     /// <inheritdoc cref="RailBounceX" />
-    internal double RailBounceY => _railBounceTransform?.Y ?? 0;
+    internal double RailBounceY => _nods.BounceY;
 
     /// <summary>
     /// Nods a rail the told number of points toward the wall the viewer pointed at and springs it back.
     /// </summary>
-    /// <remarks>
-    /// A wall is answered rather than passed over, because a screen that says nothing when a key points at
-    /// nothing is a screen where the viewer cannot tell a wall from a broken key. The nod runs on the front
-    /// end's own timer, the way <see cref="StandCaret"/> asks for a caret: ninety milliseconds of lean out -
-    /// squared off, so the first frames carry most of it and the wall is named at once - and four hundred and
-    /// thirty of easeOutBack home, which carries the rail a tenth of the dive past its rest before it settles,
-    /// which is what makes the answer a bounce rather than a shuffle back.
-    /// </remarks>
     /// <param name="rail">The rail's whole ground: the panel that carries the list, its heading and its glow.</param>
     /// <param name="diveX">The lean along X, positive to the right; zero for a wall above or below.</param>
     /// <param name="diveY">The lean along Y, positive downward; zero for a wall beside the rail.</param>
     private void BounceRail(Control rail, double diveX, double diveY)
     {
-      // One nod at a time. A key pressed while the previous nod is still travelling starts a new one from
-      // wherever the rail stands, because that is where the rail is and a viewer leaning on a key repeatedly
-      // should see the rail lean with every press.
-      _railBounceTimer?.Stop();
-
-      if (_railBounceTransform != null && !ReferenceEquals(rail.RenderTransform, _railBounceTransform))
-      {
-        // The other rail wore the last nod - walking from a grid into covers does that. Put it back to rest
-        // before nodding this one, so no rail is left hanging off its ground.
-        _railBounceTransform.X = 0;
-        _railBounceTransform.Y = 0;
-        _railBounceTransform = null;
-      }
-
-      TranslateTransform nod = rail.RenderTransform as TranslateTransform;
-      if (nod == null)
-      {
-        nod = new TranslateTransform();
-        rail.RenderTransform = nod;
-      }
-      _railBounceTransform = nod;
-      LastNodX = diveX;
-      LastNodY = diveY;
-
-      double fromX = nod.X;
-      double fromY = nod.Y;
-      long started = Environment.TickCount64;
-
-      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
-      {
-        Interval = TimeSpan.FromMilliseconds(16)
-      };
-      _railBounceTimer = timer;
-
-      timer.Tick += delegate
-      {
-        if (!ReferenceEquals(_railBounceTimer, timer))
-          return; // a newer nod drives this rail from here on
-
-        long elapsed = Environment.TickCount64 - started;
-        if (elapsed >= RAIL_BOUNCE_DIVE_MS + RAIL_BOUNCE_SPRING_MS)
-        {
-          timer.Stop();
-          nod.X = 0;
-          nod.Y = 0;
-          return;
-        }
-
-        if (elapsed <= RAIL_BOUNCE_DIVE_MS)
-        {
-          double u = elapsed / (double)RAIL_BOUNCE_DIVE_MS;
-          double lean = 1 - (1 - u) * (1 - u);
-          nod.X = fromX + (diveX - fromX) * lean;
-          nod.Y = fromY + (diveY - fromY) * lean;
-          return;
-        }
-
-        double v = (elapsed - RAIL_BOUNCE_DIVE_MS) / (double)RAIL_BOUNCE_SPRING_MS;
-        double c1 = 1.70158;
-        double c3 = c1 + 1;
-        double back = 1 + c3 * Math.Pow(v - 1, 3) + c1 * Math.Pow(v - 1, 2);
-        nod.X = diveX * (1 - back);
-        nod.Y = diveY * (1 - back);
-      };
-
-      timer.Start();
+      _nods.Nod(rail, diveX, diveY);
     }
 
     /// <summary>
@@ -2389,25 +2309,6 @@ namespace MediaPortal.Frontend.Views
       }
     }
 
-    /// <summary>
-    /// The share of the room the details column is offered: the reference's own split, measured at the width it
-    /// drew for - a thousand of its nineteen hundred and twenty points are its details, which is this share.
-    /// </summary>
-    private const double DETAILS_SHARE = 0.52;
-
-    /// <summary>How wide the details column is allowed to grow, which is the reference's thousand points.</summary>
-    private const double DETAILS_MAX = 1000;
-
-    /// <summary>Under this width the column stops being a column and is only a strip, so it is not given less.</summary>
-    private const double DETAILS_MIN = 340;
-
-    /// <summary>
-    /// The width a shelf is never allowed to fall under: two tiles of the poster shape the shelf is most often
-    /// worn in. A details column that leaves less than that lays the shelf out in one long line of single tiles,
-    /// which is a list wearing a grid's clothes.
-    /// </summary>
-    private const double SHELF_MIN = 470;
-
     /// <summary>What the details column was last told to be, so that a resize that changes nothing changes nothing.</summary>
     private double? _detailsColumnWidth;
 
@@ -2440,13 +2341,7 @@ namespace MediaPortal.Frontend.Views
       // The room's own width, which the shell hands this view when it lays the screen under its header. Before
       // that has happened the reference's own width is assumed, and the first measure corrects it.
       double room = Bounds.Width > 0 ? Bounds.Width : 1920;
-      double details = 0;
-      if (viewModel.ShowsSideDetails)
-      {
-        details = Math.Min(Math.Clamp(room * DETAILS_SHARE, DETAILS_MIN, DETAILS_MAX), room - SHELF_MIN);
-        if (details < 0)
-          details = 0;
-      }
+      double details = ShelfDetailsColumn.WidthFor(room, viewModel.ShowsSideDetails);
 
       if (_detailsColumnWidth.HasValue && Math.Abs(_detailsColumnWidth.Value - details) < 0.5)
         return;
@@ -5621,8 +5516,17 @@ namespace MediaPortal.Frontend.Views
     private static readonly FuncTemplate<Panel?> TILE_PANEL =
         new FuncTemplate<Panel?>(() => new VirtualizingTilePanel());
 
-    private void OnPlayRequested(object? sender, TitleViewModel title)
+    /// <summary>
+    /// Puts the wall of people the shelf was asked for on the workflow.  The wall itself is built by the shelf, which
+    /// is where the server, the pictures and the shelf's own kind are known; the road onward - the works of a name
+    /// pressed on the wall - is the application's, which builds the <c>"people"</c> frame for every road here.
+    /// </summary>
+    private void OnPeopleWallRequested(object? sender, PeopleViewModel wall)
     {
+      _workflow?.Push(new WorkflowFrame("people", wall.WallLabel, wall));
+    }
+
+    private void OnPlayRequested(object? sender, TitleViewModel title)    {
       if (_nowPlayingScreen == null || _workflow == null)
         return;
 

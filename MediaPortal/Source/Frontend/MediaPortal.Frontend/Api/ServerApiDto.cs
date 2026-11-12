@@ -344,6 +344,46 @@ namespace MediaPortal.Frontend.Api
   }
 
   /// <summary>
+  /// One person as <c>GET api/media/persons/{id}</c> answers them: everything this library was told about that one
+  /// person, which is the two things a wall's row leaves out - the life and the place - beside the name and dates a
+  /// row already carries.
+  /// </summary>
+  /// <remarks>
+  /// The biography is up to ten thousand characters because that is how long the library lets one be (measured over
+  /// this household's records: the longest is eight thousand six hundred and thirty five), so a screen that shows it
+  /// has to be able to show a lot of it and part of it, and say which.  Origin is answered by nobody in an offline
+  /// music library - not one of its 369 artists carries one - so a screen asks for it and keeps quiet when it is
+  /// empty rather than standing a labelled blank in the column.
+  /// </remarks>
+  public record MediaPersonDetail(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("name")] string? Name,
+      [property: JsonPropertyName("occupation")] string? Occupation,
+      [property: JsonPropertyName("biography")] string? Biography,
+      [property: JsonPropertyName("origin")] string? Origin,
+      [property: JsonPropertyName("bornDate")] DateTime? BornDate,
+      [property: JsonPropertyName("deathDate")] DateTime? DeathDate)
+  {
+    /// <summary>The life, trimmed, or nothing when the library was never told one.</summary>
+    public string Life
+    {
+      get { return (Biography ?? "").Trim(); }
+    }
+
+    /// <summary>The place, trimmed, or nothing - which is what every person of an offline library answers.</summary>
+    public string Place
+    {
+      get { return (Origin ?? "").Trim(); }
+    }
+  }
+
+  /// <summary>The answer of <c>GET api/media/persons/{id}</c>: the one person, or the reason there is none.</summary>
+  public record MediaPersonAnswer(
+      [property: JsonPropertyName("id")] Guid Id,
+      [property: JsonPropertyName("person")] MediaPersonDetail? Person,
+      [property: JsonPropertyName("error")] string? Error);
+
+  /// <summary>
   /// One title as <c>GET api/media/items/{id}</c> answers it: what the library knows beyond the row in a list.
   /// </summary>
   /// <remarks>

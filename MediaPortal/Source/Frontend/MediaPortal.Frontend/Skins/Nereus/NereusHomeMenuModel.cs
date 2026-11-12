@@ -55,7 +55,9 @@ namespace MediaPortal.Frontend.Skins.Nereus
             new NereusHomeShortcut("Genre", "MediaMenu/genre", "genre"),
             new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
             new NereusHomeShortcut("Age", "MediaMenu/age", "age"),
-            new NereusHomeShortcut("Actor", "MediaMenu/actor", "actors"),
+            // The people a shelf was made by are not a counting like its genres: they are a wall of their own, so
+            // the tile says nothing about browsing and the front end reads the wall out of the icon's own word.
+            new NereusHomeShortcut("Actor", "MediaMenu/actor"),
             new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },
           [Guid.Parse("30f57cba-459c-4202-a587-09fff5098251")] = new[]
@@ -63,7 +65,7 @@ namespace MediaPortal.Frontend.Skins.Nereus
             new NereusHomeShortcut("Genre", "MediaMenu/genre", "genre"),
             new NereusHomeShortcut("Year", "MediaMenu/year", "year"),
             new NereusHomeShortcut("Age", "MediaMenu/age", "age"),
-            new NereusHomeShortcut("Actor", "MediaMenu/actor", "actors"),
+            new NereusHomeShortcut("Actor", "MediaMenu/actor"),
             new NereusHomeShortcut("Search", "MediaMenu/search", screenKey: "search")
           },
           [Guid.Parse("30715d73-4205-417f-80aa-e82f0834171f")] = new[]
@@ -71,7 +73,9 @@ namespace MediaPortal.Frontend.Skins.Nereus
             new NereusHomeShortcut("Genre", "MediaMenu/audiogenre", "genre"),
             new NereusHomeShortcut("Track", "MediaMenu/track"),
             new NereusHomeShortcut("Album", "MediaMenu/album"),
-            new NereusHomeShortcut("Artist", "MediaMenu/artist", "actors"),
+            // The musicians a shelf of records was made by, which the counting of a record shelf never lists as
+            // "actors" - the word was simply wrong here, and the wall it opens is the artists' own.
+            new NereusHomeShortcut("Artist", "MediaMenu/artist"),
             new NereusHomeShortcut("Year", "MediaMenu/year", "year")
           },
           [Guid.Parse("55556593-9fe9-436c-a3b6-a971e10c9d44")] = new[]

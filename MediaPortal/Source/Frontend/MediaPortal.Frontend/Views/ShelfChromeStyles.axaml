@@ -11,6 +11,63 @@
         xmlns:lg="using:LiquidGlassAvaloniaUI"
         xmlns:sys="using:System">
 
+  <!--
+    THE GROUND EVERY MEDIA SCREEN STANDS ON, and the two bands that lie over it.  Written once here because the
+    shelf and the wall of people are one program: the skin's own background fills the screen, and the reference's
+    media master hung a band of a hundred lines at its head and two hundred and sixty at its foot over that ground
+    (master_bare_media.xaml:69-73, TopGradient and BottomGradient, both drawn from the seven stops the home's bands
+    carry too), so that a screen's words never stand on a bright picture.  A screen asks for them by wearing the
+    classes; nothing in a screen repeats a number from here.
+  -->
+  <Style Selector="Image.shelf-backdrop">
+    <Setter Property="Stretch" Value="Fill"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+  </Style>
+  <Style Selector="Border.shelf-band-top">
+    <Setter Property="Height" Value="100"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="VerticalAlignment" Value="Top"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+        <GradientStop Color="#E6000000" Offset="0"/>
+        <GradientStop Color="#78000000" Offset="0.3"/>
+        <GradientStop Color="#46000000" Offset="0.45"/>
+        <GradientStop Color="#21000000" Offset="0.6"/>
+        <GradientStop Color="#0C000000" Offset="0.75"/>
+        <GradientStop Color="#01000000" Offset="0.87"/>
+        <GradientStop Color="#00000000" Offset="1"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Border.shelf-band-bottom">
+    <Setter Property="Height" Value="260"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="VerticalAlignment" Value="Bottom"/>
+    <Setter Property="IsHitTestVisible" Value="False"/>
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
+        <GradientStop Color="#E6000000" Offset="0"/>
+        <GradientStop Color="#78000000" Offset="0.3"/>
+        <GradientStop Color="#46000000" Offset="0.45"/>
+        <GradientStop Color="#21000000" Offset="0.6"/>
+        <GradientStop Color="#0C000000" Offset="0.75"/>
+        <GradientStop Color="#01000000" Offset="0.87"/>
+        <GradientStop Color="#00000000" Offset="1"/>
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+
+  <!-- A wall of names is a list of a thousand tiles and shows no bar for them: the shelf's wall hides its scroll
+       line the same way, by the ScrollViewer's own visibility rather than by a rule of the skin. -->
+  <Style Selector="ListBox#peopleList">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
+  </Style>
+
   <Style Selector="ListBox.media-menu">
     <Setter Property="Background" Value="Transparent"/>
     <Setter Property="BorderThickness" Value="0"/>
@@ -160,6 +217,11 @@
        which is the corner the picture is cut to. -->
   <Style Selector="Border.person-card">
     <Setter Property="Background" Value="#222222"/>
+    <!-- The plate carries the face's corner.  It lies OUTSIDE the face's clip (a shadow cannot live on a
+         clipped edge, so the rounding is the inner face's job), and whatever lies outside a clip is cut by
+         nothing: a square plate therefore showed its own four corners beside the rounded face, which is the
+         same overflow this skin already once chased out of a card's veil. -->
+    <Setter Property="CornerRadius" Value="10"/>
   </Style>
   <Style Selector="Border.person-face">
     <Setter Property="CornerRadius" Value="10"/>

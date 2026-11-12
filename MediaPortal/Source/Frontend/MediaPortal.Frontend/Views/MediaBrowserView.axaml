@@ -404,8 +404,8 @@
   -->
   <Panel>
 
-    <Image Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"
-           Stretch="Fill"/>
+    <Image Classes="shelf-backdrop"
+           Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"/>
     <views:DissolveImage Stretch="UniformToFill"
            Opacity="{Binding FanartOverlay}"
            IsVisible="{Binding HasBackgroundArtwork}">
@@ -431,32 +431,8 @@
       pointer and a tile.
     -->
     <Panel IsHitTestVisible="False">
-      <Border VerticalAlignment="Top" Height="100" HorizontalAlignment="Stretch">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
-            <GradientStop Color="#E6000000" Offset="0"/>
-            <GradientStop Color="#78000000" Offset="0.3"/>
-            <GradientStop Color="#46000000" Offset="0.45"/>
-            <GradientStop Color="#21000000" Offset="0.6"/>
-            <GradientStop Color="#0C000000" Offset="0.75"/>
-            <GradientStop Color="#01000000" Offset="0.87"/>
-            <GradientStop Color="#00000000" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Border VerticalAlignment="Bottom" Height="260" HorizontalAlignment="Stretch">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
-            <GradientStop Color="#E6000000" Offset="0"/>
-            <GradientStop Color="#78000000" Offset="0.3"/>
-            <GradientStop Color="#46000000" Offset="0.45"/>
-            <GradientStop Color="#21000000" Offset="0.6"/>
-            <GradientStop Color="#0C000000" Offset="0.75"/>
-            <GradientStop Color="#01000000" Offset="0.87"/>
-            <GradientStop Color="#00000000" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
+      <Border Classes="shelf-band-top"/>
+      <Border Classes="shelf-band-bottom"/>
     </Panel>
 
     <!--

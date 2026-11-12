@@ -506,6 +506,23 @@ namespace MediaPortal.Frontend.Api
     }
 
     /// <summary>
+    /// <c>GET api/media/persons/{id}</c> - everything one person's own record holds, the life story included.
+    /// </summary>
+    /// <param name="personId">The person's own media item id, which is what a row of a wall carries.</param>
+    /// <remarks>
+    /// Asked for one person and never for a wall: this is what a details column reads about the name the caret
+    /// stands on, and a wall of 7543 names would be 7543 life stories travelling to a screen that shows one of them
+    /// at a time.  The portrait does not come with it - a picture is filed under the same id and is asked with
+    /// <see cref="GetFanArtAsync"/> under the type <c>Thumbnail</c>, which is how the reference asked a person's
+    /// face (themes/default/styles/CurrentlyPlayingStyles.xaml:220-222).
+    /// </remarks>
+    public async Task<MediaPersonAnswer> GetPersonAsync(Guid personId, CancellationToken cancellation = default)
+    {
+      return await GetJsonAsync<MediaPersonAnswer>(
+          "api/media/persons/" + personId.ToString("D"), cancellation).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// What the server knows about one title, by the id a title list gave.
     /// </summary>
     /// <param name="mediaItemId">The id from <see cref="MediaTitle.Id"/>.</param>

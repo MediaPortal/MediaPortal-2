@@ -76,6 +76,10 @@ namespace FrontendProbe
         "  --server <url>   render the populated screen by asking this server (otherwise MP2_SERVER,\n" +
         "                   otherwise the screen's own 'no server' state is rendered - a real state too)\n" +
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
+        "  --person <name>  with --screen people: search the wall for this name and stand the caret on the first\n" +
+        "                   answer, which is how a frame is got of the details column reading a real life\n" +
+        "  --nodetails      with --screen people: turn the column of words away, which is when the line at the\n" +
+        "                   room's foot speaks about the stood-on name\n" +
         "  --inside <id>  list the shelf INSIDE the title of this id, which is how a viewer reaches it by pressing:\n" +
         "                   a season wall under the series, an episode wall under the season it was pressed from.\n" +
         "                   Asked of the running server, because a season's and an episode's row reads the series'\n" +
@@ -142,6 +146,7 @@ namespace FrontendProbe
       string? serverUrl = null;
       string screenName = "home";
       string aspectName = "MovieItem";
+      string? personWanted = null;
       string? layoutWord = null;
       string? theme = null;
       bool audio = false;
@@ -156,6 +161,7 @@ namespace FrontendProbe
       int albumTunes = 0;
       bool shuffled = false;
       int? standAt = null;
+      bool noDetails = false;
       Guid insideTitle = Guid.Empty;
       int insideSeason = 0;
       int width = 1280;
@@ -190,6 +196,11 @@ namespace FrontendProbe
             if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
               return Usage("--aspect needs a name.");
             aspectName = args[++i].Trim();
+            break;
+          case "--person":
+            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
+              return Usage("--person needs a name the wall can be searched for.");
+            personWanted = args[++i].Trim();
             break;
           case "--inside":
             if (i + 1 >= args.Length || !Guid.TryParse(args[i + 1], out insideTitle))
@@ -252,6 +263,11 @@ namespace FrontendProbe
             break;
           case "--shuffle":
             shuffled = true;
+            break;
+          case "--nodetails":
+            // Turns the column of words away, which is the one state in which the line at the room's foot has to
+            // speak about the stood-on name instead of standing silent for the column.
+            noDetails = true;
             break;
           case "--stand":
             if (i + 1 >= args.Length || !int.TryParse(args[++i], out int onRow))
@@ -1214,6 +1230,8 @@ namespace FrontendProbe
         PeopleViewModel wall = new PeopleViewModel(client, shelfKind);
         if (layoutWanted == BrowserLayout.List)
           wall.Layout = PeopleViewModel.LAYOUT_LIST;
+        if (noDetails)
+          wall.ShowDetails = false;
         Console.WriteLine("content:  the wall of " + wall.WallLabel + " that " + url + " answers with"
             + " (--aspect chooses which of the three)");
         _ = wall.ReadAsync(true);
@@ -1233,7 +1251,55 @@ namespace FrontendProbe
           return 1;
         }
 
+        // A name to stand the caret on.  Asked for rather than picked out of the wall, because the frame is meant to
+        // be looked at again: a name somebody typed is a name whose life can be checked against the library after
+        // the picture was taken.
+        if (!string.IsNullOrWhiteSpace(personWanted))
+        {
+          _ = wall.FindAsync(personWanted!);
+          if (!PumpUntil(delegate { return !wall.Busy; }, TimeSpan.FromSeconds(60)))
+          {
+            Console.WriteLine("FAILED:   '" + url + "' was still searching the wall for \"" + personWanted
+                + "\" after a minute.");
+            return 4;
+          }
+
+          Pump(TimeSpan.FromMilliseconds(300));
+          Console.WriteLine("search:   \"" + personWanted + "\" leaves " + wall.Rows.Count + " of " + wall.Total
+              + " name(s) standing");
+        }
+
+        PersonTile stoodOn = wall.Rows.OfType<PersonTile>().FirstOrDefault();
         window = new ShellWindow(new PeopleView(wall, new WorkflowManager(), null));
+
+        if (stoodOn != null)
+        {
+          // The caret goes onto the first name, and the column at the right hand end fills itself from there: that
+          // is the whole point of a media screen's details, that they follow the caret rather than a press.  Waiting
+          // is a kindness to the frame only - a name whose library holds no life answers with name and years, which
+          // is a correct frame too.
+          wall.Selected = stoodOn;
+          PumpUntil(delegate
+          {
+            return wall.DetailsBiography.Length > 0 || wall.DetailsPortrait != null;
+          }, TimeSpan.FromSeconds(10));
+
+          // A beat longer than the details need: the column hands its own words a height (PeopleView.FitWordsIntoThePanel)
+          // and the skin's vectors arrive on their own errand, both of which post their work at the layout's own
+          // priority.  A frame taken in the middle of that shows the column where the layout had it a moment ago,
+          // which is a picture of nothing.
+          Pump(TimeSpan.FromMilliseconds(2000));
+
+          Console.WriteLine("details:  \"" + wall.DetailsName + "\""
+              + (wall.DetailsYears.Length > 0 ? " · " + wall.DetailsYears : "")
+              + (wall.DetailsOrigin.Length > 0 ? " · " + wall.DetailsOrigin : "")
+              + " · life " + wall.DetailsBiography.Length + " character(s)"
+              + " · face " + (wall.DetailsPortrait == null
+                  ? "none"
+                  : wall.DetailsPortrait.Length.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                      + " byte(s)")
+              + " · column up: " + wall.ShowsDetailsWords);
+        }
       }
       else if (screenName.Equals("folders", StringComparison.Ordinal))
       {
@@ -2253,11 +2319,11 @@ namespace FrontendProbe
         if (wall != null && wall.Items.Count > 0)
           wall.SelectedIndex = 0;
         Pump(TimeSpan.FromMilliseconds(250));
-        wallScreen.RaiseEvent(new KeyEventArgs
+        wall?.RaiseEvent(new KeyEventArgs
         {
           RoutedEvent = InputElement.KeyDownEvent,
           Key = Key.Left,
-          Source = (Control?) wall ?? wallScreen
+          Source = wall
         });
         if (!PumpUntil(delegate { return Math.Abs(RoomSlide(wallScreen)) >= 200; }, TimeSpan.FromSeconds(30)))
         {
@@ -2268,6 +2334,51 @@ namespace FrontendProbe
         Pump(TimeSpan.FromMilliseconds(250));
         Console.WriteLine("slide:    the room stands " + Math.Round(RoomSlide(wallScreen), 1)
             + " points out of the rail's way");
+
+        // And the rail's own wall.  A key pointing left from inside the rail points at nothing, so the rail nods its
+        // ground and everything stays where it is; this is the walk that used to put the menu away and leave the
+        // caret standing in nobody, which is the difference between a wall and a broken key.
+        PeopleViewModel wall_owner = (PeopleViewModel) wallScreen.DataContext!;
+        ListBox? plates = wallScreen.GetVisualDescendants().OfType<ListBox>()
+            .FirstOrDefault(list_box => list_box.Name == "mediaMenuList");
+        if (plates == null || !PumpUntil(delegate { return plates.IsKeyboardFocusWithin; }, TimeSpan.FromSeconds(20)))
+        {
+          Console.WriteLine("FAILED:   the rail never took the caret, so its walls cannot be walked.");
+          return 1;
+        }
+
+        int rows_up = plates.Items.Count;
+        Panel? rail_ground = wallScreen.GetVisualDescendants().OfType<Panel>()
+            .FirstOrDefault(panel => panel.Name == "sideMenu");
+        Console.WriteLine("before:   the caret is on '"
+            + (TopLevel.GetTopLevel(wallScreen)?.FocusManager.GetFocusedElement()?.GetType().Name ?? "?")
+            + "', the rail is focused " + plates.IsFocused + "/within " + plates.IsKeyboardFocusWithin);
+        // Raised ON the list rather than on the screen: a key arrives at the control that wears the caret, and a
+        // route built from the screen would run past the rail's ground without ever touching it.
+        plates.RaiseEvent(new KeyEventArgs
+        {
+          RoutedEvent = InputElement.KeyDownEvent,
+          Key = Key.Left,
+          Source = plates
+        });
+        Pump(TimeSpan.FromMilliseconds(400));
+        Console.WriteLine("rows:     the rail wears " + plates.Items.Count + " row(s), the caret stands on row "
+            + plates.SelectedIndex + ", its ground is "
+            + (rail_ground == null ? "not on the screen" : "a '" + rail_ground.GetType().Name + "' named '"
+              + rail_ground.Name + "'"));
+        Console.WriteLine("wall:     the rail nodded "
+            + (rail_ground?.RenderTransform is TranslateTransform ? "its ground" : "NOTHING")
+            + ", the room still stands " + Math.Round(RoomSlide(wallScreen), 1) + " points aside, the menu is "
+            + (wall_owner.MediaMenuVisible ? "up" : "GONE") + " and the caret is "
+            + (plates.IsKeyboardFocusWithin
+                 ? "still on row " + plates.SelectedIndex + " of " + rows_up
+                 : "NOWHERE, off to '" + (((Control?) (((TopLevel.GetTopLevel(wallScreen) as Window)?
+                     .FocusManager.GetFocusedElement())))?.Name ?? "the window") + "'"));
+        if (!wall_owner.MediaMenuVisible || !plates.IsKeyboardFocusWithin)
+        {
+          Console.WriteLine("FAILED:   a key pointing past the rail's wall put the menu away or threw the caret out.");
+          return 1;
+        }
       }
 
       if (menuAsked && (window as ShellWindow)?.Screen is MediaBrowserView menuScreen)
@@ -2792,6 +2903,12 @@ namespace FrontendProbe
         }
       }
 
+      // A last beat before the frame is taken.  A view that is asked for its columns before it has been measured
+      // answers with the numbers it had at that moment and lays itself right again on the size change that follows
+      // (PeopleView.ApplyColumns); pumping once more lets that second laying-out land in the frame, so that the
+      // picture and the tree the lines below read out of it are the same moment.
+      Pump(TimeSpan.FromMilliseconds(600));
+
       WriteableBitmap? frame = window.CaptureRenderedFrame();
       if (frame is null)
       {
@@ -2903,6 +3020,187 @@ namespace FrontendProbe
       if (!isPng)
         return 3;
 
+      // Measured after the frame is on disk, because a walk over the visual tree of a window that was never shown has
+      // been seen to take the process down with it, and the frame is the thing that must survive.  Where a panel
+      // stands is asked of the tree rather than guessed out of the picture: a plate laid out at four hundred and
+      // seventy points and a plate laid out at two hundred and thirty-five make the same picture to an eye, while the
+      // tree says which of the two the layout actually agreed to.
+      try
+      {
+        foreach (Control panel in window.GetVisualDescendants().OfType<Control>())
+        {
+          if (panel.Name != "detailsPanel" && panel.Name != "peopleList" && panel.Name != "room"
+              && panel.Name != "detailsWords" && panel.Name != "detailsFace" && panel.Name != "titlesList")
+            continue;
+
+          Point here = panel.TranslatePoint(new Point(0, 0), (Visual)window!) ?? default;
+          PeopleViewModel? spoken = panel.DataContext as PeopleViewModel;
+          Console.WriteLine("mass:     " + panel.Name + " at x " + Math.Round(here.X) + " y " + Math.Round(here.Y)
+              + ", w " + Math.Round(panel.Bounds.Width) + ", h " + Math.Round(panel.Bounds.Height)
+              + ", visible " + panel.IsVisible + " (on screen " + panel.IsEffectivelyVisible + ")"
+              + (panel is Border ring
+                  ? ", ring " + (ring.BorderBrush == null ? "none" : ring.BorderBrush.GetType().Name) + " "
+                  + ring.BorderThickness + " classes " + string.Join(".", panel.Classes)
+                  + " focusable " + panel.Focusable
+                  : "")
+              + (spoken == null
+                  ? ""
+                  : ", words " + spoken.ShowsDetailsWords + " about \"" + spoken.DetailsName + "\", caret on "
+                  + (spoken.Selected?.Name ?? "nobody") + ", " + spoken.Rows.Count + " row(s)"));
+
+          if (panel.Name != "peopleList" && panel.Name != "titlesList")
+            continue;
+          if (panel is not ListBox wall)
+            continue;
+
+          // The name a viewer would have stood on, stood here: everything a wall says about a person - the column of
+          // words, the row's frame, the tile's face - belongs to the name under the caret, and a frame taken with
+          // nobody stood on it says nothing about any of them.
+          if (standAt.HasValue && screenName.Equals("people", StringComparison.Ordinal)
+              && wall.SelectedIndex != standAt.Value)
+          {
+            wall.SelectedIndex = standAt.Value;
+            Pump(TimeSpan.FromMilliseconds(600));
+
+            // And the column is waited out to the end of its errands: its words and its face travel from a question
+            // about the stood name, and a frame taken while they are still on the wire pictures a person the viewer
+            // has not stood on long enough to see.
+            PeopleViewModel? stood_on = wall.DataContext as PeopleViewModel;
+            PumpUntil(delegate { return stood_on == null || stood_on.DetailsPortrait != null; },
+                TimeSpan.FromSeconds(12));
+          }
+
+          // Where the caret really is, because a ring that stays dark is a ring written against the wrong control.
+          object? stood = wall.SelectedItem;
+          Control? container = stood == null ? null : wall.ContainerFromIndex(wall.Items.IndexOf(stood)) as Control;
+          Console.WriteLine("caret:    focused " + (window.FocusManager.GetFocusedElement()?.GetType().Name ?? "nobody")
+              + ", stood container " + (container?.GetType().Name ?? "none") + " classes ["
+              + (container == null ? "" : string.Join(" ", container.Classes)) + "]"
+              + ", list classes [" + string.Join(" ", wall.Classes) + "]"
+              + ", adorner " + (wall.FocusAdorner?.GetType().Name ?? "none")
+              + ", fade " + (((wall.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault())
+                  ?.OpacityMask)?.GetType().Name ?? "none")
+              + ", transitions "
+              + ((wall.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault())?.Transitions?.Count
+                  ?? -1));
+
+          // A face travels: the wall is read first and its pictures asked of the server afterwards, so a frame taken
+          // the moment the names stand would picture a bare wall and be read as the bug it is not.  The frame
+          // therefore waits for the faces to stop arriving - and gives up quickly on a library that keeps none.
+          int quiet = 0, wore = 0;
+          for (int rounds_of_faces = 0; rounds_of_faces < 100 && quiet < 8; rounds_of_faces++)
+          {
+            Pump(TimeSpan.FromMilliseconds(100));
+            int wore_now = (wall.ItemsSource as System.Collections.IEnumerable)?.OfType<PersonTile>()
+                    .Count(worn => worn.Portrait != null) ?? -1;
+            quiet = wore_now == wore ? quiet + 1 : 0;
+            wore = wore_now;
+          }
+
+          Console.WriteLine("faces:    " + wore + " face(s) stand on "
+              + ((wall.ItemsSource as System.Collections.IEnumerable)?.OfType<PersonTile>().Count() ?? -1)
+              + " name(s), the errand went quiet after " + quiet + " rounds of waiting");
+
+          // The room's picture as well: it is asked for only once the caret has stood still for half a second, so a
+          // frame taken with the names freshly painted wears a plain ground and nothing else.
+          PeopleViewModel? room = wall.DataContext as PeopleViewModel;
+          PumpUntil(delegate { return room == null || room.BackgroundArtwork != null; }, TimeSpan.FromSeconds(6));
+          Console.WriteLine("backdrop: " + (room == null ? "no wall"
+              : (room.BackgroundArtwork?.Length ?? -1) + " byte(s), drawn " + room.HasBackgroundArtwork
+              + ", overlay " + room.FanartOverlay.ToString("0.##") + ", blur "
+              + room.FanartBlurRadius.ToString("0.#")));
+
+          // The line at the foot: a wall that says its own name and number there, or says nothing while its column
+          // is away, is a wall that invented a caption.  What stands here is the one line about the stood-on name.
+          Console.WriteLine("foot:     " + (room == null ? "no wall"
+              : (room.ShowsContentInfo ? "\"" + room.ContentInfo + "\"" : "silent ("
+                  + (room.MediaMenuVisible ? "the rail speaks" : room.ShowDetails ? "the column speaks" : "nothing stood")
+                  + ")")));
+
+          // What one tile of this wall measures, asked of the containers themselves: a wall that lays its tiles at
+          // another width than the shelf does is a second program wearing the same skin, and only the tree says
+          // which width the layout actually agreed to.
+          int stood_at = wall.SelectedIndex >= 0 ? wall.SelectedIndex : 0;
+          for (int asking = 0; asking < 3; asking++)
+          {
+            if (!(wall.ContainerFromIndex(stood_at + asking) is Control tile))
+              continue;
+
+            Point where = tile.TranslatePoint(new Point(0, 0), (Visual)window!) ?? default;
+            Console.WriteLine("tile:     #" + (stood_at + asking) + " at x " + Math.Round(where.X) + " y "
+                + Math.Round(where.Y) + ", w " + Math.Round(tile.Bounds.Width) + ", h "
+                + Math.Round(tile.Bounds.Height) + ", margin " + tile.Margin + " padding "
+                + (tile is Decorator decked ? decked.Padding.ToString() : "n/a") + ", content "
+                + (tile is Avalonia.Controls.Presenters.ContentPresenter told2 && told2.Content is Control inner
+                    ? inner.GetType().Name + " w " + Math.Round(inner.Bounds.Width) + " h "
+                      + Math.Round(inner.Bounds.Height) + " margin " + inner.Margin
+                    : "none"));
+
+            // Which of a row's two states the skin actually left standing: a row that shows its stood grid while it
+            // rests is a row the skin was never asked about, and only the tree says who is visible.
+            foreach (Grid state in tile.GetVisualDescendants().OfType<Grid>().Take(3))
+            {
+              Console.WriteLine("  grid:   [" + string.Join(" ", state.Classes) + "] visible "
+                  + state.IsVisible + "/" + state.IsEffectivelyVisible + " w " + Math.Round(state.Bounds.Width) + " h "
+                  + Math.Round(state.Bounds.Height) + " margin " + state.Margin);
+
+              Console.WriteLine("    up:     " + string.Join(" < ", state.GetVisualAncestors()
+                  .Take(12)
+                  .Select(a => a.GetType().Name
+                      + (string.IsNullOrEmpty((a as Control)?.Name) ? "" : "#" + (a as Control)!.Name)
+                      + ((a as StyledElement)?.Classes.Count > 0
+                          ? "[" + string.Join(" ", ((StyledElement)a).Classes) + "]" : ""))));
+            }
+
+            // Who painted the row's ground: the skin's sheet is this skin's own white with bold words, the platform
+            // theme behind it answers with an accent rectangle, and the two look alike until the numbers are read.
+            Avalonia.Controls.Presenters.ContentPresenter? sheet =
+                tile.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ContentPresenter>().FirstOrDefault();
+            Console.WriteLine("    sheet:  " + (sheet == null
+                    ? "no presenter"
+                    : "#" + sheet.Name + " background " + sheet.Background + ", weight " + sheet.FontWeight));
+
+            // Whether this name already wears its face: a wall that paints pictures only where a caret has already
+            // stood asks too late, and the bytes standing on the tile say who was asked and who is still bare.
+            if (tile.DataContext is MediaPortal.Frontend.ViewModels.PersonTile named)
+            {
+              Console.WriteLine("    face:   \"" + named.Name + "\" " + (named.Portrait?.Length ?? -1)
+                  + " byte(s)");
+            }
+          }
+        }
+
+        // Where every surface of the column of words stands, asked of the tree: a frame that shows a name in the
+        // middle of the column while the code asked for it at its left edge is only settled by numbers.
+        Control? column = null;
+        foreach (Control walked in window.GetVisualDescendants().OfType<Control>())
+        {
+          if (walked.Name == "detailsPanel")
+            column = walked;
+        }
+
+        if (column != null && column.DataContext is PeopleViewModel)
+        {
+          Console.WriteLine("column:   " + column.GetType().Name + " " + column.Name + " at "
+              + Math.Round(column.Bounds.X) + "," + Math.Round(column.Bounds.Y) + " "
+              + Math.Round(column.Bounds.Width) + "x" + Math.Round(column.Bounds.Height));
+          foreach (Control part in column.GetVisualDescendants().OfType<Control>())
+          {
+            string said = part is TextBlock told
+                ? "\"" + (told.Text ?? "").Replace("\n", " ").Trim() + "\""
+                : part is Avalonia.Controls.Shapes.Path ? "glyph" : "";
+            Console.WriteLine("  part:   " + part.GetType().Name + (string.IsNullOrEmpty(part.Name) ? "" : " '" + part.Name + "'")
+                + " " + said + " at " + Math.Round(part.Bounds.X) + "," + Math.Round(part.Bounds.Y)
+                + " " + Math.Round(part.Bounds.Width) + "x" + Math.Round(part.Bounds.Height)
+                + " vis " + part.IsEffectivelyVisible);
+          }
+        }
+      }
+      catch (Exception measured)
+      {
+        Console.WriteLine("mass:     could not be measured: " + measured.Message);
+      }
+
       if (cropSpec != null)
       {
         string? cropFailure = WriteCrop(frame, cropSpec, outPath);
@@ -2932,7 +3230,14 @@ namespace FrontendProbe
       }
       else
       {
-        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme, true, out paletteReport);
+        // A wall of people that wears its stood name's fanart covers the corner with the medium too, which is the
+        // same case the playback screen makes above: the corner there belongs to the picture, not to the ground,
+        // and no reading of the theme can be taken from it.  Names the library has no fanart for leave the ground
+        // free, and the question is asked again.
+        PeopleViewModel? room = (window as ShellWindow)?.Screen is PeopleView wearing
+            ? wearing.DataContext as PeopleViewModel : null;
+        paletteWrong = CheckBackgroundColour(frame, window, appliedTheme,
+            !(room != null && room.HasBackgroundArtwork), out paletteReport);
       }
       Console.WriteLine("palette:  " + paletteReport);
       if (paletteWrong != null && (keyboardAsked || keyButtonAsked))

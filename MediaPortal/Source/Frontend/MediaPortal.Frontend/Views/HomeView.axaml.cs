@@ -2044,6 +2044,19 @@ namespace MediaPortal.Frontend.Views
         return;
       }
 
+      // The shortcuts that ask for people rather than for titles, asked BEFORE the counting: one tile of the skin
+      // carries the word "actors" as a counting too, and a wall of names is not a list of values to pick a title
+      // out of.  Which wall it opens depends on where the viewer was standing when they pressed - the skin carries
+      // one "Actor" tile, and the people who play in the films are not the people who play in the series - and the
+      // tile is recognised by its icon, which is the one place MP2 spells out what kind of person the tile is.
+      if (_home.Client != null
+          && PeopleViewModel.IsWallShortcut(shortcut.IconName, _home.SelectedEntry?.Section, out PeopleShelf wall))
+      {
+        PeopleViewModel people = new PeopleViewModel(_home.Client, wall, _home.Pictures);
+        _workflow.Push(new WorkflowFrame("people", people.WallLabel, people));
+        return;
+      }
+
       if (shortcut.BrowseBy != null && _home.SelectedEntry?.Section is HomeSection section)
       {
         BrowseCategory? category = BrowseViewModel.CATEGORIES.FirstOrDefault(candidate =>
@@ -2057,17 +2070,6 @@ namespace MediaPortal.Frontend.Views
           _workflow.Push(new WorkflowFrame("browse", "Browse " + shortcut.Label, browse));
           return;
         }
-      }
-
-      // The shortcuts that ask for people rather than for titles. Which wall they open depends on where the
-      // viewer was standing when they pressed: the skin carries one "Actor" tile, and the people who play in the
-      // films are not the people who play in the series.
-      if (PeopleViewModel.IsWallShortcut(shortcut.ScreenKey, _home.SelectedEntry?.Section, out PeopleShelf wall)
-          && _home.Client != null)
-      {
-        PeopleViewModel people = new PeopleViewModel(_home.Client, wall);
-        _workflow.Push(new WorkflowFrame("people", people.WallLabel, people));
-        return;
       }
 
       if (shortcut.ScreenKey != null && OPENABLE_SHORTCUT_SCREENS.Contains(shortcut.ScreenKey))

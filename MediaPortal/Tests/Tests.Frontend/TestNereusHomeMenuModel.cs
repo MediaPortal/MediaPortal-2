@@ -101,6 +101,42 @@ namespace Tests.Frontend
       Assert.That(model.ShortcutsFor(movies)[0].IconName, Is.EqualTo("MediaMenu/genre"));
     }
 
+    /// <summary>
+    /// The tiles that lead to the wall of people say so by their icon and by nothing else.  A viewer pressing
+    /// "Actor" over the films expects a wall of faces, not the browsing screen counting a thousand names, so the
+    /// tile must not also claim to be a browsing shortcut: whichever way the front end reads the tile, the wall
+    /// answers it.  The caught failure of 2026-11-11 was exactly this - the tiles carried "actors" as their
+    /// browsing category, so pressing one opened the counting screen and no number of presses of the tile ever
+    /// showed a face.
+    /// </summary>
+    [Test]
+    public void ThePeoplesTilesOnTheHomeAreReadAsWallsAndAsNothingElse()
+    {
+      var model = new NereusHomeMenuModel();
+      foreach (string action in new[]
+               {
+                 "80d2e2cc-baaa-4750-807b-f37714153751",  // movies
+                 "30f57cba-459c-4202-a587-09fff5098251"    // series
+               })
+      {
+        NereusHomeShortcut actor = model.ShortcutsFor(FindEntry(action))
+            .First(shortcut => shortcut.IconName == "MediaMenu/actor");
+        Assert.That(actor.BrowseBy, Is.Null,
+            "the actors tile of " + action + " also claims to be a browsing shortcut, so the front end opens the "
+            + "counting screen instead of the wall");
+        Assert.That(PeopleViewModel.IsWallShortcut(actor.IconName, null!, out PeopleShelf shelf), Is.True,
+            "the icon the actors tile wears is not read as a wall");
+        Assert.That(shelf, Is.EqualTo(PeopleShelf.FilmActors), "a shelf of films answers its actors");
+      }
+
+      NereusHomeShortcut artist = model.ShortcutsFor(FindEntry("30715d73-4205-417f-80aa-e82f0834171f"))
+          .First(shortcut => shortcut.IconName == "MediaMenu/artist");
+      Assert.That(artist.BrowseBy, Is.Null, "the artists tile of the records also claims to be a browsing shortcut");
+      Assert.That(PeopleViewModel.IsWallShortcut(artist.IconName, null!, out PeopleShelf artistShelf), Is.True,
+          "the icon the artists tile wears is not read as a wall");
+      Assert.That(artistShelf, Is.EqualTo(PeopleShelf.Artists), "the people who make records are artists");
+    }
+
     [Test]
     public void HomeContentMosaicsUseTheReferenceMediaLayouts()
     {

@@ -3,19 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MediaPortal.Frontend.ViewModels"
              xmlns:views="using:MediaPortal.Frontend.Views"
-             xmlns:sys="using:System"
              x:DataType="vm:PeopleViewModel">
   <!--
     A wall of people: the names one shelf was made by, worn like a media screen wears its shelf.
 
-    Everything the room needs to look like the shelf - the rail's styles, the menu's plates, the plate that heads a
-    group - is the shelf's own chrome, included from the files it lives in now (ShelfChrome.axaml and
-    ShelfChromeStyles.axaml) rather than written out a second time.  What is written here is only the two things a
-    wall has that a shelf has not: the tile a person stands on, and the row a name reads in.
+    This screen owns exactly two things - the square a face is drawn in and the row a name reads in - and nothing
+    else.  Every other piece of furniture is the shelf's own and is worn from the shelf's own files: the ground and
+    the two bands (ShelfChromeStyles.axaml, classes shelf-backdrop / shelf-band-top / shelf-band-bottom), the
+    rail's styles and its plates (the same two files), the room's measures and the way it slides, the empty head
+    that only costs its fifty-one points, the column of words at the right hand end with its wash and its
+    negative margins, the line at the foot, and the ring a tile answers a caret with (Border.home-tile-edge, the
+    shelf's own).  A viewer who learned on a shelf of records where a picture stands, where the rail comes out,
+    how far the words reach and what a stood tile looks like finds all of it standing where they left it.
 
-    The room slides the same two hundred points the shelf slides, and for the same reason the reference had:
-    opening the screen's menu shows nothing, it moves the room out of the space the rail stands in, so the rail
-    never covers the wall it belongs to.
+    What a wall has that a shelf has not is written down in the two templates below and nowhere else.
   -->
   <UserControl.Styles>
     <StyleInclude Source="avares://MediaPortal.Frontend/Views/ShelfChromeStyles.axaml"/>
@@ -28,36 +29,54 @@
       </ResourceDictionary.MergedDictionaries>
 
       <!--
-        One person as a tile: the square an artist's or an actor's portrait is drawn in, which is the measure the
-        audio shelf uses for its records - the same picture ground, the same shadow, the name across the bottom on
-        the veil the shelf's own person cards use.  Two hundred and five by one hundred and ninety-five, because a
-        wall is read from further off than a details band is, and a name has to be read from the sofa.
+        One person as a tile, built surface for surface out of the shelf's own person card (PersonCardTile in
+        ShelfChrome.axaml): the outer border carries the shadow, the clipped face carries the picture to the
+        tile's own corner, the veil lies OVER the face and outside the clip so no hairline of picture shines
+        through its last line, and the edge ring is drawn last of all so the face's clip cannot saw its outer
+        half off.  Classes, not copies: every one of those four surfaces is dressed by the shelf's rules, which is
+        what makes the ring light under a caret the way a cover of the home wall lights.
 
-        No number of works on the tile, which the viewer decided when the wall was planned: a thousand names with a
-        count each would be a screen of arithmetic, and the count is one question per row the server would rather
-        not answer.
+        Two numbers differ from the card's, both for the same reason - a wall is read from further off than a band
+        of cards standing inside a title's reading, and a name has to be readable from the sofa: the tile's own
+        measure, and the name's fifteen points grown to eighteen.  Nothing else is added and nothing is left out.
+
+        No number of works on the tile, which the viewer decided when the wall was planned: a thousand names with
+        a count each would be a screen of arithmetic.
       -->
       <DataTemplate x:Key="PersonWallTile" x:DataType="vm:PersonTile">
         <Border Classes="trackcard person-card home-tile-shadow"
                 Focusable="True"
                 Width="205"
                 Height="195"
-                Margin="0,0,12,12">
+                Margin="8,8,8,14">
           <Panel>
             <Border Classes="person-face" ClipToBounds="True">
               <Panel>
-                <!--  The portrait will come from the fanart filed under the person's own id; until a household has
-                      imported one, every tile answers with the skin's picture of a person, which is what the
-                      shelf's person cards do when a face is missing.  -->
+                <!--
+                  The face is the fanart filed under the person's own id, asked at the small width the tile can
+                  paint - the same measure and the same fetch the shelf's cards use, so one answer serves both
+                  screens.  A wall does not wait for its faces: the names are painted as they arrive and a face
+                  goes onto the tile that is already standing.  Where the library holds nothing under that id -
+                  not one face among this household's 7543 film actors - the skin's own person figure stands in
+                  the middle of the face, at the menu glyph's quietness, as the shelf's cards do.
+                -->
+                <Image Classes="home-tile-art"
+                       Source="{Binding Portrait,
+                                        Converter={x:Static views:ArtworkConverter.Instance},
+                                        ConverterParameter=small}"
+                       Stretch="UniformToFill"
+                       IsVisible="{Binding ShowsPortrait}"
+                       IsHitTestVisible="False"/>
                 <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
                                       ConverterParameter='MediaMenu/actor'}"
                       Fill="{DynamicResource TextBrush}"
-                      Opacity="0.35"
+                      Opacity="0.4"
                       Width="86"
                       Height="86"
                       Stretch="Uniform"
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"
+                      IsVisible="{Binding !ShowsPortrait}"
                       IsHitTestVisible="False"/>
               </Panel>
             </Border>
@@ -70,83 +89,137 @@
                        MaxLines="2"
                        TextTrimming="CharacterEllipsis"
                        VerticalAlignment="Bottom"
+                       Margin="8,0,8,8"
                        Foreground="{DynamicResource TextBrush}"
-                       Margin="8,0,8,10"
                        IsHitTestVisible="False"/>
+            <!-- The ring, over the finished edge and drawn last: at rest the skin's ghost of a ring, under a caret
+                 full light, by the shelf's own rule for these two classes. -->
+            <Border Classes="home-tile-edge" IsHitTestVisible="False"/>
           </Panel>
         </Border>
       </DataTemplate>
 
       <!--
-        One person as a row: the picture frame a title row gives its poster - the same fifty-eight by eighty-nine,
-        so a wall read as a list sits in the same measure as a shelf read as a list - the name beside it, and the
-        year the person was born in the dim second word the shelf's rows give their year.
+        One person as a row, cut on this skin's own row of titles (templates.xaml's TitleRowTemplate): the same
+        two grids in the same Panel, the same measurements - a resting grid of Auto,5*,1.4* with twenty points
+        between its columns, a seven hundred point floor and thirty points at each end, and a stood grid of Auto,1*
+        standing eighty-nine points tall with fifteen points at the leading end - and the same two class names, so
+        that it is the skin that decides when either grid shows, what sheet the stood row wears and how bold its
+        words are.  Nothing here draws a sheet or picks a colour for a stood row: a wall that invented those would
+        be a second look, and a wall of names is meant to read as the shelf reads.
+
+        A resting row carries no picture, which is the shelf's law for its rows: the picture arrives with the sheet,
+        the way a record's cover arrives when a track is stood on.  The frame is the frame a record's cover gets -
+        the row's own eighty-nine points square, the picture cut to it rather than letterboxed beside it - because a
+        person's face is filed as the same picture a record is, is asked at the same width, and stands square on the
+        wall's tiles: a name that changed shape between the two shapes of the same wall would be one person drawn
+        by two hands.  The skin's portrait frame (58 across, for the films' and series' posters) therefore stands
+        nowhere on this screen, and the figure the skin draws for a name whose library holds no face stands in the
+        same square, so that a name does not change its shape with the luck of the library.
       -->
       <DataTemplate x:Key="PersonWallRow" x:DataType="vm:PersonTile">
-        <Border Classes="home-tile-shadow"
-                Focusable="True"
-                Margin="0,0,0,6"
-                Padding="0">
-          <StackPanel Orientation="Horizontal" Spacing="14">
-            <Border Classes="person-face"
-                    Width="58"
-                    Height="89"
-                    ClipToBounds="True">
-              <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                                    ConverterParameter='MediaMenu/actor'}"
-                    Fill="{DynamicResource TextBrush}"
-                    Opacity="0.35"
-                    Width="30"
-                    Height="30"
-                    Stretch="Uniform"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    IsHitTestVisible="False"/>
+        <Panel>
+          <Grid Classes="nereus-row-rest" ColumnDefinitions="Auto,5*,1.4*" ColumnSpacing="20" MinWidth="700"
+                Margin="30,4">
+            <TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="2" Text="{Binding BornWord}" HorizontalAlignment="Right" Opacity="0.65"
+                       TextTrimming="CharacterEllipsis"/>
+          </Grid>
+          <Grid Classes="nereus-row-focus" ColumnDefinitions="Auto,1*" ColumnSpacing="20" MinWidth="700"
+                MinHeight="89" Margin="15,4,30,4">
+            <Border Classes="nereus-row-cover" Width="89" Height="89" CornerRadius="5" ClipToBounds="True"
+                    Background="#222222">
+              <Panel>
+                <Image Source="{Binding Portrait,
+                                       Converter={x:Static views:ArtworkConverter.Instance},
+                                       ConverterParameter=small}"
+                       Stretch="UniformToFill"
+                       IsVisible="{Binding ShowsPortrait}"
+                       IsHitTestVisible="False"/>
+                <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                     ConverterParameter='MediaMenu/actor'}"
+                      Fill="{DynamicResource TextBrush}"
+                      Opacity="0.55"
+                      Width="34"
+                      Height="34"
+                      Stretch="Uniform"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      IsVisible="{Binding !ShowsPortrait}"
+                      IsHitTestVisible="False"/>
+              </Panel>
             </Border>
-            <StackPanel VerticalAlignment="Center" Spacing="2">
-              <TextBlock Text="{Binding Name}"
-                         FontSize="24"
-                         Foreground="{DynamicResource TextBrush}"/>
-              <TextBlock Text="{Binding BornWord}"
-                         FontSize="17"
-                         Opacity="0.55"
-                         IsVisible="{Binding BornWord, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                         Foreground="{DynamicResource TextBrush}"/>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+              <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+              <TextBlock Classes="nereus-row-second" Text="{Binding BornWord}" Opacity="0.7"
+                         TextTrimming="CharacterEllipsis"
+                         IsVisible="{Binding BornWord, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
             </StackPanel>
-          </StackPanel>
-        </Border>
+          </Grid>
+        </Panel>
       </DataTemplate>
     </ResourceDictionary>
   </UserControl.Resources>
 
+  <!-- THE GROUND, the shelf's own: this skin's background over the whole screen, the stood name's fanart lying over
+      it with the skin's overlay as its OWN opacity, and the two bands the reference's media master hung over those
+      - a hundred points at the head, two hundred and sixty at the foot.
+      The wall, the rail and the column of words are laid over the bands untouched; the bands only paint, so they
+      are asked for by wearing the classes and stand between the picture and everything the screen has to say. -->
   <Panel ClipToBounds="True">
+    <Image Classes="shelf-backdrop"
+           Source="{Binding Converter={x:Static views:SkinImageConverter.Instance}, ConverterParameter=Background.PNG}"/>
+    <!-- The room's picture, in the shelf's own words: the fanart of whoever the caret stands on, dimmed to the
+         skin's overlay and thrown out of focus by the skin's blur, and asked for only once the caret has stood
+         still - see FanartBackdrop.cs for the law and its timings.  A name the library has no fanart for leaves
+         the plain ground, which is exactly what a shelf of titles without fanart looks like. -->
+    <views:DissolveImage Stretch="UniformToFill"
+           Opacity="{Binding FanartOverlay}"
+           IsVisible="{Binding HasBackgroundArtwork}">
+      <views:DissolveImage.Source>
+        <MultiBinding Converter="{x:Static views:SkinFanartConverter.Instance}">
+          <Binding Path="BackgroundArtwork"/>
+          <Binding Path="FanartBlurRadius"/>
+        </MultiBinding>
+      </views:DissolveImage.Source>
+    </views:DissolveImage>
+    <Panel IsHitTestVisible="False">
+      <Border Classes="shelf-band-top"/>
+      <Border Classes="shelf-band-bottom"/>
+    </Panel>
+
     <!--
-      THE ROOM, two hundred points of which stand off the left edge while the rail is shut.  The transform is what
-      travels, exactly as the shelf's does: a margin would have the layout ask what a moving room measures at every
-      one of the frames, and a reference that drove the same points with a TranslateTransform is not a reference to
-      argue with about which property is the cheap one.
+      THE ROOM, two hundred points of its left edge and two hundred of its bottom off the screen, which is where
+      the rail stands while it is shut.  The transform is what travels, exactly as the shelf's does: a margin would
+      have the layout ask what a moving room measures at every one of the frames, and a reference that drove the
+      same points with a TranslateTransform is not a reference to argue with about which property is the cheap one.
+      Nothing here clips - the rail's picture is made to spill past the panel it stands in, and the column of words
+      is laid with negative margins so that its ground reaches past the head and past the window's bottom edge.
     -->
     <Grid Name="room"
-          Margin="-200,0,0,0"
+          Margin="-200,0,0,-200"
           ColumnDefinitions="200,*"
+          RowDefinitions="*,200"
           ClipToBounds="False">
       <Grid.RenderTransform>
         <TranslateTransform X="0" Y="0">
           <TranslateTransform.Transitions>
             <Transitions>
-              <DoubleTransition Property="X" Duration="0:0:0.35"/>
+              <DoubleTransition Property="X" Duration="00:00:00.35"/>
+              <DoubleTransition Property="Y" Duration="00:00:00.35"/>
             </Transitions>
           </TranslateTransform.Transitions>
         </TranslateTransform>
       </Grid.RenderTransform>
 
       <!--
-        THE RAIL, standing in the two hundred points that are off the room's left edge.  Its ground, its plates and
-        the way it pales into its ends are the shelf's - the styles are included above and the behaviour is
-        ShelfRail - so a viewer who learned where "View" stands on a shelf of films finds it standing where they
-        left it.  Nothing about this panel is new but its rows, and its rows are the wall's three questions.
+        THE RAIL, standing in the two hundred points that are off the room's left edge, from under the head band
+        down past the bottom of the window so that the glow along its right edge has ground to stand on.  Its
+        plates, its glass and its behaviour are the shelf's - the styles are included above, its rows are the
+        shelf's own MediaMenuTile and the walking is ShelfRail - so nothing about this panel is new but its rows.
       -->
       <Panel Name="sideMenu"
+             Grid.RowSpan="2"
              Grid.Column="0"
              Margin="0,90,0,0"
              IsVisible="False"
@@ -169,52 +242,200 @@
         </DockPanel>
       </Panel>
 
-      <DockPanel Grid.Column="1" ClipToBounds="False">
-        <!--
-          THE HEAD, a hundred points of it like the shelf's: the wall's own word, how many names it holds, and the
-          server's word when a question came back that the wall cannot draw.  The head is the only place a wall can
-          say WHICH people these are, so it says it at the top rather than in a menu the viewer has to open.
-        -->
-        <Border DockPanel.Dock="Top" Height="90" Padding="34,0,34,0" VerticalAlignment="Stretch">
-          <StackPanel VerticalAlignment="Center" Spacing="2">
-            <StackPanel Orientation="Horizontal" Spacing="14">
-              <TextBlock Text="{Binding Headline}"
-                         FontSize="30"
-                         FontWeight="SemiBold"
-                         VerticalAlignment="Center"
-                         Foreground="{DynamicResource TextBrush}"/>
-              <TextBlock Text="{Binding Notice}"
-                         FontSize="18"
-                         Opacity="0.75"
-                         VerticalAlignment="Center"
-                         IsVisible="{Binding Notice, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                         Foreground="{DynamicResource TextBrush}"/>
-            </StackPanel>
-            <TextBlock Text="{Binding MediaMenuFootLine}"
-                       FontSize="17"
-                       Opacity="0.55"
-                       IsVisible="{Binding MediaMenuVisible}"
-                       Foreground="{DynamicResource TextBrush}"/>
-          </StackPanel>
-        </Border>
+      <!--
+        THE WALL AND ITS WORDS, in the shelf's own room: ten points of panel, then the wall's column and the
+        column of words.  The two columns are divided by the same measure the shelf divides them by
+        (ShelfDetailsColumn, which the shelf asks too), so a wall and a shelf of the same library at the same
+        window width stand their tiles and their words at the same x.  While the words are away the wall has the
+        room to itself, which is what the shelf does when a viewer turns them off.
+      -->
+      <Panel Grid.Row="0"
+             Grid.Column="1"
+             Margin="10,0,10,10">
+        <Grid Name="contentGrid" ColumnDefinitions="*,0" ColumnSpacing="0" ClipToBounds="False">
 
-        <!--
-          THE WALL.  A list like the shelf's, because everything a wall has to be - walked by a caret, virtualized
-          by a thousand names, dressed by the plate template the shelf's grouping uses - is what that control
-          already is.  Its item template and its panel are put on by the code behind, which is the only place that
-          knows which of the two shapes the wall wears.
-        -->
-        <ListBox Name="peopleList"
-                 Focusable="True"
-                 ItemsSource="{Binding Rows}"
-                 SelectedItem="{Binding Selected, Mode=TwoWay}"
-                 ItemTemplate="{StaticResource PersonWallTile}"
-                 FontSize="24"
-                 Margin="26,0,0,20"
-                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ClipToBounds="False"/>
-      </DockPanel>
+          <DockPanel Grid.Column="0" ClipToBounds="False">
+            <!--
+              The head, which is empty on purpose and stands for its fifty-one points of offset alone: the
+              reference's shelf head carries the heading and nothing else, never "1130 of 1136, sorted by year",
+              and never writes a sentence over the wall.  What a wall has to say for itself is said at its foot.
+            -->
+            <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,51,0,6"/>
+
+            <!--
+              THE WALL.  A list like the shelf's, because everything a wall has to be - walked by a caret,
+              virtualized by a thousand names, laid in the same tile panel the shelf's grid lays its posters in,
+              dressed by the plate template the shelf's grouping uses - is what that control already is.  Its item
+              template and its panel are put on by the code behind, which is the only place that knows which of the
+              two shapes the wall wears.
+            -->
+            <ListBox Name="peopleList"
+                     Classes="nereus-shelf-tiles"
+                     Focusable="True"
+                     ItemsSource="{Binding Rows}"
+                     SelectedItem="{Binding Selected, Mode=TwoWay}"
+                     ItemTemplate="{StaticResource PersonWallTile}"
+                     FontSize="24"
+                     Margin="0,0,0,53"
+                     ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ClipToBounds="False"/>
+          </DockPanel>
+
+          <!--
+            THE COLUMN OF WORDS about the name the caret stands on: the shelf's details column, its measures and
+            all - Grid.Column 1, forty-five points of air before it and ten past the window's edge, ninety-six
+            above the head and two hundred and seventy past the bottom, because a column that stopped level with
+            the wall would float over the picture it belongs to.  The wash is the shelf's wash: sixty hundredths of
+            black from the right corner, standing until six tenths of the line and thinning to nothing at the left
+            edge, so the words sit on an even ground and the wall behind the column is still a wall.
+          -->
+          <Border Name="detailsPanel"
+                  Grid.Column="1"
+                  Margin="45,-96,-10,-270"
+                  ClipToBounds="False"
+                  IsVisible="{Binding ShowsDetailsWords}">
+            <Border.Background>
+              <!--  A bare number in StartPoint/EndPoint is device-independent pixels to Avalonia, not the fraction
+                    WPF reads, so a wash written without the '%' suffix is a line one point long: only '%' means
+                    "of the panel". -->
+              <LinearGradientBrush StartPoint="100%,45%" EndPoint="3%,50%">
+                <GradientStop Color="#99000000" Offset="0"/>
+                <GradientStop Color="#99000000" Offset="0.6"/>
+                <GradientStop Color="#00000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <!--
+              The words, in the shelf's own box: a hundred and forty lines below the top of the ground, which is
+              where the head band ends and a column's words begin, two hundred above its lower edge, and clipped
+              so that neither a word nor a picture gets past it by some route the measuring did not think of.
+              The head is said once and the life is given everything the head leaves - the reference's own
+              arrangement, whose description row was Height="*".
+            -->
+            <Grid Name="detailsWords"
+                  Margin="0,140,50,200"
+                  VerticalAlignment="Top"
+                  RowDefinitions="Auto,*"
+                  ClipToBounds="True">
+              <!--
+                The head, as the reference laid its MediaItemListPersonDetails.inc: its picture row, then the name,
+                then the years, then the place.  The face wears the same two surfaces as a tile - the plate, the
+                clipped face - because a person is drawn one way on this screen.
+              -->
+              <StackPanel Grid.Row="0" Spacing="8">
+                <Border Name="detailsFace"
+                        Classes="person-card"
+                        Width="220"
+                        Height="220"
+                        HorizontalAlignment="Left"
+                        ClipToBounds="False">
+                  <Border Classes="person-face" ClipToBounds="True">
+                    <Panel>
+                      <Image Classes="home-tile-art"
+                             Source="{Binding DetailsPortrait,
+                                              Converter={x:Static views:ArtworkConverter.Instance},
+                                              ConverterParameter=small}"
+                             Stretch="UniformToFill"
+                             IsVisible="{Binding ShowsPortrait}"
+                             IsHitTestVisible="False"/>
+                      <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                            ConverterParameter='MediaMenu/actor'}"
+                            Fill="{DynamicResource TextBrush}"
+                            Opacity="0.4"
+                            Width="92"
+                            Height="92"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsVisible="{Binding !ShowsPortrait}"
+                            IsHitTestVisible="False"/>
+                    </Panel>
+                  </Border>
+                </Border>
+                <TextBlock Text="{Binding DetailsName}"
+                           FontSize="31"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"
+                           MaxLines="2"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource TextBrush}"/>
+                <TextBlock Text="{Binding DetailsYears}"
+                           FontSize="19"
+                           Opacity="0.6"
+                           IsVisible="{Binding ShowsYears}"
+                           Foreground="{DynamicResource TextBrush}"/>
+                <!--
+                  The place, which no offline library ever answers: 369 artists and 7757 actors were never asked
+                  where they come from.  It therefore stands in the markup and stays away on screen - the reference
+                  hid the same row the same way, by the text's own existence rather than by a guess.
+                -->
+                <TextBlock Text="{Binding DetailsOrigin}"
+                           FontSize="19"
+                           Opacity="0.6"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding ShowsOrigin}"
+                           Foreground="{DynamicResource TextBrush}"/>
+              </StackPanel>
+
+              <!--
+                The life, in the row that is given everything the head leaves.  It is read rather than cut, because
+                the longest biography this household holds runs eight thousand six hundred and thirty five
+                characters and a band that trimmed that to two lines would be showing the first words of a life and
+                calling it the life.  The keys stay with the wall, which is walked a name at a time, so this field
+                is moved by the wheel and by its own slider.
+              -->
+              <ScrollViewer Name="biographyScroller"
+                            Grid.Row="1"
+                            Margin="0,26,0,0"
+                            IsVisible="{Binding ShowsBiography}"
+                            VerticalScrollBarVisibility="Hidden"
+                            HorizontalScrollBarVisibility="Disabled">
+                <TextBlock Text="{Binding DetailsBiography}"
+                           FontSize="19"
+                           LineHeight="27"
+                           TextWrapping="Wrap"
+                           Opacity="0.85"
+                           Foreground="{DynamicResource TextBrush}"/>
+              </ScrollViewer>
+            </Grid>
+          </Border>
+        </Grid>
+      </Panel>
+
+      <!--
+        THE LINE AT THE FOOT, in the place the shelf reserves for it: two hundred and forty from the room's left
+        hand, thirty-four above its bottom, where a whole line lies free and nothing stands to be covered.  The two
+        lines and the law between them are the shelf's own, word for word: while the rail is out it names the plate
+        the caret stands on and what that plate adds, and it goes when the rail goes, because it is the rail's word
+        and not the wall's.  With the details column turned away the one line about the stood-on name stands here -
+        the name, the years, what the library says this person is - because the viewer turned the column off, not the
+        knowledge, and a wall of tiles whose column is away would otherwise answer nothing about the name the caret
+        is on.  What is said nowhere at all is the wall's own name and its number of names: no shelf of titles
+        stands under a caption, so neither does this.
+      -->
+      <TextBlock Grid.Row="0"
+                 Grid.ColumnSpan="2"
+                 Text="{Binding MediaMenuFootLine}"
+                 FontSize="22"
+                 Foreground="{DynamicResource TextBrush}"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Bottom"
+                 Margin="240,0,0,34"
+                 IsHitTestVisible="False"
+                 TextTrimming="CharacterEllipsis"
+                 IsVisible="{Binding MediaMenuVisible}"/>
+      <TextBlock Grid.Row="0"
+                 Grid.ColumnSpan="2"
+                 Text="{Binding ContentInfo}"
+                 FontSize="22"
+                 Foreground="{DynamicResource TextBrush}"
+                 HorizontalAlignment="Left"
+                 VerticalAlignment="Bottom"
+                 Margin="240,0,0,34"
+                 MaxWidth="1200"
+                 IsHitTestVisible="False"
+                 TextTrimming="CharacterEllipsis"
+                 IsVisible="{Binding ShowsContentInfo}"/>
     </Grid>
   </Panel>
 </UserControl>

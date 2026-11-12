@@ -3394,6 +3394,15 @@ namespace MediaPortal.Frontend.ViewModels
     public event EventHandler<TitleViewModel>? ChildrenRequested;
 
     /// <summary>
+    /// Raised when a viewer asked the shelf for the people it was made by, which is a screen of its own rather than
+    /// another value to cut this shelf by: a thousand names do not fit in a rail, and the wall answers them at the
+    /// measure a face needs.  The wall is built here, where the server, the pictures and the shelf's own kind are
+    /// known; putting a screen on the workflow belongs to the application, which is the only one that can build the
+    /// shelf of works a pressed name opens.
+    /// </summary>
+    public event EventHandler<PeopleViewModel>? PeopleWallRequested;
+
+    /// <summary>
     /// Reads the first page. Called when the screen appears, so that opening a tile and pressing Refresh on the
     /// home screen both lead to a filled list rather than an empty one.
     /// </summary>
@@ -4412,6 +4421,15 @@ namespace MediaPortal.Frontend.ViewModels
           foreach (BrowseCategory category in BrowseViewModel.CATEGORIES)
           {
             string by = category.Word;
+            // The people a shelf was made by are the one category that is not asked as a count: a thousand names do
+            // not read in a rail, and a name is recognised by its face, not by its line.  The wall answers them,
+            // and a name pressed there cuts a shelf to that person the way picking one value here always did.
+            if (string.Equals(by, "actors", StringComparison.OrdinalIgnoreCase))
+            {
+              AddMenuRow(PeopleCategoryLabel, CategoryIcon(by), new RelayCommand(OpenPeopleWall));
+              continue;
+            }
+
             AddMenuRow(category.Label, CategoryIcon(by), new AsyncRelayCommand(() => ShowFilterValuesAsync(by)));
           }
           return;
@@ -4585,6 +4603,39 @@ namespace MediaPortal.Frontend.ViewModels
       HideMediaMenu();
       RememberReading();
       await ReaskAsync();
+    }
+
+    /// <summary>
+    /// The word the people's row of the filter page wears, which is the shelf's own word for its people: the people
+    /// who play in a film are actors, the people who make a record are artists, and a row called "By actor" over a
+    /// shelf of records sends a viewer looking for a musician in the wrong place.
+    /// </summary>
+    private string PeopleCategoryLabel
+    {
+      get
+      {
+        return PeopleViewModel.ShelfForAspect(AspectName) == PeopleShelf.Artists ? "By artist" : "By actor";
+      }
+    }
+
+    /// <summary>
+    /// Asks the screen for the wall of people this shelf was made by.  A counting of a thousand names would be a
+    /// page of the rail a viewer has to scroll for an hour to read one name, and the name they are looking at wants
+    /// a face rather than a line; the wall is the same question asked at the measure a person is recognised at, and
+    /// pressing a name there cuts a shelf to that person exactly as picking one value here always did.
+    /// </summary>
+    public void OpenPeopleWall()
+    {
+      ServerApiClient? client = _client;
+      if (client == null)
+      {
+        Status = "There is no server to ask for the people of this shelf";
+        return;
+      }
+
+      PeopleViewModel wall = new PeopleViewModel(client, PeopleViewModel.ShelfForAspect(AspectName), _pictures);
+      HideMediaMenu();
+      PeopleWallRequested?.Invoke(this, wall);
     }
 
     /// <summary>

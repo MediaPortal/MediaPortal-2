@@ -197,6 +197,10 @@ namespace MediaPortal.Frontend.Views
       Control rail_ground = _ground;
       rail_ground.AddHandler(InputElement.KeyDownEvent, delegate (object? sender, KeyEventArgs args)
       {
+        if (Services.HomeTrace.Enabled)
+          Services.HomeTrace.Log("rail.key", "key=" + args.Key + " handled=" + args.Handled
+              + " items=" + list.Items.Count + " ground=" + rail_ground.Name);
+
         if (args.Handled || list.Items.Count == 0)
           return;
 
@@ -219,6 +223,10 @@ namespace MediaPortal.Frontend.Views
 
         args.Handled = true;
       }, RoutingStrategies.Tunnel);
+
+      if (Services.HomeTrace.Enabled)
+        Services.HomeTrace.Log("rail.wire", "list=" + _list.Name + " ground=" + _ground.Name
+            + " sideways=" + _sideways);
     }
 
 
@@ -566,5 +574,140 @@ namespace MediaPortal.Frontend.Views
     /// <summary>The heading the menu wears while its commands page stands up (see the view model's BuildMediaMenu).</summary>
     internal const string COMMANDS_HEADING = "Menu";
 
+  }
+
+  /// <summary>
+  /// The nod a screen gives a key that points at a wall: the lean of the plate the caret stands on toward that
+  /// wall and the spring back.
+  /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Kept beside the rail it belongs to because more than one screen wears that rail: the shelf of titles nods its
+  /// side rail, its rail under covers, its bands and its fields, and a wall of people nods the same rail the shelf
+  /// hands over. A second hand writing the same answer would be a second feel, and the viewer reads the feel.
+  /// </para>
+  /// <para>
+  /// The nod rides a <see cref="TranslateTransform"/> of its own on the plate that nods, which is the one thing
+  /// it may not share: a room that slides open its rail travels on its own transform (and on a transition), and a
+  /// nod written onto that transform closes the rail it was meant to answer.
+  /// </para>
+  /// </remarks>
+  internal sealed class ShelfNod
+  {
+    /// <summary>The lean toward the wall and the spring back, both in milliseconds.</summary>
+    private const int DIVE_MS = 90;
+    private const int SPRING_MS = 430;
+
+    private DispatcherTimer? _timer;
+    private TranslateTransform? _worn;
+
+    /// <summary>
+    /// The lean of the last nod, which the nod's own transform cannot witness: the transform stays on the plate
+    /// after the spring and says nothing about which way the plate leaned.  A test that has to tell a nod left
+    /// from a nod right reads these instead.
+    /// </summary>
+    internal double LastNodX { get; private set; }
+
+    /// <inheritdoc cref="LastNodX" />
+    internal double LastNodY { get; private set; }
+
+    /// <summary>
+    /// Where the nodding plate currently stands. A test - and the render probe - read these to know that a wall
+    /// was pointed at: while no wall has been pointed at since the last nod came to rest, the plate stands at
+    /// nothing at all.
+    /// </summary>
+    internal double BounceX => _worn?.X ?? 0;
+
+    /// <inheritdoc cref="BounceX" />
+    internal double BounceY => _worn?.Y ?? 0;
+
+    /// <summary>
+    /// Nods a plate the told number of points toward the wall the viewer pointed at and springs it back.
+    /// </summary>
+    /// <remarks>
+    /// A wall is answered rather than passed over, because a screen that says nothing when a key points at
+    /// nothing is a screen where the viewer cannot tell a wall from a broken key. The nod runs on the front
+    /// end's own timer, the way <c>MediaBrowserView.StandCaret</c> asks for a caret: ninety milliseconds of lean
+    /// out - squared off, so the first frames carry most of it and the wall is named at once - and four hundred
+    /// and thirty of easeOutBack home, which carries the plate a tenth of the dive past its rest before it
+    /// settles, which is what makes the answer a bounce rather than a shuffle back.
+    /// </remarks>
+    /// <param name="face">The plate's whole ground: the panel that carries the list, its heading and its glow.</param>
+    /// <param name="diveX">The lean along X, positive to the right; zero for a wall above or below.</param>
+    /// <param name="diveY">The lean along Y, positive downward; zero for a wall beside the plate.</param>
+    internal void Nod(Control face, double diveX, double diveY)
+    {
+      if (Services.HomeTrace.Enabled)
+        Services.HomeTrace.Log("rail.nod", "face=" + face.Name + " dive=" + diveX.ToString("F0") + ","
+            + diveY.ToString("F0"));
+
+      // One nod at a time. A key pressed while the previous nod is still travelling starts a new one from
+      // wherever the plate stands, because that is where the plate is and a viewer leaning on a key repeatedly
+      // should see the plate lean with every press.
+      _timer?.Stop();
+
+      if (_worn != null && !ReferenceEquals(face.RenderTransform, _worn))
+      {
+        // Another plate wore the last nod - walking from a grid into covers does that, and one nodder shared by a
+        // screen's rail, bands and fields does it often. Put that one back to rest before nodding this one, so no
+        // plate is left hanging off its ground.
+        _worn.X = 0;
+        _worn.Y = 0;
+        _worn = null;
+      }
+
+      TranslateTransform nod = face.RenderTransform as TranslateTransform;
+      if (nod == null)
+      {
+        nod = new TranslateTransform();
+        face.RenderTransform = nod;
+      }
+      _worn = nod;
+      LastNodX = diveX;
+      LastNodY = diveY;
+
+      double fromX = nod.X;
+      double fromY = nod.Y;
+      long started = Environment.TickCount64;
+
+      DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Render)
+      {
+        Interval = TimeSpan.FromMilliseconds(16)
+      };
+      _timer = timer;
+
+      timer.Tick += delegate
+      {
+        if (!ReferenceEquals(_timer, timer))
+          return; // a newer nod drives this plate from here on
+
+        long elapsed = Environment.TickCount64 - started;
+        if (elapsed >= DIVE_MS + SPRING_MS)
+        {
+          timer.Stop();
+          nod.X = 0;
+          nod.Y = 0;
+          return;
+        }
+
+        if (elapsed <= DIVE_MS)
+        {
+          double u = elapsed / (double)DIVE_MS;
+          double lean = 1 - (1 - u) * (1 - u);
+          nod.X = fromX + (diveX - fromX) * lean;
+          nod.Y = fromY + (diveY - fromY) * lean;
+          return;
+        }
+
+        double v = (elapsed - DIVE_MS) / (double)SPRING_MS;
+        double c1 = 1.70158;
+        double c3 = c1 + 1;
+        double back = 1 + c3 * Math.Pow(v - 1, 3) + c1 * Math.Pow(v - 1, 2);
+        nod.X = diveX * (1 - back);
+        nod.Y = diveY * (1 - back);
+      };
+
+      timer.Start();
+    }
   }
 }
