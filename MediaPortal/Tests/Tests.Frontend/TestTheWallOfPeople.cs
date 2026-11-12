@@ -266,6 +266,96 @@ namespace Tests.Frontend
       Assert.That(wall.NamesUnderLetter("A"), Is.EqualTo(3));
     }
 
+    /// <summary>
+    /// The same wall plated by the decade its names were born in, measured against a library as sparse as this one:
+    /// two birth years in its 7543 film actors.  A grouping that only plates what it has is a grouping that loses the
+    /// rest of the wall, so the names nobody ever gave a year stand under one plate of their own, and the law the
+    /// whole case rests on is that a plate CLOSES - the wall walks past a boundary once, not twenty times - which is
+    /// why picking a plate brings the reading it needs along with it.
+    /// </summary>
+    [Test]
+    public async Task GroupingByDecadeStandsTheYearsUnderDecadesAndTheNamesWithoutOneUnderTheirOwnPlate()
+    {
+      WallServer server = new WallServer(60);
+      server.YearsHeld = 12;
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+
+      await wall.PickGroupAsync("born");
+
+      Assert.That(wall.Sort, Is.EqualTo("born"),
+          "a wall plated by decade is read by decade, or every second name opens a new plate");
+      Assert.That(server.LastWall, Does.Contain("sort=born"), "and it is asked of the server that way");
+
+      List<string> plates = wall.Rows.OfType<GroupHeaderRow>().Select(plate => plate.Label).ToList();
+      Assert.That(plates, Has.Some.EqualTo(PersonTile.NO_YEAR_PLATE),
+          "the names nobody ever gave a year are not thrown away by a grouping, they are plated");
+      Assert.That(plates.Distinct(StringComparer.Ordinal).Count(), Is.EqualTo(plates.Count),
+          "one plate per decade and none of them reopening further down the wall");
+      Assert.That(wall.Rows.OfType<PersonTile>().Count(), Is.EqualTo(60),
+          "and every name of the wall is still on it");
+
+      // Under each plate stand only the names of that plate, which is the only promise a grouping makes.
+      string under = "";
+      foreach (object row in wall.Rows)
+      {
+        if (row is GroupHeaderRow plate)
+        {
+          under = plate.Label;
+          continue;
+        }
+
+        PersonTile name = (PersonTile)row;
+        Assert.That(name.DecadeLabel, Is.EqualTo(under), name.Name + " stands under the wrong plate");
+        Assert.That(under == PersonTile.NO_YEAR_PLATE ? name.BornDate == null : name.BornDate != null,
+            Is.True, name.Name + " is plated by a year its record does not hold");
+      }
+
+      Assert.That(plates.Count(label => label != PersonTile.NO_YEAR_PLATE), Is.EqualTo(4),
+          "twelve names born between 1900 and 1933 fall under four decade plates, and the plates are theirs alone");
+
+      // Read from its other end, the plate of names without a year travels to the other side with them - the server
+      // puts a name nobody gave a year at the front of an ascending reading and at the back of a descending one, and
+      // a wall that plated them in the middle of either would open their plate twice.
+      await wall.PickSortAsync("born");
+      plates = wall.Rows.OfType<GroupHeaderRow>().Select(plate => plate.Label).ToList();
+      Assert.That(plates[plates.Count - 1], Is.EqualTo(PersonTile.NO_YEAR_PLATE),
+          "read the other way the yearless names stand last, where the server puts them");
+
+      // The letters are still a plate this wall can stand under, and they plate by name again - a grouping that left
+      // the wall read by birth year would letter-plate every second name.
+      await wall.PickGroupAsync("letter");
+      Assert.That(wall.Sort, Is.EqualTo("name"), "the letter plates ask for the wall read by name");
+      Assert.That(wall.Rows.OfType<GroupHeaderRow>().Select(plate => plate.Label).Distinct().Count(),
+          Is.EqualTo(3), "three letters, one plate each");
+      Assert.That(wall.Rows.OfType<GroupHeaderRow>().Any(plate => plate.Label == PersonTile.NO_YEAR_PLATE),
+          Is.False, "a wall plated by letter has nothing to say about years");
+
+      // A plate this screen does not offer is no plate at all - the shelf's own test before it believes a grouping.
+      await wall.PickGroupAsync("genre");
+      Assert.That(wall.IsGrouped, Is.False, "a grouping the wall cannot fill leaves it ungathered");
+    }
+
+    /// <summary>
+    /// The grouping page of the wall's rail names the plates it can actually stand under, and marks the one the wall
+    /// is wearing.  A rail row that leads to plates the screen cannot lay is a row that should not be standing.
+    /// </summary>
+    [Test]
+    public void TheGroupPageOfTheWallsRailNamesItsTwoPlates()
+    {
+      WallServer server = new WallServer(9);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+
+      wall.ShowMediaMenu();
+      wall.MediaMenu.First(row => row.Icon == "group").Command.Execute(null);
+
+      Assert.That(wall.MediaMenuHeading, Is.EqualTo("Group"));
+      Assert.That(wall.MediaMenu.Select(row => row.Label),
+          Is.EqualTo(new[] { "None", "First letter", "Birth decade" }));
+      Assert.That(wall.MediaMenu.First(row => row.Label == "None").IsCurrent, Is.True,
+          "an ungathered wall marks the row that says so");
+      Assert.That(wall.MediaMenu.First(row => row.Label == "Birth decade").IsCurrent, Is.False);
+    }
+
     [Test]
     public async Task ANameIsLookedForInTheWholeWall()
     {
@@ -316,8 +406,11 @@ namespace Tests.Frontend
       WallServer films = new WallServer(9);
       PeopleViewModel wall = AWall(PeopleShelf.FilmActors, films);
       await wall.ReadAsync(true);
-      await wall.PickSortAsync("born");
+      // The plate first and the order after it, which is the only order a viewer can press them in that leaves the
+      // wall standing as it was asked to: a plate brings the reading it needs with it, and an order picked on top of
+      // a plated wall is the viewer's own doing and stays.
       await wall.PickGroupAsync("letter");
+      await wall.PickSortAsync("born");
 
       // The three walls differ in one thing only - whose people they are - which is exactly the thing a shared
       // memory would get wrong: an order and a grouping picked for the films have no business standing under the
@@ -1583,6 +1676,28 @@ namespace Tests.Frontend
       /// </summary>
       internal int LivesHeld = 0;
 
+      /// <summary>
+      /// How many names this household was ever told a birth year for, or -1 for a library that answers every name.
+      /// The films are the other case - two years in 7543 names - and that is the wall a grouping by decade has to
+      /// survive, so the tests ask this fake to be as sparse as the library is.
+      /// </summary>
+      internal int YearsHeld = -1;
+
+      /// <summary>Whether one name's record holds a year at all.</summary>
+      private bool HoldsYear(string name)
+      {
+        return YearsHeld < 0 || _names.Take(YearsHeld).Contains(name);
+      }
+
+      /// <summary>
+      /// The year a name was born, or the front of an ascending reading for a name the library never gave one - the
+      /// place the database actually puts them, measured rather than assumed.
+      /// </summary>
+      private int YearOf(string name)
+      {
+        return HoldsYear(name) ? _born[name] : int.MinValue;
+      }
+
       /// <summary>How often a face was asked for, which is what a wall must not spend on names out of sight.</summary>
       internal int PortraitAsks
       {
@@ -1642,7 +1757,8 @@ namespace Tests.Frontend
             bool told_a_life = LivesHeld < 0 || _names.Take(LivesHeld).Contains(named);
             record = "{\"id\":\"" + asked_id + "\",\"person\":{\"id\":\"" + asked_id +
                 "\",\"name\":\"" + named + "\",\"occupation\":\"ACTOR\"" +
-                ",\"bornDate\":\"" + _born[named] + "-01-01T00:00:00\",\"deathDate\":null" +
+                ",\"bornDate\":" + (HoldsYear(named) ? "\"" + _born[named] + "-01-01T00:00:00\"" : "null") +
+                ",\"deathDate\":null" +
                 ",\"origin\":" + (told_a_life ? "\"Buenos Aires\"" : "null") +
                 ",\"biography\":" + (told_a_life
                     ? "\"She was discovered in a market in Buenos Aires and never left the stage.\""
@@ -1744,7 +1860,7 @@ namespace Tests.Frontend
         Dictionary<string, string> asked = Parse(query);
         string letter = Of(asked, "letter");
         string finding = Of(asked, "search");
-        string sort = Of(asked);
+        string sort = Of(asked, "sort");
         bool descending = string.Equals(Of(asked, "order"), "desc", StringComparison.OrdinalIgnoreCase);
         int offset = Read(asked, "offset", 0);
         int limit = Read(asked, "limit", 120);
@@ -1756,7 +1872,12 @@ namespace Tests.Frontend
           standing.RemoveAll(name => name.IndexOf(finding, StringComparison.OrdinalIgnoreCase) < 0);
 
         if (string.Equals(sort, "born", StringComparison.OrdinalIgnoreCase))
-          standing.Sort((one, other) => _born[one].CompareTo(_born[other]));
+        {
+          // Measured on the living server: a name nobody ever gave a year stands at the FRONT of an ascending
+          // reading and at the back of a descending one, which is exactly where a wall plated by decade needs them -
+          // together, under one plate, rather than scattered between the decades they do not belong to.
+          standing.Sort((one, other) => YearOf(one).CompareTo(YearOf(other)));
+        }
         if (descending)
           standing.Reverse();
 
@@ -1770,8 +1891,9 @@ namespace Tests.Frontend
           if (rows.Length > 0)
             rows.Append(',');
           rows.Append("{\"id\":\"").Append(IdOf(name)).Append("\",\"name\":\"").Append(name)
-              .Append("\",\"occupation\":\"ACTOR\",\"bornDate\":\"").Append(_born[name])
-              .Append("-01-01T00:00:00\",\"deathDate\":null}");
+              .Append("\",\"occupation\":\"ACTOR\",\"bornDate\":")
+              .Append(HoldsYear(name) ? "\"" + _born[name] + "-01-01T00:00:00\"" : "null")
+              .Append(",\"deathDate\":null}");
         }
 
         return "{\"on\":\"MovieItem\",\"roles\":[\"actor\"],\"total\":" + total + ",\"offset\":" + offset

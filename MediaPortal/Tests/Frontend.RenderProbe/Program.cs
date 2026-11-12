@@ -78,6 +78,8 @@ namespace FrontendProbe
         "  --aspect <name>  which aspect the library screen lists when a server was given (default MovieItem)\n" +
         "  --person <name>  with --screen people: search the wall for this name and stand the caret on the first\n" +
         "                   answer, which is how a frame is got of the details column reading a real life\n" +
+        "  --group <word>   with --screen people: stand the wall under a plate first (letter|born), which is how a\n" +
+        "                   grouped wall is got on the frame - and how a plate's WORDS are looked at for real\n" +
         "  --nodetails      with --screen people: turn the column of words away, which is when the line at the\n" +
         "                   room's foot speaks about the stood-on name\n" +
         "  --inside <id>  list the shelf INSIDE the title of this id, which is how a viewer reaches it by pressing:\n" +
@@ -147,6 +149,7 @@ namespace FrontendProbe
       string screenName = "home";
       string aspectName = "MovieItem";
       string? personWanted = null;
+      string? groupWanted = null;
       string? layoutWord = null;
       string? theme = null;
       bool audio = false;
@@ -196,6 +199,11 @@ namespace FrontendProbe
             if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
               return Usage("--aspect needs a name.");
             aspectName = args[++i].Trim();
+            break;
+          case "--group":
+            if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
+              return Usage("--group needs the plate the wall stands under: letter or born.");
+            groupWanted = args[++i].Trim();
             break;
           case "--person":
             if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]))
@@ -1250,6 +1258,25 @@ namespace FrontendProbe
         {
           Console.WriteLine("FAILED:   the wall came up empty, so the frame would show an empty screen and prove nothing.");
           return 1;
+        }
+
+        // A wall can be framed as it stands under its plates, which is how the words a plate speaks are looked at on a
+        // real library rather than in a test's words.  This is the same press the rail's row makes, and it brings the
+        // reading the plate needs along with it.
+        if (!string.IsNullOrWhiteSpace(groupWanted))
+        {
+          _ = wall.PickGroupAsync(groupWanted!);
+          if (!PumpUntil(delegate { return !wall.Busy; }, TimeSpan.FromSeconds(60)))
+          {
+            Console.WriteLine("FAILED:   '" + url + "' was still standing the wall under its plates after a minute.");
+            return 4;
+          }
+
+          Pump(TimeSpan.FromMilliseconds(400));
+          Console.WriteLine("grouping: \"" + wall.Grouping + "\" reads the wall by \"" + wall.Sort + "\", "
+              + wall.Rows.OfType<GroupHeaderRow>().Count() + " plate(s): "
+              + string.Join(" | ", wall.Rows.OfType<GroupHeaderRow>()
+                  .Select(plate => "\"" + plate.Label + "\"")));
         }
 
         // A name to stand the caret on.  Asked for rather than picked out of the wall, because the frame is meant to

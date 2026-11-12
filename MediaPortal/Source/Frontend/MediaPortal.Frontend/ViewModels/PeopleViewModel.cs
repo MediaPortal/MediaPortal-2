@@ -99,6 +99,26 @@ namespace MediaPortal.Frontend.ViewModels
       get { return BornDate == null ? "" : BornDate.Value.Year.ToString(CultureInfo.InvariantCulture); }
     }
 
+    /// <summary>The plate a name nobody ever gave a year stands under when the wall is plated by decade.</summary>
+    public const string NO_YEAR_PLATE = "No year given";
+
+    /// <summary>
+    /// The plate this person stands under when the wall is grouped by the decade they were born in: "1980s", or the
+    /// standing word for a name the library never gave a year.  A name without a year is not left off the wall - the
+    /// decade is how the wall is plated, not who is allowed on it - and this household's films are the honest case:
+    /// two of its 7543 actors hold a year, so that wall plates two names under a decade and everyone else under one
+    /// quiet plate, which is what the library knows rather than a screen giving up.
+    /// </summary>
+    public string DecadeLabel
+    {
+      get
+      {
+        if (BornDate == null)
+          return NO_YEAR_PLATE;
+        return (BornDate.Value.Year / 10 * 10).ToString(CultureInfo.InvariantCulture) + "s";
+      }
+    }
+
     /// <summary>
     /// The person's portrait, put on the tile after the tile was made - the same two states the shelf's people
     /// cards have, because a face is not there when a wall of three hundred names is built and a tile that waited
@@ -173,6 +193,9 @@ namespace MediaPortal.Frontend.ViewModels
 
     /// <summary>What the letters page is called in the rail, and what a wall grouped by letter stands under.</summary>
     private const string GROUP_LETTER = "letter";
+
+    /// <summary>What a wall grouped by the decade of birth stands under.</summary>
+    private const string GROUP_BORN = "born";
 
     private enum MenuPage
     {
@@ -1005,19 +1028,31 @@ namespace MediaPortal.Frontend.ViewModels
     /// </summary>
     private void AddRow(PersonTile tile)
     {
+      // Counted for the alphabet whatever plates the wall: the letters are a question a viewer asks on their own, so
+      // a wall plated by decade still has to know how many of its names begin with "K".
+      string letter = tile.Letter;
+      _namesPerLetter[letter] = _namesPerLetter.TryGetValue(letter, out int soFar) ? soFar + 1 : 1;
+
       if (IsGrouped)
       {
-        string letter = tile.Letter;
+        string plate = ThePlate(tile);
         int stood = Rows.Count;
         if (stood == 0 || !(Rows[stood - 1] is PersonTile last)
-            || !string.Equals(last.Letter, letter, StringComparison.OrdinalIgnoreCase))
+            || !string.Equals(ThePlate(last), plate, StringComparison.OrdinalIgnoreCase))
         {
-          Rows.Add(new GroupHeaderRow(letter, 0, false));
+          Rows.Add(new GroupHeaderRow(plate, 0, false));
         }
-        _namesPerLetter[letter] = _namesPerLetter.TryGetValue(letter, out int soFar) ? soFar + 1 : 1;
       }
 
       Rows.Add(tile);
+    }
+
+    /// <summary>The plate one name stands under, which is the grouping's own word for that name.</summary>
+    private string ThePlate(PersonTile tile)
+    {
+      return string.Equals(Grouping, GROUP_BORN, StringComparison.OrdinalIgnoreCase)
+          ? tile.DecadeLabel
+          : tile.Letter;
     }
 
     /// <summary>
@@ -1233,8 +1268,12 @@ namespace MediaPortal.Frontend.ViewModels
         case MenuPage.Group:
           MediaMenuHeading = "Group";
           AddMenuRow("None", "library_books", new AsyncRelayCommand(() => PickGroupAsync(null)), !IsGrouped);
-          AddMenuRow("First letter", "group", new AsyncRelayCommand(() => PickGroupAsync(GROUP_LETTER)),
-              string.Equals(Grouping, GROUP_LETTER, StringComparison.OrdinalIgnoreCase));
+          foreach ((string word, string key) choice in GroupChoices())
+          {
+            string picked = choice.key;
+            AddMenuRow(choice.word, "group", new AsyncRelayCommand(() => PickGroupAsync(picked)),
+                string.Equals(Grouping, picked, StringComparison.OrdinalIgnoreCase));
+          }
           return;
 
         case MenuPage.Letters:
@@ -1280,9 +1319,25 @@ namespace MediaPortal.Frontend.ViewModels
       return new[] { ("Name", "name"), ("Born", "born") };
     }
 
-    /// <summary>Which end a reading starts at, for the line at the screen's foot.</summary>
-    private static string DirectionWord(bool descending)
+    /// <summary>
+    /// The plates a wall of names can stand under.  A letter and a decade are all a person's tile holds to stand
+    /// under - a wall of people has no genre, no year of release and no studio; those belong to the works, which the
+    /// wall opens when a name is pressed rather than plating itself with them.
+    /// </summary>
+    private static IReadOnlyList<(string Word, string Key)> GroupChoices()
     {
+      return new[] { ("First letter", GROUP_LETTER), ("Birth decade", GROUP_BORN) };
+    }
+
+    /// <summary>
+    /// Which end a reading starts at, for the line at the screen's foot.  A wall read by birth year is not read
+    /// "A to Z", and saying so on a wall of birth years would be the screen talking past what it is doing.
+    /// </summary>
+    private string DirectionWord(bool descending)
+    {
+      if (string.Equals(Sort, "born", StringComparison.OrdinalIgnoreCase))
+        return descending ? "Newest first" : "Oldest first";
+
       return descending ? "Z to A" : "A to Z";
     }
 
@@ -1324,11 +1379,32 @@ namespace MediaPortal.Frontend.ViewModels
       await ReadAsync(true);
     }
 
-    /// <summary>Stands the wall under its letters, or takes the plates away again.</summary>
+    /// <summary>
+    /// Stands the wall under its plates, or takes the plates away again.  A wall plated by a key it is not READ by
+    /// opens a new plate on every second name and is not a grouping at all, so the order a plate is cut by comes with
+    /// the plate: letters plate a wall read by name, decades plate a wall read by born.  Taking the plates away
+    /// leaves the order alone - a viewer who turns the grouping off did not ask to be sorted somewhere else.
+    /// </summary>
     public async Task PickGroupAsync(string? grouping)
     {
-      Grouping = string.IsNullOrEmpty(grouping) ? "" : GROUP_LETTER;
-      Remember(answer => answer.Grouping = Grouping);
+      string goes = (grouping ?? "").Trim().ToLowerInvariant();
+      Grouping = GroupChoices().Any(choice => string.Equals(choice.Key, goes, StringComparison.OrdinalIgnoreCase))
+          ? goes
+          : "";
+
+      string reads = string.Equals(Grouping, GROUP_BORN, StringComparison.OrdinalIgnoreCase) ? "born" : "name";
+      if (Grouping.Length > 0 && !string.Equals(Sort, reads, StringComparison.OrdinalIgnoreCase))
+      {
+        Sort = reads;
+        SortDescending = false;
+      }
+
+      Remember(answer =>
+      {
+        answer.Grouping = Grouping;
+        answer.Sort = Sort;
+        answer.Descending = SortDescending;
+      });
       BuildMediaMenu();
       await ReadAsync(true);
     }
@@ -1509,8 +1585,12 @@ namespace MediaPortal.Frontend.ViewModels
 
       SortDescending = answer.Descending;
 
-      if (string.Equals(answer.Grouping, GROUP_LETTER, StringComparison.OrdinalIgnoreCase))
-        Grouping = GROUP_LETTER;
+      // A grouping this screen does not offer is no grouping at all - the same test the shelf applies before it
+      // believes a stored answer, because a grouping remembered by a newer screen would otherwise come back as
+      // plates this wall cannot fill.
+      if (GroupChoices().Any(choice =>
+              string.Equals(answer.Grouping, choice.Key, StringComparison.OrdinalIgnoreCase)))
+        Grouping = answer.Grouping!.Trim().ToLowerInvariant();
     }
   }
 }

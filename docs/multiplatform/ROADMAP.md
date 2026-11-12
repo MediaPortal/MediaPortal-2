@@ -6492,6 +6492,23 @@ first 300, a letter asked of the server rather than cut out locally, the group p
 shortcut's word, the works shelf cut to one person, the leading edge and its rail, faces arriving caret-first, the
 room wearing the stood name's picture, the plate and its key wearing the shelf's numbers, the room divided by one
 measure, a column without a life, and three cases mirrored word for word out of `TestMediaBrowser`'s own search tests
-so that a letter typed on the wall is answered under the same law as on the shelf. **27 tests green**, and one of them
+so that a letter typed on the wall is answered under the same law as on the shelf. **29 tests green**, and one of them
 demonstrably fails with the caret law removed.
+
+**The plates may also be decades.** The one product question the walls left open was whether a person screen groups by
+birth year, and it was measured before it was answered: the artists wall holds 36 names, 27 of them a birth year spread
+over nine decades; the film actors answer 7543 names of which exactly two hold a year (both from the 1980s); the series
+actors hold 110 names without a single one. The grouping is offered on all three walls - „First letter" and „Birth
+decade" stand on the rail's group page - and the names without a year are given a plate of their own („No year given")
+rather than being dropped or left scattered among the decades. The law that comes with it: **a plate brings the reading
+it needs with it**. A letter reads the wall by name, a decade reads it by year, and switching grouping off leaves the
+reading alone - a plate can only close when the wall walks past its boundary, and that is only true when the wall is read
+by the very key the plate is made of. What the server answers for `sort=born` was asked before it was trusted: the names
+without a year are sent at the front (and at the back when the wall is read from the other end), so they cluster by
+themselves, which is what makes a single plate for them honest instead of one reopening every second row. Photographed
+against the running library with the probe's new `--group` switch, the artists wall stands under ten plates - „No year
+given" plus the nine decades those 27 years fall in - and the film actors wall under the one yearless plate its first page
+can hold. A test holds the arithmetic: sixty names, a quarter of them carrying years 1900 to 1933, stand under five
+plates (48 + 4 + 3 + 3 + 2), and read from the other end the decade comes first with the yearless plate bringing up the
+rear.
 
