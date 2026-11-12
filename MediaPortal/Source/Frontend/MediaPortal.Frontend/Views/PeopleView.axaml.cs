@@ -336,16 +336,22 @@ namespace MediaPortal.Frontend.Views
         }
 
         if (MediaPortal.Frontend.Settings.KeyBindings.Current.Is(
-                MediaPortal.Frontend.Settings.KeyAction.Details, args))
+                MediaPortal.Frontend.Settings.KeyAction.Details, args)
+            && !searchBox.IsFocused && !keyboardToggle.IsFocused)
         {
           // The same letter the shelf of titles answers, asking the same question the rail's view page asks: whether
           // the words beside the wall stand.  The wall itself is untouched by the answer - it is a wall either way.
+          //  Guarded by the field, exactly as the shelf guards every one of its letter keys (MediaBrowserView asks
+          //  !searchBox.IsFocused for Find, Details, Watched, View and Media alike): this is a TUNNEL handler, so a
+          //  branch answered here never reaches the box, and a letter that belongs to a switch is a letter the
+          //  viewer was spelling lost.
           args.Handled = true;
           _wall?.ToggleDetailsCommand.Execute(null);
           return;
         }
 
         if (args.Key == Key.Left && !_menuUp && !mediaMenuList.IsKeyboardFocusWithin
+            && !searchBox.IsFocused && !keyboardToggle.IsFocused
             && StandingOnTheLeadingEdge())
         {
           // Only the wall's leading edge points at the rail, and the leading edge is the WHOLE first column - the
@@ -353,6 +359,8 @@ namespace MediaPortal.Frontend.Views
           // of a row of tiles is pointing at the tile beside it, and a rail that jumped out on every Left would be
           // a rail nobody can walk past.  Laid as rows the wall IS one column of names, so there the key keeps the
           // answer it always had.
+          //  The field is asked first, as the shelf's own rail handler does with its `searchBox.IsFocused` return:
+          //  with the caret in a word, Left is a caret stepping through that word, not a way out to the rail.
           args.Handled = true;
           ShowRail(true);
           return;
@@ -439,8 +447,14 @@ namespace MediaPortal.Frontend.Views
       }, RoutingStrategies.Tunnel);
 
       // The Menu key and a right press are the two roads to a screen's own menu on every screen of this front end.
+      //  While the caret stands in the field it is not one of them: the shelf scopes its own right-press handler to
+      //  the shelf's list and guards its info key with !searchBox.IsFocused, because a key pressed over a word a
+      //  hand is typing belongs to that word.
       AddHandler(ContextRequestedEvent, delegate (object? sender, RoutedEventArgs args)
       {
+        if (searchBox.IsFocused || keyboardToggle.IsFocused)
+          return;
+
         args.Handled = true;
         ShowRail(!_menuUp);
       }, RoutingStrategies.Tunnel);
@@ -461,6 +475,13 @@ namespace MediaPortal.Frontend.Views
     /// <summary>The wall, never the rail: a rail shut behind the edge of the screen is not where keys start.</summary>
     public Control? KeysStartAt()
     {
+      // ...and while the field owns the caret it starts there.  This is the answer the window's net under the
+      // screen takes when a control is taken out from under the caret, and during a live search the wall re-cuts
+      // its names letter by letter: the hand that is spelling must be where the keys come back to, not the wall
+      // that is standing under it (the shelf keeps its own watchdog for the same case).
+      if (_caret_belongs_to_the_field && searchBox.IsEffectivelyVisible)
+        return searchBox;
+
       return peopleList;
     }
 
@@ -497,6 +518,80 @@ namespace MediaPortal.Frontend.Views
     private DispatcherTimer? _caretTimer;
 
     /// <summary>
+    /// Whether the caret's home is the search field: the field was asked for (the rail's row, the Find key, the
+    /// arrow off the head of the wall, a click into the box, the keys being put away) and the viewer has not since
+    /// walked the caret onto the wall, the rail or another screen.  While this holds, NOTHING on this screen may be
+    /// asked for the caret by a change of the wall's content - and a wall re-cuts its names with every letter.
+    /// </summary>
+    /// <remarks>
+    /// This is the shelf's <c>MediaBrowserView._caretBelongsToTheField</c>, and its absence here was the bug the
+    /// viewer measured on 2026-11-12: a re-read hands the caret back to the person it still holds
+    /// (<c>PeopleViewModel.ReadAsync</c>), the screen answers that answer by standing the caret on their tile, and
+    /// a viewer typing one letter found themselves standing on a name instead of spelling one.  The shelf never
+    /// does that, because every one of its caret askers goes through <c>NeedsCaretOnTheShelf</c>, which answers
+    /// "no" while the field owns the caret.
+    /// </remarks>
+    private bool _caret_belongs_to_the_field;
+
+    /// <summary>
+    /// Whether the wall has to be asked for the caret: nothing has it, or it stands on the wall's own list without
+    /// having reached a name of it.  Anything else it stands on inside this screen - a name, the field a hand is
+    /// typing into, the rail - is where it stays.  The shelf's <c>NeedsCaretOnTheShelf</c>, word for word.
+    /// </summary>
+    private bool NeedsCaretOnTheWall()
+    {
+      // While the field owns the caret the wall never asks for it.  This is the check that runs a layout round
+      // after an answer landed and looks at the caret ALONE, so with the on-screen keys standing - whose caret
+      // sits among the keys and not in this view - it would answer "the wall is missing its caret" and walk the
+      // caret onto the first name while a hand is still pressing letters.
+      if (_caret_belongs_to_the_field)
+        return false;
+
+      Visual? focused = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
+      if (focused == null)
+        return true;
+
+      bool inside = false;
+      for (Visual? at = focused; at != null; at = at.GetVisualParent())
+      {
+        if (ReferenceEquals(at, this))
+          inside = true;
+
+        if (ReferenceEquals(at, peopleList))
+        {
+          // The list is the caret's waiting room, not its place: a caret that got no further than the list never
+          // lit a name, which is what the caret on a wall is for.
+          if (ReferenceEquals(focused, peopleList))
+            return true;
+
+          // And a container is the caret's place only while it is THE name the wall stands on - a wall that was
+          // re-cut hands its recycled shells out underneath the caret.
+          int stand = peopleList.SelectedIndex < 0 ? 0 : peopleList.SelectedIndex;
+          return !ReferenceEquals(focused, peopleList.ContainerFromIndex(stand));
+        }
+      }
+
+      return !inside;
+    }
+
+    /// <summary>
+    /// Whether the caret stands on a key of the on-screen keyboard.  Those keys write into this screen's field and
+    /// take its caret with them when they are put on the screen, so while they hold it the FIELD still owns the
+    /// caret: the hand pressing the next letter is among the keys.
+    /// </summary>
+    private bool TheKeysHoldTheCaret()
+    {
+      Visual? stood = (TopLevel.GetTopLevel(this) as Window)?.FocusManager.GetFocusedElement() as Visual;
+      for (Visual? at = stood; at != null; at = at.GetVisualParent())
+      {
+        if (at is VirtualKeyboardView)
+          return true;
+      }
+
+      return false;
+    }
+
+    /// <summary>
     /// Puts the caret on the wall - on the name the wall says the caret stood on, or on the head of the wall when
     /// nobody is stood on it yet - and keeps asking for the wall until it can hold the caret.
     /// </summary>
@@ -520,6 +615,11 @@ namespace MediaPortal.Frontend.Views
     /// </remarks>
     private void PutTheCaretOnTheWall()
     {
+      // The wall was asked for the caret, which ENDS the field's claim on it: Down out of the field, Enter on a
+      // word, the rail going away and the screen being shown are all the viewer walking onto the wall on purpose.
+      // The shelf's FocusShelf begins with the same line for the same reason (see _caret_belongs_to_the_field).
+      _caret_belongs_to_the_field = false;
+
       StandCaret(peopleList, delegate
       {
         if (_wall != null && _wall.Selected == null
@@ -603,13 +703,27 @@ namespace MediaPortal.Frontend.Views
           if (_wall?.Selected is PersonTile stood)
           {
             peopleList.ScrollIntoView(stood);
-            StandTheCaret();
+
+            // The caret is asked of the wall ONLY while the wall is where the caret belongs.  A re-read of the wall
+            // hands the caret back to the person it still holds, and this answer used to walk it out of a field a
+            // hand was still typing in - the shelf's SelectionChanged never touches the caret for that reason, it
+            // only glides and watches (MediaBrowserView), and watching there is gated the same way this is.
+            if (NeedsCaretOnTheWall())
+              StandTheCaret();
           }
           break;
         case nameof(PeopleViewModel.ShowsSearch):
           // The field arrives through three doors, so the mark beside it is dressed again whenever the field comes
           // up rather than once when the screen was built.
           UpdateKeyboardMark();
+
+          if (_wall?.ShowsSearch != true && _caret_belongs_to_the_field)
+          {
+            // The field went away under the caret - its own mark was pressed, which takes the field away whole -
+            // and a caret cannot live on a control that is not on the screen.  The wall takes it back, which is
+            // what the viewer holding the back key gets a few lines above.
+            PutTheCaretOnTheWall();
+          }
           break;
         case nameof(PeopleViewModel.DetailsBiography):
           // A life begins at its first word, so a new name is read from its beginning rather than from the line the
@@ -686,6 +800,11 @@ namespace MediaPortal.Frontend.Views
     /// </param>
     private void StandTheCaret(int tries = 2)
     {
+      // A hand that is spelling owns the caret: the wall keeps its glide and asks for nothing.  The asks below all
+      // come back over a frame or two, and a word can arrive between one and the next.
+      if (_caret_belongs_to_the_field || searchBox.IsFocused || TheKeysHoldTheCaret())
+        return;
+
       Control? stood = StoodContainer();
       if (stood == null)
       {
@@ -987,6 +1106,11 @@ namespace MediaPortal.Frontend.Views
       {
         sideMenu.IsVisible = true;
 
+        // The rail takes the caret with it, which ends the field's claim on it - the shelf's FocusMediaMenu begins
+        // the same way.  Walking off the leading edge of the wall to reach the rail is the viewer leaving the
+        // field, and the rail is the thing they are pointing at.
+        _caret_belongs_to_the_field = false;
+
         // The rail has to be wired before its first row is asked for, and only once: the handlers it puts on its
         // list are put on the list, and a list asked twice answers every key twice.
         if (!_railWired)
@@ -1028,6 +1152,13 @@ namespace MediaPortal.Frontend.Views
     /// </summary>
     private void RevealSearch()
     {
+      // The wall stops asking for the caret here, and the field is said to own it from now on.  Both halves are
+      // needed and both are the shelf's (MediaBrowserView.RevealSearch): a wall whose names were just re-cut is
+      // asking its tiles for a caret, and a tile that answers while a hand is still spelling takes the field away
+      // from the hand - which is what the viewer measured on 2026-11-12, one letter typed and the caret standing
+      // on the wall.
+      _caretTimer?.Stop();
+      _caret_belongs_to_the_field = true;
       Dispatcher.UIThread.Post(delegate { searchBox.Focus(); }, DispatcherPriority.Loaded);
     }
 

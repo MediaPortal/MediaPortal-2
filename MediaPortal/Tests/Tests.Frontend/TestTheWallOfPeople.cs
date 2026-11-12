@@ -767,6 +767,11 @@ namespace Tests.Frontend
       Button keys = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
       WaitUntil("the row to be laid", delegate { return plaque.Bounds.Width > 0; });
 
+      // The plate GROWS into the head band, so its numbers are only read once it has come to rest: a frame caught
+      // mid-grow reports the height of the moment it was caught in rather than the height the plate was cut to -
+      // which is why the render probe puts the transitions away before it reads a plate.
+      LetThePlateComeToRest(plaque, keys);
+
       // The numbers below are the shelf's: the plaque is the details row's plate asked to hold a question, so it
       // is forty-eight less five and six of corner, and the keyboard button is the same plate fifty-eight wide.
       Assert.That(plaque.Bounds.Height, Is.EqualTo(43),
@@ -846,6 +851,255 @@ namespace Tests.Frontend
       Assert.That(box.IsEffectivelyVisible, Is.False, "the mark takes the field off the screen with its words");
       Assert.That(wall.ShowsSearch, Is.False, "and the search is gone, so nothing stands in the head band");
       Assert.That(wall.SearchText, Is.Empty, "the box is empty too");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// A wall that answers a word leaves the CARET where the hand is standing: in the field.  This is the shelf's
+    /// <c>TheWallAnswersUnderATypingHandAndLeavesTheCaretWhereItIs</c> mirrored onto the wall of names, and the wall
+    /// failed it: a re-read hands the caret back to the name the wall still holds, the screen answered that answer
+    /// by standing the caret on their tile, and one letter typed walked the viewer out of the field they were still
+    /// spelling in (viewer note 2026-11-12: "when a letter is typed the focus must not jump into the list").
+    /// The shelf never does this, because every one of its caret askers is asked through
+    /// <c>NeedsCaretOnTheShelf</c>, which answers "no" while the field owns the caret.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheWallsAnswerUnderATypingHandLeavesTheCaretInTheField()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+
+      // The Find key is the door a hand holding a keyboard walks through.  The word typed next still contains the
+      // name the wall stands on, which is the case that moved the caret: the wall hands that name back to the
+      // screen after its answer, and the screen used to answer by fetching a tile.
+      (names.ContainerFromIndex(0) as Control)?.Focus();
+      SendKey(names, Key.F);
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      Assert.That(wall.Selected, Is.Not.Null, "the wall the word is cut out of stands on a name");
+      string stood_on = wall.Selected!.Name;
+
+      box.Text = "A. Actor 00";
+      WaitUntil("the wall to be cut to the word", delegate { return wall.Rows.Count > 0 && wall.Rows.Count < 20; });
+
+      // The rounds a real answer needs: the layout pass that hands the recycled shells out, the asks posted behind
+      // it at the settled-layout priority, and the rest a live search keeps.  The jump was never in the answer
+      // itself, it was in what the screen did one round after it, so the caret is watched over the whole of that -
+      // which is how the shelf's own case measures it.
+      DateTimeOffset until = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(700);
+      while (DateTimeOffset.UtcNow < until)
+        Pump();
+
+      Assert.That(box.IsFocused, Is.True,
+          "the wall answered the word without taking the caret out of the field it was typed in");
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.SameAs(box),
+          "and nothing else on the screen answered it either - not the list, not a tile");
+      Assert.That(wall.Selected?.Name, Is.EqualTo(stood_on),
+          "the name the column speaks of is still the name the wall was stood on");
+      Assert.That(server.LastWall, Does.Contain("search=A."), "and the word did reach the wall");
+
+      // A second word, because a viewer does not type one letter and stop: the claim on the caret has to outlast
+      // every answer the field goes on asking for.
+      box.Text = "A. Actor 001";
+      WaitUntil("the wall to be cut again", delegate
+      {
+        return wall.Rows.OfType<PersonTile>().Any()
+            && wall.Rows.OfType<PersonTile>().All(tile => tile.Name.Contains("A. Actor 001"));
+      });
+      until = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(400);
+      while (DateTimeOffset.UtcNow < until)
+        Pump();
+
+      Assert.That(window.FocusManager.GetFocusedElement(), Is.SameAs(box),
+          "the hand that is still typing is still holding the field after the second word too");
+
+      // Down is the arrow that leaves the field, and it is the only key that ends the field's claim on the caret.
+      SendKey(box, Key.Down);
+      WaitUntil("the caret to stand on a name", delegate
+      {
+        return (names.ContainerFromIndex(names.SelectedIndex) as Control)?.IsKeyboardFocusWithin == true;
+      });
+      Assert.That(wall.ShowsSearch, Is.True, "walking down onto the matches leaves the search standing");
+
+      window.Close();
+    }
+
+    /// <summary>
+    /// The screen's switches must not eat the letters of a name.  Every key law on this screen is a TUNNEL handler,
+    /// so a branch answered while the caret stands in the field takes the key away from the box before the box ever
+    /// sees it, and a letter the viewer typed is a letter they did not get.  That is why the shelf asks
+    /// <c>!searchBox.IsFocused</c> at Find, Details, Watched, View and Media alike and returns early from its rail
+    /// handler.  The letters at stake are real ones: the details switch is D, and "De Niro" begins with it.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheScreensSwitchesDoNotEatTheLettersOfANameBeingTyped()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+
+      wall.OpenSearch();
+      WaitUntil("the caret to be handed to the field", delegate { return box.IsFocused; });
+      box.Text = "De";
+      box.CaretIndex = 2;
+      Pump();
+
+      bool column_stood = wall.ShowsSideDetails;
+
+      KeyEventArgs letter = SendKeyAndGet(box, Key.D);
+      Assert.That(letter.Handled, Is.False,
+          "the letter of the details switch stays a letter while a hand is typing a name");
+      Assert.That(wall.ShowsSideDetails, Is.EqualTo(column_stood),
+          "and the column beside the wall did not move on a key that belonged to the field");
+
+      KeyEventArgs find = SendKeyAndGet(box, Key.F);
+      Assert.That(find.Handled, Is.False, "the find key does not answer a key the field is wearing");
+
+      // The way out to the rail.  With the caret in the middle of a word, the arrow belongs to the word: the shelf
+      // returns early from its rail handler while the box holds the caret, and the box answers the arrow by walking
+      // its own caret back - which is what "the key stayed with the field" looks like from outside.
+      box.CaretIndex = 2;
+      Pump();
+      SendKey(box, Key.Left);
+      Assert.That(box.CaretIndex, Is.EqualTo(1),
+          "the arrow through a word walked the caret inside the word instead of leaving the field");
+      Assert.That(wall.MediaMenuVisible, Is.False, "and no rail stood open over a field a hand is typing in");
+
+      // The Menu key and a right press, which reach the screen as one event.  The shelf hears its own only on the
+      // shelf's list and guards its info key with the field too, because a key pressed over a word a hand is
+      // typing belongs to that word - here that means the box's own right-click plate, and never the rail.
+      ContextRequestedEventArgs context = new ContextRequestedEventArgs
+      {
+        RoutedEvent = InputElement.ContextRequestedEvent,
+        Source = box
+      };
+      box.RaiseEvent(context);
+      Pump();
+      Assert.That(wall.MediaMenuVisible, Is.False,
+          "a menu key pressed over a word did not stand a rail over the hand that pressed it");
+      Assert.That(box.IsFocused, Is.True, "and the field is still holding the caret it was asked about");
+
+      // The field's own keys still answer, so this guard is not the field going deaf: the plate nods at the arrow
+      // before its first letter, exactly as it does when the caret arrived at the field by another door.
+      box.CaretIndex = 0;
+      Pump();
+      SendKey(box, Key.Left);
+      Assert.That(view.LastNodX, Is.LessThan(0.0),
+          "the plate's own edge law is still worn while the field holds the caret");
+
+      // The door itself is not gone: the same key one control away - a name wearing the caret - still opens the rail.
+      (names.ContainerFromIndex(0) as Control)?.Focus();
+      Pump();
+      ContextRequestedEventArgs on_the_wall = new ContextRequestedEventArgs
+      {
+        RoutedEvent = InputElement.ContextRequestedEvent,
+        Source = names
+      };
+      names.RaiseEvent(on_the_wall);
+      Pump();
+      Assert.That(on_the_wall.Handled, Is.True, "the rail's door is answered as ever");
+      Assert.That(wall.MediaMenuVisible, Is.True, "and the rail came up over the wall, as it always did");
+
+      window.Close();
+    }
+
+    /// <summary>Raises a key at a control and hands the answer back, so a case can ask whether the screen took the key.</summary>
+    private static KeyEventArgs SendKeyAndGet(Control source, Key key)
+    {
+      KeyEventArgs args = new KeyEventArgs
+      {
+        RoutedEvent = InputElement.KeyDownEvent,
+        Key = key,
+        Source = source
+      };
+      source.RaiseEvent(args);
+      Pump();
+      return args;
+    }
+
+    /// <summary>
+    /// The same law through the other door: with the keys on the screen the caret stands AMONG THE KEYS, not in the
+    /// field, and the wall still has to answer a pressed letter without touching it - the hand pressing the next
+    /// letter is standing there, and a caret set down on a name mid-word also puts OK on that name.  The shelf's
+    /// <c>TheWallAnswersAKeyPressedLetterWithoutWalkingTheCaretOntoTheWall</c>, mirrored; the wall's claim on the
+    /// caret therefore counts the keys as the field, exactly as <c>MediaBrowserView.TheKeysHoldTheCaret</c> does.
+    /// </summary>
+    [AvaloniaTest]
+    public void AKeyPressedLetterIsAnsweredWithoutWalkingTheCaretOffTheKeys()
+    {
+      WallServer server = new WallServer(60);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      PeopleView view = new PeopleView(wall, null, null);
+      ShellWindow window = new ShellWindow(view);
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 30; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+      Button keys = window.GetVisualDescendants().OfType<Button>().First(mark => mark.Name == "keyboardToggle");
+      TextBox box = window.GetVisualDescendants().OfType<TextBox>().First(field => field.Name == "searchBox");
+
+      wall.OpenSearch();
+      WaitUntil("the caret in the field", delegate { return box.IsFocused; });
+      // A word already standing in the field, which is where a viewer who reached for the keys usually comes from.
+      // The letters of this wall's names cannot narrow it - every name is "X. Actor 0NN" - so the narrowing letter
+      // here is a figure, and the point of the case is not the word but the caret.
+      box.Text = "A. Actor 0";
+      box.CaretIndex = box.Text.Length;
+      WaitUntil("the wall to be cut to the word", delegate
+      {
+        return wall.Rows.OfType<PersonTile>().Count() > 1 && wall.Rows.OfType<PersonTile>().Count() < 30;
+      });
+
+      SendKey(box, Key.Right);
+      Assert.That(keys.IsFocused, Is.True, "the arrow off the end of the words steps onto the keyboard button");
+      SendKey(keys, Key.Enter);
+      WaitUntil("the keys to stand on the screen", delegate
+      {
+        return (window.FocusManager.GetFocusedElement() as Visual)?.GetVisualAncestors()
+            .OfType<VirtualKeyboardView>().Any() == true;
+      });
+
+      // One key pressed on the keys, and the wall answers it by itself after the hand rests.
+      VirtualKeyboardView thekeys = window.GetVisualDescendants().OfType<VirtualKeyboardView>().First();
+      Button figure = thekeys.GetVisualDescendants().OfType<Button>()
+          .First(tile => tile.IsEffectivelyVisible && tile.IsEnabled && (tile.Content as string) == "1");
+      int names_before = wall.Rows.OfType<PersonTile>().Count();
+      figure.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+
+      WaitUntil("the wall to answer the pressed figure", delegate
+      {
+        return wall.Rows.OfType<PersonTile>().Count() > 0
+            && wall.Rows.OfType<PersonTile>().Count() < names_before;
+      });
+
+      // The rounds the answer needs behind it - the layout pass that hands the recycled shells out and every ask
+      // posted at the settled-layout priority.  The jump was never in the answer; it was in what the screen did one
+      // round later, so the caret is watched over the whole of it.
+      DateTimeOffset until = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(700);
+      while (DateTimeOffset.UtcNow < until)
+        Pump();
+
+      Assert.That(wall.Rows.OfType<PersonTile>().All(tile => tile.Name.Contains("A. Actor 01")), Is.True,
+          "the wall is cut to the names the pressed figure reaches");
+      object? stood = window.FocusManager.GetFocusedElement();
+      Assert.That((stood as Visual)?.GetVisualAncestors().OfType<VirtualKeyboardView>().Any(), Is.True,
+          "the caret is still among the keys, where the next letter is pressed: it went to "
+          + (stood?.GetType().Name ?? "nothing"));
 
       window.Close();
     }
@@ -1053,6 +1307,27 @@ namespace Tests.Frontend
     private static int TheWallColumns(ListBox names)
     {
       return names.GetVisualDescendants().OfType<VirtualizingTilePanel>().FirstOrDefault()?.Columns ?? 1;
+    }
+
+    /// <summary>
+    /// Pumps until the controls handed in stop changing size.  A plate that grows into the screen is a plate whose
+    /// bounds are a story rather than a fact for a few frames, and a case that asks it for its height in that window
+    /// measures the animation instead of the rule.
+    /// </summary>
+    private static void LetThePlateComeToRest(params Control[] laid)
+    {
+      DateTimeOffset until = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(3);
+      Rect[] before = laid.Select(control => control.Bounds).ToArray();
+
+      while (DateTimeOffset.UtcNow < until)
+      {
+        Pump();
+        Rect[] now = laid.Select(control => control.Bounds).ToArray();
+        if (now.SequenceEqual(before))
+          return;
+
+        before = now;
+      }
     }
 
     private static void Pump()
