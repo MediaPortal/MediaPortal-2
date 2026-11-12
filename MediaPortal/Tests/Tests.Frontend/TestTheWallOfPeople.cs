@@ -356,6 +356,84 @@ namespace Tests.Frontend
       Assert.That(wall.MediaMenu.First(row => row.Label == "Birth decade").IsCurrent, Is.False);
     }
 
+    /// <summary>
+    /// The record shelf's wall without the names that are nobody.  Measured on the running library: its 36 album
+    /// artists hold "Various Artists" (six records, nobody's answer to who made them) and "Unbekannter Interpret"
+    /// (one record whose tag never named an artist), while the two actor walls hold neither word in 7543 and 110
+    /// names.  Those two stand behind a filter the wall asks of the <i>server</i>, so that the number over the wall
+    /// is the number of names standing on it - and the rail's filter page brings them back.
+    /// </summary>
+    [Test]
+    public async Task TheArtistsWallStandsWithoutTheNamesThatAreNobody()
+    {
+      WallServer records = new WallServer(9);
+      records.HoldsAlso("Various Artists", "Unbekannter Interpret");
+      PeopleViewModel artists = AWall(PeopleShelf.Artists, records);
+      await artists.ReadAsync(true);
+
+      Assert.That(artists.Total, Is.EqualTo(9), "the server counts the wall without the two names, so the number "
+          + "over the wall is the number of names standing under it");
+      Assert.That(artists.Rows.OfType<PersonTile>().Select(tile => tile.Name),
+          Has.None.EqualTo("Various Artists").And.None.EqualTo("Unbekannter Interpret"));
+      Assert.That(records.LastWall, Does.Contain("except=Various%20Artists"),
+          "the names are left out by the question, not thrown away after the answer arrived");
+
+      await artists.PickCollectionsAsync(true);
+
+      Assert.That(artists.Total, Is.EqualTo(11), "asked for every name, the wall holds the two again");
+      Assert.That(artists.Rows.OfType<PersonTile>().Select(tile => tile.Name),
+          Has.Some.EqualTo("Various Artists").And.Some.EqualTo("Unbekannter Interpret"));
+      Assert.That(records.LastWall, Does.Not.Contain("except="), "and nothing is left out of the question");
+
+      // The next evening: a wall built again over the same settings file knows its viewer asked for every name.
+      WallServer next_evening = new WallServer(9);
+      next_evening.HoldsAlso("Various Artists", "Unbekannter Interpret");
+      PeopleViewModel remembered = AWall(PeopleShelf.Artists, next_evening);
+      await remembered.ReadAsync(true);
+
+      Assert.That(remembered.ShowsCollections, Is.True);
+      Assert.That(remembered.Rows.Count, Is.EqualTo(11), "the choice is asked for, not applied afterwards");
+
+      // An actor's library holds no such name, so its wall neither asks nor offers anything about them.
+      WallServer films = new WallServer(9);
+      films.HoldsAlso("Various Artists");
+      PeopleViewModel actors = AWall(PeopleShelf.FilmActors, films);
+      await actors.ReadAsync(true);
+
+      Assert.That(actors.OffersCollections, Is.False);
+      Assert.That(films.LastWall, Does.Not.Contain("except="), "a filter that answers nothing is not asked");
+      Assert.That(actors.Total, Is.EqualTo(10));
+    }
+
+    /// <summary>
+    /// The filter page of the artists' rail, named in the wall's own words, and its absence on an actor's rail.
+    /// </summary>
+    [Test]
+    public void TheFilterPageOfTheWallsRailNamesItsTwoAnswers()
+    {
+      WallServer records = new WallServer(9);
+      PeopleViewModel artists = AWall(PeopleShelf.Artists, records);
+
+      artists.ShowMediaMenu();
+      Assert.That(artists.MediaMenu.Select(row => row.Label),
+          Is.EqualTo(new[] { "Search", "Letters", "Filter", "Group", "By name", "View" }),
+          "the filter stands where the shelf of titles stands its own, one row above the grouping");
+      artists.MediaMenu.First(row => row.Label == "Filter").Command.Execute(null);
+
+      Assert.That(artists.MediaMenuHeading, Is.EqualTo("Filter"));
+      Assert.That(artists.MediaMenu.Select(row => row.Label),
+          Is.EqualTo(new[] { "Every name", "No collection entries" }));
+      Assert.That(artists.MediaMenu.First(row => row.Label == "No collection entries").IsCurrent, Is.True,
+          "the wall that leaves those names out marks the row that says so");
+      Assert.That(artists.MediaMenu.First(row => row.Label == "Every name").IsCurrent, Is.False);
+
+      PeopleViewModel actors = AWall(PeopleShelf.FilmActors, new WallServer(9));
+      actors.ShowMediaMenu();
+      Assert.That(actors.MediaMenu.Select(row => row.Label),
+          Is.EqualTo(new[] { "Search", "Letters", "Group", "By name", "View" }),
+          "an actor's wall has nothing to filter, so it does not offer a filter");
+    }
+
     [Test]
     public async Task ANameIsLookedForInTheWholeWall()
     {
@@ -426,8 +504,11 @@ namespace Tests.Frontend
       ScreenViewSettings held = ScreenViewSettings.Load(null, out _);
       Assert.That(held.TryAnswer("MovieItem", "actors", out ScreenViewSettings.ScreenAnswer of_films), Is.True);
       Assert.That(of_films.Sort, Is.EqualTo("born"));
-      Assert.That(held.TryAnswer("AlbumItem", "artists", out _), Is.False,
-          "a wall that was never configured writes nothing for the next evening");
+      Assert.That(held.TryAnswer("AlbumItem", "artists", out ScreenViewSettings.ScreenAnswer of_records)
+              ? of_records.Sort + "|" + of_records.Grouping
+              : "",
+          Does.Not.Contain("born"),
+          "a wall that was never asked to be read by a birthday holds no birthday in its own answer either");
     }
 
     [Test]
@@ -1785,6 +1866,22 @@ namespace Tests.Frontend
         _names.Sort(StringComparer.Ordinal);
       }
 
+      /// <summary>
+      /// A library that also holds these names.  Used for the two a record shelf answers between its artists -
+      /// "Various Artists" over a compilation, "Unbekannter Interpret" where no artist was written down - which are
+      /// the names a wall is asked to leave out and to bring back again.
+      /// </summary>
+      internal void HoldsAlso(params string[] names)
+      {
+        foreach (string name in names)
+        {
+          _names.Add(name);
+          _born[name] = 1970;
+        }
+
+        _names.Sort(StringComparer.Ordinal);
+      }
+
       protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
           CancellationToken cancellation)
       {
@@ -1920,6 +2017,7 @@ namespace Tests.Frontend
         Dictionary<string, string> asked = Parse(query);
         string letter = Of(asked, "letter");
         string finding = Of(asked, "search");
+        string leaving = Of(asked, "except");
         string sort = Of(asked, "sort");
         bool descending = string.Equals(Of(asked, "order"), "desc", StringComparison.OrdinalIgnoreCase);
         int offset = Read(asked, "offset", 0);
@@ -1930,6 +2028,14 @@ namespace Tests.Frontend
           standing.RemoveAll(name => !name.StartsWith(letter, StringComparison.OrdinalIgnoreCase));
         if (finding.Length > 0)
           standing.RemoveAll(name => name.IndexOf(finding, StringComparison.OrdinalIgnoreCase) < 0);
+        if (leaving.Length > 0)
+        {
+          // Left out before the count is read, which is the whole point of asking the server rather than sorting its
+          // answer through by hand: the number a wall is told has to be the number of names it stands.
+          string[] gone = leaving.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+          standing.RemoveAll(name => gone.Any(word =>
+              string.Equals(word.Trim(), name, StringComparison.OrdinalIgnoreCase)));
+        }
 
         if (string.Equals(sort, "born", StringComparison.OrdinalIgnoreCase))
         {

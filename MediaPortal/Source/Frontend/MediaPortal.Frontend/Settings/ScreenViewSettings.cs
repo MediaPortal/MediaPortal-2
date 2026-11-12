@@ -348,6 +348,14 @@ public sealed class ScreenViewSettings
     [JsonPropertyName("grouping")]
     public string? Grouping { get; set; }
 
+    /// <summary>
+    /// Whether the names that stand for more than one artist ("Various Artists", the placeholder for no artist at
+    /// all) are shown on a people wall.  Nothing stands here while the wall shows what it was written to show, which
+    /// is the names with those two left out; <c>true</c> is the viewer having asked for every name.
+    /// </summary>
+    [JsonPropertyName("collections")]
+    public bool? Collections { get; set; }
+
     /// <summary>Whether nothing was ever answered here, which is what keeps a half-empty file short.</summary>
     public bool IsEmpty
     {
@@ -355,7 +363,7 @@ public sealed class ScreenViewSettings
       {
         return string.IsNullOrWhiteSpace(Layout) && string.IsNullOrWhiteSpace(Media)
             && string.IsNullOrWhiteSpace(Sort) && string.IsNullOrWhiteSpace(Grouping)
-            && !Descending && Details == null;
+            && Collections == null && !Descending && Details == null;
       }
     }
   }

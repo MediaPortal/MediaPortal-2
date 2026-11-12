@@ -6523,5 +6523,22 @@ characters - the block stands `913x248`, which is eight lines of thirty-one and 
 screen still holds all 5670 characters. A test holds the measure and the height, asked against a life of nine thousand
 characters rather than a sentence.
 
-`Tests.Frontend/TestTheWallOfPeople.cs` **30 tests green**.
+**The wall may be asked to leave a name out.** Sammeleinträge - "Various Artists", "Unbekannter Interpret" - are nobody's
+work, and the user's answer to what a wall of artists should do with them was „Raus per Standardfilter, aber im Filter-Menü
+wieder einzuschalten". The leaving-out is asked of the server, not cut out of the answer afterwards, for the same reason a
+letter or a search is: the number standing over a wall has to be the number of names standing on it, and a screen throwing
+rows away after they arrived would quietly make the two differ. So `GET api/media/persons` grew an `except` parameter -
+names read exactly as the library wrote them, comma-separated in one word the way the parts of a shelf come in - which is
+ANDed as `NOT name IN (...)` into the one question that asks both the rows and the count, and is sent back in the answer as
+`except`. The wall hides those names by default and its rail grew a `Filter` page with the two answers a reader can give
+("Every name" and "No collection entries"), remembered per wall like every other answer; it offers the page only where
+there is something to leave out, which the running library showed to be the artists wall alone: of its 36 names two are
+placeholders (`?except=...` answers 34), while the 7543 film actors and 110 series actors answer neither name. Asked of the
+living server, `?aspect=AlbumItem&roles=albumartist` counts 36, the same question with the wall's list counts 34, and one
+name alone counts 35 - so the leaving-out is exact, not a search that could catch an artist whose name merely sounds like a
+placeholder. Two tests hold it on each side: the server builds the negation once and into the count too
+(`Tests.Server/Api/TestMediaController.cs`), the wall hides by default, names its two answers in its rail and offers no
+filter page where nothing can be filtered.
+
+`Tests.Frontend/TestTheWallOfPeople.cs` **32 tests green**.
 

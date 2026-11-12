@@ -4301,6 +4301,12 @@ namespace MediaPortal.Server.Api
       /// <summary>The words the names were searched for, or null when nobody was searching.</summary>
       public string Search { get; set; }
 
+      /// <summary>
+      /// The names this wall was asked to leave out, echoed as they were given. Empty when nothing was left out, so a
+      /// screen can tell a wall that hides nothing apart from one it hides a name it has no business hiding.
+      /// </summary>
+      public List<string> Except { get; set; } = new List<string>();
+
       /// <summary>What the answer is sorted by, echoed back for the same reason <see cref="TitlesResult.Sort"/> is.</summary>
       public string Sort { get; set; }
 
@@ -4914,6 +4920,14 @@ namespace MediaPortal.Server.Api
     /// a wall is chosen by name, and only the artists of this library have a biography to search through at all
     /// (measured: 30 of 36 album artists, 2 of 7757 actors), so a text hit on a life story would be a surprise.
     /// </param>
+    /// <param name="except">
+    /// Names to leave out of the wall, each one the name as it stands in the library. This is how a screen hides what
+    /// the library writes down for <i>more than one</i> artist - <c>Various Artists</c> over a compilation, the
+    /// placeholder a tag leaves when no artist was written - which is a decision about words on a screen, not a fact
+    /// this server can look up. It is a leaving-out rather than a hiding-after-the-fact on purpose: the number this
+    /// answer returns is the number of names that stand on the screen, and the rows past the page a wall has read
+    /// still come to it.
+    /// </param>
     /// <param name="sort">
     /// <c>name</c>, which is the default and what a wall is walked by, or <c>born</c> for the year a person was
     /// born. Nothing else is on offer because nothing else is on the person's own aspect to sort by.
@@ -4944,8 +4958,8 @@ namespace MediaPortal.Server.Api
     /// </remarks>
     [HttpGet("persons")]
     public ActionResult<PeopleResult> GetPeople([FromQuery] string aspect, [FromQuery] IList<string> roles,
-        [FromQuery] string letter, [FromQuery] string search, [FromQuery] string sort, [FromQuery] string order,
-        [FromQuery] int limit, [FromQuery] int offset)
+        [FromQuery] string letter, [FromQuery] string search, [FromQuery] IList<string> except,
+        [FromQuery] string sort, [FromQuery] string order, [FromQuery] int limit, [FromQuery] int offset)
     {
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
       if (mediaLibrary == null)
@@ -5008,6 +5022,30 @@ namespace MediaPortal.Server.Api
               new LikeFilter(PersonAspect.ATTR_PERSON_NAME, prefix, SEARCH_ESCAPE, false));
         }
 
+        // The names to leave out, each one read as the library wrote it. A wall of names and the number above it are
+        // both asked from this question, so leaving them out here - rather than a screen throwing rows away after the
+        // answer arrived - is what keeps the two the same number.
+        List<string> left_out = new List<string>();
+        if (except != null)
+        {
+          // A caller may send the names in one word separated by commas, which is how the parts of a shelf are sent.
+          foreach (string rough in except)
+          {
+            if (string.IsNullOrEmpty(rough))
+              continue;
+
+            foreach (string word in rough.Split(','))
+            {
+              string named = word.Trim();
+              if (named.Length > 0 && !left_out.Contains(named))
+                left_out.Add(named);
+            }
+          }
+        }
+        if (left_out.Count > 0)
+          asking = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, asking,
+              new NotFilter(new InFilter(PersonAspect.ATTR_PERSON_NAME, left_out)));
+
         string sortBy = ReadPersonSort(sort);
         bool backwards = IsDescending(order);
 
@@ -5052,6 +5090,7 @@ namespace MediaPortal.Server.Api
           Roles = asked,
           Letter = initial,
           Search = finding,
+          Except = left_out,
           Sort = sortBy + (backwards ? " descending" : ""),
           Total = total,
           Offset = skip,

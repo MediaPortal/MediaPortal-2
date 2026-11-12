@@ -466,6 +466,11 @@ namespace MediaPortal.Frontend.Api
     /// name is stored, so a wall of 7543 names arrives as fourteen pages instead of one.
     /// </param>
     /// <param name="search">Words to look for in the names, or null when nobody is searching.</param>
+    /// <param name="except">
+    /// Names to leave out of the wall, each one spelled as the library spells it - how a screen puts <c>Various
+    /// Artists</c> and the placeholder for "no artist was written" behind it while the number the answer carries stays
+    /// the number of names the screen shows. Null or empty asks for every name.
+    /// </param>
     /// <param name="sort">What to order the wall by: <c>name</c>, or <c>born</c> for the year a person was born.</param>
     /// <param name="limit">How many rows to ask for, or 0 for the server's own page.</param>
     /// <param name="offset">How many rows to leave out in front, which is how a wall is read on past its first page.</param>
@@ -475,8 +480,8 @@ namespace MediaPortal.Frontend.Api
     /// A person pressed for their works is asked for through <see cref="GetTitlesAsync"/>'s <c>who</c>, not here.
     /// </remarks>
     public async Task<MediaPeople> GetPeopleAsync(string aspect, IEnumerable<string>? roles = null,
-        string? letter = null, string? search = null, string? sort = null, bool descending = false, int limit = 0,
-        int offset = 0, CancellationToken cancellation = default)
+        string? letter = null, string? search = null, IEnumerable<string>? except = null, string? sort = null,
+        bool descending = false, int limit = 0, int offset = 0, CancellationToken cancellation = default)
     {
       if (string.IsNullOrWhiteSpace(aspect))
         throw new ArgumentException("People of which shelf?", nameof(aspect));
@@ -493,6 +498,14 @@ namespace MediaPortal.Frontend.Api
         url += "&letter=" + Uri.EscapeDataString(letter.Trim());
       if (!string.IsNullOrWhiteSpace(search))
         url += "&search=" + Uri.EscapeDataString(search.Trim());
+      if (except != null)
+      {
+        // One address, the names comma-joined - the way this client already sends several roles to one endpoint.
+        string left_out = string.Join(",", except.Where(named => !string.IsNullOrWhiteSpace(named))
+            .Select(named => Uri.EscapeDataString(named.Trim())));
+        if (left_out.Length > 0)
+          url += "&except=" + left_out;
+      }
       if (!string.IsNullOrWhiteSpace(sort))
         url += "&sort=" + Uri.EscapeDataString(sort.Trim());
       if (descending)

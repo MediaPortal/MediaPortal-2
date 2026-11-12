@@ -203,7 +203,8 @@ namespace MediaPortal.Frontend.ViewModels
       View,
       Sort,
       Group,
-      Letters
+      Letters,
+      Filter
     }
 
     private readonly ServerApiClient? _client;
@@ -352,6 +353,37 @@ namespace MediaPortal.Frontend.ViewModels
       get { return Shelf == PeopleShelf.Artists ? "artists" : "actors"; }
     }
 
+    /// <summary>
+    /// Whether this wall has names on it that stand for more than one artist, and therefore a filter row to say so.
+    /// Only the records do: their tags write <c>Various Artists</c> over a compilation and a placeholder when no
+    /// artist was written down, while a film's cast is a list of people.  Measured on the running library - the
+    /// artists wall answers both kinds (one of each in 36 names), the two actor walls answer neither word in their
+    /// 7543 and 110 names.
+    /// </summary>
+    public bool OffersCollections
+    {
+      get { return Shelf == PeopleShelf.Artists; }
+    }
+
+    /// <summary>
+    /// The names that are nobody: what the library writes down when a record was made by several artists or by an
+    /// artist nobody typed in.  The first three are the spellings the library's own tag reader treats as a
+    /// compilation (<c>AudioTagMetadataExtractor.IsCompilation</c>), the last two are its placeholder for "no artist
+    /// was written" in the two languages it meets.  They are asked of the server by name rather than thrown away
+    /// after it answered, because the number over the wall and the rows past the page a wall has read both come out
+    /// of that answer.
+    /// </summary>
+    private static readonly string[] COLLECTION_NAMES =
+    {
+      "Various Artists", "Various", "VA", "Unbekannter Interpret", "Unknown Artist"
+    };
+
+    /// <summary>The word the rail spends on what the wall does with those names.</summary>
+    public string CollectionsWord
+    {
+      get { return ShowsCollections ? "Every name" : "No collection entries"; }
+    }
+
     /// <summary>The part the people played, in the server's words, for the people this wall is made of.</summary>
     public IReadOnlyList<string> Roles
     {
@@ -424,6 +456,14 @@ namespace MediaPortal.Frontend.ViewModels
     /// <summary>What the wall stands under: nothing while it is one wall, or <c>letter</c> for a plate per letter.</summary>
     [ObservableProperty]
     private string _grouping = "";
+
+    /// <summary>
+    /// Whether the names the library uses for more than one artist stand on the wall.  Off from the first name: a wall
+    /// of artists is walked to find who made a record, and a name that made six of them by nobody's answer is not
+    /// somebody.  The rail's filter page brings them back, and the wall remembers which of the two its viewer chose.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showsCollections;
 
     /// <summary>One letter the names are narrowed to, or nothing while every name is wanted.</summary>
     [ObservableProperty]
@@ -964,6 +1004,7 @@ namespace MediaPortal.Frontend.ViewModels
         MediaPeople answer = await _client.GetPeopleAsync(AspectName, Roles,
                 string.IsNullOrWhiteSpace(Letter) ? null : Letter,
                 string.IsNullOrWhiteSpace(Search) ? null : Search,
+                OffersCollections && !ShowsCollections ? COLLECTION_NAMES : null,
                 Sort, SortDescending, take, from)
             .ConfigureAwait(true);
 
@@ -1288,6 +1329,17 @@ namespace MediaPortal.Frontend.ViewModels
           }
           return;
 
+        case MenuPage.Filter:
+          MediaMenuHeading = "Filter";
+          // The wall's own word for "nothing left out" first, as its letters page and its group page both put it -
+          // and the row below is the only filter this screen has, because a person's tile holds no genre, no year
+          // and no studio to filter by.  What it leaves out are the names that are nobody.
+          AddMenuRow("Every name", "library_books", new AsyncRelayCommand(() => PickCollectionsAsync(true)),
+              ShowsCollections);
+          AddMenuRow("No collection entries", "filter", new AsyncRelayCommand(() => PickCollectionsAsync(false)),
+              !ShowsCollections);
+          return;
+
         default:
           MediaMenuHeading = "Menu";
           AddMenuRow("Search", "search", new RelayCommand(delegate
@@ -1299,6 +1351,11 @@ namespace MediaPortal.Frontend.ViewModels
           }));
           AddMenuRow("Letters", "filter", new RelayCommand(() => GoToPage(MenuPage.Letters)), false,
               Letter.Length == 0 ? "Every name" : Letter);
+          // The filter stands where the shelf of titles stands its own filter, one row above the grouping, and only
+          // on the wall that has anything to filter - see OffersCollections.
+          if (OffersCollections)
+            AddMenuRow("Filter", "filter", new RelayCommand(() => GoToPage(MenuPage.Filter)), false,
+                CollectionsWord);
           AddMenuRow("Group", "group", new RelayCommand(() => GoToPage(MenuPage.Group)));
           AddMenuRow(SortLabel, "sort", new RelayCommand(() => GoToPage(MenuPage.Sort)), false,
               DirectionWord(SortDescending));
@@ -1416,6 +1473,21 @@ namespace MediaPortal.Frontend.ViewModels
       BuildMediaMenu();
       await ReadAsync(true);
     }
+
+    /// <summary>
+    /// Leaves the names that are nobody out of the wall, or asks the server for them again.  Asked of the server and
+    /// not cut out of its answer, so that the number over the wall is the number of names standing on it - a wall of
+    /// 36 records whose two collection names were hidden by hand would still say 36 over 34 names.
+    /// </summary>
+    public async Task PickCollectionsAsync(bool shows)
+    {
+      ShowsCollections = shows;
+      Remember(answer => answer.Collections = ShowsCollections);
+      BuildMediaMenu();
+      await ReadAsync(true);
+    }
+
+    partial void OnShowsCollectionsChanged(bool value) => OnPropertyChanged(nameof(CollectionsWord));
 
     /// <summary>
     /// How long a hand has to rest on the last letter before the wall is asked for the words so far.  The shelf's
@@ -1591,6 +1663,10 @@ namespace MediaPortal.Frontend.ViewModels
       if (GroupChoices().Any(choice =>
               string.Equals(answer.Grouping, choice.Key, StringComparison.OrdinalIgnoreCase)))
         Grouping = answer.Grouping!.Trim().ToLowerInvariant();
+
+      // A wall that has no names of that kind on it has nothing to remember about them, so the answer is only
+      // believed where the question exists.
+      ShowsCollections = answer.Collections == true;
     }
   }
 }

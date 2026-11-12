@@ -6479,8 +6479,19 @@ namespace Tests.Server.Api
         string letter, string search, string sort, string order,
         out ActionResult<MediaController.PeopleResult> action)
     {
+      return GetWall(library, aspect, roles, letter, search, null, sort, order, out action);
+    }
+
+    /// <summary>
+    /// The same question with the names a screen asked to leave out, which is the one difference between a wall that
+    /// shows everything and one that puts the collection's names behind a filter.
+    /// </summary>
+    private static MediaController.PeopleResult GetWall(IMediaLibrary library, string aspect, IList<string> roles,
+        string letter, string search, IList<string> except, string sort, string order,
+        out ActionResult<MediaController.PeopleResult> action)
+    {
       ServiceRegistration.Set<IMediaLibrary>(library);
-      action = new MediaController().GetPeople(aspect, roles, letter, search, sort, order, 0, 0);
+      action = new MediaController().GetPeople(aspect, roles, letter, search, except, sort, order, 0, 0);
       return Body(action);
     }
 
@@ -6663,6 +6674,84 @@ namespace Tests.Server.Api
       Assert.That(wordings[0].AttributeType, Is.SameAs(PersonAspect.ATTR_PERSON_NAME));
       Assert.That(wordings[0].Expression, Is.EqualTo("%weaver%"));
       Assert.That(result.Search, Is.EqualTo("weaver"));
+    }
+
+    /// <summary>
+    /// Every <see cref="InFilter"/> a filter holds, however deeply a negation or a boolean combination hides it.
+    /// </summary>
+    private static List<InFilter> LeftOutsOf(IFilter filter)
+    {
+      List<InFilter> found = new List<InFilter>();
+
+      InFilter single = filter as InFilter;
+      if (single != null)
+      {
+        found.Add(single);
+        return found;
+      }
+
+      NotFilter negated = filter as NotFilter;
+      if (negated != null)
+        return LeftOutsOf(negated.InnerFilter);
+
+      BooleanCombinationFilter combination = filter as BooleanCombinationFilter;
+      if (combination != null)
+        foreach (IFilter operand in combination.Operands)
+          found.AddRange(LeftOutsOf(operand));
+      return found;
+    }
+
+    [Test]
+    public void AWallLeavesOutTheNamesItWasAskedToLeaveOut()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "AlbumItem", new List<string> { "albumartist" }, null, null,
+          new List<string> { "Various Artists", "Unbekannter Interpret", "  " }, null, null, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(asked, Has.Count.EqualTo(1));
+
+      List<InFilter> left_out = LeftOutsOf(asked[0].Filter);
+      Assert.That(left_out, Has.Count.EqualTo(1), "the names are left out by one question, not by one question each");
+      Assert.That(left_out[0].AttributeType, Is.SameAs(PersonAspect.ATTR_PERSON_NAME));
+      Assert.That(left_out[0].Values, Is.EqualTo(new object[] { "Various Artists", "Unbekannter Interpret" }),
+          "the names go in as the screen wrote them, spaces trimmed and the empty word away: a name that is nobody "
+          + "is a name the library spells exactly, so this is an exact leaving-out rather than a search that could "
+          + "catch an artist whose name merely sounds like one");
+      Assert.That(asked[0].Filter.ToString(), Does.Contain("NOT"),
+          "the leaving-out stands as a negation of the wall's question, so every other narrowing still holds");
+
+      Assert.That(counted, Has.Count.EqualTo(1));
+      Assert.That(LeftOutsOf(counted[0]), Has.Count.EqualTo(1),
+          "the count is asked with the same filter, which is the whole reason a screen asks rather than sorting the "
+          + "answer through by hand: the number over a wall has to be the number of names standing on it");
+      Assert.That(result.Except, Is.EqualTo(new[] { "Various Artists", "Unbekannter Interpret" }));
+    }
+
+    [Test]
+    public void TheNamesToLeaveOutMayComeInOneWordSeparatedByCommas()
+    {
+      List<MediaItemQuery> asked;
+      List<IEnumerable<Guid>> countedAspects;
+      List<IFilter> counted;
+      ActionResult<MediaController.PeopleResult> action;
+      MediaController.PeopleResult result = GetWall(
+          CreateWallLibrary(new List<MediaItem>(), new List<MediaItem>(), 0, out asked, out countedAspects,
+              out counted), "AlbumItem", new List<string> { "albumartist" }, null, null,
+          new List<string> { "Various Artists, Unbekannter Interpret,," }, null, null, out action);
+
+      Assert.That(Status(action), Is.Null);
+      Assert.That(result.Except, Is.EqualTo(new[] { "Various Artists", "Unbekannter Interpret" }),
+          "one word carrying several names is read as the names it carries, which is how a screen sends the parts "
+          + "of a shelf too");
+
+      List<InFilter> left_out = LeftOutsOf(asked[0].Filter);
+      Assert.That(left_out[0].Values, Is.EqualTo(new object[] { "Various Artists", "Unbekannter Interpret" }));
     }
 
     [Test]
