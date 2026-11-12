@@ -6540,5 +6540,20 @@ placeholder. Two tests hold it on each side: the server builds the negation once
 (`Tests.Server/Api/TestMediaController.cs`), the wall hides by default, names its two answers in its rail and offers no
 filter page where nothing can be filtered.
 
-`Tests.Frontend/TestTheWallOfPeople.cs` **32 tests green**.
+**The column beside a name is laid out as the shelf lays its details out.** Asked for the arrangement of a person's
+column, the wall had invented one of its own: the face standing first at the left edge in a plate of 220 lines, the
+name *under* it in 31 points, and the life under the name across the whole breadth. The shelf says the same thing the
+other way round - a name is the first thing said (`MediaBrowserView.axaml`, `DetailsHeading`: 45 points, semi-bold, one
+line trimmed), the picture stands in a written column of 400 at the right hand end of the words (`Margin="20,40,0,0"`,
+`HorizontalAlignment="Right"`, `VerticalAlignment="Top"`, a box of 380 with the tiles' corner of ten), and the reading
+is told in the column left of it, beginning on the picture's own top edge. The wall wears that now, number for number:
+its head spans both columns and starts with the name, its plate wears the album cover's square of 380 at the column's
+right edge, and the life stands beside it, both forty lines under the head. Measured against the living server, the
+wall's column and the shelf's are the same box (`detailsPanel` at x 649, w 631 in both; `detailsWords` at x 649 y 44,
+w 581 in both) and the face's right edge lands on the column's right edge (850 + 380 = 1230 = 649 + 581). A name the
+library keeps no picture of stands the plate at the same square, so the column's shape is the person's portrait and not
+the record's luck. One test holds the arrangement (`TheColumnOfAPersonStandsAsTheShelfStandsItsDetails`), asked at
+1920×1080 against the fake library and checked again for a name without a face.
+
+`Tests.Frontend/TestTheWallOfPeople.cs` **33 tests green**.
 

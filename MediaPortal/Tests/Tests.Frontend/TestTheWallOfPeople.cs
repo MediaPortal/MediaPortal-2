@@ -1454,6 +1454,98 @@ namespace Tests.Frontend
     }
 
     /// <summary>
+    /// The column beside a name is laid out the way the shelf lays its details out, which is not the way it was laid
+    /// beside the wall: <em>the name is the first thing said</em>, at the top of the column in the shelf's own letters
+    /// for the name of a thing (four and forty points, semi-bold - <c>MediaBrowserView.axaml</c>, the block that
+    /// speaks <c>DetailsHeading</c>), and the face stands where a cover stands - in the written picture column at
+    /// the right hand end of the words, in the album cover's box of three hundred and eighty, its top edge on the
+    /// first line of the reading that flows beside it.  Nothing of this is a measure beside the wall: every number
+    /// is read off the shelf's own column of words.
+    /// </summary>
+    [AvaloniaTest]
+    public void TheColumnOfAPersonStandsAsTheShelfStandsItsDetails()
+    {
+      WallServer server = new WallServer(6);
+      PeopleViewModel wall = AWall(PeopleShelf.FilmActors, server);
+      ShellWindow window = new ShellWindow(new PeopleView(wall, null, null));
+      window.Width = 1920;
+      window.Height = 1080;
+      window.Show();
+      WaitUntil("the wall to fill", delegate { return wall.Rows.Count > 3; });
+
+      ListBox names = window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("the names to be laid across the wall", delegate { return TheWallColumns(names) > 1; });
+
+      // The caret on the first name, which is where a wall that opens stands it by itself, and a life for it to read.
+      (names.ContainerFromIndex(0) as Control)?.Focus();
+      Pump();
+      PersonTile stood_on = wall.Rows.OfType<PersonTile>().First();
+      WaitUntil("the column to name the stood-on person", delegate { return wall.DetailsName == stood_on.Name; });
+      server.LivesHeld = -1;
+      PersonTile second = wall.Rows.OfType<PersonTile>().Skip(1).First();
+      wall.Selected = second;
+      WaitUntil("the life to arrive", delegate { return wall.DetailsName == second.Name && wall.ShowsBiography; });
+      LetTheRoomComeToRest();
+
+      TextBlock name = window.GetVisualDescendants().OfType<TextBlock>().First(word => word.Name == "detailsName");
+      Border face = window.GetVisualDescendants().OfType<Border>().First(frame => frame.Name == "detailsFace");
+      TextBlock life = window.GetVisualDescendants().OfType<TextBlock>().First(word => word.Name == "biographyWords");
+      Grid column = window.GetVisualDescendants().OfType<Grid>().First(box => box.Name == "detailsWords");
+
+      // The name is said ABOVE the face, in the shelf's letters, at the column's left edge.
+      Assert.That(name.Bounds.Y, Is.LessThan(face.Bounds.Y),
+          "the name of the person comes first, as the name of a title comes first in the shelf's details");
+      Assert.That(name.FontSize, Is.EqualTo(45), "in the shelf's own bigness for the name of a thing");
+      Assert.That(name.FontWeight, Is.EqualTo(Avalonia.Media.FontWeight.SemiBold), "and in its weight");
+      Assert.That(name.Bounds.X, Is.EqualTo(column.Bounds.X).Within(1.0), "flush with the column's left edge");
+
+      // The face wears the cover's box at the right hand end of the words.
+      Assert.That(face.Bounds.Width, Is.EqualTo(380), "the face is as big a picture as a cover of the details is");
+      Assert.That(face.Bounds.Height, Is.EqualTo(380), "and square, as a cover of the details is square");
+      Assert.That(face.Bounds.Right, Is.EqualTo(column.Bounds.Right).Within(1.0),
+          "it stands at the right hand end of the column of words, as a cover does");
+      Assert.That(face.Bounds.X, Is.GreaterThan(column.Bounds.X + column.Bounds.Width / 2),
+          "and it is at the picture's hand of the column, not above the reading");
+
+      // The reading keeps the left hand column and begins on the picture's own top edge.
+      Assert.That(life.Bounds.X, Is.EqualTo(column.Bounds.X).Within(1.0), "the life begins at the column's left edge");
+      Assert.That(life.Bounds.Y, Is.EqualTo(face.Bounds.Y).Within(1.0),
+          "and its first line is the picture's top edge, as a plot's first line is a poster's");
+      Assert.That(life.Bounds.Right, Is.LessThanOrEqualTo(face.Bounds.X + 1.0),
+          "it is told beside the picture and never under it");
+
+      // A name the library keeps no face for still stands the plate at the same ground, so the column's shape is the
+      // person's portrait rather than the record's luck.  Asked of a wall that never had a face - a name once seen
+      // keeps its picture in the wall's memory, and forgetting it on command would be its own mistake.
+      window.Close();
+
+      WallServer bare = new WallServer(4) { FacesHeld = 0 };
+      PeopleViewModel nameless = AWall(PeopleShelf.FilmActors, bare);
+      ShellWindow bare_window = new ShellWindow(new PeopleView(nameless, null, null));
+      bare_window.Width = 1920;
+      bare_window.Height = 1080;
+      bare_window.Show();
+      WaitUntil("the bare wall to fill", delegate { return nameless.Rows.Count > 1; });
+
+      ListBox bare_names = bare_window.GetVisualDescendants().OfType<ListBox>().First(list => list.Name == "peopleList");
+      WaitUntil("its names to be laid across the wall", delegate { return TheWallColumns(bare_names) > 1; });
+      (bare_names.ContainerFromIndex(0) as Control)?.Focus();
+      Pump();
+      PersonTile without_a_face = nameless.Rows.OfType<PersonTile>().First();
+      WaitUntil("the column to speak of a name without a face",
+          delegate { return nameless.DetailsName == without_a_face.Name && !nameless.ShowsPortrait; });
+      LetTheRoomComeToRest();
+
+      Border plate = bare_window.GetVisualDescendants().OfType<Border>().First(frame => frame.Name == "detailsFace");
+      Grid bare_column = bare_window.GetVisualDescendants().OfType<Grid>().First(box => box.Name == "detailsWords");
+      Assert.That(plate.Bounds.Width, Is.EqualTo(380), "the plate wears the same box as a face does");
+      Assert.That(plate.Bounds.Height, Is.EqualTo(380), "and the same square");
+      Assert.That(plate.Bounds.Right, Is.EqualTo(bare_column.Bounds.Right).Within(1.0), "at the same hand's end");
+
+      bare_window.Close();
+    }
+
+    /// <summary>
     /// The length of a wall's travel belongs to the shape it wears, not to the moment its scroller was first laid:
     /// the reference glides a grid four hundred points and a list three hundred (<c>MediaStyles.xaml</c>), and the
     /// shelf writes its transition again on every layout change.  Worn once for the life of the scroller, the wall

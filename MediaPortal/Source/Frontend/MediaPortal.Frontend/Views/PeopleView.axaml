@@ -311,52 +311,30 @@
               so that neither a word nor a picture gets past it by some route the measuring did not think of.
               The head is said once and the life is given everything the head leaves - the reference's own
               arrangement, whose description row was Height="*".
+
+              The box is split by the shelf's own measure: the column of reading and a written column of four
+              hundred for the picture (MediaBrowserView.axaml, detailsWords), because the picture's column is a
+              written number rather than Auto - an Auto column is asked what it wants before the reading is asked
+              what it needs.  Above that split stands the head, over both columns, as the shelf stands its name:
+              the name is the FIRST thing said, not something that comes up under a picture.
             -->
             <Grid Name="detailsWords"
                   Margin="0,140,50,200"
                   VerticalAlignment="Top"
                   RowDefinitions="Auto,*"
+                  ColumnDefinitions="*,400"
                   ClipToBounds="True">
               <!--
-                The head, as the reference laid its MediaItemListPersonDetails.inc: its picture row, then the name,
-                then the years, then the place.  The face wears the same two surfaces as a tile - the plate, the
-                clipped face - because a person is drawn one way on this screen.
+                The head: the name first, in the shelf's own letters for the name of a thing - forty-five points,
+                semi-bold, one line trimmed rather than three lines of it (MediaBrowserView.axaml, DetailsHeading)
+                - and under it the years and the place, which are a person's answer to the shelf's facts.  The
+                twelve between them is the shelf's head spacing, not a number beside the wall.
               -->
-              <StackPanel Grid.Row="0" Spacing="8">
-                <Border Name="detailsFace"
-                        Classes="person-card"
-                        Width="220"
-                        Height="220"
-                        HorizontalAlignment="Left"
-                        ClipToBounds="False">
-                  <Border Classes="person-face" ClipToBounds="True">
-                    <Panel>
-                      <Image Classes="home-tile-art"
-                             Source="{Binding DetailsPortrait,
-                                              Converter={x:Static views:ArtworkConverter.Instance},
-                                              ConverterParameter=small}"
-                             Stretch="UniformToFill"
-                             IsVisible="{Binding ShowsPortrait}"
-                             IsHitTestVisible="False"/>
-                      <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
-                                            ConverterParameter='MediaMenu/actor'}"
-                            Fill="{DynamicResource TextBrush}"
-                            Opacity="0.4"
-                            Width="92"
-                            Height="92"
-                            Stretch="Uniform"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            IsVisible="{Binding !ShowsPortrait}"
-                            IsHitTestVisible="False"/>
-                    </Panel>
-                  </Border>
-                </Border>
-                <TextBlock Text="{Binding DetailsName}"
-                           FontSize="31"
+              <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Spacing="12">
+                <TextBlock Name="detailsName"
+                           Text="{Binding DetailsName}"
+                           FontSize="45"
                            FontWeight="SemiBold"
-                           TextWrapping="Wrap"
-                           MaxLines="2"
                            TextTrimming="CharacterEllipsis"
                            Foreground="{DynamicResource TextBrush}"/>
                 <TextBlock Text="{Binding DetailsYears}"
@@ -385,11 +363,16 @@
                 was invented for the longest life this household holds (eight thousand six hundred and thirty five
                 characters): the field is as high as eight lines, the words below the cut stay in the record, and
                 the three points say that a life continues past what the column shows.
+
+                It stands in the LEFT column of the picture's row and begins forty lines under the head, which is
+                the shelf's reading: its story column carries Margin="0,40,0,0" in the same row as its picture, so
+                the first line of the reading and the top edge of the picture are one edge.
               -->
               <TextBlock Grid.Row="1"
+                         Grid.Column="0"
                          Name="biographyWords"
                          Text="{Binding DetailsBiography}"
-                         Margin="0,26,0,0"
+                         Margin="0,40,0,0"
                          FontSize="22"
                          LineHeight="31"
                          MaxLines="8"
@@ -399,6 +382,54 @@
                          Opacity="0.9"
                          IsVisible="{Binding ShowsBiography}"
                          Foreground="{DynamicResource TextBrush}"/>
+
+              <!--
+                THE FACE, in the picture's column, which is where the shelf stands its cover: Grid.Column 1, at the
+                right hand end of the column, forty lines under the head and twenty in from the reading, so that its
+                top edge is the reading's first line (MediaBrowserView.axaml, coverAlone and the album's coverOnDisc
+                - Margin 20,40,0,0, HorizontalAlignment Right, VerticalAlignment Top, a written box of three hundred
+                and eighty, CornerRadius ten, clipped).  The box is written rather than shrunk to the picture,
+                because a face is square on this screen here as it is square in every tile of the wall: it is cut
+                out of the middle of the photograph the same way the wall cuts it, so the same name wears the same
+                face at both places, and a picture column with an edge that does not move is what the reading next
+                to it is measured against.
+
+                A person the library keeps no picture of does not leave the column's foot empty: the plate stands at
+                the same square and the actor's mark stands in its middle, so the ground a face would wear is still
+                marked.  The picture is asked the way a cover asks it - no size word, which is the big of the two
+                decodes this front end keeps - rather than by the tile's small one, which at this breadth is a blur.
+              -->
+              <Border Name="detailsFace"
+                      Grid.Row="1"
+                      Grid.Column="1"
+                      Classes="person-card"
+                      Width="380"
+                      Height="380"
+                      Margin="20,40,0,0"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      ClipToBounds="False">
+                <Border Classes="person-face" ClipToBounds="True">
+                  <Panel>
+                    <Image Source="{Binding DetailsPortrait,
+                                            Converter={x:Static views:ArtworkConverter.Instance}}"
+                           Stretch="UniformToFill"
+                           IsVisible="{Binding ShowsPortrait}"
+                           IsHitTestVisible="False"/>
+                    <Path Data="{Binding Converter={x:Static views:SkinIconGeometryConverter.Instance},
+                                          ConverterParameter='MediaMenu/actor'}"
+                          Fill="{DynamicResource TextBrush}"
+                          Opacity="0.4"
+                          Width="160"
+                          Height="160"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          IsVisible="{Binding !ShowsPortrait}"
+                          IsHitTestVisible="False"/>
+                  </Panel>
+                </Border>
+              </Border>
             </Grid>
           </Border>
         </Grid>
